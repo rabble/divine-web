@@ -1,0 +1,16 @@
+# jsr registry should not be edited or removed
+.npmrc
+
+# vite client types are needed
+src/vite-env.d.ts
+
+# tsconfig is stable and working correctly, so should not be edited
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+
+# postcss config for Tailwind is stable and working correctly, so should not be edited unless upgrading Tailwind to v4
+postcss.config.js
+
+# vite config is stable and usually should not need to be edited
+vite.config.ts
