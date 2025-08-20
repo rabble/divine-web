@@ -13,6 +13,8 @@ import { NostrLoginProvider } from '@nostrify/react/login';
 import { AppProvider } from '@/components/AppProvider';
 import { NWCProvider } from '@/contexts/NWCContext';
 import { AppConfig } from '@/contexts/AppContext';
+import { VideoPlaybackProvider } from '@/contexts/VideoPlaybackContext';
+import { PerformanceDebugPanel } from '@/components/PerformanceDebugPanel';
 import AppRouter from './AppRouter';
 
 const head = createHead({
@@ -33,10 +35,11 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay.primal.net",
+  relayUrl: "wss://relay3.openvine.co",
 };
 
 const presetRelays = [
+  { url: 'wss://relay3.openvine.co', name: 'OpenVine' },
   { url: 'wss://ditto.pub/relay', name: 'Ditto' },
   { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },
   { url: 'wss://relay.damus.io', name: 'Damus' },
@@ -51,13 +54,16 @@ export function App() {
           <NostrLoginProvider storageKey='nostr:login'>
             <NostrProvider>
               <NWCProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                  <Suspense>
-                    <AppRouter />
-                  </Suspense>
-                </TooltipProvider>
+                <VideoPlaybackProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    {process.env.NODE_ENV === 'development' && <PerformanceDebugPanel />}
+                    <Suspense>
+                      <AppRouter />
+                    </Suspense>
+                  </TooltipProvider>
+                </VideoPlaybackProvider>
               </NWCProvider>
             </NostrProvider>
           </NostrLoginProvider>

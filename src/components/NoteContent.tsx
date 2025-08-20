@@ -80,10 +80,11 @@ export function NoteContent({
       } else if (hashtag) {
         // Handle hashtags
         const tag = hashtag.slice(1); // Remove the #
+        const normalized = tag.toLowerCase();
         parts.push(
           <Link 
             key={`hashtag-${keyCounter++}`}
-            to={`/t/${tag}`}
+            to={`/t/${normalized}`}
             className="text-blue-500 hover:underline"
           >
             {hashtag}

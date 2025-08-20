@@ -7,10 +7,13 @@
     "dev": "npm i && vite",
     "build": "npm i && vite build && cp dist/index.html dist/404.html",
     "test": "npm i && tsc -p tsconfig.app.json --noEmit && eslint && vitest run && vite build",
-    "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup"
+    "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup",
+    "deploy:cloudflare": "npm run build && wrangler pages deploy dist",
+    "deploy:cloudflare:preview": "npm run build && wrangler pages deploy dist --branch preview"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.6",
+    "@fontsource/pacifico": "^5.2.6",
     "@getalby/sdk": "^5.1.1",
     "@hookform/resolvers": "^3.9.0",
     "@nostrify/nostrify": "npm:@jsr/nostrify__nostrify@^0.46.4",
@@ -59,6 +62,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.53.0",
+    "react-intersection-observer": "^9.16.0",
     "react-resizable-panels": "^2.1.3",
     "react-router-dom": "^6.26.2",
     "recharts": "^2.12.7",
@@ -92,6 +96,7 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",
-    "vitest": "^3.1.4"
+    "vitest": "^3.1.4",
+    "wrangler": "^4.31.0"
   }
 }

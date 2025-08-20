@@ -3,8 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="content-security-policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; frame-src 'self' https:; font-src 'self'; base-uri 'self'; manifest-src 'self'; connect-src 'self' blob: https: wss:; img-src 'self' data: blob: https:; media-src 'self' https:">
+    <meta name="theme-color" content="#00b488" />
+    <title>Divine Web - Short-form Looping Videos on Nostr</title>
+    <meta name="description" content="Watch and share 6-second looping videos on the decentralized Nostr network.">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Divine Web - Short-form Looping Videos on Nostr">
+    <meta property="og:description" content="Watch and share 6-second looping videos on the decentralized Nostr network.">
+    <meta http-equiv="content-security-policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; frame-src 'self' https:; font-src 'self' data:; base-uri 'self'; manifest-src 'self'; connect-src 'self' blob: https: wss:; img-src 'self' data: blob: https:; media-src 'self' blob: https:;">
     <link rel="manifest" href="/manifest.webmanifest">
+    <!-- Performance: preconnect to common video CDN origins -->
+    <link rel="dns-prefetch" href="//nostr.build" />
+    <link rel="preconnect" href="https://nostr.build" crossorigin />
+    <link rel="dns-prefetch" href="//cdn.nostr.build" />
+    <link rel="preconnect" href="https://cdn.nostr.build" crossorigin />
+    <link rel="dns-prefetch" href="//api.openvine.co" />
+    <link rel="preconnect" href="https://api.openvine.co" crossorigin />
+    <link rel="dns-prefetch" href="//nostrcheck.me" />
+    <link rel="preconnect" href="https://nostrcheck.me" crossorigin />
+    <link rel="dns-prefetch" href="//nostrage.com" />
+    <link rel="preconnect" href="https://nostrage.com" crossorigin />
+    <link rel="dns-prefetch" href="//cdn.jb55.com" />
+    <link rel="preconnect" href="https://cdn.jb55.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>

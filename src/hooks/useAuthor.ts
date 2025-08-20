@@ -18,7 +18,9 @@ export function useAuthor(pubkey: string | undefined) {
       );
 
       if (!event) {
-        throw new Error('No event found');
+        // Return empty object instead of throwing error
+        // This allows components to use fallback display names
+        return {};
       }
 
       try {
@@ -28,6 +30,8 @@ export function useAuthor(pubkey: string | undefined) {
         return { event };
       }
     },
-    retry: 3,
+    retry: 1, // Reduce retries since many profiles don't exist
+    staleTime: 60000, // Cache for 1 minute
+    gcTime: 300000, // Keep in cache for 5 minutes
   });
 }

@@ -1,6 +1,14 @@
 # Project Overview
 
-This project is a Nostr client application built with React 18.x, TailwindCSS 3.x, Vite, shadcn/ui, and Nostrify.
+This project is Divine Web - an OpenVine-compatible Nostr client for short-form looping videos. It's built with React 18.x, TailwindCSS 3.x, Vite, shadcn/ui, and Nostrify.
+
+## Divine Web / OpenVine Features
+
+- **Primary Content**: 6-second looping videos (Kind 32222)
+- **Video Format**: MP4 and GIF support with auto-loop playback
+- **Social Features**: Likes, reposts, follows, and hashtag discovery
+- **Feed Types**: Home (following), Discovery (all public), Trending, Hashtag, Profile
+- **Primary Relay**: wss://relay3.openvine.co
 
 ## Technology Stack
 

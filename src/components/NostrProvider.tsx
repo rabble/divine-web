@@ -33,6 +33,8 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         return new NRelay1(url);
       },
       reqRouter(filters) {
+        console.log('[NostrProvider] reqRouter called with filters:', filters);
+        console.log('[NostrProvider] Routing to relay:', relayUrl.current);
         return new Map([[relayUrl.current, filters]]);
       },
       eventRouter(_event: NostrEvent) {

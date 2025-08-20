@@ -1,0 +1,156 @@
+// ABOUTME: Hook for publishing Kind 32222 video events to Nostr
+// ABOUTME: Handles video metadata creation and event signing with proper OpenVine tags
+
+import { useMutation } from '@tanstack/react-query';
+import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { VIDEO_KIND } from '@/types/video';
+import type { VideoMetadata } from '@/types/video';
+
+interface PublishVideoOptions {
+  content: string;
+  videoUrl: string;
+  thumbnailUrl?: string;
+  title?: string;
+  duration?: number;
+  dimensions?: string;
+  hashtags?: string[];
+  vineId?: string; // Optional, will generate if not provided
+}
+
+/**
+ * Generate a unique vine ID if not provided
+ */
+function generateVineId(): string {
+  return `vine-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Build imeta tag from video metadata
+ */
+function buildImetaTag(metadata: VideoMetadata): string[] {
+  const tag = ['imeta'];
+  
+  if (metadata.url) {
+    tag.push('url', metadata.url);
+  }
+  if (metadata.mimeType) {
+    tag.push('m', metadata.mimeType);
+  }
+  if (metadata.dimensions) {
+    tag.push('dim', metadata.dimensions);
+  }
+  if (metadata.blurhash) {
+    tag.push('blurhash', metadata.blurhash);
+  }
+  if (metadata.thumbnailUrl) {
+    tag.push('image', metadata.thumbnailUrl);
+  }
+  if (metadata.duration !== undefined) {
+    tag.push('duration', String(metadata.duration));
+  }
+  if (metadata.size !== undefined) {
+    tag.push('size', String(metadata.size));
+  }
+  if (metadata.hash) {
+    tag.push('x', metadata.hash);
+  }
+  
+  return tag;
+}
+
+/**
+ * Hook to publish video events
+ */
+export function usePublishVideo() {
+  const { mutateAsync: publishEvent } = useNostrPublish();
+  
+  return useMutation({
+    mutationFn: async (options: PublishVideoOptions) => {
+      const {
+        content,
+        videoUrl,
+        thumbnailUrl,
+        title,
+        duration = 6,
+        dimensions = '480x480',
+        hashtags = [],
+        vineId = generateVineId()
+      } = options;
+      
+      // Build tags
+      const tags: string[][] = [
+        ['d', vineId], // Required for addressability
+        ['client', 'openvine'] // OpenVine attribution
+      ];
+      
+      // Add video metadata
+      const videoMetadata: VideoMetadata = {
+        url: videoUrl,
+        mimeType: videoUrl.endsWith('.gif') ? 'image/gif' : 'video/mp4',
+        dimensions,
+        duration,
+        thumbnailUrl
+      };
+      
+      tags.push(buildImetaTag(videoMetadata));
+      
+      // Add optional metadata
+      if (title) {
+        tags.push(['title', title]);
+      }
+      
+      tags.push(['published_at', String(Math.floor(Date.now() / 1000))]);
+      tags.push(['duration', String(duration)]);
+      
+      // Add hashtags
+      for (const hashtag of hashtags) {
+        tags.push(['t', hashtag.replace(/^#/, '')]); // Remove # if present
+      }
+      
+      // Add alt text for accessibility
+      if (content) {
+        tags.push(['alt', content]);
+      }
+      
+      // Publish the event
+      const event = await publishEvent({
+        kind: VIDEO_KIND,
+        content,
+        tags
+      });
+      
+      return event;
+    }
+  });
+}
+
+/**
+ * Hook to publish a repost of a video
+ */
+export function useRepostVideo() {
+  const { mutateAsync: publishEvent } = useNostrPublish();
+  
+  return useMutation({
+    mutationFn: async ({ 
+      originalPubkey, 
+      vineId 
+    }: { 
+      originalPubkey: string; 
+      vineId: string;
+    }) => {
+      const tags: string[][] = [
+        ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],
+        ['p', originalPubkey],
+        ['client', 'openvine']
+      ];
+      
+      const event = await publishEvent({
+        kind: 6, // Repost kind
+        content: '',
+        tags
+      });
+      
+      return event;
+    }
+  });
+}
