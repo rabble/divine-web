@@ -58,7 +58,7 @@ export function App() {
                   <TooltipProvider>
                     <Toaster />
                     <Sonner />
-                    {process.env.NODE_ENV === 'development' && <PerformanceDebugPanel />}
+                    {typeof window !== 'undefined' && window.location.hostname === 'localhost' && <PerformanceDebugPanel />}
                     <Suspense>
                       <AppRouter />
                     </Suspense>

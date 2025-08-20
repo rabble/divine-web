@@ -3,6 +3,7 @@ import { NostrEvent, NPool, NRelay1 } from '@nostrify/nostrify';
 import { NostrContext } from '@nostrify/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAppContext } from '@/hooks/useAppContext';
+import { debugLog } from '@/lib/debug';
 
 interface NostrProviderProps {
   children: React.ReactNode;
@@ -33,8 +34,8 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         return new NRelay1(url);
       },
       reqRouter(filters) {
-        console.log('[NostrProvider] reqRouter called with filters:', filters);
-        console.log('[NostrProvider] Routing to relay:', relayUrl.current);
+        debugLog('[NostrProvider] reqRouter called with filters:', filters);
+        debugLog('[NostrProvider] Routing to relay:', relayUrl.current);
         return new Map([[relayUrl.current, filters]]);
       },
       eventRouter(_event: NostrEvent) {

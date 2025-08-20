@@ -11,6 +11,7 @@ import HashtagPage from "./pages/HashtagPage";
 import HashtagDiscoveryPage from "./pages/HashtagDiscoveryPage";
 import ProfilePage from "./pages/ProfilePage";
 import SearchPage from "./pages/SearchPage";
+import VideoPage from "./pages/VideoPage";
 import { TagPage } from "./pages/TagPage";
 import ListsPage from "./pages/ListsPage";
 import ListDetailPage from "./pages/ListDetailPage";
@@ -35,6 +36,7 @@ export function AppRouter() {
           <Route path="/t/:tag" element={<TagPage />} />
           <Route path="/profile/:npub" element={<ProfilePage />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/video/:id" element={<VideoPage />} />
           <Route path="/lists" element={<ListsPage />} />
           <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
           {/* Info pages */}

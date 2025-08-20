@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { debugLog, debugError } from '@/lib/debug';
 
 interface VideoPlayerProps {
   videoId: string;
@@ -114,7 +115,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Combine refs
     const setRefs = useCallback(
       (node: HTMLVideoElement | null) => {
-        console.log(`[VideoPlayer ${videoId}] setRefs called with node:`, node ? 'HTMLVideoElement' : 'null');
+        debugLog(`[VideoPlayer ${videoId}] setRefs called with node:`, node ? 'HTMLVideoElement' : 'null');
         
         // Set video ref
         videoRef.current = node;
@@ -133,10 +134,10 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
         // Register/unregister video with context
         if (node) {
-          console.log(`[VideoPlayer ${videoId}] Registering video element`);
+          debugLog(`[VideoPlayer ${videoId}] Registering video element`);
           registerVideo(videoId, node);
         } else {
-          console.log(`[VideoPlayer ${videoId}] Unregistering video element`);
+          debugLog(`[VideoPlayer ${videoId}] Unregistering video element`);
           unregisterVideo(videoId);
         }
       },
@@ -152,7 +153,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     useEffect(() => {
       // Only log significant state changes
       if (inView !== (activeVideoId === videoId)) {
-        console.log(`[VideoPlayer ${videoId}] Visibility changed - inView: ${inView}, isActive: ${isActive}`);
+        debugLog(`[VideoPlayer ${videoId}] Visibility changed - inView: ${inView}, isActive: ${isActive}`);
       }
       
       // Make active when in view (don't wait for loading to complete)
@@ -165,18 +166,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Update playing state based on active status and control video playback
     useEffect(() => {
-      console.log(`[VideoPlayer ${videoId}] Active status changed: ${isActive}`);
+      debugLog(`[VideoPlayer ${videoId}] Active status changed: ${isActive}`);
       setIsPlaying(isActive);
       
       // Actually control the video element
       if (videoRef.current && !isLoading && !hasError) {
         if (isActive) {
-          console.log(`[VideoPlayer ${videoId}] Starting playback`);
+          debugLog(`[VideoPlayer ${videoId}] Starting playback`);
           videoRef.current.play().catch((error) => {
-            console.error(`[VideoPlayer ${videoId}] Failed to start playback:`, error);
+            debugError(`[VideoPlayer ${videoId}] Failed to start playback:`, error);
           });
         } else {
-          console.log(`[VideoPlayer ${videoId}] Stopping playback`);
+          debugLog(`[VideoPlayer ${videoId}] Stopping playback`);
           videoRef.current.pause();
         }
       }
@@ -185,26 +186,26 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Sync video muted state with global muted state
     useEffect(() => {
       if (videoRef.current) {
-        console.log(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}`);
+        debugLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}`);
         videoRef.current.muted = globalMuted;
       }
     }, [globalMuted, videoId]);
 
     // Handle play/pause
     const togglePlay = () => {
-      console.log(`[VideoPlayer ${videoId}] togglePlay called, isPlaying: ${isPlaying}`);
+      debugLog(`[VideoPlayer ${videoId}] togglePlay called, isPlaying: ${isPlaying}`);
       if (!videoRef.current) {
-        console.log(`[VideoPlayer ${videoId}] No video ref available`);
+        debugLog(`[VideoPlayer ${videoId}] No video ref available`);
         return;
       }
 
       if (isPlaying) {
-        console.log(`[VideoPlayer ${videoId}] Pausing video`);
+        debugLog(`[VideoPlayer ${videoId}] Pausing video`);
         videoRef.current.pause();
       } else {
-        console.log(`[VideoPlayer ${videoId}] Attempting to play video`);
+        debugLog(`[VideoPlayer ${videoId}] Attempting to play video`);
         videoRef.current.play().catch((error) => {
-          console.error(`[VideoPlayer ${videoId}] Play failed:`, error);
+          debugError(`[VideoPlayer ${videoId}] Play failed:`, error);
           setIsPlaying(false);
         });
       }
@@ -213,7 +214,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Handle mute/unmute
     const toggleMute = () => {
-      console.log(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
+      debugLog(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
       if (!videoRef.current) return;
       
       // Toggle global mute state
@@ -221,7 +222,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       setGlobalMuted(newMutedState);
       
       // Apply to all registered videos
-      console.log(`[VideoPlayer ${videoId}] Setting global muted state to: ${newMutedState}`);
+      debugLog(`[VideoPlayer ${videoId}] Setting global muted state to: ${newMutedState}`);
     };
 
     // Mobile control functions
@@ -256,7 +257,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           setIsFullscreen(false);
         }
       } catch (error) {
-        console.error('Fullscreen toggle failed:', error);
+        debugError('Fullscreen toggle failed:', error);
       }
     }, [allowFullscreen]);
 
@@ -378,7 +379,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Handle video events
     const handleLoadStart = () => {
       loadStartTime.current = performance.now();
-      console.log(`[VideoPlayer ${videoId}] Load started at ${loadStartTime.current.toFixed(2)}ms`);
+      debugLog(`[VideoPlayer ${videoId}] Load started at ${loadStartTime.current.toFixed(2)}ms`);
       setIsLoading(true);
       setHasError(false);
       onLoadStart?.();
@@ -387,11 +388,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleLoadedData = () => {
       const loadEndTime = performance.now();
       const loadDuration = loadStartTime.current ? loadEndTime - loadStartTime.current : 0;
-      console.log(`[VideoPlayer ${videoId}] Data loaded after ${loadDuration.toFixed(2)}ms`);
-      console.log(`[VideoPlayer ${videoId}] Video URL: ${src}`);
+      debugLog(`[VideoPlayer ${videoId}] Data loaded after ${loadDuration.toFixed(2)}ms`);
+      debugLog(`[VideoPlayer ${videoId}] Video URL: ${src}`);
       if (videoRef.current) {
-        console.log(`[VideoPlayer ${videoId}] Video dimensions: ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
-        console.log(`[VideoPlayer ${videoId}] Video duration: ${videoRef.current.duration}s`);
+        debugLog(`[VideoPlayer ${videoId}] Video dimensions: ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
+        debugLog(`[VideoPlayer ${videoId}] Video duration: ${videoRef.current.duration}s`);
       }
       
       // Emit first video load metric (only once)
@@ -408,20 +409,20 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     };
 
     const handleError = () => {
-      console.error(`[VideoPlayer ${videoId}] Error loading video`);
+      debugError(`[VideoPlayer ${videoId}] Error loading video`);
       setIsLoading(false);
       setHasError(true);
       onError?.();
     };
 
     const handleEnded = () => {
-      console.log(`[VideoPlayer ${videoId}] Video ended, auto-looping`);
+      debugLog(`[VideoPlayer ${videoId}] Video ended, auto-looping`);
       onEnded?.();
       // Auto-loop by replaying
       if (videoRef.current) {
         videoRef.current.currentTime = 0;
         videoRef.current.play().catch((error) => {
-          console.error(`[VideoPlayer ${videoId}] Failed to loop video:`, error);
+          debugError(`[VideoPlayer ${videoId}] Failed to loop video:`, error);
           setIsPlaying(false);
         });
       }
@@ -429,11 +430,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Handle play/pause state changes
     const handlePlay = () => {
-      console.log(`[VideoPlayer ${videoId}] Play event fired`);
+      debugLog(`[VideoPlayer ${videoId}] Play event fired`);
       setIsPlaying(true);
     };
     const handlePause = () => {
-      console.log(`[VideoPlayer ${videoId}] Pause event fired`);
+      debugLog(`[VideoPlayer ${videoId}] Pause event fired`);
       setIsPlaying(false);
     };
 
@@ -470,9 +471,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Cleanup on unmount
     useEffect(() => {
-      console.log(`[VideoPlayer ${videoId}] Component mounting`);
+      debugLog(`[VideoPlayer ${videoId}] Component mounting`);
       return () => {
-        console.log(`[VideoPlayer ${videoId}] Component unmounting`);
+        debugLog(`[VideoPlayer ${videoId}] Component unmounting`);
         unregisterVideo(videoId);
         
         // Clean up timers

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -275,6 +275,18 @@ export function VideoCard({
           <Button variant="ghost" size="sm" className="gap-2" aria-label="Share">
             <Share className="h-4 w-4" />
           </Button>
+
+          {/* Spacer */}
+          <div className="ml-auto" />
+
+          {/* View link to dedicated page */}
+          <Link
+            to={`/video/${video.id}`}
+            className="text-xs text-primary hover:underline flex items-center gap-1"
+            aria-label="View video page"
+          >
+            <Eye className="h-3 w-3" /> View
+          </Link>
         </div>
       </CardContent>
     </Card>

@@ -10,6 +10,7 @@ import { RelaySelector } from '@/components/RelaySelector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { ParsedVideoData } from '@/types/video';
+import { debugLog, debugWarn } from '@/lib/debug';
 
 interface VideoFeedProps {
   feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile';
@@ -65,9 +66,9 @@ export function VideoFeed({
 
   // Log video data when it changes
   useEffect(() => {
-    console.log(`[VideoFeed] Feed type: ${feedType}, Videos loaded:`, allVideos?.length || 0);
+    debugLog(`[VideoFeed] Feed type: ${feedType}, Videos loaded:`, allVideos?.length || 0);
     if (allVideos && allVideos.length > 0) {
-      console.log('[VideoFeed] First few videos:', allVideos.slice(0, 3).map(v => ({
+      debugLog('[VideoFeed] First few videos:', allVideos.slice(0, 3).map(v => ({
         id: v.id,
         videoUrl: v.videoUrl,
         thumbnailUrl: v.thumbnailUrl,
@@ -78,7 +79,7 @@ export function VideoFeed({
       // Check if any videos are missing URLs
       const missingUrls = allVideos.filter(v => !v.videoUrl);
       if (missingUrls.length > 0) {
-        console.warn(`[VideoFeed] ${missingUrls.length} videos missing URLs`);
+        debugWarn(`[VideoFeed] ${missingUrls.length} videos missing URLs`);
       }
     }
   }, [allVideos, feedType]);
@@ -96,11 +97,51 @@ export function VideoFeed({
         ? oldestVideo.repostedAt 
         : oldestVideo.createdAt;
       
-      console.log('Near bottom, loading more videos before timestamp:', oldestTimestamp);
+      debugLog('Near bottom, loading more videos before timestamp:', oldestTimestamp);
       setIsLoadingMore(true);
       setLastTimestamp(oldestTimestamp);
     }
   }, [inView, allVideos, isLoading, isLoadingMore]);
+
+  // Update visible range based on scroll
+  const handleScroll = useCallback(() => {
+    if (typeof window === 'undefined' || allVideos.length === 0) return;
+    
+    const scrollY = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const cardHeight = 600; // Approximate height of a video card
+    
+    // Calculate visible range with buffer
+    const visibleStart = Math.floor(scrollY / cardHeight);
+    const visibleEnd = Math.ceil((scrollY + windowHeight) / cardHeight);
+    
+    // Add buffer of 2 videos above and below
+    const startIndex = Math.max(0, visibleStart - 2);
+    const endIndex = Math.min(allVideos.length, visibleEnd + 2);
+    
+    debugLog(`[VideoFeed] Scroll position: ${scrollY}, visible range: ${startIndex}-${endIndex}`);
+    setVisibleRange({ start: startIndex, end: endIndex });
+    
+    // Emit visible videos metric
+    window.dispatchEvent(new CustomEvent('performance-metric', {
+      detail: {
+        visibleVideos: endIndex - startIndex,
+      }
+    }));
+  }, [allVideos.length]);
+
+  useEffect(() => {
+    // Set initial visible range when videos load
+    if (allVideos.length > 0 && visibleRange.end === 10) {
+      debugLog(`[VideoFeed] Initial videos loaded: ${allVideos.length}`);
+      handleScroll(); // Calculate initial visible range
+    }
+  }, [allVideos, handleScroll, visibleRange.end]);
+  
+  useEffect(() => {
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   // Loading state
   if (isLoading && !lastTimestamp) {
@@ -157,46 +198,6 @@ export function VideoFeed({
     );
   }
 
-  // Update visible range based on scroll
-  const handleScroll = useCallback(() => {
-    if (typeof window === 'undefined' || allVideos.length === 0) return;
-    
-    const scrollY = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const cardHeight = 600; // Approximate height of a video card
-    
-    // Calculate visible range with buffer
-    const visibleStart = Math.floor(scrollY / cardHeight);
-    const visibleEnd = Math.ceil((scrollY + windowHeight) / cardHeight);
-    
-    // Add buffer of 2 videos above and below
-    const startIndex = Math.max(0, visibleStart - 2);
-    const endIndex = Math.min(allVideos.length, visibleEnd + 2);
-    
-    console.log(`[VideoFeed] Scroll position: ${scrollY}, visible range: ${startIndex}-${endIndex}`);
-    setVisibleRange({ start: startIndex, end: endIndex });
-    
-    // Emit visible videos metric
-    window.dispatchEvent(new CustomEvent('performance-metric', {
-      detail: {
-        visibleVideos: endIndex - startIndex,
-      }
-    }));
-  }, [allVideos.length]);
-
-  useEffect(() => {
-    // Set initial visible range when videos load
-    if (allVideos.length > 0 && visibleRange.end === 10) {
-      console.log(`[VideoFeed] Initial videos loaded: ${allVideos.length}`);
-      handleScroll(); // Calculate initial visible range
-    }
-  }, [allVideos, handleScroll, visibleRange.end]);
-  
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
-
   // Empty state
   if (!allVideos || allVideos.length === 0) {
     return (
@@ -228,19 +229,17 @@ export function VideoFeed({
 
   // Handle interactions
   const handleLike = (video: ParsedVideoData) => {
-    console.log('Like video:', video.id);
+    debugLog('Like video:', video.id);
     // TODO: Implement like functionality
   };
 
   const handleRepost = (video: ParsedVideoData) => {
-    console.log('Repost video:', video.id);
+    debugLog('Repost video:', video.id);
     // TODO: Implement repost functionality
   };
 
   // Only create VideoCard components for videos in the visible range
-  const visibleVideos = allVideos.filter((_, index) => 
-    index < 10 || (index >= visibleRange.start && index <= visibleRange.end)
-  );
+  // Note: We compute visibility inline when mapping to avoid unused variable lint warnings
 
   return (
     <div 

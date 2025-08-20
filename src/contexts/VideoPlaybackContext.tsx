@@ -2,6 +2,7 @@
 // ABOUTME: Ensures only one video plays at a time based on viewport visibility
 
 import { createContext, useState, useRef, ReactNode } from 'react';
+import { debugLog } from '@/lib/debug';
 
 export interface VideoPlaybackContextType {
   activeVideoId: string | null;
@@ -20,8 +21,8 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   const setActiveVideo = (videoId: string | null) => {
-    console.log(`setActiveVideo called with: ${videoId}, current: ${activeVideoId}`);
-    console.log(`Registered videos: ${Array.from(videoRefs.current.keys()).join(', ')}`);
+    debugLog(`setActiveVideo called with: ${videoId}, current: ${activeVideoId}`);
+    debugLog(`Registered videos: ${Array.from(videoRefs.current.keys()).join(', ')}`);
     
     // Just update the active video ID
     // The VideoPlayer components will handle play/pause based on this change
@@ -29,12 +30,12 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
   };
 
   const registerVideo = (videoId: string, element: HTMLVideoElement) => {
-    console.log(`Registering video: ${videoId}`);
+    debugLog(`Registering video: ${videoId}`);
     videoRefs.current.set(videoId, element);
   };
 
   const unregisterVideo = (videoId: string) => {
-    console.log(`Unregistering video: ${videoId}`);
+    debugLog(`Unregistering video: ${videoId}`);
     videoRefs.current.delete(videoId);
   };
 

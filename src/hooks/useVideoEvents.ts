@@ -7,6 +7,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount } from '@/lib/videoParser';
+import { debugLog, debugError } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
   filter?: Partial<NostrFilter>;
@@ -225,7 +226,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
-      console.log(`[useVideoEvents] Starting query for ${feedType} feed`);
+      debugLog(`[useVideoEvents] Starting query for ${feedType} feed`);
       
       const signal = AbortSignal.any([
         context.signal,
@@ -271,25 +272,25 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         // Query videos first
         const queryStartTime = performance.now();
         events = await nostr.query([baseFilter], { signal });
-        console.log(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        debugLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
         
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 50 };
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
-          console.log(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);
+          debugLog(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);
           events = [...events, ...repostEvents];
         }
       } catch (err) {
-        console.error('[useVideoEvents] Query error:', err);
+        debugError('[useVideoEvents] Query error:', err);
         throw err;
       }
       
       const parseStartTime = performance.now();
       let parsed = await parseVideoEvents(events, nostr);
       const parseTime = performance.now() - parseStartTime;
-      console.log(`[useVideoEvents] Parse took ${parseTime.toFixed(0)}ms`);
+      debugLog(`[useVideoEvents] Parse took ${parseTime.toFixed(0)}ms`);
 
       // Fallback: some events only include hashtags in content, not 't' tags
       if (feedType === 'hashtag' && hashtag) {
@@ -338,7 +339,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       }
       
       const totalTime = performance.now() - startTime;
-      console.log(`[useVideoEvents] Total query time: ${totalTime.toFixed(0)}ms, returning ${parsed.length} videos`);
+      debugLog(`[useVideoEvents] Total query time: ${totalTime.toFixed(0)}ms, returning ${parsed.length} videos`);
       
       // Emit performance metrics
       if (typeof window !== 'undefined') {
@@ -348,7 +349,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           totalEvents: events.length,
           validVideos: parsed.length,
         };
-        console.log('[useVideoEvents] Emitting metrics:', metrics);
+        debugLog('[useVideoEvents] Emitting metrics:', metrics);
         window.dispatchEvent(new CustomEvent('performance-metric', {
           detail: metrics
         }));
