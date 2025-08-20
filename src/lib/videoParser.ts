@@ -265,6 +265,17 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
     return imageTag[1];
   }
   
-  // Use OpenVine thumbnail API as fallback
-  return `https://api.openvine.co/thumbnails/${event.id}?size=medium`;
+  // Check for thumb tag
+  const thumbTag = event.tags.find(tag => tag[0] === 'thumb');
+  if (thumbTag?.[1]) {
+    return thumbTag[1];
+  }
+  
+  // If we have a video URL, return it as fallback (video element can show first frame)
+  if (event.videoMetadata?.url) {
+    return event.videoMetadata.url;
+  }
+  
+  // No thumbnail available
+  return undefined;
 }

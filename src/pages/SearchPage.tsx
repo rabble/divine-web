@@ -258,7 +258,7 @@ export function SearchPage() {
                     </h2>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {videoResults.slice(0, 6).map((video) => (
-                        <VideoCard key={video.id} video={video} />
+                        <VideoCard key={video.id} video={video} mode="thumbnail" />
                       ))}
                     </div>
                     {videoResults.length > 6 && (
@@ -344,7 +344,7 @@ export function SearchPage() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {videoResults.map((video) => (
-                  <VideoCard key={video.id} video={video} />
+                  <VideoCard key={video.id} video={video} mode="thumbnail" />
                 ))}
               </div>
             )}

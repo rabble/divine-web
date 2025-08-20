@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Hash, TrendingUp, Search, BarChart, Play } from 'lucide-react';
 import { VIDEO_KIND } from '@/types/video';
 import { parseVideoEvent, getThumbnailUrl } from '@/lib/videoParser';
+import { debugLog } from '@/lib/debug';
 
 interface HashtagData {
   rank: number;
@@ -50,14 +51,24 @@ function useHashtagThumbnail(hashtag: string) {
       };
       filter['#t'] = [hashtag];
       
-      console.log('[useHashtagThumbnail] Querying for hashtag:', hashtag, 'with filter:', filter);
+      debugLog('[useHashtagThumbnail] Querying for hashtag:', hashtag, 'with filter:', filter);
       const events = await nostr.query([filter], { signal });
-      console.log('[useHashtagThumbnail] Got', events.length, 'events for hashtag:', hashtag);
+      debugLog('[useHashtagThumbnail] Got', events.length, 'events for hashtag:', hashtag);
 
       if (events.length > 0) {
         const videoEvent = parseVideoEvent(events[0]);
+        debugLog('[useHashtagThumbnail] Parsed video event:', videoEvent);
         if (videoEvent) {
-          return getThumbnailUrl(videoEvent);
+          // Get thumbnail URL from the parsed video event
+          const thumbnailUrl = getThumbnailUrl(videoEvent);
+          debugLog('[useHashtagThumbnail] Thumbnail URL:', thumbnailUrl);
+          
+          // Fallback to video URL if no thumbnail
+          if (!thumbnailUrl && videoEvent.videoMetadata?.url) {
+            return videoEvent.videoMetadata.url;
+          }
+          
+          return thumbnailUrl;
         }
       }
       
@@ -94,7 +105,7 @@ function useHashtagStats() {
         setLoading(false);
       })
       .catch(err => {
-        console.error('[HashtagExplorer] Error loading hashtag data:', err);
+        debugLog('[HashtagExplorer] Error loading hashtag data:', err);
         setError(err);
         setLoading(false);
       });
@@ -110,58 +121,64 @@ function HashtagCard({ stat }: { stat: HashtagStats }) {
   const { data: thumbnailUrl } = useHashtagThumbnail(stat.tag);
 
   return (
-    <Card className="hover:shadow-lg transition-shadow overflow-hidden">
-      {/* Thumbnail */}
-      <div className="relative aspect-square bg-muted">
-        {thumbnailUrl ? (
-          <>
-            <img 
-              src={thumbnailUrl} 
-              alt={`#${stat.tag}`}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-            <Hash className="h-12 w-12 text-primary/30" />
-          </div>
-        )}
-        
-        {/* Overlay info */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-          <div className="flex items-end justify-between">
-            <div>
-              <Link 
-                to={`/hashtag/${stat.tag}`}
-                className="group"
-              >
-                <h3 className="text-lg font-bold flex items-center gap-1 group-hover:underline">
+    <Link to={`/hashtag/${stat.tag}`} className="block group">
+      <Card className="hover:shadow-lg transition-all duration-200 overflow-hidden cursor-pointer hover:scale-[1.02]">
+        {/* Thumbnail */}
+        <div className="relative aspect-square bg-muted overflow-hidden">
+          {thumbnailUrl ? (
+            <>
+              {thumbnailUrl.endsWith('.mp4') || thumbnailUrl.endsWith('.webm') || thumbnailUrl.endsWith('.mov') ? (
+                <video 
+                  src={thumbnailUrl}
+                  className="w-full h-full object-cover"
+                  muted
+                  playsInline
+                  preload="metadata"
+                />
+              ) : (
+                <img 
+                  src={thumbnailUrl} 
+                  alt={`#${stat.tag}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+              <Hash className="h-12 w-12 text-primary/30" />
+            </div>
+          )}
+          
+          {/* Overlay info */}
+          <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+            <div className="flex items-end justify-between">
+              <div>
+                <h3 className="text-lg font-bold flex items-center gap-1">
                   <Hash className="h-4 w-4" />
                   {stat.tag}
                 </h3>
-              </Link>
-              <p className="text-sm opacity-90">
-                {stat.count.toLocaleString()} videos
-              </p>
+                <p className="text-sm opacity-90">
+                  {stat.count.toLocaleString()} videos
+                </p>
+              </div>
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                #{stat.rank}
+              </Badge>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-              #{stat.rank}
-            </Badge>
           </div>
         </div>
-      </div>
 
-      {/* Action Button */}
-      <CardContent className="p-3">
-        <Link to={`/hashtag/${stat.tag}`} className="block">
-          <Button variant="outline" size="sm" className="w-full">
+        {/* Action Button */}
+        <CardContent className="p-3">
+          <Button variant="outline" size="sm" className="w-full pointer-events-none">
             <Play className="h-3 w-3 mr-1" />
             Watch #{stat.tag}
           </Button>
-        </Link>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
