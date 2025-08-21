@@ -16,6 +16,7 @@ import { ArrowLeft, List, Video, Clock, Edit, Share2, Copy } from 'lucide-react'
 import { genUserName } from '@/lib/genUserName';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/useToast';
+import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl } from '@/lib/videoParser';
@@ -307,7 +308,7 @@ export default function ListDetailPage() {
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={authorMetadata?.picture} />
+                    <AvatarImage src={getSafeProfileImage(authorMetadata?.picture)} />
                     <AvatarFallback>{authorName[0]?.toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>

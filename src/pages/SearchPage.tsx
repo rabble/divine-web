@@ -18,6 +18,7 @@ import { useSearchVideos } from '@/hooks/useSearchVideos';
 import { useSearchUsers } from '@/hooks/useSearchUsers';
 import { useSearchHashtags } from '@/hooks/useSearchHashtags';
 import { genUserName } from '@/lib/genUserName';
+import { getSafeProfileImage } from '@/lib/imageUtils';
 
 type SearchFilter = 'all' | 'videos' | 'users' | 'hashtags';
 
@@ -402,7 +403,7 @@ function UserCard({ user }: { user: { pubkey: string; metadata?: any } }) {
   const displayName = user.metadata?.display_name || user.metadata?.name || genUserName(user.pubkey);
   const username = user.metadata?.name || genUserName(user.pubkey);
   const about = user.metadata?.about;
-  const picture = user.metadata?.picture;
+  const picture = getSafeProfileImage(user.metadata?.picture);
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer">

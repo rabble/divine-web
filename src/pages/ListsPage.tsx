@@ -16,6 +16,7 @@ import { List, TrendingUp, Plus, Users, Video, Clock } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
 import { CreateListDialog } from '@/components/CreateListDialog';
 import { formatDistanceToNow } from 'date-fns';
+import { getSafeProfileImage } from '@/lib/imageUtils';
 
 function ListCard({ list }: { list: any }) {
   const author = useAuthor(list.pubkey);
@@ -58,7 +59,7 @@ function ListCard({ list }: { list: any }) {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <Avatar className="h-6 w-6">
-              <AvatarImage src={authorMetadata?.picture} />
+              <AvatarImage src={getSafeProfileImage(authorMetadata?.picture)} />
               <AvatarFallback>{authorName[0]?.toUpperCase()}</AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">{authorName}</span>

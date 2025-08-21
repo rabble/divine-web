@@ -3,8 +3,6 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useNostr } from '@nostrify/react';
-import { useQuery } from '@tanstack/react-query';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,9 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Hash, TrendingUp, Search, BarChart, Play } from 'lucide-react';
-import { VIDEO_KIND } from '@/types/video';
-import { parseVideoEvent, getThumbnailUrl } from '@/lib/videoParser';
 import { debugLog } from '@/lib/debug';
+import { useHashtagThumbnail } from '@/hooks/useHashtagThumbnail';
 
 interface HashtagData {
   rank: number;
@@ -33,51 +30,7 @@ interface HashtagStats {
 /**
  * Hook to fetch a sample video for a hashtag to get its thumbnail
  */
-function useHashtagThumbnail(hashtag: string) {
-  const { nostr } = useNostr();
-
-  return useQuery({
-    queryKey: ['hashtag-thumbnail', hashtag],
-    queryFn: async (context) => {
-      const signal = AbortSignal.any([
-        context.signal,
-        AbortSignal.timeout(3000)
-      ]);
-
-      // Get one video with this hashtag
-      const filter: any = {
-        kinds: [VIDEO_KIND],
-        limit: 1
-      };
-      filter['#t'] = [hashtag];
-      
-      debugLog('[useHashtagThumbnail] Querying for hashtag:', hashtag, 'with filter:', filter);
-      const events = await nostr.query([filter], { signal });
-      debugLog('[useHashtagThumbnail] Got', events.length, 'events for hashtag:', hashtag);
-
-      if (events.length > 0) {
-        const videoEvent = parseVideoEvent(events[0]);
-        debugLog('[useHashtagThumbnail] Parsed video event:', videoEvent);
-        if (videoEvent) {
-          // Get thumbnail URL from the parsed video event
-          const thumbnailUrl = getThumbnailUrl(videoEvent);
-          debugLog('[useHashtagThumbnail] Thumbnail URL:', thumbnailUrl);
-          
-          // Fallback to video URL if no thumbnail
-          if (!thumbnailUrl && videoEvent.videoMetadata?.url) {
-            return videoEvent.videoMetadata.url;
-          }
-          
-          return thumbnailUrl;
-        }
-      }
-      
-      return undefined;
-    },
-    staleTime: Infinity, // Thumbnails don't change
-    gcTime: Infinity,
-  });
-}
+// useHashtagThumbnail moved to hooks
 
 /**
  * Hook to fetch hashtag statistics from JSON file

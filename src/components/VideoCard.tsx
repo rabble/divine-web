@@ -21,7 +21,7 @@ import type { ParsedVideoData } from '@/types/video';
 import type { NostrMetadata } from '@nostrify/nostrify';
 import { cn } from '@/lib/utils';
 import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils';
-import { Eye } from 'lucide-react';
+import { getSafeProfileImage } from '@/lib/imageUtils';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -76,7 +76,7 @@ export function VideoCard({
   const reposterMetadata: NostrMetadata | undefined = reposter?.metadata;
 
   const displayName = metadata.display_name || metadata.name || genUserName(video.pubkey);
-  const profileImage = metadata.picture;
+  const profileImage = getSafeProfileImage(metadata.picture);
   const npub = nip19.npubEncode(video.pubkey);
   // Just use npub for now, we'll deal with NIP-05 later
   const profileUrl = `/${npub}`;

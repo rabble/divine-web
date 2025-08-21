@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { UserPlus, UserCheck, CheckCircle } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
+import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrMetadata } from '@nostrify/nostrify';
 
 export interface ProfileStats {
@@ -62,7 +63,7 @@ export function ProfileHeader({
   // Metadata is now guaranteed to have values from generateProfile.ts
   const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
   const userName = metadata?.name || genUserName(pubkey);
-  const profileImage = metadata?.picture || `https://api.dicebear.com/7.x/identicon/svg?seed=${pubkey}`;
+  const profileImage = getSafeProfileImage(metadata?.picture) || `https://api.dicebear.com/7.x/identicon/svg?seed=${pubkey}`;
   const about = metadata?.about;
   const nip05 = metadata?.nip05;
   const website = metadata?.website;
