@@ -16,6 +16,7 @@ import { TagPage } from "./pages/TagPage";
 import ListsPage from "./pages/ListsPage";
 import ListDetailPage from "./pages/ListDetailPage";
 import { NIP05ProfilePage } from "./pages/NIP05ProfilePage";
+import { UniversalUserPage } from "./pages/UniversalUserPage";
 import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import OpenSourcePage from "./pages/OpenSourcePage";
@@ -43,8 +44,8 @@ export function AppRouter() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
-          {/* NIP-05 route for user@domain.com format */}
-          <Route path="/u/:nip05" element={<NIP05ProfilePage />} />
+          {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
+          <Route path="/u/:userId" element={<UniversalUserPage />} />
           {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}
           <Route path="/:nip19" element={<NIP19Page />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
