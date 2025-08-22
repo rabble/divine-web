@@ -562,45 +562,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           </div>
         )}
 
-        {/* Controls overlay */}
+        {/* Controls overlay - only mute and fullscreen buttons */}
         {showControls && !isLoading && !hasError && (
-          <div 
-            className={cn(
-              "absolute inset-0 flex items-center justify-center transition-opacity",
-              isMobile 
-                ? (controlsVisible ? "opacity-100" : "opacity-0")
-                : "opacity-0 group-hover:opacity-100",
-              isMobile && "p-4"
-            )}
-            data-testid={isMobile ? "mobile-controls" : undefined}
-          >
-            {/* Play/Pause button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-full bg-black/50 hover:bg-black/70 text-white",
-                isMobile ? "w-20 h-20 mobile" : "w-16 h-16"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                togglePlay();
-              }}
-            >
-              {isPlaying ? (
-                <Pause className={isMobile ? "h-10 w-10" : "h-8 w-8"} />
-              ) : (
-                <Play className={cn(isMobile ? "h-10 w-10 ml-1" : "h-8 w-8 ml-1")} />
-              )}
-            </Button>
-
+          <>
             {/* Mute button */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute bottom-4 right-4 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px]",
-                isMobile ? "w-12 h-12" : "w-10 h-10"
+                "absolute bottom-4 right-4 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px] transition-opacity",
+                isMobile 
+                  ? (controlsVisible ? "opacity-100 w-12 h-12" : "opacity-0 w-12 h-12")
+                  : "opacity-0 group-hover:opacity-100 w-10 h-10"
               )}
               onClick={(e) => {
                 e.stopPropagation();
@@ -619,7 +592,10 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute bottom-4 left-4 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px]"
+                className={cn(
+                  "absolute bottom-4 left-4 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px] transition-opacity",
+                  controlsVisible ? "opacity-100" : "opacity-0"
+                )}
                 onClick={(e) => {
                   e.stopPropagation();
                   toggleFullscreen();
@@ -633,7 +609,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                 )}
               </Button>
             )}
-          </div>
+          </>
         )}
       </div>
     );
