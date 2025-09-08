@@ -38,6 +38,7 @@ export interface ParsedVideoData {
   id: string;
   pubkey: string;
   createdAt: number;
+  originalVineTimestamp?: number; // Original Vine posting time if available
   content: string;
   videoUrl: string;
   thumbnailUrl?: string;

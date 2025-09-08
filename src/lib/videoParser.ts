@@ -232,6 +232,27 @@ export function getVineId(event: NostrEvent): string | null {
 }
 
 /**
+ * Get original Vine timestamp from event tags
+ */
+export function getOriginalVineTimestamp(event: NostrEvent): number | undefined {
+  // Check for vine_created_at tag
+  const vineCreatedAtTag = event.tags.find(tag => tag[0] === 'vine_created_at' || tag[0] === 'original_created_at');
+  if (vineCreatedAtTag?.[1]) {
+    const timestamp = parseInt(vineCreatedAtTag[1]);
+    if (!isNaN(timestamp)) return timestamp;
+  }
+  
+  // Check for published_at tag (NIP-31 timestamp)
+  const publishedAtTag = event.tags.find(tag => tag[0] === 'published_at');
+  if (publishedAtTag?.[1]) {
+    const timestamp = parseInt(publishedAtTag[1]);
+    if (!isNaN(timestamp)) return timestamp;
+  }
+  
+  return undefined;
+}
+
+/**
  * Get loop count from event tags
  */
 export function getLoopCount(event: NostrEvent): number {

@@ -83,8 +83,9 @@ export function VideoCard({
 
   const reposterName = reposterMetadata?.name || (video.reposterPubkey ? genUserName(video.reposterPubkey) : '');
 
-  // Format time
-  const timeAgo = formatDistanceToNow(new Date(video.createdAt * 1000), { addSuffix: true });
+  // Format time - use original Vine timestamp if available, otherwise use created_at
+  const timestamp = video.originalVineTimestamp || video.createdAt;
+  const timeAgo = formatDistanceToNow(new Date(timestamp * 1000), { addSuffix: true });
 
   const handleCommentsClick = () => {
     onOpenComments?.(video);
