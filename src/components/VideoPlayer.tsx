@@ -88,7 +88,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
     const [controlsTimer, setControlsTimer] = useState<NodeJS.Timeout | null>(null);
     
-    const { activeVideoId, setActiveVideo, registerVideo, unregisterVideo, globalMuted, setGlobalMuted } = useVideoPlayback();
+    const { activeVideoId, setActiveVideo, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
     const isActive = activeVideoId === videoId;
     
     // Get responsive layout class
@@ -106,13 +106,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const isMobile = useIsMobile();
 
     // Use intersection observer to detect when video is in viewport
-    const { ref: inViewRef, inView } = useInView({
-      threshold: 0.3, // Video must be 30% visible to start loading
-      rootMargin: '100px', // Start loading slightly before visible
+    // Use multiple thresholds to get more granular visibility updates
+    const { ref: inViewRef, inView, entry } = useInView({
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0], // Multiple thresholds for granular tracking
+      rootMargin: '0px', // No margin, we want exact visibility
       triggerOnce: false, // Allow re-triggering when scrolling
     });
 
-    // Combine refs
+    // Combine refs - minimize dependencies for stability
     const setRefs = useCallback(
       (node: HTMLVideoElement | null) => {
         debugLog(`[VideoPlayer ${videoId}] setRefs called with node:`, node ? 'HTMLVideoElement' : 'null');
@@ -141,7 +142,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           unregisterVideo(videoId);
         }
       },
-      [ref, inViewRef, videoId, registerVideo, unregisterVideo]
+      [videoId, registerVideo, unregisterVideo, inViewRef, ref] // Reordered for clarity, same deps
     );
     
     // Set container ref
@@ -149,20 +150,17 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       containerRef.current = node;
     }, []);
 
-    // Handle visibility changes - optimized for performance
+    // Handle visibility changes - report visibility ratio to context
     useEffect(() => {
-      // Only log significant state changes
-      if (inView !== (activeVideoId === videoId)) {
-        debugLog(`[VideoPlayer ${videoId}] Visibility changed - inView: ${inView}, isActive: ${isActive}`);
+      if (entry && !hasError) {
+        const visibilityRatio = entry.intersectionRatio;
+        debugLog(`[VideoPlayer ${videoId}] Visibility: ${(visibilityRatio * 100).toFixed(1)}%`);
+        updateVideoVisibility(videoId, visibilityRatio);
+      } else if (!entry || !inView) {
+        // Not visible at all
+        updateVideoVisibility(videoId, 0);
       }
-      
-      // Make active when in view (don't wait for loading to complete)
-      if (inView && !hasError) {
-        setActiveVideo(videoId);
-      } else if (!inView && isActive) {
-        setActiveVideo(null);
-      }
-    }, [inView, videoId, isActive, setActiveVideo, hasError, activeVideoId]);
+    }, [entry, inView, videoId, hasError, updateVideoVisibility]);
 
     // Update playing state based on active status and control video playback
     useEffect(() => {
@@ -173,12 +171,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       if (videoRef.current && !isLoading && !hasError) {
         if (isActive) {
           debugLog(`[VideoPlayer ${videoId}] Starting playback`);
-          videoRef.current.play().catch((error) => {
-            debugError(`[VideoPlayer ${videoId}] Failed to start playback:`, error);
-          });
+          // Ensure video is not already playing before calling play()
+          if (videoRef.current.paused) {
+            videoRef.current.play().catch((error) => {
+              debugError(`[VideoPlayer ${videoId}] Failed to start playback:`, error);
+            });
+          }
         } else {
           debugLog(`[VideoPlayer ${videoId}] Stopping playback`);
+          // Force pause to ensure only one video plays
           videoRef.current.pause();
+          // Reset to beginning for cleaner experience when scrolling back
+          videoRef.current.currentTime = 0;
         }
       }
     }, [isActive, videoId, isLoading, hasError]);
@@ -408,12 +412,12 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       onLoadedData?.();
     };
 
-    const handleError = () => {
+    const handleError = useCallback(() => {
       debugError(`[VideoPlayer ${videoId}] Error loading video`);
       setIsLoading(false);
       setHasError(true);
       onError?.();
-    };
+    }, [videoId, onError]);
 
     const handleEnded = () => {
       debugLog(`[VideoPlayer ${videoId}] Video ended, auto-looping`);
@@ -469,18 +473,47 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       };
     }, [allowFullscreen]);
 
+    // Set video source - simplified without HLS
+    useEffect(() => {
+      const video = videoRef.current;
+      debugLog(`[VideoPlayer ${videoId}] Setting video source - src: ${src}, hasVideo: ${!!video}`);
+      
+      if (!video || !src) {
+        debugLog(`[VideoPlayer ${videoId}] Skipping source setup - video: ${!!video}, src: ${!!src}`);
+        return;
+      }
+      
+      // For now, just use direct playback for all URLs
+      // MP4 files will play directly, HLS might work natively on some browsers
+      debugLog(`[VideoPlayer ${videoId}] Setting video source directly: ${src}`);
+      video.src = src;
+      
+      // Set loading state
+      setIsLoading(true);
+      
+    }, [src, videoId]); // Only depend on src and videoId for stability
+
     // Cleanup on unmount
     useEffect(() => {
       debugLog(`[VideoPlayer ${videoId}] Component mounting`);
       return () => {
         debugLog(`[VideoPlayer ${videoId}] Component unmounting`);
+        
+        // Ensure video is paused before unmounting
+        if (videoRef.current) {
+          videoRef.current.pause();
+          videoRef.current.currentTime = 0;
+        }
+        
+        // Clear visibility and unregister
+        updateVideoVisibility(videoId, 0);
         unregisterVideo(videoId);
         
         // Clean up timers
         if (controlsTimer) clearTimeout(controlsTimer);
         if (longPressTimer) clearTimeout(longPressTimer);
       };
-    }, [videoId, unregisterVideo, controlsTimer, longPressTimer]);
+    }, [videoId, unregisterVideo, updateVideoVisibility, controlsTimer, longPressTimer]);
 
     // Handle GIF format (use img tag)
     if (src.toLowerCase().endsWith('.gif')) {
@@ -519,10 +552,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       >
         <video
           ref={setRefs}
-          src={src}
+          // Don't set src directly if it's an HLS stream - HLS.js will handle it
+          src={src.toLowerCase().includes('.m3u8') ? undefined : src}
           poster={poster}
           muted={globalMuted}
-          autoPlay={isActive && inView} // Only autoplay when active AND in view
+          autoPlay={false} // Never autoplay, we control playback programmatically
           loop
           playsInline
           // Preload when in view (not just when active)

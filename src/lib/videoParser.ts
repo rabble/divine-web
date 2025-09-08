@@ -4,53 +4,21 @@
 import type { NostrEvent } from '@nostrify/nostrify';
 import type { VideoMetadata, VideoEvent } from '@/types/video';
 
-// Video hosting whitelist for validation
-const VIDEO_HOSTS = [
-  'openvine.co',
-  'nostr.build',
-  'void.cat',
-  'nostrcheck.me',
-  'nostrage.com',
-  'satellite.earth',
-  'primal.net',
-  'snort.social',
-  'nostrfiles.dev',
-  'nostrimg.com',
-  'cdn.jb55.com',
-  'media.nostr.band',
-  'i.imgur.com',
-  'media.tenor.com',
-  'media.giphy.com'
-];
-
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8'];
+// Common video file extensions - used only as hints, not requirements
+const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8', '.mpd', '.avi', '.mkv', '.ogv', '.ogg'];
 
 /**
- * Checks if a URL is a valid video URL
+ * Checks if a URL looks like it could be a video URL
+ * Following Postel's Law - be liberal in what we accept
  */
 function isValidVideoUrl(url: string): boolean {
   try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname.toLowerCase();
-    const pathname = urlObj.pathname.toLowerCase();
-    
-    // Check if host is whitelisted
-    const isWhitelistedHost = VIDEO_HOSTS.some(host => 
-      hostname.includes(host) || hostname.endsWith(`.${host}`)
-    );
-    
-    // Check if has video extension
-    const hasVideoExtension = VIDEO_EXTENSIONS.some(ext => 
-      pathname.endsWith(ext)
-    );
-    
-    // Check if URL contains video-related paths
-    const hasVideoPath = pathname.includes('/video') || 
-                        pathname.includes('/mp4') || 
-                        pathname.includes('/gif');
-    
-    return isWhitelistedHost || hasVideoExtension || hasVideoPath;
+    // Just verify it's a valid URL structure
+    new URL(url);
+    // Accept any valid URL - let the video player handle whether it can play it
+    return true;
   } catch {
+    // Not a valid URL structure
     return false;
   }
 }
@@ -106,7 +74,45 @@ function parseImetaTag(tag: string[]): VideoMetadata | null {
  * Extract video URL from various tag sources following priority order
  */
 function extractVideoUrl(event: NostrEvent): string | null {
-  // 1. Check imeta tags first (highest priority)
+  console.log('[VideoParser] Extracting video URL from event:', event.id);
+  console.log('[VideoParser] Event tags:', JSON.stringify(event.tags));
+  
+  // 1. Check r tag with download type (MP4 - prefer this for direct playback)
+  const downloadTag = event.tags.find(tag => 
+    tag[0] === 'r' && tag[2] === 'download' && tag[1]?.includes('.mp4')
+  );
+  if (downloadTag?.[1]) {
+    console.log('[VideoParser] Found MP4 download URL:', downloadTag[1]);
+    return downloadTag[1];
+  }
+  
+  // 2. Check imeta tags for MP4 URL
+  for (const tag of event.tags) {
+    if (tag[0] === 'imeta') {
+      for (let i = 1; i < tag.length; i += 2) {
+        if (tag[i] === 'url' && tag[i + 1]?.includes('.mp4')) {
+          console.log('[VideoParser] Found MP4 in imeta:', tag[i + 1]);
+          return tag[i + 1];
+        }
+      }
+    }
+  }
+  
+  // 3. Fall back to streaming tag for HLS if no MP4 found
+  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
+  if (streamingTag?.[1]) {
+    console.log('[VideoParser] Falling back to HLS streaming URL:', streamingTag[1]);
+    return streamingTag[1];
+  }
+  
+  // 4. Check url tag (could be either MP4 or HLS)
+  const urlTag = event.tags.find(tag => tag[0] === 'url');
+  if (urlTag?.[1]) {
+    console.log('[VideoParser] Found url tag:', urlTag[1]);
+    return urlTag[1];
+  }
+  
+  // 3. Check imeta tags
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
       const metadata = parseImetaTag(tag);
@@ -116,33 +122,27 @@ function extractVideoUrl(event: NostrEvent): string | null {
     }
   }
   
-  // 2. Check url tag
-  const urlTag = event.tags.find(tag => tag[0] === 'url');
-  if (urlTag?.[1] && isValidVideoUrl(urlTag[1])) {
-    return urlTag[1];
-  }
-  
-  // 3. Check r tag with video type annotation
+  // 4. Check r tag with download type (MP4 fallback)
   const rTag = event.tags.find(tag => 
-    tag[0] === 'r' && (tag[2] === 'video' || isValidVideoUrl(tag[1]))
+    tag[0] === 'r' && (tag[2] === 'download' || tag[2] === 'video' || isValidVideoUrl(tag[1]))
   );
   if (rTag?.[1]) {
     return rTag[1];
   }
   
-  // 4. Check e tag for video URL
+  // 5. Check e tag for video URL
   const eTag = event.tags.find(tag => tag[0] === 'e' && tag[1] && isValidVideoUrl(tag[1]));
   if (eTag?.[1]) {
     return eTag[1];
   }
   
-  // 5. Check i tag for video URL
+  // 6. Check i tag for video URL
   const iTag = event.tags.find(tag => tag[0] === 'i' && tag[1] && isValidVideoUrl(tag[1]));
   if (iTag?.[1]) {
     return iTag[1];
   }
   
-  // 6. Check any unknown tag for video URL
+  // 7. Check any unknown tag for video URL
   for (const tag of event.tags) {
     if (tag[1] && isValidVideoUrl(tag[1])) {
       return tag[1];
@@ -154,10 +154,12 @@ function extractVideoUrl(event: NostrEvent): string | null {
   const urls = event.content.match(urlRegex) || [];
   for (const url of urls) {
     if (isValidVideoUrl(url)) {
+      console.log('[VideoParser] Found URL in content:', url);
       return url;
     }
   }
   
+  console.log('[VideoParser] No video URL found for event:', event.id);
   return null;
 }
 
@@ -188,11 +190,16 @@ export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
  * Parse a video event and extract all relevant data
  */
 export function parseVideoEvent(event: NostrEvent): VideoEvent | null {
+  console.log('[VideoParser] Parsing event:', event.id, 'tags:', event.tags);
+  
   // Extract video metadata
   const videoMetadata = extractVideoMetadata(event);
   if (!videoMetadata) {
+    console.log('[VideoParser] No video metadata found for event:', event.id);
     return null;
   }
+  
+  console.log('[VideoParser] Extracted video metadata:', videoMetadata);
   
   // Extract other metadata
   const titleTag = event.tags.find(tag => tag[0] === 'title');

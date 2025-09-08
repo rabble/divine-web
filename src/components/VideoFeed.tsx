@@ -27,7 +27,7 @@ export function VideoFeed({
   feedType = 'discovery',
   hashtag,
   pubkey,
-  limit = 10, // Reduced initial limit for better performance
+  limit = 20, // Initial batch size
   className,
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
@@ -36,7 +36,7 @@ export function VideoFeed({
   const [allVideos, setAllVideos] = useState<ParsedVideoData[]>([]);
   const [lastTimestamp, setLastTimestamp] = useState<number | undefined>();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 10 }); // Start with first 10 videos visible
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 5 }); // Start with first 5 videos visible for better performance
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -115,9 +115,9 @@ export function VideoFeed({
     const visibleStart = Math.floor(scrollY / cardHeight);
     const visibleEnd = Math.ceil((scrollY + windowHeight) / cardHeight);
     
-    // Add buffer of 2 videos above and below
-    const startIndex = Math.max(0, visibleStart - 2);
-    const endIndex = Math.min(allVideos.length, visibleEnd + 2);
+    // Add buffer of 1 video above and below for smoother scrolling
+    const startIndex = Math.max(0, visibleStart - 1);
+    const endIndex = Math.min(allVideos.length, visibleEnd + 1);
     
     debugLog(`[VideoFeed] Scroll position: ${scrollY}, visible range: ${startIndex}-${endIndex}`);
     setVisibleRange({ start: startIndex, end: endIndex });
@@ -132,7 +132,7 @@ export function VideoFeed({
 
   useEffect(() => {
     // Set initial visible range when videos load
-    if (allVideos.length > 0 && visibleRange.end === 10) {
+    if (allVideos.length > 0 && visibleRange.end === 5) {
       debugLog(`[VideoFeed] Initial videos loaded: ${allVideos.length}`);
       handleScroll(); // Calculate initial visible range
     }
@@ -250,24 +250,25 @@ export function VideoFeed({
     >
       <div className="grid gap-6">
         {allVideos.map((video, index) => {
-          // Check if this video should be rendered
-          const shouldRender = index < 10 || (index >= visibleRange.start && index <= visibleRange.end);
-          
-          if (!shouldRender) {
-            // Return placeholder div to maintain scroll position
+          // Only render videos in the visible range
+          if (index >= visibleRange.start && index <= visibleRange.end) {
             return (
-              <div key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`} style={{ height: '600px' }} />
+              <VideoCard
+                key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+                video={video}
+                onLike={() => handleLike(video)}
+                onRepost={() => handleRepost(video)}
+                data-testid="video-card"
+              />
             );
           }
           
-          // Only create VideoCard for visible videos
+          // Return placeholder div to maintain scroll position
           return (
-            <VideoCard
-              key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
-              video={video}
-              onLike={() => handleLike(video)}
-              onRepost={() => handleRepost(video)}
-              data-testid="video-card"
+            <div 
+              key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`} 
+              style={{ height: '600px' }}
+              aria-hidden="true"
             />
           );
         })}

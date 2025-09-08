@@ -26,13 +26,13 @@ export function HashtagPage() {
   const { data: videos, isLoading: videosLoading } = useVideoEvents({
     feedType: 'hashtag',
     hashtag: normalizedTag,
-    limit: 1000 // Get all videos to calculate accurate stats
+    limit: 50 // Reduced limit for performance - stats will be approximate
   });
 
-  // Get all videos to find related hashtags
+  // Get sample videos to find related hashtags
   const { data: allVideos } = useVideoEvents({
     feedType: 'discovery',
-    limit: 1000
+    limit: 100 // Reduced limit for performance - related hashtags will be based on sample
   });
 
   // Calculate related hashtags

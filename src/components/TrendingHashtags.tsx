@@ -50,7 +50,7 @@ export function TrendingHashtags({
 
   const { data: videos, isLoading, error } = useVideoEvents({
     feedType: 'trending',
-    limit: 1000 // Get more videos to analyze hashtags
+    limit: 100 // Reduced for performance while maintaining trending analysis
   });
 
   // Calculate hashtag statistics

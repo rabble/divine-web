@@ -9,6 +9,7 @@ export interface VideoPlaybackContextType {
   setActiveVideo: (videoId: string | null) => void;
   registerVideo: (videoId: string, element: HTMLVideoElement) => void;
   unregisterVideo: (videoId: string) => void;
+  updateVideoVisibility: (videoId: string, visibilityRatio: number) => void;
   globalMuted: boolean;
   setGlobalMuted: (muted: boolean) => void;
 }
@@ -19,6 +20,8 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
   const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
   const [globalMuted, setGlobalMuted] = useState(true); // Start muted by default
   const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
+  const videoVisibility = useRef<Map<string, number>>(new Map());
+  const visibilityUpdateTimer = useRef<NodeJS.Timeout | null>(null);
 
   const setActiveVideo = (videoId: string | null) => {
     debugLog(`setActiveVideo called with: ${videoId}, current: ${activeVideoId}`);
@@ -37,6 +40,40 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
   const unregisterVideo = (videoId: string) => {
     debugLog(`Unregistering video: ${videoId}`);
     videoRefs.current.delete(videoId);
+    videoVisibility.current.delete(videoId);
+  };
+
+  const updateVideoVisibility = (videoId: string, visibilityRatio: number) => {
+    // Update visibility for this video
+    if (visibilityRatio > 0) {
+      videoVisibility.current.set(videoId, visibilityRatio);
+    } else {
+      videoVisibility.current.delete(videoId);
+    }
+
+    // Debounce the selection of most visible video
+    if (visibilityUpdateTimer.current) {
+      clearTimeout(visibilityUpdateTimer.current);
+    }
+
+    visibilityUpdateTimer.current = setTimeout(() => {
+      // Find the most visible video
+      let mostVisibleId: string | null = null;
+      let maxVisibility = 0;
+
+      videoVisibility.current.forEach((ratio, id) => {
+        if (ratio > maxVisibility) {
+          maxVisibility = ratio;
+          mostVisibleId = id;
+        }
+      });
+
+      // Only update if there's a visible video and it's different from current
+      if (mostVisibleId !== activeVideoId) {
+        debugLog(`Switching to most visible video: ${mostVisibleId} (${(maxVisibility * 100).toFixed(1)}% visible)`);
+        setActiveVideoId(mostVisibleId);
+      }
+    }, 100); // Small debounce to avoid rapid switching
   };
 
   return (
@@ -46,6 +83,7 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
         setActiveVideo,
         registerVideo,
         unregisterVideo,
+        updateVideoVisibility,
         globalMuted,
         setGlobalMuted,
       }}

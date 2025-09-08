@@ -23,6 +23,8 @@ All notable changes to Divine Web will be documented in this file.
 - Implemented proper video virtualization to only render visible videos
 - Fixed preload logic to load videos when in viewport
 - Removed duplicate debug panels (merged VideoDebugInfo into PerformanceDebugPanel)
+- Improved video scrolling behavior to always play the most visible video instead of any partially visible video
+- Ensured only one video plays at a time with proper pause/reset when scrolling
 
 ### Performance
 - Optimized video feed to use virtualization (only renders visible videos)

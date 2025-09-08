@@ -43,9 +43,10 @@ function useUniversalUserLookup(identifier: string | undefined) {
         debugLog(`[UniversalUserPage] Looking up Vine user ID: ${identifier}`);
 
         // Query for kind 0 events and search for matching vine_metadata.user_id
+        // Use smaller batches for better performance
         const events = await nostr.query([{
           kinds: [0],
-          limit: 5000,
+          limit: 500, // Reduced from 5000 for performance
         }], { signal });
 
         debugLog(`[UniversalUserPage] Searching through ${events.length} profiles for Vine ID`);
@@ -88,7 +89,7 @@ function useUniversalUserLookup(identifier: string | undefined) {
         // Query for kind 0 events with matching NIP-05
         const events = await nostr.query([{
           kinds: [0],
-          limit: 5000,
+          limit: 500, // Reduced from 5000 for performance
         }], { signal });
 
         for (const event of events) {

@@ -76,7 +76,7 @@ async function getReactionCounts(
       kinds: [6, 7], // Reposts and reactions
       '#e': videoIds,
       since, // Only count recent reactions
-      limit: 1000
+      limit: 200 // Reduced from 1000 for performance
     }], { signal });
 
     // Count reactions per video
@@ -127,12 +127,15 @@ async function parseVideoEvents(
       continue;
     }
     
+    const videoUrl = videoEvent.videoMetadata!.url;
+    console.log(`[useVideoEvents] Processing video ${event.id} with URL: ${videoUrl}`);
+    
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
       createdAt: event.created_at,
       content: event.content,
-      videoUrl: videoEvent.videoMetadata!.url,
+      videoUrl,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
@@ -236,7 +239,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       // Build base filter - optimize query size
       const baseFilter: NostrFilter = {
         kinds: [VIDEO_KIND], // Query videos and reposts separately for better performance
-        limit: Math.min(limit * 2, 100), // Reduce initial query size
+        limit: Math.min(limit, 50), // Further reduced for better performance
         ...filter
       };
 
@@ -261,7 +264,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         }
       } else if (feedType === 'trending') {
         // For trending, get more videos to rank by reactions
-        baseFilter.limit = Math.min(limit * 3, 150); // Get more to filter trending
+        baseFilter.limit = Math.min(limit * 2, 100); // Reduced from 150 for performance
         // Note: We intentionally don't use 'since' here to get all available videos
       }
       
@@ -276,7 +279,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {
-          const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 50 };
+          const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 25 }; // Reduced from 50
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
           debugLog(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);

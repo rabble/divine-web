@@ -21,6 +21,8 @@ import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import OpenSourcePage from "./pages/OpenSourcePage";
 import { AppLayout } from "@/components/AppLayout";
+import { TestVideoPage } from "./pages/TestVideoPage";
+import { DebugVideoPage } from "./pages/DebugVideoPage";
 
 export function AppRouter() {
   return (
@@ -44,6 +46,9 @@ export function AppRouter() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
+          {/* Test pages for debugging */}
+          <Route path="/test-video" element={<TestVideoPage />} />
+          <Route path="/debug-video" element={<DebugVideoPage />} />
           {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
           <Route path="/u/:userId" element={<UniversalUserPage />} />
           {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}

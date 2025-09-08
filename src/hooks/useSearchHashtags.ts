@@ -90,7 +90,7 @@ export function useSearchHashtags(options: UseSearchHashtagsOptions) {
       const events = await nostr.query([{
         kinds: [VIDEO_KIND],
         since,
-        limit: 1000, // Get enough videos to have good hashtag coverage
+        limit: 100, // Reduced for performance while maintaining decent hashtag coverage
       }], { signal });
       
       // Extract and count hashtags
