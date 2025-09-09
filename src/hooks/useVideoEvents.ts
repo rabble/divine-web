@@ -76,7 +76,7 @@ async function getReactionCounts(
       kinds: [6, 7], // Reposts and reactions
       '#e': videoIds,
       since, // Only count recent reactions
-      limit: 200 // Reduced from 1000 for performance
+      limit: 100 // Optimized for performance
     }], { signal });
 
     // Count reactions per video
@@ -241,7 +241,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       // Build base filter - optimize query size
       const baseFilter: NostrFilter = {
         kinds: [VIDEO_KIND], // Query videos and reposts separately for better performance
-        limit: Math.min(limit, 50), // Further reduced for better performance
+        limit: Math.min(limit, 30), // Optimized for faster initial load
         ...filter
       };
 
@@ -266,7 +266,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         }
       } else if (feedType === 'trending') {
         // For trending, get more videos to rank by reactions
-        baseFilter.limit = Math.min(limit * 2, 100); // Reduced from 150 for performance
+        baseFilter.limit = Math.min(limit * 2, 60); // Optimized for faster trending feed
         // Note: We intentionally don't use 'since' here to get all available videos
       }
       
@@ -281,7 +281,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {
-          const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 25 }; // Reduced from 50
+          const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
           debugLog(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);
@@ -303,7 +303,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         if (parsed.length === 0) {
           try {
             const fallbackEvents = await nostr.query([
-              { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min(limit * 5, 200) }
+              { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
             ], { signal });
             const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr);
             parsed = fallbackParsed.filter(v => {

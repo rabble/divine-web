@@ -293,10 +293,10 @@ export function useVideoEventsWithLogging(options: UseVideoEventsOptions = {}) {
         AbortSignal.timeout(10000)
       ]);
       
-      // Build base filter
+      // Build base filter - optimize for fast initial load
       const baseFilter: NostrFilter = {
-        kinds: [VIDEO_KIND, REPOST_KIND],
-        limit: 200,
+        kinds: [VIDEO_KIND],  // Query videos and reposts separately for better performance
+        limit: Math.min(limit || 20, 30),  // Start with fewer videos for faster load
         ...filter
       };
 
@@ -321,7 +321,7 @@ export function useVideoEventsWithLogging(options: UseVideoEventsOptions = {}) {
           return [];
         }
       } else if (feedType === 'trending') {
-        baseFilter.limit = Math.min(limit * 3, 150);
+        baseFilter.limit = Math.min((limit || 20) * 2, 60);  // Reduced for performance
         console.log(`[VideoEvents] Getting trending videos (limit: ${baseFilter.limit})`);
       }
       
@@ -348,7 +348,7 @@ export function useVideoEventsWithLogging(options: UseVideoEventsOptions = {}) {
         try {
           const fallbackStart = performance.now();
           const fallbackEvents = await nostr.query([
-            { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min(limit * 5, 200) }
+            { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min((limit || 20) * 3, 100) }  // Reduced for performance
           ], { signal });
           
           console.log(`[VideoEvents] Fallback query returned ${fallbackEvents.length} events in ${(performance.now() - fallbackStart).toFixed(2)}ms`);

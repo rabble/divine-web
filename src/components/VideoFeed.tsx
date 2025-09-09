@@ -36,7 +36,7 @@ export function VideoFeed({
   const [allVideos, setAllVideos] = useState<ParsedVideoData[]>([]);
   const [lastTimestamp, setLastTimestamp] = useState<number | undefined>();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 5 }); // Start with first 5 videos visible for better performance
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 3 }); // Start with first 3 videos for faster initial render
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -132,7 +132,7 @@ export function VideoFeed({
 
   useEffect(() => {
     // Set initial visible range when videos load
-    if (allVideos.length > 0 && visibleRange.end === 5) {
+    if (allVideos.length > 0 && visibleRange.end === 3) {
       debugLog(`[VideoFeed] Initial videos loaded: ${allVideos.length}`);
       handleScroll(); // Calculate initial visible range
     }

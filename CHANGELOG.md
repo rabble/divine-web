@@ -32,6 +32,10 @@ All notable changes to Divine Web will be documented in this file.
 - Lazy loading of video metadata with intersection observer
 - Reduced initial query size for better performance
 - Videos preload metadata when scrolled into view
+- Reduced initial query limit from 200 to 30 for faster load times
+- Optimized initial render to show 3 videos instead of 5
+- Changed video preload strategy to 'auto' for visible videos
+- Reduced repost query limits for better performance
 
 ## [0.1.0] - Initial Release
 - Basic Divine Web functionality

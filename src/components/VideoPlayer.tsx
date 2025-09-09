@@ -559,8 +559,8 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           autoPlay={false} // Never autoplay, we control playback programmatically
           loop
           playsInline
-          // Preload when in view (not just when active)
-          preload={inView ? 'metadata' : 'none'}
+          // Preload metadata for videos in view for faster playback
+          preload={inView ? 'auto' : 'none'}
           crossOrigin="anonymous"
           disableRemotePlayback
           referrerPolicy="no-referrer"
