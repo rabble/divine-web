@@ -157,13 +157,21 @@ async function parseVideoEvents(
       continue;
     }
     
+    const videoUrl = videoEvent.videoMetadata?.url;
+    if (!videoUrl) {
+      console.error(`[VideoEvents] No video URL in metadata for event ${event.id}:`, videoEvent.videoMetadata);
+      invalidVideos++;
+      continue;
+    }
+    
     validVideos++;
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
       createdAt: event.created_at,
       content: event.content,
-      videoUrl: videoEvent.videoMetadata!.url,
+      videoUrl,
+      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
@@ -236,12 +244,20 @@ async function parseVideoEvents(
       continue;
     }
     
+    const videoUrl = videoEvent.videoMetadata?.url;
+    if (!videoUrl) {
+      console.error(`[VideoEvents] No video URL in repost metadata for event ${originalVideo.id}:`, videoEvent.videoMetadata);
+      repostsSkipped++;
+      continue;
+    }
+    
     parsedVideos.push({
       id: repost.id,
       pubkey: originalVideo.pubkey,
       createdAt: originalVideo.created_at,
       content: originalVideo.content,
-      videoUrl: videoEvent.videoMetadata!.url,
+      videoUrl,
+      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,

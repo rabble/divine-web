@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSeoMeta } from '@unhead/react';
 import { useNavigate } from 'react-router-dom';
-import { VideoFeedWithLogging } from '@/components/VideoFeedWithLogging';
+import { VideoFeed } from '@/components/VideoFeed';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -39,12 +39,12 @@ const Index = () => {
           </TabsList>
 
           <TabsContent value="discovery" className="mt-0">
-            <VideoFeedWithLogging feedType="discovery" className="max-w-2xl mx-auto" />
+            <VideoFeed feedType="discovery" className="max-w-2xl mx-auto" />
           </TabsContent>
 
           <TabsContent value="following" className="mt-0">
             {user ? (
-              <VideoFeedWithLogging feedType="home" className="max-w-2xl mx-auto" />
+              <VideoFeed feedType="home" className="max-w-2xl mx-auto" />
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground mb-4">
@@ -56,7 +56,7 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="trending" className="mt-0">
-            <VideoFeedWithLogging feedType="trending" className="max-w-2xl mx-auto" />
+            <VideoFeed feedType="trending" className="max-w-2xl mx-auto" />
           </TabsContent>
         </Tabs>
       </main>
