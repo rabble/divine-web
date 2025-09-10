@@ -489,13 +489,25 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Initialize URLs array
     useEffect(() => {
-      const urls = [src];
+      debugLog(`[VideoPlayer ${videoId}] Initializing URLs - src: ${src}, fallbackUrls: ${JSON.stringify(fallbackUrls)}`);
+      
+      const urls: string[] = [];
+      if (src) {
+        urls.push(src);
+      }
       if (fallbackUrls && fallbackUrls.length > 0) {
         urls.push(...fallbackUrls);
       }
+      
+      if (urls.length === 0) {
+        debugError(`[VideoPlayer ${videoId}] No valid URLs provided!`);
+        setHasError(true);
+        return;
+      }
+      
       setAllUrls(urls);
       setCurrentUrlIndex(0);
-      debugLog(`[VideoPlayer ${videoId}] Initialized with ${urls.length} URLs (primary + ${fallbackUrls?.length || 0} fallbacks)`);
+      debugLog(`[VideoPlayer ${videoId}] Initialized with ${urls.length} URLs (primary: ${!!src}, fallbacks: ${fallbackUrls?.length || 0})`);
     }, [src, fallbackUrls, videoId]);
 
     // Set video source - with fallback support

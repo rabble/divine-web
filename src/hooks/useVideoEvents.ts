@@ -127,7 +127,11 @@ async function parseVideoEvents(
       continue;
     }
     
-    const videoUrl = videoEvent.videoMetadata!.url;
+    const videoUrl = videoEvent.videoMetadata?.url;
+    if (!videoUrl) {
+      console.error(`[useVideoEvents] No video URL in metadata for event ${event.id}:`, videoEvent.videoMetadata);
+      continue;
+    }
     console.log(`[useVideoEvents] Processing video ${event.id} with URL: ${videoUrl}`);
     
     parsedVideos.push({

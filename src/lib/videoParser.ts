@@ -211,18 +211,21 @@ function extractVideoUrl(event: NostrEvent): string | null {
  */
 function extractAllVideoUrls(event: NostrEvent): string[] {
   const urls: string[] = [];
+  console.log('[extractAllVideoUrls] Starting extraction for event:', event.id);
   
   // 1. MP4 download URL (preferred)
   const downloadTag = event.tags.find(tag => 
     tag[0] === 'r' && tag[2] === 'download' && tag[1]?.includes('.mp4')
   );
   if (downloadTag?.[1]) {
+    console.log('[extractAllVideoUrls] Found MP4 download:', downloadTag[1]);
     urls.push(downloadTag[1]);
   }
   
   // 2. HLS streaming URL
   const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
   if (streamingTag?.[1] && !urls.includes(streamingTag[1])) {
+    console.log('[extractAllVideoUrls] Found HLS streaming:', streamingTag[1]);
     urls.push(streamingTag[1]);
   }
   
@@ -282,19 +285,24 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
  * Extract all video metadata from event
  */
 export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
+  console.log('[extractVideoMetadata] Starting extraction for event:', event.id);
+  
   // Get all available URLs
   const allUrls = extractAllVideoUrls(event);
+  console.log('[extractVideoMetadata] All URLs found:', allUrls);
   
   // First try to get full metadata from imeta tag
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
       const metadata = parseImetaTag(tag);
+      console.log('[extractVideoMetadata] Parsed imeta tag:', metadata);
       if (metadata?.url) {
         // Add fallback URLs
         const fallbackUrls = allUrls.filter(u => u !== metadata.url);
         if (fallbackUrls.length > 0) {
           metadata.fallbackUrls = fallbackUrls;
         }
+        console.log('[extractVideoMetadata] Returning metadata from imeta:', metadata);
         return metadata;
       }
     }
@@ -302,14 +310,18 @@ export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
   
   // Fallback to just URL extraction
   const url = extractVideoUrl(event);
+  console.log('[extractVideoMetadata] Extracted primary URL:', url);
   if (url) {
     const fallbackUrls = allUrls.filter(u => u !== url);
-    return { 
+    const result = { 
       url,
       fallbackUrls: fallbackUrls.length > 0 ? fallbackUrls : undefined
     };
+    console.log('[extractVideoMetadata] Returning metadata with URL:', result);
+    return result;
   }
   
+  console.log('[extractVideoMetadata] No video metadata found');
   return null;
 }
 
@@ -326,7 +338,7 @@ export function parseVideoEvent(event: NostrEvent): VideoEvent | null {
     return null;
   }
   
-  console.log('[VideoParser] Extracted video metadata:', videoMetadata);
+  console.log('[VideoParser] Extracted video metadata:', JSON.stringify(videoMetadata));
   
   // Extract other metadata
   const titleTag = event.tags.find(tag => tag[0] === 'title');

@@ -87,6 +87,7 @@ export function VideoCard({
   const timestamp = video.originalVineTimestamp || video.createdAt;
   
   // Debug logging
+  console.log(`[VideoCard] Rendering video ${video.id}: videoUrl=${video.videoUrl}, fallbackUrls=${JSON.stringify(video.fallbackVideoUrls)}`);
   if (video.vineId) {
     console.log(`[VideoCard] Vine ${video.vineId}: originalVineTimestamp=${video.originalVineTimestamp}, createdAt=${video.createdAt}, timestamp=${timestamp}`);
   }
