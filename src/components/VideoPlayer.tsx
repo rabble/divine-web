@@ -592,7 +592,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           preload={inView ? 'auto' : 'none'}
           crossOrigin="anonymous"
           disableRemotePlayback
-          referrerPolicy="no-referrer"
           className="w-full h-full object-contain"
           onLoadStart={handleLoadStart}
           onLoadedData={handleLoadedData}

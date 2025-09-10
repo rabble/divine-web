@@ -109,7 +109,7 @@ export function VideoCard({
     const yearsDiff = now.getFullYear() - date.getFullYear();
     
     // If more than 1 year old, show the actual date
-    if (yearsDiff > 1 || (yearsDiff === 1 && now < new Date(date).setFullYear(date.getFullYear() + 1))) {
+    if (yearsDiff > 1 || (yearsDiff === 1 && now.getTime() < new Date(date).setFullYear(date.getFullYear() + 1))) {
       // Format as "Jan 15, 2021" for old dates
       timeAgo = date.toLocaleDateString('en-US', { 
         month: 'short', 
