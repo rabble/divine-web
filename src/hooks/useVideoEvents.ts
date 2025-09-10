@@ -108,31 +108,38 @@ async function parseVideoEvents(
   const videoEvents = events.filter(e => e.kind === VIDEO_KIND);
   const repostEvents = events.filter(e => e.kind === REPOST_KIND);
   
+  debugLog(`[useVideoEvents] Processing ${videoEvents.length} videos and ${repostEvents.length} reposts`);
+  
+  let validVideos = 0;
+  let invalidVideos = 0;
+  
   // Process direct video events
   for (const event of videoEvents) {
     if (!validateVideoEvent(event)) {
-      // Skip invalid events silently - following Postel's Law
+      invalidVideos++;
       continue;
     }
     
     const videoEvent = parseVideoEvent(event);
     if (!videoEvent) {
-      // Skip events that can't be parsed
+      invalidVideos++;
       continue;
     }
     
     const vineId = getVineId(event);
     if (!vineId) {
-      // Skip events without proper d tag
+      invalidVideos++;
       continue;
     }
     
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
-      console.error(`[useVideoEvents] No video URL in metadata for event ${event.id}:`, videoEvent.videoMetadata);
+      debugError(`[useVideoEvents] No video URL in metadata for event ${event.id}:`, videoEvent.videoMetadata);
+      invalidVideos++;
       continue;
     }
-    console.log(`[useVideoEvents] Processing video ${event.id} with URL: ${videoUrl}`);
+    
+    validVideos++;
     
     parsedVideos.push({
       id: event.id,
@@ -152,15 +159,25 @@ async function parseVideoEvents(
     });
   }
   
+  debugLog(`[useVideoEvents] Parsed ${validVideos} valid videos, ${invalidVideos} invalid`);
+  
   // Process reposts
+  let repostsFetched = 0;
+  let repostsSkipped = 0;
   for (const repost of repostEvents) {
     // Extract 'a' tag for addressable event reference
     const aTag = repost.tags.find(tag => tag[0] === 'a');
-    if (!aTag?.[1]) continue;
+    if (!aTag?.[1]) {
+      repostsSkipped++;
+      continue;
+    }
     
     // Parse addressable coordinate
     const [kind, pubkey, dTag] = aTag[1].split(':');
-    if (kind !== String(VIDEO_KIND) || !pubkey || !dTag) continue;
+    if (kind !== String(VIDEO_KIND) || !pubkey || !dTag) {
+      repostsSkipped++;
+      continue;
+    }
     
     // Fetch original video if not in current batch
     let originalVideo = videoEvents.find(e => 
@@ -179,18 +196,36 @@ async function parseVideoEvents(
         }], { signal });
         
         originalVideo = events[0];
+        repostsFetched++;
       } catch {
+        repostsSkipped++;
         continue;
       }
     }
     
-    if (!originalVideo || !validateVideoEvent(originalVideo)) continue;
+    if (!originalVideo || !validateVideoEvent(originalVideo)) {
+      repostsSkipped++;
+      continue;
+    }
     
     const videoEvent = parseVideoEvent(originalVideo);
-    if (!videoEvent) continue;
+    if (!videoEvent) {
+      repostsSkipped++;
+      continue;
+    }
     
     const vineId = getVineId(originalVideo);
-    if (!vineId) continue;
+    if (!vineId) {
+      repostsSkipped++;
+      continue;
+    }
+    
+    const videoUrl = videoEvent.videoMetadata?.url;
+    if (!videoUrl) {
+      debugError(`[useVideoEvents] No video URL in repost metadata for event ${originalVideo.id}:`, videoEvent.videoMetadata);
+      repostsSkipped++;
+      continue;
+    }
     
     parsedVideos.push({
       id: repost.id,
@@ -198,7 +233,7 @@ async function parseVideoEvents(
       createdAt: originalVideo.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
       content: originalVideo.content,
-      videoUrl: videoEvent.videoMetadata!.url,
+      videoUrl,
       fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
@@ -211,6 +246,8 @@ async function parseVideoEvents(
       loopCount: getLoopCount(originalVideo)
     });
   }
+  
+  debugLog(`[useVideoEvents] Processed reposts: ${repostsFetched} fetched, ${repostsSkipped} skipped`);
   
   // Sort by loop count (highest first), then by created_at for ties
   return parsedVideos.sort((a, b) => {
@@ -237,7 +274,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
-      debugLog(`[useVideoEvents] Starting query for ${feedType} feed`);
+      debugLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
+      debugLog(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
       
       const signal = AbortSignal.any([
         context.signal,

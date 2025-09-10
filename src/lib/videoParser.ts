@@ -115,13 +115,46 @@ function parseImetaTag(tag: string[]): VideoMetadata | null {
 }
 
 /**
+ * Convert Divine CDN HLS URL to MP4 URL
+ * Example: https://cdn.divine.video/xyz/manifest/video.m3u8 -> https://cdn.divine.video/xyz/downloads/default.mp4
+ */
+function convertHlsToMp4(hlsUrl: string): string | null {
+  // Skip if already an MP4 URL
+  if (hlsUrl.includes('.mp4')) {
+    return null;
+  }
+  
+  if (hlsUrl.includes('cdn.divine.video') && hlsUrl.includes('/manifest/video.m3u8')) {
+    const mp4Url = hlsUrl.replace('/manifest/video.m3u8', '/downloads/default.mp4');
+    console.log('[VideoParser] Converted HLS to MP4:', hlsUrl, '->', mp4Url);
+    return mp4Url;
+  }
+  return null;
+}
+
+/**
  * Extract video URL from various tag sources following priority order
  */
 function extractVideoUrl(event: NostrEvent): string | null {
   console.log('[VideoParser] Extracting video URL from event:', event.id);
   console.log('[VideoParser] Event tags:', JSON.stringify(event.tags));
   
-  // 1. Check r tag for video URL (prefer MP4 for direct playback)
+  // 1. FIRST CHECK imeta tags - Divine videos ALWAYS have the MP4 URL here
+  for (const tag of event.tags) {
+    if (tag[0] === 'imeta') {
+      const metadata = parseImetaTag(tag);
+      if (metadata?.url) {
+        console.log('[VideoParser] Found URL in imeta:', metadata.url);
+        // Divine videos have the MP4 in imeta url field
+        if (metadata.url.includes('.mp4') || metadata.url.includes('/downloads/')) {
+          console.log('[VideoParser] Found MP4 in imeta, using it!');
+          return metadata.url;
+        }
+      }
+    }
+  }
+  
+  // 2. Check r tag for video URL (fallback if no imeta)
   const rTag = event.tags.find(tag => tag[0] === 'r');
   if (rTag?.[1]) {
     console.log('[VideoParser] Found URL in r tag:', rTag[1]);
@@ -130,17 +163,10 @@ function extractVideoUrl(event: NostrEvent): string | null {
       console.log('[VideoParser] It\'s an MP4, using it');
       return rTag[1];
     }
-    // Otherwise save it as a fallback option
-  }
-  
-  // 2. Check imeta tags for MP4 URL
-  for (const tag of event.tags) {
-    if (tag[0] === 'imeta') {
-      const metadata = parseImetaTag(tag);
-      if (metadata?.url && metadata.url.includes('.mp4')) {
-        console.log('[VideoParser] Found MP4 in imeta:', metadata.url);
-        return metadata.url;
-      }
+    // Try to convert HLS to MP4 for Divine CDN
+    const mp4Url = convertHlsToMp4(rTag[1]);
+    if (mp4Url) {
+      return mp4Url;
     }
   }
   
@@ -148,20 +174,30 @@ function extractVideoUrl(event: NostrEvent): string | null {
   const urlTag = event.tags.find(tag => tag[0] === 'url');
   if (urlTag?.[1]) {
     console.log('[VideoParser] Found url tag:', urlTag[1]);
+    // Try to convert HLS to MP4 for Divine CDN
+    const mp4Url = convertHlsToMp4(urlTag[1]);
+    if (mp4Url) {
+      return mp4Url;
+    }
     return urlTag[1];
   }
   
-  // 4. Fall back to r tag if we saved it earlier
+  // 4. Check streaming tag for HLS and convert to MP4
+  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
+  if (streamingTag?.[1]) {
+    console.log('[VideoParser] Found HLS streaming URL:', streamingTag[1]);
+    // Try to convert HLS to MP4 for Divine CDN
+    const mp4Url = convertHlsToMp4(streamingTag[1]);
+    if (mp4Url) {
+      return mp4Url;
+    }
+    return streamingTag[1];
+  }
+  
+  // 5. Fall back to r tag if we saved it earlier
   if (rTag?.[1]) {
     console.log('[VideoParser] Using r tag as fallback:', rTag[1]);
     return rTag[1];
-  }
-  
-  // 5. Last resort: streaming tag for HLS
-  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
-  if (streamingTag?.[1]) {
-    console.log('[VideoParser] Last resort - HLS streaming URL:', streamingTag[1]);
-    return streamingTag[1];
   }
   
   // 3. Check imeta tags
@@ -214,16 +250,31 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
   const urls: string[] = [];
   console.log('[extractAllVideoUrls] Starting extraction for event:', event.id);
   
-  // 1. All r tags (prefer MP4s)
+  // 1. All r tags (prefer MP4s, skip DASH/MPD)
   const rTags = event.tags.filter(tag => tag[0] === 'r' && tag[1]);
   for (const rTag of rTags) {
     if (rTag[1] && !urls.includes(rTag[1])) {
       console.log('[extractAllVideoUrls] Found r tag URL:', rTag[1]);
+      
+      // Skip DASH/MPD files - they don't work in browsers
+      if (rTag[1].includes('.mpd') || rTag[2] === 'dash') {
+        console.log('[extractAllVideoUrls] Skipping DASH/MPD URL (not supported in browsers)');
+        continue;
+      }
+      
       // Put MP4s first
       if (rTag[1].includes('.mp4') || rTag[1].includes('/mp4/')) {
         urls.unshift(rTag[1]);
       } else {
-        urls.push(rTag[1]);
+        // Try to convert HLS to MP4 for Divine CDN
+        const mp4Url = convertHlsToMp4(rTag[1]);
+        if (mp4Url && !urls.includes(mp4Url)) {
+          urls.unshift(mp4Url); // MP4 goes first
+        }
+        // Only add HLS as fallback, not DASH
+        if (rTag[1].includes('.m3u8') || rTag[2] === 'hls') {
+          urls.push(rTag[1]);
+        }
       }
     }
   }
@@ -232,6 +283,11 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
   const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
   if (streamingTag?.[1] && !urls.includes(streamingTag[1])) {
     console.log('[extractAllVideoUrls] Found HLS streaming:', streamingTag[1]);
+    // Try to convert HLS to MP4 for Divine CDN
+    const mp4Url = convertHlsToMp4(streamingTag[1]);
+    if (mp4Url && !urls.includes(mp4Url)) {
+      urls.unshift(mp4Url); // MP4 goes first
+    }
     urls.push(streamingTag[1]);
   }
   
@@ -257,9 +313,12 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
           if (key === 'url' && isValidVideoUrl(value) && !urls.includes(value)) {
             urls.push(value);
           }
-          // Add fallback URLs
+          // Add fallback URLs (skip DASH/MPD)
           if (key === 'fallback' && isValidVideoUrl(value) && !urls.includes(value)) {
-            urls.push(value);
+            // Skip DASH/MPD files - they don't work in browsers
+            if (!value.includes('.mpd')) {
+              urls.push(value);
+            }
           }
         }
       } else {
@@ -274,9 +333,12 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
           if (key === 'url' && isValidVideoUrl(value) && !urls.includes(value)) {
             urls.push(value);
           }
-          // Add fallback URLs
+          // Add fallback URLs (skip DASH/MPD)
           if (key === 'fallback' && isValidVideoUrl(value) && !urls.includes(value)) {
-            urls.push(value);
+            // Skip DASH/MPD files - they don't work in browsers
+            if (!value.includes('.mpd')) {
+              urls.push(value);
+            }
           }
         }
       }
@@ -293,42 +355,46 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
 export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
   console.log('[extractVideoMetadata] Starting extraction for event:', event.id);
   
-  // Get all available URLs
+  // ALWAYS use extractVideoUrl to get the primary URL (it prioritizes MP4)
+  const primaryUrl = extractVideoUrl(event);
+  console.log('[extractVideoMetadata] Primary URL from extractVideoUrl:', primaryUrl);
+  
+  if (!primaryUrl) {
+    console.log('[extractVideoMetadata] No primary URL found');
+    return null;
+  }
+  
+  // Get all available URLs for fallbacks
   const allUrls = extractAllVideoUrls(event);
   console.log('[extractVideoMetadata] All URLs found:', allUrls);
   
-  // First try to get full metadata from imeta tag
+  // Try to get additional metadata from imeta tag (but NOT the URL)
+  let metadata: VideoMetadata = { url: primaryUrl };
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
-      const metadata = parseImetaTag(tag);
-      console.log('[extractVideoMetadata] Parsed imeta tag:', metadata);
-      if (metadata?.url) {
-        // Add fallback URLs
-        const fallbackUrls = allUrls.filter(u => u !== metadata.url);
-        if (fallbackUrls.length > 0) {
-          metadata.fallbackUrls = fallbackUrls;
-        }
-        console.log('[extractVideoMetadata] Returning metadata from imeta:', metadata);
-        return metadata;
+      const imetaData = parseImetaTag(tag);
+      console.log('[extractVideoMetadata] Parsed imeta tag for metadata:', imetaData);
+      if (imetaData) {
+        // Copy over metadata fields EXCEPT the URL (we use our extracted MP4 URL)
+        metadata.mimeType = imetaData.mimeType || metadata.mimeType;
+        metadata.dimensions = imetaData.dimensions || metadata.dimensions;
+        metadata.blurhash = imetaData.blurhash || metadata.blurhash;
+        metadata.thumbnailUrl = imetaData.thumbnailUrl || metadata.thumbnailUrl;
+        metadata.duration = imetaData.duration || metadata.duration;
+        metadata.size = imetaData.size || metadata.size;
+        metadata.hash = imetaData.hash || metadata.hash;
       }
     }
   }
   
-  // Fallback to just URL extraction
-  const url = extractVideoUrl(event);
-  console.log('[extractVideoMetadata] Extracted primary URL:', url);
-  if (url) {
-    const fallbackUrls = allUrls.filter(u => u !== url);
-    const result = { 
-      url,
-      fallbackUrls: fallbackUrls.length > 0 ? fallbackUrls : undefined
-    };
-    console.log('[extractVideoMetadata] Returning metadata with URL:', result);
-    return result;
+  // Add fallback URLs (excluding the primary URL and DASH/MPD)
+  const fallbackUrls = allUrls.filter(u => u !== primaryUrl && !u.includes('.mpd'));
+  if (fallbackUrls.length > 0) {
+    metadata.fallbackUrls = fallbackUrls;
   }
   
-  console.log('[extractVideoMetadata] No video metadata found');
-  return null;
+  console.log('[extractVideoMetadata] Returning metadata with MP4 URL:', metadata);
+  return metadata;
 }
 
 /**
