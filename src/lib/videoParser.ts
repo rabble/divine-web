@@ -121,13 +121,16 @@ function extractVideoUrl(event: NostrEvent): string | null {
   console.log('[VideoParser] Extracting video URL from event:', event.id);
   console.log('[VideoParser] Event tags:', JSON.stringify(event.tags));
   
-  // 1. Check r tag with download type (MP4 - prefer this for direct playback)
-  const downloadTag = event.tags.find(tag => 
-    tag[0] === 'r' && tag[2] === 'download' && tag[1]?.includes('.mp4')
-  );
-  if (downloadTag?.[1]) {
-    console.log('[VideoParser] Found MP4 download URL:', downloadTag[1]);
-    return downloadTag[1];
+  // 1. Check r tag for video URL (prefer MP4 for direct playback)
+  const rTag = event.tags.find(tag => tag[0] === 'r');
+  if (rTag?.[1]) {
+    console.log('[VideoParser] Found URL in r tag:', rTag[1]);
+    // If it's clearly an MP4, return it immediately
+    if (rTag[1].includes('.mp4') || rTag[1].includes('/mp4/')) {
+      console.log('[VideoParser] It\'s an MP4, using it');
+      return rTag[1];
+    }
+    // Otherwise save it as a fallback option
   }
   
   // 2. Check imeta tags for MP4 URL
@@ -141,18 +144,24 @@ function extractVideoUrl(event: NostrEvent): string | null {
     }
   }
   
-  // 3. Fall back to streaming tag for HLS if no MP4 found
-  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
-  if (streamingTag?.[1]) {
-    console.log('[VideoParser] Falling back to HLS streaming URL:', streamingTag[1]);
-    return streamingTag[1];
-  }
-  
-  // 4. Check url tag (could be either MP4 or HLS)
+  // 3. Check url tag (could be either MP4 or HLS)
   const urlTag = event.tags.find(tag => tag[0] === 'url');
   if (urlTag?.[1]) {
     console.log('[VideoParser] Found url tag:', urlTag[1]);
     return urlTag[1];
+  }
+  
+  // 4. Fall back to r tag if we saved it earlier
+  if (rTag?.[1]) {
+    console.log('[VideoParser] Using r tag as fallback:', rTag[1]);
+    return rTag[1];
+  }
+  
+  // 5. Last resort: streaming tag for HLS
+  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
+  if (streamingTag?.[1]) {
+    console.log('[VideoParser] Last resort - HLS streaming URL:', streamingTag[1]);
+    return streamingTag[1];
   }
   
   // 3. Check imeta tags
@@ -165,15 +174,7 @@ function extractVideoUrl(event: NostrEvent): string | null {
     }
   }
   
-  // 4. Check r tag with download type (MP4 fallback)
-  const rTag = event.tags.find(tag => 
-    tag[0] === 'r' && (tag[2] === 'download' || tag[2] === 'video' || isValidVideoUrl(tag[1]))
-  );
-  if (rTag?.[1]) {
-    return rTag[1];
-  }
-  
-  // 5. Check e tag for video URL
+  // Check e tag for video URL
   const eTag = event.tags.find(tag => tag[0] === 'e' && tag[1] && isValidVideoUrl(tag[1]));
   if (eTag?.[1]) {
     return eTag[1];
@@ -213,13 +214,18 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
   const urls: string[] = [];
   console.log('[extractAllVideoUrls] Starting extraction for event:', event.id);
   
-  // 1. MP4 download URL (preferred)
-  const downloadTag = event.tags.find(tag => 
-    tag[0] === 'r' && tag[2] === 'download' && tag[1]?.includes('.mp4')
-  );
-  if (downloadTag?.[1]) {
-    console.log('[extractAllVideoUrls] Found MP4 download:', downloadTag[1]);
-    urls.push(downloadTag[1]);
+  // 1. All r tags (prefer MP4s)
+  const rTags = event.tags.filter(tag => tag[0] === 'r' && tag[1]);
+  for (const rTag of rTags) {
+    if (rTag[1] && !urls.includes(rTag[1])) {
+      console.log('[extractAllVideoUrls] Found r tag URL:', rTag[1]);
+      // Put MP4s first
+      if (rTag[1].includes('.mp4') || rTag[1].includes('/mp4/')) {
+        urls.unshift(rTag[1]);
+      } else {
+        urls.push(rTag[1]);
+      }
+    }
   }
   
   // 2. HLS streaming URL
