@@ -25,45 +25,89 @@ function isValidVideoUrl(url: string): boolean {
 
 /**
  * Parse imeta tag to extract video metadata
+ * imeta tags can be formatted as:
+ * 1. Space-separated pairs in a single string: ["imeta", "url https://... m video/mp4 ..."]
+ * 2. Alternating key-value pairs: ["imeta", "url", "https://...", "m", "video/mp4", ...]
  */
 function parseImetaTag(tag: string[]): VideoMetadata | null {
   if (tag[0] !== 'imeta') return null;
   
   const metadata: VideoMetadata = { url: '' };
   
-  for (let i = 1; i < tag.length; i += 2) {
-    const key = tag[i];
-    const value = tag[i + 1];
-    
-    if (!value) continue;
-    
-    switch (key) {
-      case 'url':
-        if (isValidVideoUrl(value)) {
-          metadata.url = value;
-        }
-        break;
-      case 'm':
-        metadata.mimeType = value;
-        break;
-      case 'dim':
-        metadata.dimensions = value;
-        break;
-      case 'blurhash':
-        metadata.blurhash = value;
-        break;
-      case 'image':
-        metadata.thumbnailUrl = value;
-        break;
-      case 'duration':
-        metadata.duration = parseInt(value);
-        break;
-      case 'size':
-        metadata.size = parseInt(value);
-        break;
-      case 'x':
-        metadata.hash = value;
-        break;
+  // Check if it's a single string with space-separated pairs (common format)
+  if (tag.length === 2 && typeof tag[1] === 'string') {
+    const pairs = tag[1].split(' ');
+    for (let i = 0; i < pairs.length; i += 2) {
+      const key = pairs[i];
+      const value = pairs[i + 1];
+      
+      if (!value) continue;
+      
+      switch (key) {
+        case 'url':
+          if (isValidVideoUrl(value)) {
+            metadata.url = value;
+          }
+          break;
+        case 'm':
+          metadata.mimeType = value;
+          break;
+        case 'dim':
+          metadata.dimensions = value;
+          break;
+        case 'blurhash':
+          metadata.blurhash = value;
+          break;
+        case 'image':
+          metadata.thumbnailUrl = value;
+          break;
+        case 'duration':
+          metadata.duration = parseInt(value);
+          break;
+        case 'size':
+          metadata.size = parseInt(value);
+          break;
+        case 'x':
+          metadata.hash = value;
+          break;
+      }
+    }
+  } else {
+    // Handle alternating key-value pairs format
+    for (let i = 1; i < tag.length; i += 2) {
+      const key = tag[i];
+      const value = tag[i + 1];
+      
+      if (!value) continue;
+      
+      switch (key) {
+        case 'url':
+          if (isValidVideoUrl(value)) {
+            metadata.url = value;
+          }
+          break;
+        case 'm':
+          metadata.mimeType = value;
+          break;
+        case 'dim':
+          metadata.dimensions = value;
+          break;
+        case 'blurhash':
+          metadata.blurhash = value;
+          break;
+        case 'image':
+          metadata.thumbnailUrl = value;
+          break;
+        case 'duration':
+          metadata.duration = parseInt(value);
+          break;
+        case 'size':
+          metadata.size = parseInt(value);
+          break;
+        case 'x':
+          metadata.hash = value;
+          break;
+      }
     }
   }
   
@@ -89,11 +133,10 @@ function extractVideoUrl(event: NostrEvent): string | null {
   // 2. Check imeta tags for MP4 URL
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
-      for (let i = 1; i < tag.length; i += 2) {
-        if (tag[i] === 'url' && tag[i + 1]?.includes('.mp4')) {
-          console.log('[VideoParser] Found MP4 in imeta:', tag[i + 1]);
-          return tag[i + 1];
-        }
+      const metadata = parseImetaTag(tag);
+      if (metadata?.url && metadata.url.includes('.mp4')) {
+        console.log('[VideoParser] Found MP4 in imeta:', metadata.url);
+        return metadata.url;
       }
     }
   }
@@ -189,12 +232,43 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
     urls.push(urlTag[1]);
   }
   
-  // 4. Check imeta fallback tags
+  // 4. Check imeta tags for URLs and fallbacks
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
-      for (let i = 1; i < tag.length; i += 2) {
-        if (tag[i] === 'fallback' && tag[i + 1] && !urls.includes(tag[i + 1])) {
-          urls.push(tag[i + 1]);
+      // Handle space-separated format
+      if (tag.length === 2 && typeof tag[1] === 'string') {
+        const pairs = tag[1].split(' ');
+        for (let i = 0; i < pairs.length; i += 2) {
+          const key = pairs[i];
+          const value = pairs[i + 1];
+          
+          if (!value) continue;
+          
+          // Add main URL if not already included
+          if (key === 'url' && isValidVideoUrl(value) && !urls.includes(value)) {
+            urls.push(value);
+          }
+          // Add fallback URLs
+          if (key === 'fallback' && isValidVideoUrl(value) && !urls.includes(value)) {
+            urls.push(value);
+          }
+        }
+      } else {
+        // Handle alternating key-value pairs format
+        for (let i = 1; i < tag.length; i += 2) {
+          const key = tag[i];
+          const value = tag[i + 1];
+          
+          if (!value) continue;
+          
+          // Add main URL if not already included
+          if (key === 'url' && isValidVideoUrl(value) && !urls.includes(value)) {
+            urls.push(value);
+          }
+          // Add fallback URLs
+          if (key === 'fallback' && isValidVideoUrl(value) && !urls.includes(value)) {
+            urls.push(value);
+          }
         }
       }
     }
