@@ -8,6 +8,7 @@ export const REPOST_KIND = 6;
 
 export interface VideoMetadata {
   url: string;
+  fallbackUrls?: string[];  // Alternative URLs to try if primary fails
   mimeType?: string;
   dimensions?: string;
   blurhash?: string;
@@ -41,6 +42,7 @@ export interface ParsedVideoData {
   originalVineTimestamp?: number; // Original Vine posting time if available
   content: string;
   videoUrl: string;
+  fallbackVideoUrls?: string[];  // Alternative URLs to try if primary fails
   thumbnailUrl?: string;
   title?: string;
   duration?: number;

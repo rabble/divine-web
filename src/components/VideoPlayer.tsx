@@ -14,6 +14,7 @@ import { debugLog, debugError } from '@/lib/debug';
 interface VideoPlayerProps {
   videoId: string;
   src: string;
+  fallbackUrls?: string[];
   poster?: string;
   className?: string;
   autoPlay?: boolean;
@@ -50,6 +51,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     {
       videoId,
       src,
+      fallbackUrls,
       poster,
       className,
       autoPlay: _autoPlay = true,
@@ -79,6 +81,8 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
+    const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
+    const [allUrls, setAllUrls] = useState<string[]>([]);
     
     // Mobile-specific state
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -413,11 +417,21 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     };
 
     const handleError = useCallback(() => {
-      debugError(`[VideoPlayer ${videoId}] Error loading video`);
-      setIsLoading(false);
-      setHasError(true);
-      onError?.();
-    }, [videoId, onError]);
+      debugError(`[VideoPlayer ${videoId}] Error loading video from URL index ${currentUrlIndex}: ${allUrls[currentUrlIndex]}`);
+      
+      // Try next fallback URL if available
+      if (currentUrlIndex < allUrls.length - 1) {
+        debugLog(`[VideoPlayer ${videoId}] Trying fallback URL ${currentUrlIndex + 1}/${allUrls.length - 1}`);
+        setCurrentUrlIndex(currentUrlIndex + 1);
+        setIsLoading(true);
+        setHasError(false);
+      } else {
+        debugError(`[VideoPlayer ${videoId}] All URLs failed, no more fallbacks`);
+        setIsLoading(false);
+        setHasError(true);
+        onError?.();
+      }
+    }, [videoId, currentUrlIndex, allUrls, onError]);
 
     const handleEnded = () => {
       debugLog(`[VideoPlayer ${videoId}] Video ended, auto-looping`);
@@ -473,25 +487,39 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       };
     }, [allowFullscreen]);
 
-    // Set video source - simplified without HLS
+    // Initialize URLs array
+    useEffect(() => {
+      const urls = [src];
+      if (fallbackUrls && fallbackUrls.length > 0) {
+        urls.push(...fallbackUrls);
+      }
+      setAllUrls(urls);
+      setCurrentUrlIndex(0);
+      debugLog(`[VideoPlayer ${videoId}] Initialized with ${urls.length} URLs (primary + ${fallbackUrls?.length || 0} fallbacks)`);
+    }, [src, fallbackUrls, videoId]);
+
+    // Set video source - with fallback support
     useEffect(() => {
       const video = videoRef.current;
-      debugLog(`[VideoPlayer ${videoId}] Setting video source - src: ${src}, hasVideo: ${!!video}`);
+      const currentUrl = allUrls[currentUrlIndex];
       
-      if (!video || !src) {
-        debugLog(`[VideoPlayer ${videoId}] Skipping source setup - video: ${!!video}, src: ${!!src}`);
+      debugLog(`[VideoPlayer ${videoId}] Setting video source - URL ${currentUrlIndex}/${allUrls.length - 1}: ${currentUrl}`);
+      
+      if (!video || !currentUrl) {
+        debugLog(`[VideoPlayer ${videoId}] Skipping source setup - video: ${!!video}, url: ${!!currentUrl}`);
         return;
       }
       
       // For now, just use direct playback for all URLs
       // MP4 files will play directly, HLS might work natively on some browsers
-      debugLog(`[VideoPlayer ${videoId}] Setting video source directly: ${src}`);
-      video.src = src;
+      debugLog(`[VideoPlayer ${videoId}] Setting video source directly: ${currentUrl}`);
+      video.src = currentUrl;
       
       // Set loading state
       setIsLoading(true);
+      setHasError(false);
       
-    }, [src, videoId]); // Only depend on src and videoId for stability
+    }, [currentUrlIndex, allUrls, videoId]); // React to URL index changes
 
     // Cleanup on unmount
     useEffect(() => {
@@ -516,11 +544,12 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }, [videoId, unregisterVideo, updateVideoVisibility, controlsTimer, longPressTimer]);
 
     // Handle GIF format (use img tag)
-    if (src.toLowerCase().endsWith('.gif')) {
+    const currentUrl = allUrls[currentUrlIndex] || src;
+    if (currentUrl.toLowerCase().endsWith('.gif')) {
       return (
         <div className={cn('relative overflow-hidden bg-black', className)}>
           <img
-            src={src}
+            src={currentUrl}
             alt="Video GIF"
             className="w-full h-full object-contain"
             onLoad={() => setIsLoading(false)}
@@ -553,7 +582,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         <video
           ref={setRefs}
           // Don't set src directly if it's an HLS stream - HLS.js will handle it
-          src={src.toLowerCase().includes('.m3u8') ? undefined : src}
+          src={currentUrl.toLowerCase().includes('.m3u8') ? undefined : currentUrl}
           poster={poster}
           muted={globalMuted}
           autoPlay={false} // Never autoplay, we control playback programmatically

@@ -164,14 +164,63 @@ function extractVideoUrl(event: NostrEvent): string | null {
 }
 
 /**
+ * Extract all available video URLs from event tags
+ */
+function extractAllVideoUrls(event: NostrEvent): string[] {
+  const urls: string[] = [];
+  
+  // 1. MP4 download URL (preferred)
+  const downloadTag = event.tags.find(tag => 
+    tag[0] === 'r' && tag[2] === 'download' && tag[1]?.includes('.mp4')
+  );
+  if (downloadTag?.[1]) {
+    urls.push(downloadTag[1]);
+  }
+  
+  // 2. HLS streaming URL
+  const streamingTag = event.tags.find(tag => tag[0] === 'streaming' && tag[2] === 'hls');
+  if (streamingTag?.[1] && !urls.includes(streamingTag[1])) {
+    urls.push(streamingTag[1]);
+  }
+  
+  // 3. URL tag
+  const urlTag = event.tags.find(tag => tag[0] === 'url');
+  if (urlTag?.[1] && !urls.includes(urlTag[1])) {
+    urls.push(urlTag[1]);
+  }
+  
+  // 4. Check imeta fallback tags
+  for (const tag of event.tags) {
+    if (tag[0] === 'imeta') {
+      for (let i = 1; i < tag.length; i += 2) {
+        if (tag[i] === 'fallback' && tag[i + 1] && !urls.includes(tag[i + 1])) {
+          urls.push(tag[i + 1]);
+        }
+      }
+    }
+  }
+  
+  console.log(`[VideoParser] Found ${urls.length} video URLs for event ${event.id}:`, urls);
+  return urls;
+}
+
+/**
  * Extract all video metadata from event
  */
 export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
+  // Get all available URLs
+  const allUrls = extractAllVideoUrls(event);
+  
   // First try to get full metadata from imeta tag
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
       const metadata = parseImetaTag(tag);
       if (metadata?.url) {
+        // Add fallback URLs
+        const fallbackUrls = allUrls.filter(u => u !== metadata.url);
+        if (fallbackUrls.length > 0) {
+          metadata.fallbackUrls = fallbackUrls;
+        }
         return metadata;
       }
     }
@@ -180,7 +229,11 @@ export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
   // Fallback to just URL extraction
   const url = extractVideoUrl(event);
   if (url) {
-    return { url };
+    const fallbackUrls = allUrls.filter(u => u !== url);
+    return { 
+      url,
+      fallbackUrls: fallbackUrls.length > 0 ? fallbackUrls : undefined
+    };
   }
   
   return null;
@@ -235,18 +288,31 @@ export function getVineId(event: NostrEvent): string | null {
  * Get original Vine timestamp from event tags
  */
 export function getOriginalVineTimestamp(event: NostrEvent): number | undefined {
-  // Check for vine_created_at tag
+  // Check for published_at tag (NIP-31 timestamp) - this is the original Vine creation time
+  const publishedAtTag = event.tags.find(tag => tag[0] === 'published_at');
+  if (publishedAtTag?.[1]) {
+    const timestamp = parseInt(publishedAtTag[1]);
+    if (!isNaN(timestamp)) {
+      // Debug log for Vine events
+      const vineIdTag = event.tags.find(tag => tag[0] === 'vine_id');
+      if (vineIdTag) {
+        console.log(`[getOriginalVineTimestamp] Vine ${vineIdTag[1]}: published_at=${timestamp} (${new Date(timestamp * 1000).toISOString()})`);
+      }
+      return timestamp;
+    }
+  }
+  
+  // Check for vine_created_at tag (fallback)
   const vineCreatedAtTag = event.tags.find(tag => tag[0] === 'vine_created_at' || tag[0] === 'original_created_at');
   if (vineCreatedAtTag?.[1]) {
     const timestamp = parseInt(vineCreatedAtTag[1]);
     if (!isNaN(timestamp)) return timestamp;
   }
   
-  // Check for published_at tag (NIP-31 timestamp)
-  const publishedAtTag = event.tags.find(tag => tag[0] === 'published_at');
-  if (publishedAtTag?.[1]) {
-    const timestamp = parseInt(publishedAtTag[1]);
-    if (!isNaN(timestamp)) return timestamp;
+  // Debug: log if no timestamp found for Vine
+  const vineIdTag = event.tags.find(tag => tag[0] === 'vine_id');
+  if (vineIdTag) {
+    console.log(`[getOriginalVineTimestamp] Vine ${vineIdTag[1]}: No published_at tag found`);
   }
   
   return undefined;

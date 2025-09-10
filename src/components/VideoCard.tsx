@@ -85,7 +85,42 @@ export function VideoCard({
 
   // Format time - use original Vine timestamp if available, otherwise use created_at
   const timestamp = video.originalVineTimestamp || video.createdAt;
-  const timeAgo = formatDistanceToNow(new Date(timestamp * 1000), { addSuffix: true });
+  
+  // Debug logging
+  if (video.vineId) {
+    console.log(`[VideoCard] Vine ${video.vineId}: originalVineTimestamp=${video.originalVineTimestamp}, createdAt=${video.createdAt}, timestamp=${timestamp}`);
+  }
+  
+  const date = new Date(timestamp * 1000);
+  const now = new Date();
+  
+  // Check if this is a migrated Vine (has vine_id)
+  const isMigratedVine = !!video.vineId;
+  
+  // Vine shut down in 2017, so any "original" timestamp after 2017 is incorrect
+  const vineShutdownYear = 2017;
+  const isInvalidVineTimestamp = isMigratedVine && date.getFullYear() > vineShutdownYear;
+  
+  let timeAgo: string;
+  if (isMigratedVine && (isInvalidVineTimestamp || !video.originalVineTimestamp)) {
+    // For migrated Vines with invalid/missing timestamps, just show "Classic Vine"
+    timeAgo = 'Classic Vine';
+  } else {
+    const yearsDiff = now.getFullYear() - date.getFullYear();
+    
+    // If more than 1 year old, show the actual date
+    if (yearsDiff > 1 || (yearsDiff === 1 && now < new Date(date).setFullYear(date.getFullYear() + 1))) {
+      // Format as "Jan 15, 2021" for old dates
+      timeAgo = date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+    } else {
+      // Use relative time for recent videos
+      timeAgo = formatDistanceToNow(date, { addSuffix: true });
+    }
+  }
 
   const handleCommentsClick = () => {
     onOpenComments?.(video);
@@ -159,6 +194,7 @@ export function VideoCard({
             <VideoPlayer
               videoId={video.id}
               src={video.videoUrl}
+              fallbackUrls={video.fallbackVideoUrls}
               poster={video.thumbnailUrl}
               className="w-full h-full"
               onLoadStart={() => setVideoError(false)}
