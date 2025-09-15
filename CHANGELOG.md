@@ -11,12 +11,16 @@ All notable changes to Divine Web will be documented in this file.
 - About page with Divine Web project information
 - Privacy policy page explaining data collection and user rights
 - Open Source page with platform availability and contribution info
+- Landing page for logged-out users with "Divine Video - Bringing back Vine using Nostr" message
+- Authentication gating - all routes now require Nostr login
 
 ### Changed
 - All console.log statements replaced with conditional debug logging
 - Debug information and performance panel now only visible on localhost
 - Updated branding from "OpenVine" to "Divine Web" throughout the application
 - Header navigation includes dropdown menu with links to About, Privacy, and Open Source pages
+- App now requires Nostr authentication to access any content
+- Removed "New to Nostr?" sign-up option from login interface
 
 ### Fixed
 - Video performance issues - reduced load time from 20+ seconds to ~3 seconds

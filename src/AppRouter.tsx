@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { LandingPage } from "@/components/LandingPage";
 
 import Index from "./pages/Index";
 import { NIP19Page } from "./pages/NIP19Page";
@@ -25,6 +27,18 @@ import { TestVideoPage } from "./pages/TestVideoPage";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 
 export function AppRouter() {
+  const { user } = useCurrentUser();
+
+  // Show landing page if not logged in
+  if (!user) {
+    return (
+      <BrowserRouter>
+        <LandingPage />
+      </BrowserRouter>
+    );
+  }
+
+  // Show full app if logged in
   return (
     <BrowserRouter>
       <ScrollToTop />

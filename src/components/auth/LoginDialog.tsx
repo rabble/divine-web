@@ -187,43 +187,10 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
         <DialogHeader className={cn('px-6 pt-6 pb-1 relative')}>
 
             <DialogDescription className="text-center">
-              Sign up or log in to continue
+              Log in to continue
             </DialogDescription>
         </DialogHeader>
         <div className='px-6 pt-2 pb-4 space-y-4 overflow-y-auto flex-1'>
-          {/* Prominent Sign Up Section */}
-          <div className='relative p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800 overflow-hidden'>
-            <div className='relative z-10 text-center space-y-3'>
-              <div className='flex justify-center items-center gap-2 mb-2'>
-                <Sparkles className='w-5 h-5 text-blue-600' />
-                <span className='font-semibold text-blue-800 dark:text-blue-200'>
-                  New to Nostr?
-                </span>
-              </div>
-              <p className='text-sm text-blue-700 dark:text-blue-300'>
-                Create a new account to get started. It's free and open.
-              </p>
-              <Button
-                onClick={handleSignupClick}
-                className='w-full rounded-full py-3 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform transition-all duration-200 hover:scale-105 shadow-lg border-0'
-              >
-                <UserPlus className='w-4 h-4 mr-2' />
-                <span>Sign Up</span>
-              </Button>
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className='relative'>
-            <div className='absolute inset-0 flex items-center'>
-              <div className='w-full border-t border-gray-300 dark:border-gray-600'></div>
-            </div>
-            <div className='relative flex justify-center text-sm'>
-              <span className='px-3 bg-background text-muted-foreground'>
-                <span>Or log in</span>
-              </span>
-            </div>
-          </div>
 
           {/* Login Methods */}
           <Tabs defaultValue={defaultTab} className="w-full">

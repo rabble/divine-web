@@ -86,12 +86,6 @@ export function VideoCard({
   // Format time - use original Vine timestamp if available, otherwise use created_at
   const timestamp = video.originalVineTimestamp || video.createdAt;
   
-  // Debug logging
-  console.log(`[VideoCard] Rendering video ${video.id}: videoUrl=${video.videoUrl}, fallbackUrls=${JSON.stringify(video.fallbackVideoUrls)}`);
-  if (video.vineId) {
-    console.log(`[VideoCard] Vine ${video.vineId}: originalVineTimestamp=${video.originalVineTimestamp}, createdAt=${video.createdAt}, timestamp=${timestamp}`);
-  }
-  
   const date = new Date(timestamp * 1000);
   const now = new Date();
   
@@ -231,7 +225,8 @@ export function VideoCard({
             <h3 className="font-semibold text-lg">{video.title}</h3>
           )}
           
-          {video.content && (
+          {/* Only show content if it's different from the title */}
+          {video.content && video.content.trim() !== video.title?.trim() && (
             <div className="whitespace-pre-wrap break-words">
               <NoteContent 
                 event={{ 
