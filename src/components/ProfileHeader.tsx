@@ -111,7 +111,7 @@ export function ProfileHeader({
               <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
                 <Badge variant="outline" className="text-xs">
                   <a href={website} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                    {website.includes('vine.co') ? 'Original Vine Profile' : 'Website'}
+                    {website}
                   </a>
                 </Badge>
               </div>
