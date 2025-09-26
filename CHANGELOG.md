@@ -13,6 +13,10 @@ All notable changes to Divine Web will be documented in this file.
 - Open Source page with platform availability and contribution info
 - Landing page for logged-out users with "Divine Video - Bringing back Vine using Nostr" message
 - Authentication gating - all routes now require Nostr login
+- Video navigation with swipe/click zones for next/previous video in feeds
+- Full social interaction support for all pages (like, repost, comment, add to list)
+- Enhanced visual feedback for social interactions with colored backgrounds and filled icons
+- Context-aware video navigation that remembers source (hashtag/profile feeds)
 
 ### Changed
 - All console.log statements replaced with conditional debug logging
@@ -21,16 +25,23 @@ All notable changes to Divine Web will be documented in this file.
 - Header navigation includes dropdown menu with links to About, Privacy, and Open Source pages
 - App now requires Nostr authentication to access any content
 - Removed "New to Nostr?" sign-up option from login interface
+- Migrated from Kind 32222 to Kind 34236 for NIP-71 compliance (addressable video events)
+- Social interaction buttons now show stronger visual feedback (colored backgrounds when active)
+- Navigation hints updated from confusing "arrow keys" text to clear "previous" and "next" labels
 
 ### Fixed
+- **MAJOR**: Fixed videos disappearing and going white when scrolling by removing broken virtual scrolling
 - Video performance issues - reduced load time from 20+ seconds to ~3 seconds
-- Implemented proper video virtualization to only render visible videos
 - Fixed preload logic to load videos when in viewport
 - Removed duplicate debug panels (merged VideoDebugInfo into PerformanceDebugPanel)
 - Improved video scrolling behavior to always play the most visible video instead of any partially visible video
 - Ensured only one video plays at a time with proper pause/reset when scrolling
 - Fixed video timestamps to show original Vine posting time when available instead of repost time
 - Implemented video fallback URLs to automatically try alternative CDN URLs when primary URL fails (404 errors)
+- Fixed React hooks rules violation in VideoPage.tsx (moved all hooks before conditional returns)
+- Fixed social interaction buttons not working on individual video pages (VideoPage.tsx)
+- Added missing query invalidation for list updates - list badges now update immediately
+- Fixed broken UX with intrusive floating navigation buttons
 
 ### Performance
 - Optimized video feed to use virtualization (only renders visible videos)

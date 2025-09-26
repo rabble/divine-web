@@ -4,7 +4,7 @@ This project is Divine Web - an OpenVine-compatible Nostr client for short-form 
 
 ## Divine Web / OpenVine Features
 
-- **Primary Content**: 6-second looping videos (Kind 32222)
+- **Primary Content**: 6-second looping videos (Kind 34236 - NIP-71)
 - **Video Format**: MP4 and GIF support with auto-loop playback
 - **Social Features**: Likes, reposts, follows, and hashtag discovery
 - **Feed Types**: Home (following), Discovery (all public), Trending, Hashtag, Profile

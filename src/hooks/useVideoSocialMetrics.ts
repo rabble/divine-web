@@ -61,7 +61,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
 
         // For view count, we could also implement a custom approach
         // For now, we'll use zap receipts as a proxy, but this could be enhanced
-        // with dedicated kind 32222 view events or other mechanisms
+        // with dedicated kind 34236 view events or other mechanisms
 
         const metrics: VideoSocialMetrics = {
           likeCount,
@@ -87,7 +87,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
 }
 
 /**
- * Check if the current user has liked a specific video
+ * Check if the current user has liked a specific video and get the event IDs for deletion
  */
 export function useVideoUserInteractions(videoId: string, userPubkey?: string) {
   const { nostr } = useNostr();
@@ -96,7 +96,7 @@ export function useVideoUserInteractions(videoId: string, userPubkey?: string) {
     queryKey: ['video-user-interactions', videoId, userPubkey],
     queryFn: async (context) => {
       if (!userPubkey) {
-        return { hasLiked: false, hasReposted: false };
+        return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
       }
 
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(2000)]);
@@ -114,24 +114,50 @@ export function useVideoUserInteractions(videoId: string, userPubkey?: string) {
 
         let hasLiked = false;
         let hasReposted = false;
+        let likeEventId: string | null = null;
+        let repostEventId: string | null = null;
 
+        // Filter out deleted events by checking for delete events (kind 5)
+        const deleteEvents = await nostr.query([
+          {
+            kinds: [5], // Delete events (NIP-09)
+            authors: [userPubkey],
+            '#e': events.map(e => e.id), // Check if any of our events are deleted
+            limit: 20,
+          }
+        ], { signal });
+
+        const deletedEventIds = new Set();
+        deleteEvents.forEach(deleteEvent => {
+          deleteEvent.tags.forEach(tag => {
+            if (tag[0] === 'e' && tag[1]) {
+              deletedEventIds.add(tag[1]);
+            }
+          });
+        });
+
+        // Process events, ignoring deleted ones
         for (const event of events) {
+          if (deletedEventIds.has(event.id)) continue; // Skip deleted events
+
           if (event.kind === 7 && (event.content === '+' || event.content === '❤️' || event.content === '👍')) {
             hasLiked = true;
+            likeEventId = event.id;
           }
           if (event.kind === 6) {
             hasReposted = true;
+            repostEventId = event.id;
           }
         }
 
-        return { hasLiked, hasReposted };
+        return { hasLiked, hasReposted, likeEventId, repostEventId };
       } catch (error) {
         console.error('Failed to fetch user video interactions:', error);
-        return { hasLiked: false, hasReposted: false };
+        return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
       }
     },
     enabled: !!userPubkey,
-    staleTime: 60000, // Consider data stale after 1 minute
+    staleTime: 30000, // Consider data stale after 30 seconds (faster refresh for interactive features)
     gcTime: 300000, // Keep in cache for 5 minutes
   });
 }

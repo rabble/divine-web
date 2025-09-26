@@ -1,25 +1,27 @@
-# NIP-32222: Addressable Short Looping Videos
+# NIP-71 Implementation: Video Events
 
 ## Abstract
 
-This NIP defines an addressable event kind for short-form looping video content, optimized for 6-second loops similar to classic Vine videos.
+This application implements NIP-71 video events for short-form looping video content, using Kind 34236 for addressable short videos.
 
 ## Video Event Structure
 
-### Kind 32222 - Addressable Short Looping Videos
+### Kind 34236 - Addressable Short Videos (NIP-71)
 
-The event kind `32222` is used for addressable/replaceable short-form video content. Being in the 30000-39999 range makes these events addressable, allowing for updates and preventing duplicates.
+The event kind `34236` is used for addressable short-form video content as defined in NIP-71. Being in the 30000-39999 range makes these events addressable, allowing for updates and preventing duplicates.
 
 #### Required Fields
 
 ```json
 {
-  "kind": 32222,
+  "kind": 34236,
   "content": "Video description/caption text",
   "tags": [
     ["d", "unique-vine-id"],           // REQUIRED: Unique identifier for addressability
+    ["title", "Video Title"],          // REQUIRED by NIP-71
+    ["published_at", "1672531200"],    // REQUIRED by NIP-71
     ["imeta", "url", "https://videos.host/video.mp4", "m", "video/mp4", "dim", "480x480", "blurhash", "eNH_0EI:${M{%LRjWBaeoLofR*", "image", "https://videos.host/thumb.jpg"],
-    ["client", "openvine"]             // OpenVine attribution
+    ["client", "divine-web"]           // Client attribution
   ]
 }
 ```
@@ -68,32 +70,33 @@ Multiple `imeta` tags may be used to specify different video variants (resolutio
 
 ### Reposts (Kind 6)
 
-Reposts of Kind 32222 videos use standard Kind 6 events:
+Reposts of Kind 34236 videos use standard Kind 6 events:
 
 ```json
 {
   "kind": 6,
   "content": "",
   "tags": [
-    ["a", "32222:original_pubkey:d-tag-value"],
+    ["a", "34236:original_pubkey:d-tag-value"],
     ["p", "original_author_pubkey"]
   ]
 }
 ```
 
-### Why Kind 32222?
+### Why Kind 34236?
 
+- **NIP-71 Compliance**: Uses the official NIP-71 kind for addressable short videos
 - **Addressable Range (30000-39999)**: Allows videos to be updated/replaced using the same `d` tag
-- **Specific to Short-Form Video**: Differentiates from other video kinds (21, 22, 71)
-- **Community Namespace**: The 32xxx range appears to be used for community-specific content types
+- **Standardized**: Part of the official Nostr protocol specification
+- **Interoperability**: Compatible with other NIP-71 compliant clients
 
 ## Client Behavior
 
 1. **Auto-loop Playback**: Videos should automatically loop seamlessly
 2. **Preloading**: Clients should preload the next video in feeds
 3. **Thumbnail Display**: Show thumbnail until user interaction
-4. **Attribution**: Always include `["client", "openvine"]` tag
+4. **Attribution**: Always include `["client", "divine-web"]` tag
 
 ## Compatibility
 
-This specification is designed to be compatible with the existing OpenVine Flutter application and ecosystem while allowing for future extensibility.
+This implementation follows NIP-71 for maximum interoperability with other Nostr video clients while maintaining compatibility with existing video content.

@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useVideoLists, useAddVideoToList, useCreateVideoList } from '@/hooks/useVideoLists';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, List, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
+import { VIDEO_KIND } from '@/types/video';
 
 interface AddToListDialogProps {
   videoId: string;
@@ -37,6 +39,7 @@ export function AddToListDialog({
 }: AddToListDialogProps) {
   const { user } = useCurrentUser();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: userLists, isLoading: listsLoading } = useVideoLists(user?.pubkey);
   const addToList = useAddVideoToList();
   const createList = useCreateVideoList();
@@ -46,7 +49,7 @@ export function AddToListDialog({
   const [newListDescription, setNewListDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const videoCoordinate = `32222:${videoPubkey}:${videoId}`;
+  const videoCoordinate = `${VIDEO_KIND}:${videoPubkey}:${videoId}`;
 
   const handleAddToLists = async () => {
     if (selectedLists.size === 0) return;
@@ -65,6 +68,10 @@ export function AddToListDialog({
         title: 'Added to lists',
         description: `Video added to ${selectedLists.size} list${selectedLists.size !== 1 ? 's' : ''}`,
       });
+
+      // Invalidate queries to update the UI
+      queryClient.invalidateQueries({ queryKey: ['videos-in-lists', videoId] });
+      queryClient.invalidateQueries({ queryKey: ['video-lists'] });
 
       onClose();
     } catch (error) {
@@ -94,6 +101,10 @@ export function AddToListDialog({
         title: 'List created',
         description: `"${newListName}" created and video added`,
       });
+
+      // Invalidate queries to update the UI
+      queryClient.invalidateQueries({ queryKey: ['videos-in-lists', videoId] });
+      queryClient.invalidateQueries({ queryKey: ['video-lists'] });
 
       onClose();
     } catch (error) {

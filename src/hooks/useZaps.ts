@@ -202,8 +202,8 @@ export function useZaps(
       const zapAmount = amount * 1000; // convert to millisats
 
       const zapRequest = nip57.makeZapRequest({
-        profile: actualTarget.pubkey,
-        event: event,
+        pubkey: actualTarget.pubkey,
+        event: event as any, // Can be string (event ID) or Event object for addressable events
         amount: zapAmount,
         relays: [config.relayUrl],
         comment

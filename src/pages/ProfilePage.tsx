@@ -174,10 +174,14 @@ export function ProfilePage() {
               </CardContent>
             </Card>
           ) : viewMode === 'grid' ? (
-            <VideoGrid 
-              videos={videos || []} 
+            <VideoGrid
+              videos={videos || []}
               loading={videosLoading}
               className="min-h-[200px]"
+              navigationContext={{
+                source: 'profile',
+                pubkey: pubkey || undefined,
+              }}
             />
           ) : (
             <VideoFeed 

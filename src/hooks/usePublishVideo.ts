@@ -1,5 +1,5 @@
-// ABOUTME: Hook for publishing Kind 32222 video events to Nostr
-// ABOUTME: Handles video metadata creation and event signing with proper OpenVine tags
+// ABOUTME: Hook for publishing Kind 34236 (NIP-71) video events to Nostr
+// ABOUTME: Handles video metadata creation and event signing with proper tags
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
@@ -77,13 +77,14 @@ export function usePublishVideo() {
         vineId = generateVineId()
       } = options;
       
-      // Build tags
+      // Build tags according to NIP-71
       const tags: string[][] = [
         ['d', vineId], // Required for addressability
-        ['client', 'openvine'] // OpenVine attribution
+        ['title', title || 'Untitled'], // Required by NIP-71
+        ['published_at', String(Math.floor(Date.now() / 1000))] // Required by NIP-71
       ];
-      
-      // Add video metadata
+
+      // Add video metadata (required imeta tag)
       const videoMetadata: VideoMetadata = {
         url: videoUrl,
         mimeType: videoUrl.endsWith('.gif') ? 'image/gif' : 'video/mp4',
@@ -91,26 +92,26 @@ export function usePublishVideo() {
         duration,
         thumbnailUrl
       };
-      
+
       tags.push(buildImetaTag(videoMetadata));
-      
-      // Add optional metadata
-      if (title) {
-        tags.push(['title', title]);
+
+      // Add optional NIP-71 metadata
+      if (duration !== undefined) {
+        tags.push(['duration', String(duration)]);
       }
-      
-      tags.push(['published_at', String(Math.floor(Date.now() / 1000))]);
-      tags.push(['duration', String(duration)]);
-      
+
       // Add hashtags
       for (const hashtag of hashtags) {
         tags.push(['t', hashtag.replace(/^#/, '')]); // Remove # if present
       }
-      
+
       // Add alt text for accessibility
       if (content) {
         tags.push(['alt', content]);
       }
+
+      // Add client tag for attribution
+      tags.push(['client', 'divine-web']);
       
       // Publish the event
       const event = await publishEvent({
@@ -141,7 +142,7 @@ export function useRepostVideo() {
       const tags: string[][] = [
         ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],
         ['p', originalPubkey],
-        ['client', 'openvine']
+        ['client', 'divine-web']
       ];
       
       const event = await publishEvent({

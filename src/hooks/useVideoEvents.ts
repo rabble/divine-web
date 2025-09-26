@@ -1,5 +1,5 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
-// ABOUTME: Handles both Kind 32222 videos and Kind 6 reposts with proper parsing
+// ABOUTME: Handles both Kind 34236 (NIP-71) videos and Kind 6 reposts with proper parsing
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
@@ -19,12 +19,12 @@ interface UseVideoEventsOptions {
 }
 
 /**
- * Validates that a Kind 32222 event has required fields
+ * Validates that a Kind 34236 (NIP-71) event has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (event.kind !== VIDEO_KIND) return false;
   
-  // Must have d tag for addressability - this is required for kind 32222
+  // Must have d tag for addressability - this is required for kind 34236 (NIP-71)
   const vineId = getVineId(event);
   if (!vineId) return false;
   

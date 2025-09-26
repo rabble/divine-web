@@ -17,13 +17,12 @@ import VideoPage from "./pages/VideoPage";
 import { TagPage } from "./pages/TagPage";
 import ListsPage from "./pages/ListsPage";
 import ListDetailPage from "./pages/ListDetailPage";
-import { NIP05ProfilePage } from "./pages/NIP05ProfilePage";
+// import { NIP05ProfilePage } from "./pages/NIP05ProfilePage";
 import { UniversalUserPage } from "./pages/UniversalUserPage";
 import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import OpenSourcePage from "./pages/OpenSourcePage";
 import { AppLayout } from "@/components/AppLayout";
-import { TestVideoPage } from "./pages/TestVideoPage";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 
 export function AppRouter() {
@@ -61,7 +60,6 @@ export function AppRouter() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
           {/* Test pages for debugging */}
-          <Route path="/test-video" element={<TestVideoPage />} />
           <Route path="/debug-video" element={<DebugVideoPage />} />
           {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
           <Route path="/u/:userId" element={<UniversalUserPage />} />

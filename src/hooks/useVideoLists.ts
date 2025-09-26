@@ -15,7 +15,7 @@ interface VideoList {
   image?: string;
   pubkey: string;
   createdAt: number;
-  videoCoordinates: string[]; // Array of "32222:pubkey:d-tag" coordinates
+  videoCoordinates: string[]; // Array of "34236:pubkey:d-tag" coordinates (NIP-71)
   public: boolean;
 }
 
@@ -32,7 +32,7 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   
   // Extract video coordinates from 'a' tags
   const videoCoordinates = event.tags
-    .filter(tag => tag[0] === 'a' && tag[1]?.startsWith('32222:'))
+    .filter(tag => tag[0] === 'a' && tag[1]?.startsWith(`${VIDEO_KIND}:`))
     .map(tag => tag[1]);
 
   // Parse encrypted content if present (private items)
@@ -118,7 +118,7 @@ export function useVideosInLists(videoId?: string) {
       // Query for lists that contain this video
       const events = await nostr.query([{
         kinds: [30005], // Video sets
-        '#a': [`32222:*:${videoId}`], // Search for any author with this d-tag
+        '#a': [`${VIDEO_KIND}:*:${videoId}`], // Search for any author with this d-tag
         limit: 100
       }], { signal });
 

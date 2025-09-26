@@ -40,7 +40,7 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   const image = event.tags.find(tag => tag[0] === 'image')?.[1];
   
   const videoCoordinates = event.tags
-    .filter(tag => tag[0] === 'a' && tag[1]?.startsWith('32222:'))
+    .filter(tag => tag[0] === 'a' && tag[1]?.startsWith(`${VIDEO_KIND}:`))
     .map(tag => tag[1]);
 
   return {
@@ -67,7 +67,7 @@ async function fetchListVideos(
 
   coordinates.forEach(coord => {
     const [kind, pubkey, dTag] = coord.split(':');
-    if (kind === '32222' && pubkey && dTag) {
+    if (kind === String(VIDEO_KIND) && pubkey && dTag) {
       coordinateMap.set(`${pubkey}:${dTag}`, { pubkey, dTag });
     }
   });
@@ -356,7 +356,13 @@ export default function ListDetailPage() {
         ) : videos && videos.length > 0 ? (
           <div>
             <h2 className="text-lg font-semibold mb-4">Videos in this list</h2>
-            <VideoGrid videos={videos} />
+            <VideoGrid
+              videos={videos}
+              navigationContext={{
+                source: 'profile', // Lists are profile-related
+                pubkey: list.pubkey,
+              }}
+            />
           </div>
         ) : (
           <Card className="border-dashed">

@@ -1,4 +1,4 @@
-// ABOUTME: Hook for searching Kind 32222 video events with content, hashtag, and author filters
+// ABOUTME: Hook for searching Kind 34236 (NIP-71) video events with content, hashtag, and author filters
 // ABOUTME: Supports debounced queries, case-insensitive search, and multiple search modes
 
 import { useNostr } from '@nostrify/react';
@@ -15,7 +15,7 @@ interface UseSearchVideosOptions {
 }
 
 /**
- * Validates that a Kind 32222 event has required fields
+ * Validates that a Kind 34236 (NIP-71) event has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (event.kind !== VIDEO_KIND) return false;

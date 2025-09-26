@@ -22,6 +22,7 @@ import type { NostrMetadata } from '@nostrify/nostrify';
 import { cn } from '@/lib/utils';
 import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils';
 import { getSafeProfileImage } from '@/lib/imageUtils';
+import { buildVideoNavigationUrl, type VideoNavigationContext } from '@/hooks/useVideoNavigation';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -40,6 +41,9 @@ interface VideoCardProps {
   commentCount?: number;
   viewCount?: number;
   showComments?: boolean;
+  // Navigation context for maintaining feed position
+  navigationContext?: VideoNavigationContext;
+  videoIndex?: number;
 }
 
 export function VideoCard({
@@ -57,8 +61,10 @@ export function VideoCard({
   likeCount = 0,
   repostCount = 0,
   commentCount = 0,
-  viewCount,
+  viewCount: _viewCount,
   showComments = false,
+  navigationContext,
+  videoIndex,
 }: VideoCardProps) {
   const authorData = useAuthor(video.pubkey);
   const reposterData = useAuthor(video.reposterPubkey || '');
@@ -275,9 +281,12 @@ export function VideoCard({
           <Button
             variant="ghost"
             size="sm"
-            className={cn('gap-2', isLiked && 'text-red-500')}
+            className={cn(
+              'gap-2',
+              isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+            )}
             onClick={onLike}
-            aria-label="Like"
+            aria-label={isLiked ? "Unlike" : "Like"}
           >
             <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
             {likeCount > 0 && <span className="text-xs">{formatCount(likeCount)}</span>}
@@ -286,11 +295,14 @@ export function VideoCard({
           <Button
             variant="ghost"
             size="sm"
-            className={cn('gap-2', isReposted && 'text-green-500')}
+            className={cn(
+              'gap-2',
+              isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+            )}
             onClick={onRepost}
-            aria-label="Repost"
+            aria-label={isReposted ? "Remove repost" : "Repost"}
           >
-            <Repeat2 className="h-4 w-4" />
+            <Repeat2 className={cn('h-4 w-4', isReposted && 'fill-current')} />
             {repostCount > 0 && <span className="text-xs">{formatCount(repostCount)}</span>}
           </Button>
 
@@ -314,7 +326,7 @@ export function VideoCard({
 
           {/* View link to dedicated page */}
           <Link
-            to={`/video/${video.id}`}
+            to={navigationContext ? buildVideoNavigationUrl(video.id, navigationContext, videoIndex) : `/video/${video.id}`}
             className="text-xs text-primary hover:underline flex items-center gap-1"
             aria-label="View video page"
           >

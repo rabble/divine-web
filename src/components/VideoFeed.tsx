@@ -5,11 +5,19 @@ import { useEffect, useState, useCallback } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Loader2 } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
+import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
+import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
+import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useRepostVideo } from '@/hooks/usePublishVideo';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useQueryClient } from '@tanstack/react-query';
 import { RelaySelector } from '@/components/RelaySelector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/useToast';
 import type { ParsedVideoData } from '@/types/video';
+// import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
 
 interface VideoFeedProps {
@@ -36,7 +44,15 @@ export function VideoFeed({
   const [allVideos, setAllVideos] = useState<ParsedVideoData[]>([]);
   const [lastTimestamp, setLastTimestamp] = useState<number | undefined>();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 3 }); // Start with first 3 videos for faster initial render
+  // Removed visibleRange state - no longer using virtual scrolling
+  const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
+  const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
+
+  const { user } = useCurrentUser();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const { mutateAsync: publishEvent } = useNostrPublish();
+  const { mutateAsync: repostVideo, isPending: isReposting } = useRepostVideo();
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -103,45 +119,20 @@ export function VideoFeed({
     }
   }, [inView, allVideos, isLoading, isLoadingMore]);
 
-  // Update visible range based on scroll
-  const handleScroll = useCallback(() => {
-    if (typeof window === 'undefined' || allVideos.length === 0) return;
-    
-    const scrollY = window.scrollY;
-    const windowHeight = window.innerHeight;
-    const cardHeight = 600; // Approximate height of a video card
-    
-    // Calculate visible range with buffer
-    const visibleStart = Math.floor(scrollY / cardHeight);
-    const visibleEnd = Math.ceil((scrollY + windowHeight) / cardHeight);
-    
-    // Add buffer of 1 video above and below for smoother scrolling
-    const startIndex = Math.max(0, visibleStart - 1);
-    const endIndex = Math.min(allVideos.length, visibleEnd + 1);
-    
-    debugLog(`[VideoFeed] Scroll position: ${scrollY}, visible range: ${startIndex}-${endIndex}`);
-    setVisibleRange({ start: startIndex, end: endIndex });
-    
-    // Emit visible videos metric
-    window.dispatchEvent(new CustomEvent('performance-metric', {
-      detail: {
-        visibleVideos: endIndex - startIndex,
-      }
-    }));
-  }, [allVideos.length]);
+  // Removed virtual scrolling completely - now renders all videos for better UX
+  useEffect(() => {
+    // Log when videos are loaded and emit performance metric
+    if (allVideos.length > 0) {
+      debugLog(`[VideoFeed] Videos loaded: ${allVideos.length}`);
 
-  useEffect(() => {
-    // Set initial visible range when videos load
-    if (allVideos.length > 0 && visibleRange.end === 3) {
-      debugLog(`[VideoFeed] Initial videos loaded: ${allVideos.length}`);
-      handleScroll(); // Calculate initial visible range
+      // Emit performance metric
+      window.dispatchEvent(new CustomEvent('performance-metric', {
+        detail: {
+          visibleVideos: allVideos.length,
+        }
+      }));
     }
-  }, [allVideos, handleScroll, visibleRange.end]);
-  
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [handleScroll]);
+  }, [allVideos.length]);
 
   // Loading state
   if (isLoading && !lastTimestamp) {
@@ -228,15 +219,237 @@ export function VideoFeed({
   }
 
   // Handle interactions
-  const handleLike = (video: ParsedVideoData) => {
+  const handleLike = async (video: ParsedVideoData) => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to like videos',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     debugLog('Like video:', video.id);
-    // TODO: Implement like functionality
+    try {
+      await publishEvent({
+        kind: 7, // Reaction event
+        content: '+', // Positive reaction
+        tags: [
+          ['e', video.id], // Reference to the video event
+          ['p', video.pubkey], // Reference to the video author
+        ],
+      });
+
+      toast({
+        title: 'Liked!',
+        description: 'Your reaction has been published',
+      });
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
+      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
+    } catch (error) {
+      console.error('Failed to like video:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to like video',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const handleRepost = (video: ParsedVideoData) => {
-    debugLog('Repost video:', video.id);
-    // TODO: Implement repost functionality
+  const handleRepost = async (video: ParsedVideoData) => {
+    if (!user) {
+      toast({
+        title: 'Login Required',
+        description: 'Please log in to repost videos',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!video.vineId) {
+      toast({
+        title: 'Error',
+        description: 'Cannot repost this video',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (isReposting) return; // Prevent multiple simultaneous reposts
+
+    debugLog('Repost video:', video.id, 'vineId:', video.vineId);
+    try {
+      await repostVideo({
+        originalPubkey: video.pubkey,
+        vineId: video.vineId,
+      });
+
+      toast({
+        title: 'Reposted!',
+        description: 'Video has been reposted to your feed',
+      });
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
+      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
+    } catch (error) {
+      console.error('Failed to repost video:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to repost video',
+        variant: 'destructive',
+      });
+    }
   };
+
+  const handleUnlike = async (likeEventId: string) => {
+    if (!user) return;
+
+    debugLog('Unlike video, deleting event:', likeEventId);
+    try {
+      await publishEvent({
+        kind: 5, // Delete event (NIP-09)
+        content: 'Unliked', // Optional reason
+        tags: [
+          ['e', likeEventId], // Reference to the event being deleted
+        ],
+      });
+
+      toast({
+        title: 'Unliked!',
+        description: 'Your like has been removed',
+      });
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
+      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
+    } catch (error) {
+      console.error('Failed to unlike video:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove like',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUnrepost = async (repostEventId: string) => {
+    if (!user) return;
+
+    debugLog('Un-repost video, deleting event:', repostEventId);
+    try {
+      await publishEvent({
+        kind: 5, // Delete event (NIP-09)
+        content: 'Un-reposted', // Optional reason
+        tags: [
+          ['e', repostEventId], // Reference to the event being deleted
+        ],
+      });
+
+      toast({
+        title: 'Un-reposted!',
+        description: 'Your repost has been removed',
+      });
+
+      // Invalidate queries to refresh UI
+      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
+      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
+    } catch (error) {
+      console.error('Failed to un-repost video:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to remove repost',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleOpenComments = (video: ParsedVideoData) => {
+    setShowCommentsForVideo(video.id);
+  };
+
+  const handleCloseComments = () => {
+    setShowCommentsForVideo(null);
+  };
+
+  // Note: handleAddToList is not currently used as VideoListBadges handles its own dialog
+  // const handleAddToList = (video: ParsedVideoData) => {
+  //   if (!user) {
+  //     toast({
+  //       title: 'Login Required',
+  //       description: 'Please log in to add videos to lists',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
+
+  //   if (!video.vineId) {
+  //     toast({
+  //       title: 'Error',
+  //       description: 'Cannot add this video to a list',
+  //       variant: 'destructive',
+  //     });
+  //     return;
+  //   }
+
+  //   setShowListDialog({ videoId: video.vineId, videoPubkey: video.pubkey });
+  // };
+
+  // Helper component to provide social metrics data for each video
+  function VideoCardWithMetrics({ video, index }: { video: ParsedVideoData; index: number }) {
+    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
+    const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
+
+    const handleVideoLike = async () => {
+      if (userInteractions?.hasLiked) {
+        // Unlike - delete the like event
+        if (userInteractions.likeEventId) {
+          await handleUnlike(userInteractions.likeEventId);
+        }
+      } else {
+        // Like the video
+        await handleLike(video);
+      }
+    };
+
+    const handleVideoRepost = async () => {
+      if (userInteractions?.hasReposted) {
+        // Un-repost - delete the repost event
+        if (userInteractions.repostEventId) {
+          await handleUnrepost(userInteractions.repostEventId);
+        }
+      } else {
+        // Repost the video
+        await handleRepost(video);
+      }
+    };
+
+    return (
+      <VideoCard
+        key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+        video={video}
+        onLike={handleVideoLike}
+        onRepost={handleVideoRepost}
+        onOpenComments={() => handleOpenComments(video)}
+        onCloseComments={handleCloseComments}
+        isLiked={userInteractions?.hasLiked || false}
+        isReposted={userInteractions?.hasReposted || false}
+        likeCount={socialMetrics?.likeCount || 0}
+        repostCount={socialMetrics?.repostCount || 0}
+        viewCount={socialMetrics?.viewCount || video.loopCount}
+        showComments={showCommentsForVideo === video.id}
+        navigationContext={{
+          source: feedType,
+          hashtag,
+          pubkey,
+        }}
+        videoIndex={index}
+        data-testid="video-card"
+      />
+    );
+  }
 
   // Only create VideoCard components for videos in the visible range
   // Note: We compute visibility inline when mapping to avoid unused variable lint warnings
@@ -249,29 +462,13 @@ export function VideoFeed({
       data-profile-testid={profileTestId}
     >
       <div className="grid gap-6">
-        {allVideos.map((video, index) => {
-          // Only render videos in the visible range
-          if (index >= visibleRange.start && index <= visibleRange.end) {
-            return (
-              <VideoCard
-                key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
-                video={video}
-                onLike={() => handleLike(video)}
-                onRepost={() => handleRepost(video)}
-                data-testid="video-card"
-              />
-            );
-          }
-          
-          // Return placeholder div to maintain scroll position
-          return (
-            <div 
-              key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`} 
-              style={{ height: '600px' }}
-              aria-hidden="true"
-            />
-          );
-        })}
+        {allVideos.map((video, index) => (
+          <VideoCardWithMetrics
+            key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+            video={video}
+            index={index}
+          />
+        ))}
       </div>
 
       {/* Load more trigger */}
@@ -280,6 +477,16 @@ export function VideoFeed({
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         )}
       </div>
+
+      {/* Add to List Dialog */}
+      {showListDialog && (
+        <AddToListDialog
+          videoId={showListDialog.videoId}
+          videoPubkey={showListDialog.videoPubkey}
+          open={true}
+          onClose={() => setShowListDialog(null)}
+        />
+      )}
     </div>
   );
 }

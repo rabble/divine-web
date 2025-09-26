@@ -23,12 +23,12 @@ export function RelayDebugInfo() {
 
     try {
       const signal = AbortSignal.timeout(30000); // Increased timeout
-      console.log('[RelayDebugInfo] Starting query for kind 32222 events...');
+      console.log(`[RelayDebugInfo] Starting query for kind ${VIDEO_KIND} events...`);
       console.log('[RelayDebugInfo] Nostr pool instance:', nostr);
       
       // Try a simple test first
       const testFilter = {
-        kinds: [32222],
+        kinds: [VIDEO_KIND],
         limit: 10
       };
       

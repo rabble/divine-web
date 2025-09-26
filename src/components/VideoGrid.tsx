@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { ParsedVideoData } from '@/types/video';
+import { buildVideoNavigationUrl, type VideoNavigationContext } from '@/hooks/useVideoNavigation';
 
 interface VideoGridProps {
   videos: ParsedVideoData[];
   loading?: boolean;
   className?: string;
+  navigationContext?: VideoNavigationContext;
 }
 
 function formatDuration(duration?: number): string {
@@ -41,18 +43,21 @@ function truncateText(text: string, maxLength: number = 50): string {
   return text.slice(0, maxLength) + '...';
 }
 
-export function VideoGrid({ videos, loading = false, className }: VideoGridProps) {
+export function VideoGrid({ videos, loading = false, className, navigationContext }: VideoGridProps) {
   const navigate = useNavigate();
   const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
 
-  const handleVideoClick = (videoId: string) => {
-    navigate(`/video/${videoId}`);
+  const handleVideoClick = (videoId: string, index: number) => {
+    const url = navigationContext
+      ? buildVideoNavigationUrl(videoId, navigationContext, index)
+      : `/video/${videoId}`;
+    navigate(url);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent, videoId: string) => {
+  const handleKeyDown = (event: React.KeyboardEvent, videoId: string, index: number) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      handleVideoClick(videoId);
+      handleVideoClick(videoId, index);
     }
   };
 
@@ -97,7 +102,7 @@ export function VideoGrid({ videos, loading = false, className }: VideoGridProps
       className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", className)}
       data-testid="video-grid"
     >
-      {videos.map((video) => {
+      {videos.map((video, index) => {
         const isHovered = hoveredVideo === video.id;
         const videoViews = (video as ParsedVideoData & { views?: number }).views;
 
@@ -106,8 +111,8 @@ export function VideoGrid({ videos, loading = false, className }: VideoGridProps
             key={video.id}
             className="overflow-hidden cursor-pointer transition-transform hover:scale-105 group"
             data-testid="video-grid-item"
-            onClick={() => handleVideoClick(video.id)}
-            onKeyDown={(e) => handleKeyDown(e, video.id)}
+            onClick={() => handleVideoClick(video.id, index)}
+            onKeyDown={(e) => handleKeyDown(e, video.id, index)}
             onMouseEnter={() => setHoveredVideo(video.id)}
             onMouseLeave={() => setHoveredVideo(null)}
             tabIndex={0}

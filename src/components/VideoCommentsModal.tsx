@@ -9,6 +9,7 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { CommentsSection } from '@/components/comments/CommentsSection';
 import { cn } from '@/lib/utils';
 import type { ParsedVideoData } from '@/types/video';
+import { VIDEO_KIND } from '@/types/video';
 import type { NostrEvent } from '@nostrify/nostrify';
 
 interface VideoCommentsModalProps {
@@ -44,7 +45,7 @@ export function VideoCommentsModal({
     id: video.id,
     pubkey: video.pubkey,
     created_at: video.createdAt,
-    kind: 32222, // OpenVine video kind
+    kind: VIDEO_KIND, // NIP-71 addressable short video kind
     content: video.content,
     tags: [
       ['url', video.videoUrl],
@@ -121,7 +122,7 @@ export function VideoCommentsModal({
                   emptyStateSubtitle="Be the first to comment on this video!"
                   className="h-full border-0 rounded-none"
                   data-testid="comments-section"
-                  data-root-kind="32222"
+                  data-root-kind={VIDEO_KIND.toString()}
                   data-root-id={video.id}
                 />
               </div>

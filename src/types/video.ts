@@ -1,9 +1,9 @@
 // ABOUTME: Core video event types and interfaces for OpenVine/Divine Web
-// ABOUTME: Defines the structure of Kind 32222 video events and related metadata
+// ABOUTME: Defines the structure of Kind 34236 (NIP-71) video events and related metadata
 
 import type { NostrEvent } from '@nostrify/nostrify';
 
-export const VIDEO_KIND = 32222;
+export const VIDEO_KIND = 34236; // NIP-71 Addressable Short Videos
 export const REPOST_KIND = 6;
 
 export interface VideoMetadata {
