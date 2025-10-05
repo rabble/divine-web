@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Nostr ProofMode — Cryptographic Authenticity for Video (Kinds 21 & 22)</title>
+<style>
+  :root { --fg:#111; --muted:#555; --bg:#fff; --acc:#0a7; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif}
+  header{padding:32px 20px;border-bottom:1px solid #eee}
+  header h1{margin:0 0 8px;font-size:28px}
+  header p{margin:0;color:var(--muted)}
+  main{max-width:960px;margin:0 auto;padding:24px 20px}
+  h2{margin-top:36px}
+  code,kbd,pre,samp{font-family:var(--mono)}
+  pre{background:#fafafa;border:1px solid #eee;border-radius:8px;padding:12px;overflow:auto}
+  .tags{display:grid;grid-template-columns: 220px 1fr;gap:8px 16px;align-items:start;margin:12px 0}
+  .tag{font-weight:600}
+  .pill{display:inline-block;background:#eef;padding:2px 8px;border-radius:999px;font-size:12px}
+  .callout{background:#f8fffb;border:1px solid #def; padding:12px;border-radius:8px}
+  .kv{display:grid;grid-template-columns: 180px 1fr;gap:4px 12px}
+  .muted{color:var(--muted)}
+  a{color:#075}
+  .hr{height:1px;background:#eee;margin:24px 0}
+  footer{padding:24px 20px;border-top:1px solid #eee;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>ProofMode for Nostr Video (Kinds 21 &amp; 22)</h1>
+  <p>Cryptographic authenticity proofs for <strong>NIP-71</strong> video events using device attestation, OpenPGP signatures, and content hashes.</p>
+</header>
+<main>
+
+<section id="overview">
+  <h2>Overview</h2>
+  <p>
+    ProofMode defines a standard way to prove a Nostr video event was recorded on a real device and has not been altered.
+    It augments <a href="https://nips.nostr.com/71" target="_blank" rel="noreferrer">NIP-71</a> video events on kinds <code>21</code> and <code>22</code>,
+    reuses <a href="https://nips.nostr.com/92" target="_blank" rel="noreferrer">NIP-92</a> <code>imeta</code> (including the per-variant SHA-256 <code>x</code>),
+    and follows NIP conventions from <a href="https://nips.nostr.com/1" target="_blank" rel="noreferrer">NIP-01</a>, <a href="https://nips.nostr.com/94" target="_blank" rel="noreferrer">NIP-94</a>, and <a href="https://nips.nostr.com/98" target="_blank" rel="noreferrer">NIP-98</a>.
+  </p>
+  <div class="callout">
+    <strong>What you get:</strong> integrity (OpenPGP-signed manifest), provenance (device attestation on mobile), and optional frame-level hashing.
+  </div>
+</section>
+
+<section id="when">
+  <h2>When to use</h2>
+  <ul>
+    <li>Journalism, witness, or civic video where AI/synthetic media confusion is likely.</li>
+    <li>Any video where the audience benefits from <em>origin + integrity</em> proof.</li>
+  </ul>
+</section>
+
+<section id="kinds">
+  <h2>Event kinds &amp; relationship to NIP-71</h2>
+  <p>
+    ProofMode attaches to <strong>kind 21</strong> (normal) and <strong>kind 22</strong> (short) video events defined by NIP-71.
+    Publishers keep using <code>imeta</code> for the media variants; ProofMode adds <em>proof tags</em>.
+  </p>
+  <pre><code>// NIP-71 excerpt: kinds 21/22 use imeta with url/m/dim/x...
+// ProofMode tags live alongside:
+["proof-version","1"],
+["verification-level","verified_mobile" | "verified_web" | "basic_proof" | "unverified"],
+["proof-manifest","&lt;base64(JSON)&gt;"],
+["pgp-pubkey","&lt;ASCII armored&gt;"],
+["pgp-fingerprint","&lt;hex&gt;"],
+["device-attestation","&lt;platform token&gt;"],
+["frame-hashes","&lt;base64(JSON)&gt;"],
+["recording-segments","&lt;int&gt;"],
+["human-interactions","&lt;int&gt;"]</code></pre>
+  <p class="muted">Reference: NIP-71 kinds and use of <code>imeta</code>. The manifest’s <code>media_hash</code> must match the chosen <code>x</code> in the selected variant.</p>
+</section>
+
+<section id="tags">
+  <h2>Tag specifications</h2>
+  <div class="tags">
+    <div class="tag">proof-version</div><div>Required. Version string (e.g. <code>"1"</code>).</div>
+    <div class="tag">verification-level</div><div>Required. <code>verified_mobile</code> | <code>verified_web</code> | <code>basic_proof</code> | <code>unverified</code>.</div>
+    <div class="tag">proof-manifest</div><div>Required. Base64 of compact JSON manifest including <code>media_hash</code>, times, segments, optional interactions/frame hashes, and an OpenPGP detached <code>signature</code> over the canonicalized manifest.</div>
+    <div class="tag">pgp-pubkey</div><div>Required. ASCII-armored OpenPGP public key (or base64 binary).</div>
+    <div class="tag">pgp-fingerprint</div><div>Required. Hex fingerprint for quick match &amp; cache.</div>
+    <div class="tag">device-attestation</div><div>Required for <span class="pill">verified_mobile</span>. App Attest (iOS) or Play Integrity (Android) token (JWT/CBOR), nonce bound to key/manifest.</div>
+    <div class="tag">frame-hashes</div><div>Optional. Base64 of JSON (sampled hashes or Merkle root) to enable spot verification.</div>
+    <div class="tag">recording-segments</div><div>Optional. Number of pause/resume segments.</div>
+    <div class="tag">human-interactions</div><div>Optional. Count of on-record user interactions.</div>
+  </div>
+</section>
+
+<section id="levels">
+  <h2>Verification levels</h2>
+  <div class="kv">
+    <div>verified_mobile</div><div>PGP signature valid + device attestation valid.</div>
+    <div>verified_web</div><div>PGP signature valid; no device attestation.</div>
+    <div>basic_proof</div><div>PGP signature valid; integrity only.</div>
+    <div>unverified</div><div>No manifest or verification failed.</div>
+  </div>
+</section>
+
+<section id="verify">
+  <h2>Verification algorithm (client/relay)</h2>
+  <ol>
+    <li>Decode <code>proof-manifest</code>; parse JSON.</li>
+    <li>Import <code>pgp-pubkey</code>; verify <code>pgp-fingerprint</code>.</li>
+    <li>Verify OpenPGP <code>signature</code> over canonicalized manifest (excluding <code>signature</code>).</li>
+    <li>Match <code>manifest.media_hash</code> to the selected <code>imeta</code> variant’s <code>x</code> (NIP-92).</li>
+    <li>If present, validate <code>device-attestation</code> (issuer keys, freshness, package/app id, integrity flags, nonce binding).</li>
+    <li>Optionally sample re-hash frames and compare with <code>frame-hashes</code>.</li>
+    <li>Check segment &amp; interaction counts vs manifest; basic timing sanity.</li>
+    <li>Assign level; downgrade if claim &gt; derived.</li>
+  </ol>
+</section>
+
+<section id="examples">
+  <h2>Examples</h2>
+
+  <h3>Kind 21 with full ProofMode (verified_mobile)</h3>
+  <pre><code>{
+  "kind": 21,
+  "content": "Protest on Main St.",
+  "tags": [
+    ["title","Protest Footage"],
+    ["imeta","dim 1920x1080","url https://cdn.example/v/abc.mp4","x 5c...e2","m video/mp4","image https://cdn.example/v/abc.jpg"],
+    ["published_at","1736112000"],
+    ["duration","120"],
+    ["proof-version","1"],
+    ["verification-level","verified_mobile"],
+    ["proof-manifest","&lt;base64(JSON with media_hash==imeta.x, times, signature)&gt;"],
+    ["device-attestation","&lt;JWT&gt;"],
+    ["pgp-pubkey","-----BEGIN PGP PUBLIC KEY BLOCK-----..."],
+    ["pgp-fingerprint","094F9BAE18958C238F55F793560CC828C726365F"],
+    ["frame-hashes","&lt;base64(JSON of samples)&gt;"],
+    ["recording-segments","1"],
+    ["human-interactions","2"]
+  ]
+}</code></pre>
+
+  <h3>Kind 22 with web capture (verified_web)</h3>
+  <pre><code>{
+  "kind": 22,
+  "content": "Quick update",
+  "tags": [
+    ["title","Short clip"],
+    ["imeta","dim 720x1280","url https://cdn.example/s/xyz.webm","x 7a...90","m video/webm"],
+    ["proof-version","1"],
+    ["verification-level","verified_web"],
+    ["proof-manifest","&lt;base64(JSON)&gt;"],
+    ["pgp-pubkey","-----BEGIN PGP PUBLIC KEY BLOCK-----..."],
+    ["pgp-fingerprint","A1B2C3D4E5F6..."]
+  ]
+}</code></pre>
+
+  <h3>Verification (TypeScript, outline)</h3>
+  <pre><code>async function verifyProofMode(ev: NostrEvent) {
+  const t = indexTags(ev.tags);
+  if (!t["proof-manifest"]) return {level:"unverified", reason:"missing manifest"};
+
+  const manifest = JSON.parse(atob(t["proof-manifest"][0]));
+  const pub = await importPGP(t["pgp-pubkey"][0]);
+  if (pub.fingerprint !== t["pgp-fingerprint"][0]) return {level:"unverified", reason:"fp mismatch"};
+
+  const {signature, ...payload} = manifest;
+  const canonical = canonicalizeJSON(payload);
+  if (!(await verifyPGP(signature, canonical, pub))) return {level:"unverified", reason:"bad signature"};
+
+  const chosenImetaX = pickPrimaryImetaHash(ev.tags); // from NIP-92 imeta
+  if (manifest.media_hash !== chosenImetaX) return {level:"unverified", reason:"hash mismatch"};
+
+  let attestOK = false;
+  if (t["device-attestation"]) {
+    attestOK = await verifyAttestation(t["device-attestation"][0], pub);
+  }
+  // optional: sample frame rehash
+
+  const derived = attestOK ? "verified_mobile" : "basic_proof"; // or "verified_web" per context
+  return {level: derived, attestOK};
+}</code></pre>
+</section>
+
+<section id="security">
+  <h2>Security &amp; Privacy</h2>
+  <ul>
+    <li><strong>Replay/proof reuse:</strong> bind nonces to PGP key or manifest hash; check freshness.</li>
+    <li><strong>Frame injection:</strong> file hash + signature prevents; frame samples add granularity.</li>
+    <li><strong>Attestation limits:</strong> depends on OS/device integrity; failures downgrade level.</li>
+    <li><strong>Crypto agility:</strong> future versions can switch hash/sig algorithms.</li>
+    <li><strong>Privacy:</strong> prefer per-event keys; omit location by default; note correlation risk if reusing keys.</li>
+  </ul>
+</section>
+
+<section id="interop">
+  <h2>Interoperability</h2>
+  <ul>
+    <li>Backward-compatible: unknown tags ignored per NIP-01.</li>
+    <li>Works with NIP-71 kinds 21/22; uses NIP-92 imeta and NIP-94 file hashes.</li>
+    <li>Discovery via tag presence; future extensions via <code>proof-version</code>.</li>
+  </ul>
+</section>
+
+<section id="refs">
+  <h2>References</h2>
+  <ul>
+    <li><a href="https://nips.nostr.com/71" target="_blank" rel="noreferrer">NIP-71 — Video Events (kinds 21/22)</a></li>
+    <li><a href="https://nips.nostr.com/92" target="_blank" rel="noreferrer">NIP-92 — Media Attachments (imeta)</a></li>
+    <li><a href="https://nips.nostr.com/94" target="_blank" rel="noreferrer">NIP-94 — File Metadata</a></li>
+    <li><a href="https://nips.nostr.com/1" target="_blank" rel="noreferrer">NIP-01 — Basic Protocol</a></li>
+    <li><a href="https://nips.nostr.com/98" target="_blank" rel="noreferrer">NIP-98 — HTTP Auth (freshness/attestation patterns)</a></li>
+  </ul>
+</section>
+
+<div class="hr"></div>
+
+<section id="license">
+  <p class="muted">License: CC0.</p>
+</section>
+
+</main>
+<footer>
+  <small>ProofMode for Nostr Video — v1 draft. Compatible with NIP-71 kinds 21/22.</small>
+</footer>
+</body>
+</html>

@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -78,17 +78,27 @@ export function AppHeader() {
               
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Information</DropdownMenuLabel>
-              
+
               <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
                 <Info className="mr-2 h-4 w-4" />
                 About
               </DropdownMenuItem>
-              
+
+              <DropdownMenuItem onClick={() => navigate('/authenticity')} className="cursor-pointer">
+                <Heart className="mr-2 h-4 w-4" />
+                Our Mission
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/proofmode')} className="cursor-pointer">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                ProofMode
+              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => navigate('/open-source')} className="cursor-pointer">
                 <Code2 className="mr-2 h-4 w-4" />
                 Open Source
               </DropdownMenuItem>
-              
+
               <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
                 <Shield className="mr-2 h-4 w-4" />
                 Privacy Policy

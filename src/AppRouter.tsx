@@ -22,6 +22,8 @@ import { UniversalUserPage } from "./pages/UniversalUserPage";
 import AboutPage from "./pages/AboutPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import OpenSourcePage from "./pages/OpenSourcePage";
+import ProofModePage from "./pages/ProofModePage";
+import AuthenticityPage from "./pages/AuthenticityPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 
@@ -57,8 +59,10 @@ export function AppRouter() {
           <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
           {/* Info pages */}
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/authenticity" element={<AuthenticityPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
+          <Route path="/proofmode" element={<ProofModePage />} />
           {/* Test pages for debugging */}
           <Route path="/debug-video" element={<DebugVideoPage />} />
           {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
