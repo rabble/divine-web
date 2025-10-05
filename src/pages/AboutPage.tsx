@@ -41,11 +41,18 @@ export function AboutPage() {
               Remember Vine?
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Between 2013 and 2017, Vine was a cultural phenomenon that allowed creators to share 
+              Between 2013 and 2017, Vine was a cultural phenomenon that allowed creators to share
               six-second videos capturing pure, unfiltered moments of creativity.
             </p>
+            <div className="bg-muted/50 p-4 rounded-lg border">
+              <p className="text-sm text-muted-foreground">
+                <strong>Note:</strong> Divine Web has no affiliation with X (formerly Twitter) or the original Vine platform.
+                We're an independent project that preserves archived Vine content and enables new creations using
+                completely open-source technology and the decentralized Nostr protocol.
+              </p>
+            </div>
           </CardContent>
         </Card>
 
