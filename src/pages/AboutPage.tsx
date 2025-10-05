@@ -47,7 +47,7 @@ export function AboutPage() {
               six-second videos capturing pure, unfiltered moments of creativity.
             </p>
             <div className="bg-muted/50 p-4 rounded-lg border">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground">
                 <strong>Note:</strong> Divine Web has no affiliation with X (formerly Twitter) or the original Vine platform.
                 We're an independent project that preserves archived Vine content and enables new creations using
                 completely open-source technology and the decentralized Nostr protocol.
