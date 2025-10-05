@@ -241,7 +241,7 @@ export function AuthenticityPage() {
                 <h3 className="font-semibold text-xl mb-1">Community Over Algorithms</h3>
                 <p className="text-muted-foreground">
                   Built on{" "}
-                  <a href="https://nostr.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  <a href="https://nostr.org" rel="noopener noreferrer" className="text-primary hover:underline">
                     Nostr
                   </a>, a decentralized protocol where you own your content and connections.
                   No corporation can shut us down or take away your creative work.
@@ -258,7 +258,7 @@ export function AuthenticityPage() {
                 <p className="text-muted-foreground">
                   We're part of a broader movement fighting for user ownership, privacy, and control
                   of social media. Your data belongs to you, not corporations. Learn more at{" "}
-                  <a href="https://rights.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  <a href="https://rights.social" rel="noopener noreferrer" className="text-primary hover:underline">
                     Rights.Social
                   </a>.
                 </p>
@@ -366,11 +366,11 @@ export function AuthenticityPage() {
           <p className="text-muted-foreground">
             Divine.video is created by Rabble, building decentralized social media technologies
             and fighting for digital rights. Learn more at{" "}
-            <a href="https://rabblelabs.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a href="https://rabblelabs.com" rel="noopener noreferrer" className="text-primary hover:underline">
               RabbleLabs.com
             </a>{" "}
             or read about the history of social media at{" "}
-            <a href="https://revolution.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a href="https://revolution.social" rel="noopener noreferrer" className="text-primary hover:underline">
               Revolution.Social
             </a>.
           </p>

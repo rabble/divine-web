@@ -267,7 +267,7 @@ export function ProofModePage() {
           </ul>
           <p className="text-sm">
             For more technical details about the ProofMode specification, see the{" "}
-            <a href="/proofmode-spec.html" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+            <a href="/proofmode-spec.html" className="text-primary hover:underline" rel="noopener noreferrer">
               full technical specification
             </a>.
           </p>

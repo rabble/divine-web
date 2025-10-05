@@ -67,7 +67,6 @@ export function AppHeader() {
               <DropdownMenuItem asChild>
                 <a
                   href="https://testflight.apple.com/join/phQERxAb"
-                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 cursor-pointer"
                 >
@@ -109,7 +108,6 @@ export function AppHeader() {
               <DropdownMenuItem asChild>
                 <a
                   href="https://github.com/rabble/nostrvine"
-                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 cursor-pointer"
                 >

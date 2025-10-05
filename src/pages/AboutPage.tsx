@@ -57,14 +57,14 @@ export function AboutPage() {
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
               The idea for Divine Web came during interviews for the{" "}
-              <a href="https://revolution.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://revolution.social" rel="noopener noreferrer" className="text-primary hover:underline">
                 Revolution.Social podcast
               </a>. When interviewing{" "}
-              <a href="https://revolution.social/yoel-roth-twitter-trust-and-safety/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://revolution.social/episodes/yoel-roth-on-banning-trump-battling-bots-amp-the-d/" rel="noopener noreferrer" className="text-primary hover:underline">
                 Yoel Roth
               </a>{" "}
               and{" "}
-              <a href="https://revolution.social/taylor-lorenz/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://revolution.social/episodes/taylor-lorenz-on-moral-panics-tech-villains-amp-pr/" rel="noopener noreferrer" className="text-primary hover:underline">
                 Taylor Lorenz
               </a>, both talked passionately about how much they missed Vine and the unique creative culture it fostered.
             </p>
@@ -96,7 +96,7 @@ export function AboutPage() {
             <p className="text-muted-foreground">
               When Twitter shut down Vine in 2017, millions of creative videos were at risk of being lost forever.
               Fortunately, the volunteer archivists at{" "}
-              <a href="https://wiki.archiveteam.org/index.php/Vine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://wiki.archiveteam.org/index.php/Vine" rel="noopener noreferrer" className="text-primary hover:underline">
                 ArchiveTeam
               </a>{" "}
               sprang into action to preserve these cultural artifacts before they disappeared.
@@ -143,7 +143,7 @@ export function AboutPage() {
             </div>
             <p className="text-sm text-muted-foreground">
               Part of a broader movement for digital rights and user ownership. Learn more at{" "}
-              <a href="https://rights.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://rights.social" rel="noopener noreferrer" className="text-primary hover:underline">
                 Rights.Social
               </a>.
             </p>
@@ -161,7 +161,7 @@ export function AboutPage() {
                 <h4 className="font-semibold">Nostr Protocol</h4>
                 <p className="text-sm text-muted-foreground">
                   Decentralized and censorship-resistant. Built on{" "}
-                  <a href="https://nostr.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  <a href="https://nostr.org" rel="noopener noreferrer" className="text-primary hover:underline">
                     Nostr
                   </a>, a protocol that makes it impossible for any single entity to control or censor your content.
                 </p>
@@ -202,7 +202,7 @@ export function AboutPage() {
                 <h4 className="font-semibold">Open Source</h4>
                 <p className="text-sm text-muted-foreground">
                   Community-built and maintained. Check out our{" "}
-                  <a href="https://github.com/rabble/nostrvine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                  <a href="https://github.com/rabble/nostrvine" rel="noopener noreferrer" className="text-primary hover:underline">
                     Flutter app on GitHub
                   </a>.
                 </p>
@@ -245,7 +245,7 @@ export function AboutPage() {
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
               Inspired by the simplicity of original Vine and projects like{" "}
-              <a href="https://neocities.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://neocities.org" rel="noopener noreferrer" className="text-primary hover:underline">
                 Neocities
               </a>,
               Divine Web aims to resurrect spontaneous, creative video sharing.
@@ -255,11 +255,11 @@ export function AboutPage() {
             </p>
             <p className="text-sm text-muted-foreground">
               Learn more at{" "}
-              <a href="https://rabblelabs.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://rabblelabs.com" rel="noopener noreferrer" className="text-primary hover:underline">
                 RabbleLabs.com
               </a>{" "}
               or read about the history of social media at{" "}
-              <a href="https://revolution.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <a href="https://revolution.social" rel="noopener noreferrer" className="text-primary hover:underline">
                 Revolution.Social
               </a>.
             </p>
