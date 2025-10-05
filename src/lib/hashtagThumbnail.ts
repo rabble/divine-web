@@ -7,11 +7,41 @@ interface NostrClientLike {
   query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]>;
 }
 
+// Cache for precalculated thumbnails
+let thumbnailCache: Record<string, string | null> | null = null;
+
+async function loadThumbnailCache(): Promise<Record<string, string | null>> {
+  if (thumbnailCache !== null) {
+    return thumbnailCache;
+  }
+
+  try {
+    const response = await fetch('/hashtag-thumbnails.json');
+    if (response.ok) {
+      thumbnailCache = await response.json();
+      debugLog('[hashtagThumbnail] Loaded precalculated thumbnail cache with', Object.keys(thumbnailCache).length, 'entries');
+      return thumbnailCache;
+    }
+  } catch (err) {
+    debugLog('[hashtagThumbnail] Could not load thumbnail cache:', err);
+  }
+
+  thumbnailCache = {};
+  return thumbnailCache;
+}
+
 export async function resolveHashtagThumbnail(
   nostr: NostrClientLike,
   hashtag: string,
   signal: AbortSignal
 ): Promise<string | undefined> {
+  // Check precalculated cache first
+  const cache = await loadThumbnailCache();
+  const cachedThumbnail = cache[hashtag.toLowerCase()];
+  if (cachedThumbnail) {
+    debugLog('[resolveHashtagThumbnail] Using cached thumbnail for:', hashtag);
+    return cachedThumbnail;
+  }
   const filter: NostrFilter & { ['#t']?: string[] } = {
     kinds: [VIDEO_KIND],
     limit: 5,

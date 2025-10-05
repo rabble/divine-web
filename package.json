@@ -9,7 +9,8 @@
     "test": "npm i && tsc -p tsconfig.app.json --noEmit && eslint && vitest run && vite build",
     "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup",
     "deploy:cloudflare": "npm run build && wrangler pages deploy dist",
-    "deploy:cloudflare:preview": "npm run build && wrangler pages deploy dist --branch preview"
+    "deploy:cloudflare:preview": "npm run build && wrangler pages deploy dist --branch preview",
+    "precalculate-thumbnails": "tsx scripts/precalculate-hashtag-thumbnails.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.6",
