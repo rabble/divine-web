@@ -67,6 +67,34 @@ export function AboutPage() {
           </CardContent>
         </Card>
 
+        {/* Vine Archive */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Archive className="h-5 w-5" />
+              Where Did We Get the Vines?
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              When Twitter shut down Vine in 2017, millions of creative videos were at risk of being lost forever.
+              Fortunately, the volunteer archivists at{" "}
+              <a href="https://wiki.archiveteam.org/index.php/Vine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                ArchiveTeam
+              </a>{" "}
+              sprang into action to preserve these cultural artifacts before they disappeared.
+            </p>
+            <p className="text-muted-foreground">
+              We recovered the Vine videos from ArchiveTeam's preservation work, giving these authentic
+              pre-AI era videos a new home. Divine Web is committed to restoring creator ownership and
+              attribution when possible, honoring the original creators who made Vine special.
+            </p>
+            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
+              "Do it for the Vine!" — Every creator, circa 2015
+            </blockquote>
+          </CardContent>
+        </Card>
+
         {/* Digital Rights */}
         <Card>
           <CardHeader>
@@ -215,34 +243,6 @@ export function AboutPage() {
                 Revolution.Social
               </a>.
             </p>
-          </CardContent>
-        </Card>
-
-        {/* Vine Archive */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Archive className="h-5 w-5" />
-              Where Did We Get the Vines?
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              When Twitter shut down Vine in 2017, millions of creative videos were at risk of being lost forever.
-              Fortunately, the volunteer archivists at{" "}
-              <a href="https://wiki.archiveteam.org/index.php/Vine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                ArchiveTeam
-              </a>{" "}
-              sprang into action to preserve these cultural artifacts before they disappeared.
-            </p>
-            <p className="text-muted-foreground">
-              We recovered the Vine videos from ArchiveTeam's preservation work, giving these authentic
-              pre-AI era videos a new home. Divine Web is committed to restoring creator ownership and
-              attribution when possible, honoring the original creators who made Vine special.
-            </p>
-            <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
-              "Do it for the Vine!" — Every creator, circa 2015
-            </blockquote>
           </CardContent>
         </Card>
 
