@@ -37,10 +37,20 @@ export async function resolveHashtagThumbnail(
 ): Promise<string | undefined> {
   // Check precalculated cache first
   const cache = await loadThumbnailCache();
-  const cachedThumbnail = cache[hashtag.toLowerCase()];
+  const cacheKey = hashtag.toLowerCase();
+  const cachedThumbnail = cache[cacheKey];
+
+  debugLog('[resolveHashtagThumbnail] Checking cache for:', cacheKey, 'found:', cachedThumbnail ? 'YES' : 'NO');
+
   if (cachedThumbnail) {
-    debugLog('[resolveHashtagThumbnail] Using cached thumbnail for:', hashtag);
+    debugLog('[resolveHashtagThumbnail] Using cached thumbnail for:', hashtag, '→', cachedThumbnail);
     return cachedThumbnail;
+  }
+
+  // If cache has null, it means we checked and found nothing, skip live query
+  if (cache.hasOwnProperty(cacheKey)) {
+    debugLog('[resolveHashtagThumbnail] Cache has null for:', hashtag, '- skipping live query');
+    return undefined;
   }
   const filter: NostrFilter & { ['#t']?: string[] } = {
     kinds: [VIDEO_KIND],
