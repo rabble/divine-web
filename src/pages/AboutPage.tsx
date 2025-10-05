@@ -56,8 +56,25 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              The creator was inspired by podcast interviews and the loss of digital content when 
-              Twitter shut down Vine in 2017. The goal is to create a platform that:
+              The idea for Divine Web came during interviews for the{" "}
+              <a href="https://revolution.social" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Revolution.Social podcast
+              </a>. When interviewing{" "}
+              <a href="https://revolution.social/yoel-roth-twitter-trust-and-safety/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Yoel Roth
+              </a>{" "}
+              and{" "}
+              <a href="https://revolution.social/taylor-lorenz/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Taylor Lorenz
+              </a>, both talked passionately about how much they missed Vine and the unique creative culture it fostered.
+            </p>
+            <p className="text-muted-foreground">
+              That's when the thought hit: how hard could it be to revive Vine? With today's decentralized technologies,
+              we could bring back that spontaneous creativity—but this time, make it impossible for any corporation to
+              shut down again.
+            </p>
+            <p className="text-muted-foreground">
+              The goal is to create a platform that:
             </p>
             <ul className="list-disc list-inside space-y-2 text-muted-foreground">
               <li>Preserves digital creative legacy</li>
@@ -227,7 +244,10 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Inspired by the simplicity of original Vine and projects like Neocities,
+              Inspired by the simplicity of original Vine and projects like{" "}
+              <a href="https://neocities.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Neocities
+              </a>,
               Divine Web aims to resurrect spontaneous, creative video sharing.
             </p>
             <p className="text-muted-foreground">
