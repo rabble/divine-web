@@ -17,6 +17,9 @@ All notable changes to Divine Web will be documented in this file.
 - Full social interaction support for all pages (like, repost, comment, add to list)
 - Enhanced visual feedback for social interactions with colored backgrounds and filled icons
 - Context-aware video navigation that remembers source (hashtag/profile feeds)
+- Hashtag thumbnail precalculation system with URL validation
+- Downloaded 181 hashtag thumbnails locally for reliable loading
+- Local thumbnail serving from `/public/thumbnails/` to avoid CDN issues
 
 ### Changed
 - All console.log statements replaced with conditional debug logging
@@ -42,6 +45,7 @@ All notable changes to Divine Web will be documented in this file.
 - Fixed social interaction buttons not working on individual video pages (VideoPage.tsx)
 - Added missing query invalidation for list updates - list badges now update immediately
 - Fixed broken UX with intrusive floating navigation buttons
+- Fixed hashtag thumbnail loading issues - HTTP 500 errors from CDN under concurrent load resolved by serving locally
 
 ### Performance
 - Optimized video feed to use virtualization (only renders visible videos)

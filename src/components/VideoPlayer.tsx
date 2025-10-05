@@ -3,7 +3,7 @@
 
 import { useRef, useEffect, useState, forwardRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
+import { Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useInView } from 'react-intersection-observer';
@@ -61,7 +61,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       onEnded,
       onError,
       showControls = true,
-      preload = 'none', // Changed to 'none' for better performance
+      preload: _preload = 'none', // Changed to 'none' for better performance
       // Mobile-specific props
       allowFullscreen = false,
       autoHideControls = false,
@@ -92,20 +92,20 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
     const [controlsTimer, setControlsTimer] = useState<NodeJS.Timeout | null>(null);
     
-    const { activeVideoId, setActiveVideo, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
+    const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
     const isActive = activeVideoId === videoId;
-    
+
     // Get responsive layout class
     const getLayoutClass = useCallback(() => {
       if (typeof window === 'undefined') return 'desktop-layout';
-      
+
       const width = window.innerWidth;
       if (width < 480) return 'phone-layout';
       if (width < 1024) return 'tablet-layout'; // Changed from 768 to 1024
       return 'desktop-layout';
     }, []);
-    
-    const [layoutClass, setLayoutClass] = useState(getLayoutClass);
+
+    const [layoutClass] = useState(getLayoutClass);
     
     const isMobile = useIsMobile();
 
@@ -200,7 +200,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }, [globalMuted, videoId]);
 
     // Handle play/pause
-    const togglePlay = () => {
+    const togglePlay = useCallback(() => {
       debugLog(`[VideoPlayer ${videoId}] togglePlay called, isPlaying: ${isPlaying}`);
       if (!videoRef.current) {
         debugLog(`[VideoPlayer ${videoId}] No video ref available`);
@@ -218,17 +218,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         });
       }
       setIsPlaying(!isPlaying);
-    };
+    }, [videoId, isPlaying]);
 
     // Handle mute/unmute
-    const toggleMute = () => {
+    const toggleMute = (e?: React.MouseEvent) => {
+      e?.stopPropagation(); // Prevent event from bubbling to video click handler
       debugLog(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
       if (!videoRef.current) return;
-      
+
       // Toggle global mute state
       const newMutedState = !globalMuted;
       setGlobalMuted(newMutedState);
-      
+
       // Apply to all registered videos
       debugLog(`[VideoPlayer ${videoId}] Setting global muted state to: ${newMutedState}`);
     };
@@ -649,10 +650,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   ? (controlsVisible ? "opacity-100 w-12 h-12" : "opacity-0 w-12 h-12")
                   : "opacity-0 group-hover:opacity-100 w-10 h-10"
               )}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMute();
-              }}
+              onClick={toggleMute}
             >
               {globalMuted ? (
                 <VolumeX className="h-5 w-5" />

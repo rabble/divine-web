@@ -19,8 +19,8 @@ async function loadThumbnailCache(): Promise<Record<string, string | null>> {
     const response = await fetch('/hashtag-thumbnails.json');
     if (response.ok) {
       thumbnailCache = await response.json();
-      debugLog('[hashtagThumbnail] Loaded precalculated thumbnail cache with', Object.keys(thumbnailCache).length, 'entries');
-      return thumbnailCache;
+      debugLog('[hashtagThumbnail] Loaded precalculated thumbnail cache with', Object.keys(thumbnailCache || {}).length, 'entries');
+      return thumbnailCache || {};
     }
   } catch (err) {
     debugLog('[hashtagThumbnail] Could not load thumbnail cache:', err);

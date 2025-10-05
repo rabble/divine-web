@@ -85,6 +85,15 @@ function parseVideoEvent(event: NostrEvent): string | null {
   }
 }
 
+async function verifyThumbnailUrl(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
 async function findThumbnailForHashtag(hashtag: string): Promise<string | null> {
   try {
     console.log(`[${hashtag}] Querying for videos using nak...`);
@@ -116,12 +125,18 @@ async function findThumbnailForHashtag(hashtag: string): Promise<string | null> 
     for (const event of events) {
       const thumb = parseVideoEvent(event);
       if (thumb) {
-        console.log(`[${hashtag}] ✓ Found thumbnail: ${thumb.substring(0, 60)}...`);
-        return thumb;
+        console.log(`[${hashtag}] Testing thumbnail URL: ${thumb.substring(0, 60)}...`);
+        const isValid = await verifyThumbnailUrl(thumb);
+        if (isValid) {
+          console.log(`[${hashtag}] ✓ Found valid thumbnail: ${thumb.substring(0, 60)}...`);
+          return thumb;
+        } else {
+          console.log(`[${hashtag}] ✗ Thumbnail URL returned error, trying next...`);
+        }
       }
     }
 
-    console.log(`[${hashtag}] ✗ No thumbnail found in ${events.length} events`);
+    console.log(`[${hashtag}] ✗ No valid thumbnail found in ${events.length} events`);
     return null;
   } catch (err: any) {
     if (err.code === 'ENOENT') {
