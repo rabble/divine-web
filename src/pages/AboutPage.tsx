@@ -9,17 +9,17 @@ import { ExternalLink, Github, Heart, Archive, Shield } from 'lucide-react';
 export function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <h1 className="text-4xl font-bold mb-8">About Divine Web</h1>
+      <h1 className="text-4xl font-bold mb-8">About Divine</h1>
       
       <div className="space-y-8">
         {/* The Story */}
         <Card className="border-2 border-primary/20">
           <CardHeader>
-            <CardTitle>The Story Behind Divine Web</CardTitle>
+            <CardTitle>The Story Behind Divine</CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm dark:prose-invert max-w-none space-y-4">
             <p className="text-lg">
-              In an era of AI-generated content, Divine Web seeks to recapture the authentic creativity
+              In an era of AI-generated content, Divine seeks to recapture the authentic creativity
               of the original Vine platform.
             </p>
             <div className="not-prose">
@@ -48,7 +48,7 @@ export function AboutPage() {
             </p>
             <div className="bg-muted/50 p-4 rounded-lg border">
               <p className="text-muted-foreground">
-                <strong>Note:</strong> Divine Web has no affiliation with X (formerly Twitter) or the original Vine platform.
+                <strong>Note:</strong> Divine has no affiliation with X (formerly Twitter) or the original Vine platform.
                 We're an independent project that preserves archived Vine content and enables new creations using
                 completely open-source technology and the decentralized Nostr protocol.
               </p>
@@ -63,7 +63,7 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              The idea for Divine Web came during interviews for the{" "}
+              The idea for Divine came during interviews for the{" "}
               <a href="https://revolution.social" rel="noopener noreferrer" className="text-primary hover:underline">
                 Revolution.Social podcast
               </a>. When interviewing{" "}
@@ -110,7 +110,7 @@ export function AboutPage() {
             </p>
             <p className="text-muted-foreground">
               We recovered the Vine videos from ArchiveTeam's preservation work, giving these authentic
-              pre-AI era videos a new home. Divine Web is committed to restoring creator ownership and
+              pre-AI era videos a new home. Divine is committed to restoring creator ownership and
               attribution when possible, honoring the original creators who made Vine special.
             </p>
             <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
@@ -125,7 +125,7 @@ export function AboutPage() {
             <CardTitle>Fighting for Digital Rights</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground mb-4">Divine Web upholds key digital rights:</p>
+            <p className="text-muted-foreground mb-4">Divine upholds key digital rights:</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 bg-primary rounded-full" />
@@ -228,7 +228,7 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              In an era where AI can generate realistic fake videos, Divine Web uses ProofMode to help you
+              In an era where AI can generate realistic fake videos, Divine uses ProofMode to help you
               distinguish real camera captures from AI-generated content.
             </p>
             <p className="text-muted-foreground">
@@ -255,7 +255,7 @@ export function AboutPage() {
               <a href="https://neocities.org" rel="noopener noreferrer" className="text-primary hover:underline">
                 Neocities
               </a>,
-              Divine Web aims to resurrect spontaneous, creative video sharing.
+              Divine aims to resurrect spontaneous, creative video sharing.
             </p>
             <p className="text-muted-foreground">
               Rabble is building decentralized social media technologies and fighting for digital rights.
