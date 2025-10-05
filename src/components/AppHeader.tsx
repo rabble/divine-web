@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -102,7 +102,12 @@ export function AppHeader() {
                 <Shield className="mr-2 h-4 w-4" />
                 Privacy Policy
               </DropdownMenuItem>
-              
+
+              <DropdownMenuItem onClick={() => navigate('/dmca')} className="cursor-pointer">
+                <Scale className="mr-2 h-4 w-4" />
+                Copyright & DMCA
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               
               <DropdownMenuItem asChild>

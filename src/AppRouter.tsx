@@ -24,6 +24,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import OpenSourcePage from "./pages/OpenSourcePage";
 import ProofModePage from "./pages/ProofModePage";
 import AuthenticityPage from "./pages/AuthenticityPage";
+import DMCAPage from "./pages/DMCAPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 
@@ -63,6 +64,7 @@ export function AppRouter() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
           <Route path="/proofmode" element={<ProofModePage />} />
+          <Route path="/dmca" element={<DMCAPage />} />
           {/* Test pages for debugging */}
           <Route path="/debug-video" element={<DebugVideoPage />} />
           {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}

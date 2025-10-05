@@ -308,6 +308,9 @@ export function AboutPage() {
             <Link to="/privacy">Privacy Policy</Link>
           </Button>
           <Button variant="outline" asChild>
+            <Link to="/dmca">Copyright & DMCA</Link>
+          </Button>
+          <Button variant="outline" asChild>
             <Link to="/open-source">Open Source</Link>
           </Button>
           <Button variant="outline" asChild>
