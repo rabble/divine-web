@@ -39,18 +39,6 @@ export function AppFooter() {
               GitHub
             </a>
           </nav>
-          
-          {/* MKStack Credit */}
-          <div className="text-center text-sm text-muted-foreground">
-            <a
-              href="https://soapbox.pub/mkstack"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-foreground transition-colors"
-            >
-              Vibed with MKStack
-            </a>
-          </div>
         </div>
       </div>
     </footer>
