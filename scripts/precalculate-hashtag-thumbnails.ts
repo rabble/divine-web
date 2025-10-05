@@ -34,6 +34,25 @@ interface HashtagThumbnailCache {
 
 function parseVideoEvent(event: NostrEvent): string | null {
   try {
+    // Try to find imeta tag with image URL (NIP-92 format)
+    const imetaTag = event.tags.find(t => t[0] === 'imeta');
+    if (imetaTag) {
+      // imeta format: ["imeta", "url https://...", "m video/mp4", "image https://thumb.jpg"]
+      for (const part of imetaTag) {
+        if (typeof part === 'string' && part.startsWith('image ')) {
+          const url = part.substring(6).trim();
+          if (url) return url;
+        }
+      }
+      // Fallback: get the URL from imeta as video URL
+      for (const part of imetaTag) {
+        if (typeof part === 'string' && part.startsWith('url ')) {
+          const url = part.substring(4).trim();
+          if (url) return url;
+        }
+      }
+    }
+
     // Try to find image/thumb tag
     const thumbTag = event.tags.find(t => t[0] === 'thumb' || t[0] === 'image');
     if (thumbTag && thumbTag[1]) {
