@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Play, Eye, Clock } from 'lucide-react';
+import { Play, Repeat } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,24 +18,16 @@ interface VideoGridProps {
   navigationContext?: VideoNavigationContext;
 }
 
-function formatDuration(duration?: number): string {
-  if (!duration) return '0:06'; // Default for Divine Web 6-second videos
-  
-  const minutes = Math.floor(duration / 60);
-  const seconds = Math.floor(duration % 60);
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
+function formatLoops(loops?: number): string {
+  if (!loops) return '0 loops';
 
-function formatViews(views?: number): string {
-  if (!views) return '';
-  
-  if (views >= 1000000) {
-    return `${(views / 1000000).toFixed(1)}M views`;
+  if (loops >= 1000000) {
+    return `${(loops / 1000000).toFixed(1)}M loops`;
   }
-  if (views >= 1000) {
-    return `${(views / 1000).toFixed(1)}K views`;
+  if (loops >= 1000) {
+    return `${(loops / 1000).toFixed(1)}K loops`;
   }
-  return `${views} views`;
+  return `${loops} loops`;
 }
 
 function truncateText(text: string, maxLength: number = 50): string {
@@ -98,13 +90,12 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
   }
 
   return (
-    <div 
+    <div
       className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", className)}
       data-testid="video-grid"
     >
       {videos.map((video, index) => {
         const isHovered = hoveredVideo === video.id;
-        const videoViews = (video as ParsedVideoData & { views?: number }).views;
 
         return (
           <Card
@@ -147,20 +138,12 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                 </div>
               </div>
 
-              {/* Duration Badge */}
-              <div className="absolute bottom-2 right-2">
-                <Badge variant="secondary" className="text-xs font-mono bg-black/80 text-white">
-                  <Clock className="w-3 h-3 mr-1" />
-                  {formatDuration(video.duration)}
-                </Badge>
-              </div>
-
-              {/* View Count Badge */}
-              {videoViews && (
-                <div className="absolute bottom-2 left-2">
+              {/* Loop Count Badge */}
+              {video.loopCount && (
+                <div className="absolute bottom-2 right-2">
                   <Badge variant="secondary" className="text-xs bg-black/80 text-white">
-                    <Eye className="w-3 h-3 mr-1" />
-                    {formatViews(videoViews)}
+                    <Repeat className="w-3 h-3 mr-1" />
+                    {formatLoops(video.loopCount)}
                   </Badge>
                 </div>
               )}

@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData } from '@/lib/videoParser';
 
 interface VideoList {
   id: string;
@@ -110,14 +110,18 @@ async function fetchListVideos(
       id: event.id,
       pubkey: event.pubkey,
       createdAt: event.created_at,
+      originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
       videoUrl: videoEvent.videoMetadata.url,
+      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
       hashtags: videoEvent.hashtags || [],
       isRepost: false,
-      vineId
+      vineId,
+      loopCount: getLoopCount(event),
+      proofMode: getProofModeData(event)
     });
   });
 

@@ -35,6 +35,17 @@ export interface RepostEvent extends NostrEvent {
   referencedAuthor?: string;
 }
 
+export type ProofModeLevel = 'verified_mobile' | 'verified_web' | 'basic_proof' | 'unverified';
+
+export interface ProofModeData {
+  level: ProofModeLevel;
+  version?: string;
+  manifest?: string;
+  deviceAttestation?: string;
+  pgpPubkey?: string;
+  pgpFingerprint?: string;
+}
+
 export interface ParsedVideoData {
   id: string;
   pubkey: string;
@@ -54,4 +65,5 @@ export interface ParsedVideoData {
   loopCount?: number;
   likeCount?: number;
   repostCount?: number;
+  proofMode?: ProofModeData; // ProofMode verification data
 }

@@ -879,6 +879,12 @@ import { Card, CardContent } from '@/components/ui/card';
 - **Component styling**: Use appropriate border radius, shadows, and spacing for the desired feel
 - **Interactive elements**: Style buttons, forms, and hover states to match the theme
 
+### Divine Branding
+
+- **Primary Font**: Inter Variable (body text, UI elements)
+- **Brand/Logo Font**: Pacifico - Used for the Divine logo, headers, and original Vine badges
+- **Brand Colors**: Vine green (#00bf8f) for original Vine content indicators
+
 ### Adding Fonts
 
 To add custom fonts, follow these steps:

@@ -2,7 +2,7 @@
 // ABOUTME: Extracts video URLs and metadata from multiple tag sources with fallback to content parsing
 
 import type { NostrEvent } from '@nostrify/nostrify';
-import type { VideoMetadata, VideoEvent } from '@/types/video';
+import type { VideoMetadata, VideoEvent, ProofModeData, ProofModeLevel } from '@/types/video';
 
 // Common video file extensions - used only as hints, not requirements
 const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8', '.mpd', '.avi', '.mkv', '.ogv', '.ogg'];
@@ -301,6 +301,44 @@ export function getLoopCount(event: NostrEvent): number {
   const baseCount = Math.floor(Math.random() * 1000) + 100;
   const ageMultiplier = Math.min(ageInDays / 7, 10); // Cap at 10x for very old videos
   return Math.floor(baseCount * (1 + ageMultiplier));
+}
+
+/**
+ * Extract ProofMode verification data from event tags
+ */
+export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
+  const versionTag = event.tags.find(tag => tag[0] === 'proof-version');
+  const levelTag = event.tags.find(tag => tag[0] === 'verification-level');
+
+  // If no ProofMode tags found, return undefined
+  if (!versionTag && !levelTag) {
+    return undefined;
+  }
+
+  // Parse verification level
+  let level: ProofModeLevel = 'unverified';
+  if (levelTag?.[1]) {
+    const tagLevel = levelTag[1];
+    if (tagLevel === 'verified_mobile' || tagLevel === 'verified_web' ||
+        tagLevel === 'basic_proof' || tagLevel === 'unverified') {
+      level = tagLevel;
+    }
+  }
+
+  // Extract other proof data
+  const manifestTag = event.tags.find(tag => tag[0] === 'proof-manifest');
+  const attestationTag = event.tags.find(tag => tag[0] === 'device-attestation');
+  const pubkeyTag = event.tags.find(tag => tag[0] === 'pgp-pubkey');
+  const fingerprintTag = event.tags.find(tag => tag[0] === 'pgp-fingerprint');
+
+  return {
+    level,
+    version: versionTag?.[1],
+    manifest: manifestTag?.[1],
+    deviceAttestation: attestationTag?.[1],
+    pgpPubkey: pubkeyTag?.[1],
+    pgpFingerprint: fingerprintTag?.[1],
+  };
 }
 
 /**

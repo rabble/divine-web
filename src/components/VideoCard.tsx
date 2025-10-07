@@ -13,6 +13,8 @@ import { VideoCommentsModal } from '@/components/VideoCommentsModal';
 import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
 import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
+import { ProofModeBadge } from '@/components/ProofModeBadge';
+import { VineBadge } from '@/components/VineBadge';
 import { useAuthor } from '@/hooks/useAuthor';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
@@ -98,29 +100,21 @@ export function VideoCard({
   // Check if this is a migrated Vine (has vine_id)
   const isMigratedVine = !!video.vineId;
   
-  // Vine shut down in 2017, so any "original" timestamp after 2017 is incorrect
-  const vineShutdownYear = 2017;
-  const isInvalidVineTimestamp = isMigratedVine && date.getFullYear() > vineShutdownYear;
-  
+  // Calculate timeAgo - always show actual date/time, badge will indicate if it's original Vine
+  const yearsDiff = now.getFullYear() - date.getFullYear();
+
   let timeAgo: string;
-  if (isMigratedVine && (isInvalidVineTimestamp || !video.originalVineTimestamp)) {
-    // For migrated Vines with invalid/missing timestamps, just show "Classic Vine"
-    timeAgo = 'Classic Vine';
+  // If more than 1 year old, show the actual date
+  if (yearsDiff > 1 || (yearsDiff === 1 && now.getTime() < new Date(date).setFullYear(date.getFullYear() + 1))) {
+    // Format as "Jan 15, 2021" for old dates
+    timeAgo = date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   } else {
-    const yearsDiff = now.getFullYear() - date.getFullYear();
-    
-    // If more than 1 year old, show the actual date
-    if (yearsDiff > 1 || (yearsDiff === 1 && now.getTime() < new Date(date).setFullYear(date.getFullYear() + 1))) {
-      // Format as "Jan 15, 2021" for old dates
-      timeAgo = date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric', 
-        year: 'numeric' 
-      });
-    } else {
-      // Use relative time for recent videos
-      timeAgo = formatDistanceToNow(date, { addSuffix: true });
-    }
+    // Use relative time for recent videos
+    timeAgo = formatDistanceToNow(date, { addSuffix: true });
   }
 
   const handleCommentsClick = () => {
@@ -169,11 +163,21 @@ export function VideoCard({
             <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Link>
-        <div className="flex-1">
-          <Link to={profileUrl} className="font-semibold hover:underline">
-            {displayName}
-          </Link>
-          <p className="text-sm text-muted-foreground">{timeAgo}</p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Link to={profileUrl} className="font-semibold hover:underline truncate">
+              {displayName}
+            </Link>
+            {/* ProofMode badge */}
+            {video.proofMode && video.proofMode.level !== 'unverified' && (
+              <ProofModeBadge level={video.proofMode.level} />
+            )}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            {/* Original Vine badge with timestamp, or just timestamp */}
+            {isMigratedVine && <VineBadge />}
+            <span>{timeAgo}</span>
+          </div>
         </div>
       </div>
 

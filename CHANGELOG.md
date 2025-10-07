@@ -40,6 +40,7 @@ All notable changes to Divine Web will be documented in this file.
 - Improved video scrolling behavior to always play the most visible video instead of any partially visible video
 - Ensured only one video plays at a time with proper pause/reset when scrolling
 - Fixed video timestamps to show original Vine posting time when available instead of repost time
+- **Fixed old Vine videos showing incorrect dates** - Now properly displays original Vine publish dates (2016) from `published_at` tag instead of Nostr import timestamp (2025) in search results and list pages
 - Implemented video fallback URLs to automatically try alternative CDN URLs when primary URL fails (404 errors)
 - Fixed React hooks rules violation in VideoPage.tsx (moved all hooks before conditional returns)
 - Fixed social interaction buttons not working on individual video pages (VideoPage.tsx)
