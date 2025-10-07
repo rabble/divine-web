@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, REPOST_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 import { debugLog, debugError } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
@@ -156,6 +156,9 @@ async function parseVideoEvents(
       isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
+      likeCount: getOriginalLikeCount(event),
+      repostCount: getOriginalRepostCount(event),
+      commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event)
     });
   }
@@ -245,6 +248,9 @@ async function parseVideoEvents(
       repostedAt: repost.created_at,
       vineId,
       loopCount: getLoopCount(originalVideo),
+      likeCount: getOriginalLikeCount(originalVideo),
+      repostCount: getOriginalRepostCount(originalVideo),
+      commentCount: getOriginalCommentCount(originalVideo),
       proofMode: getProofModeData(originalVideo)
     });
   }

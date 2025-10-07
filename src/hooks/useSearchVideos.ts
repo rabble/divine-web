@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 
 interface UseSearchVideosOptions {
   query: string;
@@ -57,6 +57,9 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
       isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
+      likeCount: getOriginalLikeCount(event),
+      repostCount: getOriginalRepostCount(event),
+      commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event)
     });
   }

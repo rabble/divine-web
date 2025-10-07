@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/useToast';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 
 interface VideoList {
   id: string;
@@ -121,6 +121,9 @@ async function fetchListVideos(
       isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
+      likeCount: getOriginalLikeCount(event),
+      repostCount: getOriginalRepostCount(event),
+      commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event)
     });
   });

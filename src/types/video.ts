@@ -65,5 +65,6 @@ export interface ParsedVideoData {
   loopCount?: number;
   likeCount?: number;
   repostCount?: number;
+  commentCount?: number;
   proofMode?: ProofModeData; // ProofMode verification data
 }

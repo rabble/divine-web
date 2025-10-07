@@ -304,6 +304,42 @@ export function getLoopCount(event: NostrEvent): number {
 }
 
 /**
+ * Get original Vine like count from event tags
+ */
+export function getOriginalLikeCount(event: NostrEvent): number | undefined {
+  const likesTag = event.tags.find(tag => tag[0] === 'likes');
+  if (likesTag?.[1]) {
+    const count = parseInt(likesTag[1]);
+    if (!isNaN(count)) return count;
+  }
+  return undefined;
+}
+
+/**
+ * Get original Vine repost count from event tags
+ */
+export function getOriginalRepostCount(event: NostrEvent): number | undefined {
+  const repostsTag = event.tags.find(tag => tag[0] === 'reposts' || tag[0] === 'revines');
+  if (repostsTag?.[1]) {
+    const count = parseInt(repostsTag[1]);
+    if (!isNaN(count)) return count;
+  }
+  return undefined;
+}
+
+/**
+ * Get original Vine comment count from event tags
+ */
+export function getOriginalCommentCount(event: NostrEvent): number | undefined {
+  const commentsTag = event.tags.find(tag => tag[0] === 'comments');
+  if (commentsTag?.[1]) {
+    const count = parseInt(commentsTag[1]);
+    if (!isNaN(count)) return count;
+  }
+  return undefined;
+}
+
+/**
  * Extract ProofMode verification data from event tags
  */
 export function getProofModeData(event: NostrEvent): ProofModeData | undefined {

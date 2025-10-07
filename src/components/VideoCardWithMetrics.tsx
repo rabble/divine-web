@@ -55,8 +55,9 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
       video={video}
       className={className}
       viewCount={socialMetrics.data?.viewCount}
-      likeCount={socialMetrics.data?.likeCount}
-      repostCount={socialMetrics.data?.repostCount}
+      likeCount={video.likeCount ?? socialMetrics.data?.likeCount ?? 0}
+      repostCount={video.repostCount ?? socialMetrics.data?.repostCount ?? 0}
+      commentCount={video.commentCount ?? socialMetrics.data?.commentCount ?? 0}
       isLiked={userInteractions.data?.hasLiked || false}
       isReposted={userInteractions.data?.hasReposted || false}
       onLike={handleLike}
