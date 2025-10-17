@@ -221,8 +221,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }, [videoId, isPlaying]);
 
     // Handle mute/unmute
-    const toggleMute = (e?: React.MouseEvent) => {
+    const toggleMute = (e?: React.MouseEvent | React.TouchEvent) => {
       e?.stopPropagation(); // Prevent event from bubbling to video click handler
+      e?.preventDefault(); // Also prevent default touch behavior
       debugLog(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
       if (!videoRef.current) return;
 
@@ -344,22 +345,30 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
-      
+
       // Clear long press timer
       if (longPressTimer) {
         clearTimeout(longPressTimer);
         setLongPressTimer(null);
       }
-      
+
       const currentTime = Date.now();
       const duration = currentTime - touchState.startTime;
       const deltaX = (e.changedTouches[0]?.clientX || touchState.startX) - touchState.startX;
       const deltaY = (e.changedTouches[0]?.clientY || touchState.startY) - touchState.startY;
-      
+
+      // Check if touch target is a button (ignore taps on control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        setTouchState(null);
+        return; // Don't handle tap/swipe gestures if touching a button
+      }
+
       // Handle tap gesture
       if (duration < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
         const timeSinceLastTap = currentTime - lastTapTime;
-        
+
         if (timeSinceLastTap < 300) {
           // Double tap
           onDoubleTap?.();
@@ -369,7 +378,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         }
         setLastTapTime(currentTime);
       }
-      
+
       // Handle swipe gestures
       if (Math.abs(deltaX) > 50 && Math.abs(deltaX) > Math.abs(deltaY)) {
         if (deltaX > 0) {
@@ -378,7 +387,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           onSwipeLeft?.();
         }
       }
-      
+
       setTouchState(null);
     }, [isMobile, touchState, longPressTimer, lastTapTime, togglePlay, onDoubleTap, onSwipeLeft, onSwipeRight]);
 
@@ -646,11 +655,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               size="icon"
               className={cn(
                 "absolute bottom-4 right-4 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px] transition-opacity",
-                isMobile 
+                isMobile
                   ? (controlsVisible ? "opacity-100 w-12 h-12" : "opacity-0 w-12 h-12")
                   : "opacity-0 group-hover:opacity-100 w-10 h-10"
               )}
               onClick={toggleMute}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
             >
               {globalMuted ? (
                 <VolumeX className="h-5 w-5" />
@@ -672,6 +684,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   e.stopPropagation();
                   toggleFullscreen();
                 }}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
                 aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
                 {isFullscreen ? (

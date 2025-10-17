@@ -48,6 +48,12 @@ All notable changes to Divine Web will be documented in this file.
 - Added missing query invalidation for list updates - list badges now update immediately
 - Fixed broken UX with intrusive floating navigation buttons
 - Fixed hashtag thumbnail loading issues - HTTP 500 errors from CDN under concurrent load resolved by serving locally
+- **Fixed hashtag feeds not showing most popular videos** - Now sorts by total engagement (loop count + all-time reactions) instead of chronological order
+- **Fixed home feed sorting** - Now uses popularity algorithm (loop count + all-time reactions) to show most popular videos first
+- **Fixed unmute button pausing video on mobile** - Touch events now properly handled to prevent pause when tapping unmute
+- **Fixed hashtag grid layout not working** - Removed hardcoded single-column wrapper that prevented grid toggle from working
+- **Fixed infinite loading spinner on hashtag pages** - Spinner no longer appears constantly when 20+ videos are loaded
+- Changed reaction counting from 24-hour window to all-time for better ranking on low-activity sites
 
 ### Performance
 - Optimized video feed to use virtualization (only renders visible videos)
@@ -58,6 +64,7 @@ All notable changes to Divine Web will be documented in this file.
 - Optimized initial render to show 3 videos instead of 5
 - Changed video preload strategy to 'auto' for visible videos
 - Reduced repost query limits for better performance
+- Increased hashtag query limit to 500 videos to enable accurate popularity ranking while maintaining reasonable performance
 
 ## [0.1.0] - Initial Release
 - Basic Divine Web functionality

@@ -26,7 +26,7 @@ export function HashtagPage() {
   const { data: videos, isLoading: videosLoading } = useVideoEvents({
     feedType: 'hashtag',
     hashtag: normalizedTag,
-    limit: 50 // Reduced limit for performance - stats will be approximate
+    limit: 50
   });
 
   // Get sample videos to find related hashtags

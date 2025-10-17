@@ -277,19 +277,19 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
-  
+
   return useQuery({
     queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
-      debugLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
-      debugLog(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
-      
+      console.log(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
+      console.log(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
+
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(5000) // Reduced timeout to fail faster
+        AbortSignal.timeout(10000) // Increased timeout for larger queries
       ]);
-      
+
       // Build base filter - optimize query size
       const baseFilter: NostrFilter = {
         kinds: [VIDEO_KIND], // Query videos and reposts separately for better performance
@@ -301,10 +301,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       if (until) {
         baseFilter.until = until;
       }
-      
+
       // Handle different feed types
       if (feedType === 'hashtag' && hashtag) {
         baseFilter['#t'] = [hashtag.toLowerCase()];
+        // Fetch a large sample to find popular ones
+        baseFilter.limit = Math.min(limit * 10, 500);
+        console.log(`[useVideoEvents] Hashtag query limit set to: ${baseFilter.limit}`);
       } else if (feedType === 'profile' && pubkey) {
         baseFilter.authors = [pubkey];
       } else if (feedType === 'home' && user?.pubkey) {
@@ -328,8 +331,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       try {
         // Query videos first
         const queryStartTime = performance.now();
+        console.log('[useVideoEvents] Sending query with filter:', baseFilter);
+        console.log('[useVideoEvents] Calling nostr.query...');
         events = await nostr.query([baseFilter], { signal });
-        debugLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        console.log(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        console.log('[useVideoEvents] First event:', events[0]);
         
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {
@@ -368,24 +374,27 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           }
         }
       }
-      
-      
-      // Handle trending algorithm
-      if (feedType === 'trending' && parsed.length > 0) {
-        const since24h = Math.floor(Date.now() / 1000) - (24 * 60 * 60);
+
+
+      // Handle sorting for different feed types
+      if ((feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
+        // Don't filter by time - count ALL reactions, not just recent ones
+        // This is important for sites with low activity or archived content
+        const since = 0; // Count all reactions from the beginning of time
         const videoIds = parsed.map(v => v.id);
-        const reactionCounts = await getReactionCounts(nostr, videoIds, since24h, signal);
-        
-        // Sort by reaction count (descending) then by time
+        const reactionCounts = await getReactionCounts(nostr, videoIds, since, signal);
+
+        // Sort by total engagement: original loop count + reaction count
         parsed = parsed
           .map(video => ({
             ...video,
-            reactionCount: reactionCounts[video.id] || 0
+            reactionCount: reactionCounts[video.id] || 0,
+            totalEngagement: (video.loopCount || 0) + (reactionCounts[video.id] || 0)
           }))
           .sort((a, b) => {
-            // First sort by reaction count
-            if (a.reactionCount !== b.reactionCount) {
-              return b.reactionCount - a.reactionCount;
+            // First sort by total engagement (loop count + reactions)
+            if (a.totalEngagement !== b.totalEngagement) {
+              return b.totalEngagement - a.totalEngagement;
             }
             // Then by time for ties
             const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;

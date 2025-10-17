@@ -456,25 +456,23 @@ export function VideoFeed({
   // Note: We compute visibility inline when mapping to avoid unused variable lint warnings
 
   return (
-    <div 
+    <div
       className={className}
       data-testid={testId}
       data-hashtag-testid={hashtagTestId}
       data-profile-testid={profileTestId}
     >
-      <div className="grid gap-6">
-        {allVideos.map((video, index) => (
-          <VideoCardWithMetrics
-            key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
-            video={video}
-            index={index}
-          />
-        ))}
-      </div>
+      {allVideos.map((video, index) => (
+        <VideoCardWithMetrics
+          key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+          video={video}
+          index={index}
+        />
+      ))}
 
       {/* Load more trigger */}
       <div ref={bottomRef} className="h-10 flex items-center justify-center">
-        {(isLoadingMore || (allVideos.length >= limit && allVideos.length > 0)) && (
+        {isLoadingMore && (
           <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         )}
       </div>
