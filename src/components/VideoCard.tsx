@@ -217,7 +217,7 @@ export function VideoCard({
         {/* Video metadata */}
         <div className="px-4 py-2" data-testid="video-metadata">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {video.loopCount && (
+            {video.loopCount && video.loopCount > 0 && (
               <span className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
                 {formatViewCount(video.loopCount)}
@@ -324,18 +324,6 @@ export function VideoCard({
           <Button variant="ghost" size="sm" className="gap-2" aria-label="Share">
             <Share className="h-4 w-4" />
           </Button>
-
-          {/* Spacer */}
-          <div className="ml-auto" />
-
-          {/* View link to dedicated page */}
-          <Link
-            to={navigationContext ? buildVideoNavigationUrl(video.id, navigationContext, videoIndex) : `/video/${video.id}`}
-            className="text-xs text-primary hover:underline flex items-center gap-1"
-            aria-label="View video page"
-          >
-            <Eye className="h-3 w-3" /> View
-          </Link>
         </div>
       </CardContent>
     </Card>
