@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "GZCZBKH7MY.co.openvine.app",
+        "paths": [
+          "/video/*",
+          "/profile/*"
+        ]
+      }
+    ]
+  }
+}
