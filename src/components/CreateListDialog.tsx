@@ -86,7 +86,11 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={() => !isCreating && onClose()}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!isCreating && !newOpen) {
+        onClose();
+      }
+    }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create New List</DialogTitle>

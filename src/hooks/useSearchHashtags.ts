@@ -23,19 +23,19 @@ interface HashtagResult {
  */
 function extractHashtagCounts(events: NostrEvent[]): Map<string, number> {
   const hashtagCounts = new Map<string, number>();
-  
+
   events.forEach(event => {
     // Extract 't' tags (hashtags)
     const hashtags = event.tags
       .filter(tag => tag[0] === 't' && tag[1])
       .map(tag => tag[1]);
-    
+
     hashtags.forEach(hashtag => {
       const count = hashtagCounts.get(hashtag) || 0;
       hashtagCounts.set(hashtag, count + 1);
     });
   });
-  
+
   return hashtagCounts;
 }
 
@@ -95,7 +95,7 @@ export function useSearchHashtags(options: UseSearchHashtagsOptions) {
       
       // Extract and count hashtags
       const hashtagCounts = extractHashtagCounts(events);
-      
+
       // Convert to array and sort by usage count
       const allHashtags: HashtagResult[] = Array.from(hashtagCounts.entries())
         .map(([tag, count]) => ({ tag, count }))

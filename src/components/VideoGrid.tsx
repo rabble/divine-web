@@ -110,7 +110,15 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
           >
             <div className="aspect-square relative bg-muted">
               {/* Video Thumbnail */}
-              {video.videoUrl ? (
+              {video.thumbnailUrl ? (
+                <img
+                  className="w-full h-full object-cover"
+                  src={video.thumbnailUrl}
+                  alt={video.content || 'Video thumbnail'}
+                  loading="lazy"
+                  data-testid={`video-thumbnail-${video.id}`}
+                />
+              ) : video.videoUrl ? (
                 <video
                   className="w-full h-full object-cover"
                   src={video.videoUrl}
@@ -120,7 +128,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                   data-testid={`video-thumbnail-${video.id}`}
                 />
               ) : (
-                <div 
+                <div
                   className="w-full h-full bg-muted flex items-center justify-center"
                   data-testid={`video-placeholder-${video.id}`}
                 >

@@ -8,6 +8,7 @@ export interface VideoSocialMetrics {
   likeCount: number;
   repostCount: number;
   viewCount: number;
+  commentCount: number;
 }
 
 /**
@@ -27,7 +28,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
         // Using a single query with multiple kinds for efficiency
         const events = await nostr.query([
           {
-            kinds: [6, 7, 9735], // reposts, reactions, zap receipts
+            kinds: [1, 6, 7, 1111, 9735], // comments, reposts, reactions, NIP-22 comments, zap receipts
             '#e': [videoId], // events that reference this video
             limit: 500, // generous limit to capture all interactions
           }
@@ -36,6 +37,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
         let likeCount = 0;
         let repostCount = 0;
         let viewCount = 0;
+        let commentCount = 0;
 
         // Process each event type
         for (const event of events) {
@@ -46,11 +48,16 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
                 likeCount++;
               }
               break;
-            
+
             case 6: // Repost events
               repostCount++;
               break;
-            
+
+            case 1: // Text note comments
+            case 1111: // NIP-22 comments
+              commentCount++;
+              break;
+
             case 9735: // Zap receipts (using as view indicator)
               // For now, count zap receipts as views
               // In a more sophisticated implementation, we might have dedicated view events
@@ -67,6 +74,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
           likeCount,
           repostCount,
           viewCount,
+          commentCount,
         };
 
         return metrics;
@@ -77,6 +85,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
           likeCount: 0,
           repostCount: 0,
           viewCount: 0,
+          commentCount: 0,
         } as VideoSocialMetrics;
       }
     },

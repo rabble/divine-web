@@ -2,10 +2,11 @@
 // It is important that all functionality in this file is preserved, and should only be modified if explicitly requested.
 
 import { useState } from 'react';
-import { User, UserPlus } from 'lucide-react';
+import { User, UserPlus, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import LoginDialog from './LoginDialog';
 import SignupDialog from './SignupDialog';
+import { KeycastSignupDialog } from './KeycastSignupDialog';
 import { useLoggedInAccounts } from '@/hooks/useLoggedInAccounts';
 import { AccountSwitcher } from './AccountSwitcher';
 import { cn } from '@/lib/utils';
@@ -18,24 +19,36 @@ export function LoginArea({ className }: LoginAreaProps) {
   const { currentUser } = useLoggedInAccounts();
   const [loginDialogOpen, setLoginDialogOpen] = useState(false);
   const [signupDialogOpen, setSignupDialogOpen] = useState(false);
+  const [keycastSignupDialogOpen, setKeycastSignupDialogOpen] = useState(false);
 
   const handleLogin = () => {
     setLoginDialogOpen(false);
     setSignupDialogOpen(false);
+    setKeycastSignupDialogOpen(false);
   };
 
   return (
-    <div className={cn("inline-flex items-center justify-center", className)}>
+    <div className={cn("inline-flex items-center justify-center gap-2", className)}>
       {currentUser ? (
         <AccountSwitcher onAddAccountClick={() => setLoginDialogOpen(true)} />
       ) : (
-        <Button
-          onClick={() => setLoginDialogOpen(true)}
-          className='flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground w-full font-medium transition-all hover:bg-primary/90 animate-scale-in'
-        >
-          <User className='w-4 h-4' />
-          <span className='truncate'>Log in</span>
-        </Button>
+        <>
+          <Button
+            onClick={() => setKeycastSignupDialogOpen(true)}
+            className='flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white w-full font-medium transition-all animate-scale-in'
+          >
+            <Mail className='w-4 h-4' />
+            <span className='truncate'>Sign up</span>
+          </Button>
+          <Button
+            onClick={() => setLoginDialogOpen(true)}
+            variant="outline"
+            className='flex items-center gap-2 px-4 py-2 rounded-full w-full font-medium transition-all animate-scale-in'
+          >
+            <User className='w-4 h-4' />
+            <span className='truncate'>Log in</span>
+          </Button>
+        </>
       )}
 
       <LoginDialog
@@ -48,6 +61,13 @@ export function LoginArea({ className }: LoginAreaProps) {
       <SignupDialog
         isOpen={signupDialogOpen}
         onClose={() => setSignupDialogOpen(false)}
+      />
+
+      <KeycastSignupDialog
+        isOpen={keycastSignupDialogOpen}
+        onClose={() => setKeycastSignupDialogOpen(false)}
+        onComplete={handleLogin}
+        onSwitchToLogin={() => setLoginDialogOpen(true)}
       />
     </div>
   );

@@ -204,9 +204,17 @@ export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
     }
   }
 
-  // Add limited fallback URLs to prevent cascade failures
+  // Extract HLS manifest URL (.m3u8) from all available sources
   const allUrls = extractAllVideoUrls(event);
-  const fallbackUrls = allUrls.filter(u => u !== primaryUrl);
+  for (const url of allUrls) {
+    if (url.includes('.m3u8') && !metadata.hlsUrl) {
+      metadata.hlsUrl = url;
+      break;
+    }
+  }
+
+  // Add limited fallback URLs to prevent cascade failures
+  const fallbackUrls = allUrls.filter(u => u !== primaryUrl && u !== metadata.hlsUrl);
   if (fallbackUrls.length > 0) {
     metadata.fallbackUrls = fallbackUrls;
   }
@@ -294,13 +302,9 @@ export function getLoopCount(event: NostrEvent): number {
     const count = parseInt(viewCountTag[1]);
     if (!isNaN(count)) return count;
   }
-  
-  // Generate a pseudo-random count based on event age for demo purposes
-  // Older videos tend to have more loops
-  const ageInDays = (Date.now() / 1000 - event.created_at) / (24 * 60 * 60);
-  const baseCount = Math.floor(Math.random() * 1000) + 100;
-  const ageMultiplier = Math.min(ageInDays / 7, 10); // Cap at 10x for very old videos
-  return Math.floor(baseCount * (1 + ageMultiplier));
+
+  // Return 0 for videos without explicit view counts
+  return 0;
 }
 
 /**

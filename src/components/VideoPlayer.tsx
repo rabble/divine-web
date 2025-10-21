@@ -10,10 +10,12 @@ import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { debugLog, debugError } from '@/lib/debug';
+import Hls from 'hls.js';
 
 interface VideoPlayerProps {
   videoId: string;
   src: string;
+  hlsUrl?: string; // HLS manifest URL for adaptive bitrate streaming
   fallbackUrls?: string[];
   poster?: string;
   className?: string;
@@ -51,6 +53,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     {
       videoId,
       src,
+      hlsUrl,
       fallbackUrls,
       poster,
       className,
@@ -77,6 +80,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     ref
   ) => {
     const videoRef = useRef<HTMLVideoElement | null>(null);
+    const hlsRef = useRef<Hls | null>(null);
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
@@ -520,28 +524,92 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       debugLog(`[VideoPlayer ${videoId}] Initialized with ${urls.length} URLs (primary: ${!!src}, fallbacks: ${fallbackUrls?.length || 0})`);
     }, [src, fallbackUrls, videoId]);
 
-    // Set video source - with fallback support
+    // Set video source - with HLS.js support for adaptive bitrate streaming
     useEffect(() => {
       const video = videoRef.current;
-      const currentUrl = allUrls[currentUrlIndex];
-      
-      debugLog(`[VideoPlayer ${videoId}] Setting video source - URL ${currentUrlIndex}/${allUrls.length - 1}: ${currentUrl}`);
-      
-      if (!video || !currentUrl) {
-        debugLog(`[VideoPlayer ${videoId}] Skipping source setup - video: ${!!video}, url: ${!!currentUrl}`);
+
+      if (!video) {
+        debugLog(`[VideoPlayer ${videoId}] Skipping source setup - no video element`);
         return;
       }
-      
-      // For now, just use direct playback for all URLs
-      // MP4 files will play directly, HLS might work natively on some browsers
-      debugLog(`[VideoPlayer ${videoId}] Setting video source directly: ${currentUrl}`);
-      video.src = currentUrl;
-      
-      // Set loading state
-      setIsLoading(true);
-      setHasError(false);
-      
-    }, [currentUrlIndex, allUrls, videoId]); // React to URL index changes
+
+      // Cleanup previous HLS instance
+      if (hlsRef.current) {
+        debugLog(`[VideoPlayer ${videoId}] Destroying previous HLS instance`);
+        hlsRef.current.destroy();
+        hlsRef.current = null;
+      }
+
+      // Priority: HLS URL > fallback URLs > primary src
+      // Try HLS first for adaptive bitrate streaming on slower connections
+      if (hlsUrl && Hls.isSupported()) {
+        debugLog(`[VideoPlayer ${videoId}] Using HLS.js for adaptive streaming: ${hlsUrl}`);
+
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          backBufferLength: 90,
+          maxBufferLength: 30,
+          maxMaxBufferLength: 60,
+          // Start with lower quality for faster initial load
+          startLevel: -1, // Auto-select starting quality
+          capLevelToPlayerSize: true, // Match quality to player size
+        });
+
+        hls.loadSource(hlsUrl);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+          debugLog(`[VideoPlayer ${videoId}] HLS manifest parsed, ${hls.levels.length} quality levels available`);
+          setIsLoading(false);
+        });
+
+        hls.on(Hls.Events.ERROR, (event, data) => {
+          debugError(`[VideoPlayer ${videoId}] HLS error:`, data);
+          if (data.fatal) {
+            debugError(`[VideoPlayer ${videoId}] Fatal HLS error, falling back to direct playback`);
+            hls.destroy();
+            // Fall back to direct src playback
+            const currentUrl = allUrls[currentUrlIndex];
+            if (currentUrl) {
+              video.src = currentUrl;
+            }
+          }
+        });
+
+        hlsRef.current = hls;
+        setIsLoading(true);
+        setHasError(false);
+
+      } else if (hlsUrl && video.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS support (Safari)
+        debugLog(`[VideoPlayer ${videoId}] Using native HLS support: ${hlsUrl}`);
+        video.src = hlsUrl;
+        setIsLoading(true);
+        setHasError(false);
+
+      } else {
+        // Fall back to regular MP4 playback
+        const currentUrl = allUrls[currentUrlIndex];
+        debugLog(`[VideoPlayer ${videoId}] Using direct playback - URL ${currentUrlIndex}/${allUrls.length - 1}: ${currentUrl}`);
+
+        if (currentUrl) {
+          video.src = currentUrl;
+          setIsLoading(true);
+          setHasError(false);
+        }
+      }
+
+      // Cleanup on unmount
+      return () => {
+        if (hlsRef.current) {
+          debugLog(`[VideoPlayer ${videoId}] Cleaning up HLS instance`);
+          hlsRef.current.destroy();
+          hlsRef.current = null;
+        }
+      };
+
+    }, [hlsUrl, currentUrlIndex, allUrls, videoId]); // React to HLS URL and fallback changes
 
     // Cleanup on unmount
     useEffect(() => {
@@ -603,8 +671,8 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       >
         <video
           ref={setRefs}
-          // Don't set src directly if it's an HLS stream - HLS.js will handle it
-          src={currentUrl.toLowerCase().includes('.m3u8') ? undefined : currentUrl}
+          // Don't set src directly if using HLS.js - it will handle the source
+          // HLS.js is used when hlsUrl is provided and Hls.isSupported()
           poster={poster}
           muted={globalMuted}
           autoPlay={false} // Never autoplay, we control playback programmatically

@@ -97,6 +97,7 @@ export function VideoCommentsModal({
             <VideoPlayer
               videoId={video.id}
               src={video.videoUrl}
+              hlsUrl={video.hlsUrl}
               poster={video.thumbnailUrl}
               className="w-full h-full object-contain"
               autoPlay={false} // Don't autoplay in modal

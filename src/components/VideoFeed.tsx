@@ -21,7 +21,7 @@ import type { ParsedVideoData } from '@/types/video';
 import { debugLog, debugWarn } from '@/lib/debug';
 
 interface VideoFeedProps {
-  feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile';
+  feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
   hashtag?: string;
   pubkey?: string;
   limit?: number;
@@ -202,12 +202,14 @@ export function VideoFeed({
           <CardContent className="py-12 px-8 text-center">
             <div className="max-w-sm mx-auto space-y-6">
               <p className="text-muted-foreground">
-                {feedType === 'home' 
+                {feedType === 'home'
                   ? "No videos from people you follow yet. Try following some creators!"
                   : feedType === 'hashtag'
                   ? `No videos found for #${hashtag}`
                   : feedType === 'profile'
                   ? "This user hasn't posted any videos yet"
+                  : feedType === 'recent'
+                  ? "No recent videos found. Try another relay?"
                   : "No videos found. Try another relay?"}
               </p>
               <RelaySelector className="w-full" />

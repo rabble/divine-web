@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Unregister Service Worker</title>
+</head>
+<body>
+  <h1>Service Worker Cleanup</h1>
+  <div id="status">Checking...</div>
+  <div id="log"></div>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+
+    function log(msg) {
+      const p = document.createElement('p');
+      p.textContent = msg;
+      logEl.appendChild(p);
+      console.log(msg);
+    }
+
+    async function cleanup() {
+      if ('serviceWorker' in navigator) {
+        log('Service Worker API available');
+
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        log(`Found ${registrations.length} service worker registrations`);
+
+        for (const registration of registrations) {
+          log(`Unregistering: ${registration.scope}`);
+          await registration.unregister();
+          log('✅ Unregistered!');
+        }
+
+        statusEl.textContent = 'All service workers unregistered!';
+        statusEl.style.color = 'green';
+
+        // Clear all caches
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          log(`Found ${cacheNames.length} caches`);
+          for (const cacheName of cacheNames) {
+            log(`Deleting cache: ${cacheName}`);
+            await caches.delete(cacheName);
+          }
+          log('✅ All caches deleted!');
+        }
+
+        log('\n✅ CLEANUP COMPLETE! Close all tabs and restart browser.');
+      } else {
+        statusEl.textContent = 'Service Worker not supported';
+        statusEl.style.color = 'orange';
+      }
+    }
+
+    cleanup().catch(err => {
+      log(`❌ Error: ${err.message}`);
+      statusEl.textContent = 'Error during cleanup';
+      statusEl.style.color = 'red';
+    });
+  </script>
+</body>
+</html>

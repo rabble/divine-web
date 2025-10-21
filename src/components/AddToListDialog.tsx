@@ -120,7 +120,11 @@ export function AddToListDialog({
 
   if (!user) {
     return (
-      <Dialog open={open} onOpenChange={() => onClose()}>
+      <Dialog open={open} onOpenChange={(newOpen) => {
+        if (!newOpen) {
+          onClose();
+        }
+      }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add to List</DialogTitle>
@@ -134,7 +138,11 @@ export function AddToListDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={() => onClose()}>
+    <Dialog open={open} onOpenChange={(newOpen) => {
+      if (!newOpen) {
+        onClose();
+      }
+    }}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add to List</DialogTitle>

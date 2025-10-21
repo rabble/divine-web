@@ -11,7 +11,7 @@ import { debugLog, debugError } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
   filter?: Partial<NostrFilter>;
-  feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile';
+  feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
   hashtag?: string;
   pubkey?: string;
   limit?: number;
@@ -99,8 +99,9 @@ async function getReactionCounts(
  * Parse video events and handle reposts
  */
 async function parseVideoEvents(
-  events: NostrEvent[], 
-  nostr: { query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]> }
+  events: NostrEvent[],
+  nostr: { query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]> },
+  sortChronologically = false
 ): Promise<ParsedVideoData[]> {
   const parsedVideos: ParsedVideoData[] = [];
   
@@ -149,6 +150,7 @@ async function parseVideoEvents(
       content: event.content,
       videoUrl,
       fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
+      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
@@ -239,6 +241,7 @@ async function parseVideoEvents(
       content: originalVideo.content,
       videoUrl,
       fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
+      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
@@ -256,18 +259,28 @@ async function parseVideoEvents(
   }
   
   debugLog(`[useVideoEvents] Processed reposts: ${repostsFetched} fetched, ${repostsSkipped} skipped`);
-  
-  // Sort by loop count (highest first), then by created_at for ties
-  return parsedVideos.sort((a, b) => {
-    // First sort by loop count
-    const loopDiff = (b.loopCount || 0) - (a.loopCount || 0);
-    if (loopDiff !== 0) return loopDiff;
-    
-    // Then by time for ties
-    const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
-    const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
-    return timeB - timeA;
-  });
+
+  // Sort videos based on mode
+  if (sortChronologically) {
+    // Sort by time only (most recent first) for chronological feeds
+    return parsedVideos.sort((a, b) => {
+      const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
+      const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
+      return timeB - timeA;
+    });
+  } else {
+    // Sort by loop count (highest first), then by created_at for ties
+    return parsedVideos.sort((a, b) => {
+      // First sort by loop count
+      const loopDiff = (b.loopCount || 0) - (a.loopCount || 0);
+      if (loopDiff !== 0) return loopDiff;
+
+      // Then by time for ties
+      const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
+      const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
+      return timeB - timeA;
+    });
+  }
 }
 
 /**
@@ -351,7 +364,9 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       }
       
       const parseStartTime = performance.now();
-      let parsed = await parseVideoEvents(events, nostr);
+      // Use chronological sorting for 'recent' feedType
+      const sortChronologically = feedType === 'recent';
+      let parsed = await parseVideoEvents(events, nostr, sortChronologically);
       const parseTime = performance.now() - parseStartTime;
       debugLog(`[useVideoEvents] Parse took ${parseTime.toFixed(0)}ms`);
 
@@ -363,7 +378,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
             const fallbackEvents = await nostr.query([
               { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
             ], { signal });
-            const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr);
+            const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr, false);
             parsed = fallbackParsed.filter(v => {
               const inTags = (v.hashtags || []).some(t => t.toLowerCase() === target);
               const inContent = (` ${v.content} `).toLowerCase().includes(`#${target}`);

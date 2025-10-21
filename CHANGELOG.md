@@ -5,6 +5,13 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Keycast authentication integration** - Alternative login method using Keycast for NIP-46 remote signing
+- Keycast login form and signup dialog components
+- `useKeycastSession` hook for managing Keycast authentication sessions
+- Service worker unregistration page for cleaning up old service workers
+- Identity integration guide documentation (IDENTITY_INTEGRATION_GUIDE.md)
+- Nostrify NIP-46 analysis documentation (NOSTRIFY_NIP46_ANALYSIS.md)
+- Test scripts for video relay debugging and validation
 - Conditional debug logging that only outputs on localhost
 - Debug utility functions (debugLog, debugError, debugWarn) in `/lib/debug.ts`
 - iOS TestFlight link in header dropdown menu

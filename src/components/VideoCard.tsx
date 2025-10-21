@@ -199,6 +199,7 @@ export function VideoCard({
             <VideoPlayer
               videoId={video.id}
               src={video.videoUrl}
+              hlsUrl={video.hlsUrl}
               fallbackUrls={video.fallbackVideoUrls}
               poster={video.thumbnailUrl}
               className="w-full h-full"

@@ -50,6 +50,7 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
       content: event.content,
       videoUrl: videoEvent.videoMetadata!.url,
       fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
+      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
       thumbnailUrl: getThumbnailUrl(videoEvent),
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,

@@ -29,14 +29,23 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
   // Initialize NPool only once
   if (!pool.current) {
+    console.log('[NostrProvider] Creating NPool instance');
     pool.current = new NPool({
       open(url: string) {
-        return new NRelay1(url);
+        console.log('[NostrProvider] Opening relay connection to:', url);
+        const relay = new NRelay1(url, {
+          log: (log) => console.log(`[NRelay1:${log.ns}]`, log),
+        });
+        console.log('[NostrProvider] NRelay1 instance created, readyState:', relay.socket?.readyState);
+        return relay;
       },
       reqRouter(filters) {
-        debugLog('[NostrProvider] reqRouter called with filters:', filters);
-        debugLog('[NostrProvider] Routing to relay:', relayUrl.current);
-        return new Map([[relayUrl.current, filters]]);
+        console.log('[NostrProvider] ========== reqRouter called ==========');
+        console.log('[NostrProvider] Filters:', filters);
+        console.log('[NostrProvider] Routing to relay:', relayUrl.current);
+        const result = new Map([[relayUrl.current, filters]]);
+        console.log('[NostrProvider] Router result:', Array.from(result.entries()));
+        return result;
       },
       eventRouter(_event: NostrEvent) {
         // Publish to the selected relay
