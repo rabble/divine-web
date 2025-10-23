@@ -130,17 +130,27 @@ export function KeycastSignupDialog({
       // Step 3.5: Save bunker URL for persistent reconnection
       saveBunkerUrl(bunkerUrl);
 
-      // Step 4: Start bunker connection in background
-      console.log('Step 4: Connecting to bunker in background...');
+      // Step 4: Connect to bunker (wait for it to complete before proceeding)
+      console.log('Step 4: Connecting to bunker...');
       console.log('User pubkey:', pubkey);
       console.log('Bunker URL:', bunkerUrl.substring(0, 50) + '...');
 
-      // Start bunker connection asynchronously - don't wait for it
-      login.bunker(bunkerUrl).then(() => {
+      try {
+        // Wait for bunker connection with a timeout
+        await Promise.race([
+          login.bunker(bunkerUrl),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Bunker connection timeout')), 30000)
+          ),
+        ]);
         console.log('✅ Bunker connection completed successfully!');
-      }).catch((err) => {
-        console.warn('⚠️ Bunker connection failed (signing may not work):', err);
-      });
+      } catch (bunkerError) {
+        console.warn('⚠️ Bunker connection failed:', bunkerError);
+        // Continue anyway - user can try logging in again later
+      }
+
+      // Wait a moment for the login state to propagate
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       console.log('✅ Registration complete! Proceeding to profile setup...');
 
@@ -627,15 +637,25 @@ export function KeycastSignupDialog({
               </div>
 
               <div className="space-y-3">
+                {!currentUser.user && (
+                  <div className="text-center text-sm text-muted-foreground mb-2">
+                    Connecting to your account...
+                  </div>
+                )}
                 <Button
                   className="w-full rounded-full py-4 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform transition-all duration-200 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   onClick={() => finishSignup(false)}
-                  disabled={isPublishing || isUploading}
+                  disabled={isPublishing || isUploading || !currentUser.user}
                 >
                   {isPublishing ? (
                     <>
                       <div className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
                       Creating Profile...
+                    </>
+                  ) : !currentUser.user ? (
+                    <>
+                      <div className="w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      Logging in...
                     </>
                   ) : (
                     <>
@@ -649,7 +669,7 @@ export function KeycastSignupDialog({
                   variant="outline"
                   className="w-full rounded-full py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                   onClick={() => finishSignup(true)}
-                  disabled={isPublishing || isUploading}
+                  disabled={isPublishing || isUploading || !currentUser.user}
                 >
                   {isPublishing ? (
                     <>
