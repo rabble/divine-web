@@ -7,7 +7,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
-import { debugLog, debugError } from '@/lib/debug';
+import { debugLog, debugError, verboseLog } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
   filter?: Partial<NostrFilter>;
@@ -295,8 +295,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
-      console.log(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
-      console.log(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
+      verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
+      verboseLog(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
 
       const signal = AbortSignal.any([
         context.signal,
@@ -320,7 +320,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         baseFilter['#t'] = [hashtag.toLowerCase()];
         // Fetch a large sample to find popular ones
         baseFilter.limit = Math.min(limit * 10, 500);
-        console.log(`[useVideoEvents] Hashtag query limit set to: ${baseFilter.limit}`);
+        verboseLog(`[useVideoEvents] Hashtag query limit set to: ${baseFilter.limit}`);
       } else if (feedType === 'profile' && pubkey) {
         baseFilter.authors = [pubkey];
       } else if (feedType === 'home' && user?.pubkey) {
@@ -344,11 +344,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       try {
         // Query videos first
         const queryStartTime = performance.now();
-        console.log('[useVideoEvents] Sending query with filter:', baseFilter);
-        console.log('[useVideoEvents] Calling nostr.query...');
+        verboseLog('[useVideoEvents] Sending query with filter:', baseFilter);
+        verboseLog('[useVideoEvents] Calling nostr.query...');
         events = await nostr.query([baseFilter], { signal });
-        console.log(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
-        console.log('[useVideoEvents] First event:', events[0]);
+        verboseLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        verboseLog('[useVideoEvents] First event:', events[0]);
         
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {

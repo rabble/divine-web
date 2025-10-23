@@ -1,16 +1,25 @@
 import { useState } from 'react';
 import { useSeoMeta } from '@unhead/react';
 import { VideoFeed } from '@/components/VideoFeed';
+import { LandingPage } from '@/components/LandingPage';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, TrendingUp } from 'lucide-react';
 
 const Index = () => {
+  const { user } = useCurrentUser();
+
   useSeoMeta({
     title: 'Divine Web - Short-form Looping Videos on Nostr',
     description: 'Watch and share 6-second looping videos on the decentralized Nostr network.',
   });
 
   const [activeTab, setActiveTab] = useState('top-vines');
+
+  // Show landing page if not logged in
+  if (!user) {
+    return <LandingPage />;
+  }
 
   return (
     <div className="min-h-screen bg-background">

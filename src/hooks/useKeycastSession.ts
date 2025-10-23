@@ -3,12 +3,14 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { getJWTExpiration } from '@/lib/jwtDecode';
 
 const TOKEN_KEY = 'keycast_jwt_token';
 const EXPIRATION_KEY = 'keycast_jwt_expiration';
 const SESSION_START_KEY = 'keycast_session_start';
 const REMEMBER_ME_KEY = 'keycast_remember_me';
 const EMAIL_KEY = 'keycast_email';
+const BUNKER_URL_KEY = 'keycast_bunker_url';
 
 const JWT_LIFETIME_MS = 24 * 60 * 60 * 1000; // 24 hours
 const REMEMBER_ME_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -20,6 +22,7 @@ export interface KeycastSession {
   expiresAt: number;
   sessionStart: number;
   rememberMe: boolean;
+  bunkerUrl?: string;
 }
 
 export interface KeycastSessionState {
@@ -44,6 +47,7 @@ export function useKeycastSession() {
     false
   );
   const [email, setEmail] = useLocalStorage<string | null>(EMAIL_KEY, null);
+  const [bunkerUrl, setBunkerUrl] = useLocalStorage<string | null>(BUNKER_URL_KEY, null);
 
   const [state, setState] = useState<KeycastSessionState>({
     session: null,
@@ -83,12 +87,13 @@ export function useKeycastSession() {
         expiresAt: expiration,
         sessionStart,
         rememberMe,
+        bunkerUrl: bunkerUrl || undefined,
       },
       isExpired,
       isExpiringSoon,
       needsReauth: needsReauth || needsReauthDueToAge,
     });
-  }, [token, expiration, sessionStart, rememberMe, email]);
+  }, [token, expiration, sessionStart, rememberMe, email, bunkerUrl]);
 
   /**
    * Save a new session after login or registration
@@ -100,7 +105,18 @@ export function useKeycastSession() {
       shouldRememberMe: boolean = false
     ) => {
       const now = Date.now();
-      const expiresAt = now + JWT_LIFETIME_MS;
+
+      // Try to get the real expiration from the JWT token
+      let expiresAt = getJWTExpiration(newToken);
+
+      // Fallback to 24 hours if JWT doesn't have exp claim
+      if (!expiresAt) {
+        console.warn('[useKeycastSession] JWT token missing exp claim, using 24h default');
+        expiresAt = now + JWT_LIFETIME_MS;
+      } else {
+        console.log('[useKeycastSession] JWT expires at:', new Date(expiresAt).toISOString());
+        console.log('[useKeycastSession] Time until expiration:', Math.round((expiresAt - now) / 1000 / 60), 'minutes');
+      }
 
       setToken(newToken);
       setExpiration(expiresAt);
@@ -118,7 +134,17 @@ export function useKeycastSession() {
   const refreshSession = useCallback(
     (newToken: string) => {
       const now = Date.now();
-      const expiresAt = now + JWT_LIFETIME_MS;
+
+      // Try to get the real expiration from the JWT token
+      let expiresAt = getJWTExpiration(newToken);
+
+      // Fallback to 24 hours if JWT doesn't have exp claim
+      if (!expiresAt) {
+        console.warn('[useKeycastSession] JWT token missing exp claim, using 24h default');
+        expiresAt = now + JWT_LIFETIME_MS;
+      } else {
+        console.log('[useKeycastSession] Refreshed JWT expires at:', new Date(expiresAt).toISOString());
+      }
 
       setToken(newToken);
       setExpiration(expiresAt);
@@ -126,6 +152,24 @@ export function useKeycastSession() {
     },
     [setToken, setExpiration]
   );
+
+  /**
+   * Save bunker URL (called after successful bunker connection)
+   */
+  const saveBunkerUrl = useCallback(
+    (url: string) => {
+      console.log('[useKeycastSession] Saving bunker URL for persistent reconnection');
+      setBunkerUrl(url);
+    },
+    [setBunkerUrl]
+  );
+
+  /**
+   * Get saved bunker URL
+   */
+  const getSavedBunkerUrl = useCallback((): string | null => {
+    return bunkerUrl;
+  }, [bunkerUrl]);
 
   /**
    * Clear session (logout)
@@ -136,7 +180,8 @@ export function useKeycastSession() {
     setSessionStart(null);
     setEmail(null);
     setRememberMe(false);
-  }, [setToken, setExpiration, setSessionStart, setEmail, setRememberMe]);
+    setBunkerUrl(null);
+  }, [setToken, setExpiration, setSessionStart, setEmail, setRememberMe, setBunkerUrl]);
 
   /**
    * Get valid token, or null if expired/missing
@@ -166,5 +211,7 @@ export function useKeycastSession() {
     refreshSession,
     clearSession,
     getValidToken,
+    saveBunkerUrl,
+    getSavedBunkerUrl,
   };
 }

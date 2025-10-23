@@ -40,6 +40,10 @@ All notable changes to Divine Web will be documented in this file.
 - Navigation hints updated from confusing "arrow keys" text to clear "previous" and "next" labels
 
 ### Fixed
+- **Fixed imeta tag parsing** - Parser now handles both space-separated format (`["imeta", "url https://..."]`) and separate element format (`["imeta", "url", "https://..."]`) to support different event publishers
+- **Blocked vine.co URLs** - Videos will never attempt to load from vine.co domains which are CORS-blocked and no longer functional
+- **Fixed video card spacing** - Added proper gap between video cards in feed to match skeleton loading state
+- **Improved Keycast signup flow** - Bunker connection now runs in background to prevent UI blocking during account creation
 - **MAJOR**: Fixed videos disappearing and going white when scrolling by removing broken virtual scrolling
 - Video performance issues - reduced load time from 20+ seconds to ~3 seconds
 - Fixed preload logic to load videos when in viewport

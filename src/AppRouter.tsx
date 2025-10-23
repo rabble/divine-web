@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useNostrLogin } from "@nostrify/react/login";
 import { LandingPage } from "@/components/LandingPage";
 
 import Index from "./pages/Index";
@@ -27,12 +28,20 @@ import AuthenticityPage from "./pages/AuthenticityPage";
 import DMCAPage from "./pages/DMCAPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
+import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {
+  // Auto-connect Keycast bunker if user has a session
+  KeycastAutoConnect();
   const { user } = useCurrentUser();
+  const { logins } = useNostrLogin();
+
+  // Check if there's a Keycast session in localStorage
+  const hasKeycastSession = localStorage.getItem('keycast_jwt_token') !== null;
 
   // Show landing page if not logged in
-  if (!user) {
+  // Allow access if there are logins OR if there's a Keycast session (even if bunker hasn't connected yet)
+  if (logins.length === 0 && !hasKeycastSession) {
     return (
       <BrowserRouter>
         <LandingPage />

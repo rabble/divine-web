@@ -14,8 +14,14 @@ const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8', '.mpd', '.av
 function isValidVideoUrl(url: string): boolean {
   try {
     // Just verify it's a valid URL structure
-    new URL(url);
-    // Accept any valid URL - let the video player handle whether it can play it
+    const parsedUrl = new URL(url);
+
+    // Block vine.co URLs - they're CORS-blocked and the site is dead
+    if (parsedUrl.hostname === 'vine.co' || parsedUrl.hostname.endsWith('.vine.co')) {
+      return false;
+    }
+
+    // Accept any other valid URL - let the video player handle whether it can play it
     return true;
   } catch {
     // Not a valid URL structure
@@ -25,55 +31,103 @@ function isValidVideoUrl(url: string): boolean {
 
 /**
  * Parse imeta tag to extract video metadata
- * Real-world imeta tags are formatted as:
- * ["imeta", "url https://...", "m video/mp4", "x hash", "image https://..."]
- * Each key-value pair is in separate array elements with space-separated values
+ * Supports two formats:
+ * Format 1: ["imeta", "url https://...", "m video/mp4"] - space-separated key-value
+ * Format 2: ["imeta", "url", "https://...", "m", "video/mp4"] - separate elements
  */
 function parseImetaTag(tag: string[]): VideoMetadata | null {
   if (tag[0] !== 'imeta') return null;
 
   const metadata: VideoMetadata = { url: '' };
 
-  // Process each array element as "key value"
-  for (let i = 1; i < tag.length; i++) {
-    const element = tag[i];
-    if (!element || typeof element !== 'string') continue;
+  // Detect format: if tag[1] contains a space, it's Format 1
+  const isFormat1 = tag[1] && tag[1].includes(' ');
 
-    const spaceIndex = element.indexOf(' ');
-    if (spaceIndex === -1) continue;
+  if (isFormat1) {
+    // Format 1: "key value" pairs with space separation
+    for (let i = 1; i < tag.length; i++) {
+      const element = tag[i];
+      if (!element || typeof element !== 'string') continue;
 
-    const key = element.substring(0, spaceIndex);
-    const value = element.substring(spaceIndex + 1);
+      const spaceIndex = element.indexOf(' ');
+      if (spaceIndex === -1) continue;
 
-    if (!value) continue;
+      const key = element.substring(0, spaceIndex);
+      const value = element.substring(spaceIndex + 1);
 
-    switch (key) {
-      case 'url':
-        if (isValidVideoUrl(value)) {
-          metadata.url = value;
-        }
-        break;
-      case 'm':
-        metadata.mimeType = value;
-        break;
-      case 'dim':
-        metadata.dimensions = value;
-        break;
-      case 'blurhash':
-        metadata.blurhash = value;
-        break;
-      case 'image':
-        metadata.thumbnailUrl = value;
-        break;
-      case 'duration':
-        metadata.duration = parseInt(value);
-        break;
-      case 'size':
-        metadata.size = parseInt(value);
-        break;
-      case 'x':
-        metadata.hash = value;
-        break;
+      if (!value) continue;
+
+      switch (key) {
+        case 'url':
+          if (isValidVideoUrl(value)) {
+            metadata.url = value;
+          }
+          break;
+        case 'm':
+          metadata.mimeType = value;
+          break;
+        case 'dim':
+          metadata.dimensions = value;
+          break;
+        case 'blurhash':
+          metadata.blurhash = value;
+          break;
+        case 'image':
+          metadata.thumbnailUrl = value;
+          break;
+        case 'duration':
+          metadata.duration = parseInt(value);
+          break;
+        case 'size':
+          metadata.size = parseInt(value);
+          break;
+        case 'x':
+          metadata.hash = value;
+          break;
+        case 'hls':
+          metadata.hlsUrl = value;
+          break;
+      }
+    }
+  } else {
+    // Format 2: separate elements for keys and values
+    for (let i = 1; i < tag.length; i += 2) {
+      const key = tag[i];
+      const value = tag[i + 1];
+
+      if (!key || !value || typeof key !== 'string' || typeof value !== 'string') continue;
+
+      switch (key) {
+        case 'url':
+          if (isValidVideoUrl(value)) {
+            metadata.url = value;
+          }
+          break;
+        case 'm':
+          metadata.mimeType = value;
+          break;
+        case 'dim':
+          metadata.dimensions = value;
+          break;
+        case 'blurhash':
+          metadata.blurhash = value;
+          break;
+        case 'image':
+          metadata.thumbnailUrl = value;
+          break;
+        case 'duration':
+          metadata.duration = parseInt(value);
+          break;
+        case 'size':
+          metadata.size = parseInt(value);
+          break;
+        case 'x':
+          metadata.hash = value;
+          break;
+        case 'hls':
+          metadata.hlsUrl = value;
+          break;
+      }
     }
   }
 

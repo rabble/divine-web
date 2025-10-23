@@ -11,6 +11,7 @@ import { AlertTriangle } from 'lucide-react';
 import { loginUser, getBunkerUrl } from '@/lib/keycast';
 import { useLoginActions } from '@/hooks/useLoginActions';
 import { useKeycastSession } from '@/hooks/useKeycastSession';
+import { toast } from '@/hooks/useToast';
 
 interface KeycastLoginFormProps {
   onSuccess: () => void;
@@ -24,7 +25,7 @@ export function KeycastLoginForm({ onSuccess }: KeycastLoginFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const login = useLoginActions();
-  const { saveSession } = useKeycastSession();
+  const { saveSession, saveBunkerUrl } = useKeycastSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,10 +40,10 @@ export function KeycastLoginForm({ onSuccess }: KeycastLoginFormProps) {
     setIsLoading(true);
 
     try {
-      // Step 1: Login with Keycast to get JWT
+      // Step 1: Login with Keycast to get JWT and pubkey
       console.log('Step 1: Logging in with Keycast...');
-      const { token } = await loginUser(email, password);
-      console.log('Login successful, got token');
+      const { token, pubkey } = await loginUser(email, password);
+      console.log('Login successful, pubkey:', pubkey);
 
       // Step 2: Save session
       console.log('Step 2: Saving session...');
@@ -53,12 +54,69 @@ export function KeycastLoginForm({ onSuccess }: KeycastLoginFormProps) {
       const bunkerUrl = await getBunkerUrl(token);
       console.log('Bunker URL received:', bunkerUrl.substring(0, 50) + '...');
 
-      // Step 4: Login with bunker URL (uses existing NIP-46 flow)
-      console.log('Step 4: Connecting to bunker...');
-      await login.bunker(bunkerUrl);
-      console.log('Bunker connection successful!');
+      // Step 3.5: Save bunker URL for persistent reconnection
+      saveBunkerUrl(bunkerUrl);
 
-      // Success!
+      // Step 4: Start bunker connection in background
+      console.log('Step 4: Connecting to bunker in background...');
+      console.log('User pubkey:', pubkey);
+      console.log('Bunker URL:', bunkerUrl.substring(0, 50) + '...');
+
+      // Show success toast immediately
+      toast({
+        title: 'Login Successful!',
+        description: 'Connecting to signing service...',
+      });
+
+      // Start bunker connection asynchronously - don't wait for it
+      console.log('🔄 Starting bunker connection...');
+      const bunkerStart = Date.now();
+
+      // Set a 60-second timeout to detect if bunker hangs
+      const bunkerTimeout = setTimeout(() => {
+        const bunkerTime = Date.now() - bunkerStart;
+        console.warn(`⏱️ Bunker connection still pending after ${bunkerTime}ms - may be hanging`);
+
+        // Show warning toast if connection is taking too long
+        toast({
+          title: 'Connection Slow',
+          description: 'Signing service is taking longer than expected. You can still browse content.',
+          variant: 'destructive',
+        });
+      }, 60000);
+
+      login.bunker(bunkerUrl).then(() => {
+        clearTimeout(bunkerTimeout);
+        const bunkerTime = Date.now() - bunkerStart;
+        console.log(`✅ Bunker connection completed successfully in ${bunkerTime}ms!`);
+        console.log('🎉 You can now sign events!');
+
+        // Show success toast
+        toast({
+          title: 'Signing Service Connected!',
+          description: 'You can now post and interact with content.',
+        });
+
+        // Force a re-render to update the UI
+        window.location.reload();
+      }).catch((err) => {
+        clearTimeout(bunkerTimeout);
+        const bunkerTime = Date.now() - bunkerStart;
+        console.error(`❌ Bunker connection failed after ${bunkerTime}ms:`, err);
+        console.error('Error details:', err);
+        console.warn('⚠️ Signing will not work until bunker connects');
+
+        // Show warning toast
+        toast({
+          title: 'Signing Service Failed',
+          description: 'You can browse content, but signing may not work. Try refreshing the page.',
+          variant: 'destructive',
+        });
+      });
+
+      console.log('✅ Login started! Proceeding to app...');
+
+      // Success! Don't wait for bunker to complete
       onSuccess();
     } catch (err) {
       console.error('Keycast login failed:', err);

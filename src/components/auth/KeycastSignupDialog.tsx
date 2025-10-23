@@ -31,6 +31,7 @@ import { useLoginActions } from '@/hooks/useLoginActions';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useKeycastSession } from '@/hooks/useKeycastSession';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { registerUser, getBunkerUrl } from '@/lib/keycast';
 import { cn } from '@/lib/utils';
 
@@ -63,7 +64,8 @@ export function KeycastSignupDialog({
   });
 
   const login = useLoginActions();
-  const { saveSession } = useKeycastSession();
+  const { saveSession, saveBunkerUrl } = useKeycastSession();
+  const currentUser = useCurrentUser();
   const { mutateAsync: publishEvent, isPending: isPublishing } =
     useNostrPublish();
   const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
@@ -125,27 +127,22 @@ export function KeycastSignupDialog({
       const bunkerUrl = await getBunkerUrl(token);
       console.log('Bunker URL received:', bunkerUrl.substring(0, 50) + '...');
 
-      // Step 4: Login with bunker URL (with timeout)
-      console.log('Step 4: Connecting to bunker...');
-      console.log('Bunker URL (full):', bunkerUrl);
+      // Step 3.5: Save bunker URL for persistent reconnection
+      saveBunkerUrl(bunkerUrl);
 
-      try {
-        const bunkerPromise = login.bunker(bunkerUrl);
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          setTimeout(() => {
-            reject(new Error('Bunker connection timed out after 30 seconds. The identity server may be unavailable.'));
-          }, 30000);
-        });
+      // Step 4: Start bunker connection in background
+      console.log('Step 4: Connecting to bunker in background...');
+      console.log('User pubkey:', pubkey);
+      console.log('Bunker URL:', bunkerUrl.substring(0, 50) + '...');
 
-        await Promise.race([bunkerPromise, timeoutPromise]);
+      // Start bunker connection asynchronously - don't wait for it
+      login.bunker(bunkerUrl).then(() => {
+        console.log('✅ Bunker connection completed successfully!');
+      }).catch((err) => {
+        console.warn('⚠️ Bunker connection failed (signing may not work):', err);
+      });
 
-        console.log('Bunker connection successful!');
-      } catch (bunkerError) {
-        console.error('Bunker connection failed:', bunkerError);
-        throw new Error(
-          `Failed to connect to identity server: ${bunkerError instanceof Error ? bunkerError.message : 'Unknown error'}`
-        );
-      }
+      console.log('✅ Registration complete! Proceeding to profile setup...');
 
       toast({
         title: 'Account Created!',

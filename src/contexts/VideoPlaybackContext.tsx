@@ -2,7 +2,7 @@
 // ABOUTME: Ensures only one video plays at a time based on viewport visibility
 
 import { createContext, useState, useRef, ReactNode } from 'react';
-import { debugLog } from '@/lib/debug';
+import { verboseLog } from '@/lib/debug';
 
 export interface VideoPlaybackContextType {
   activeVideoId: string | null;
@@ -24,21 +24,21 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
   const visibilityUpdateTimer = useRef<NodeJS.Timeout | null>(null);
 
   const setActiveVideo = (videoId: string | null) => {
-    debugLog(`setActiveVideo called with: ${videoId}, current: ${activeVideoId}`);
-    debugLog(`Registered videos: ${Array.from(videoRefs.current.keys()).join(', ')}`);
-    
+    verboseLog(`setActiveVideo called with: ${videoId}, current: ${activeVideoId}`);
+    verboseLog(`Registered videos: ${Array.from(videoRefs.current.keys()).join(', ')}`);
+
     // Just update the active video ID
     // The VideoPlayer components will handle play/pause based on this change
     setActiveVideoId(videoId);
   };
 
   const registerVideo = (videoId: string, element: HTMLVideoElement) => {
-    debugLog(`Registering video: ${videoId}`);
+    verboseLog(`Registering video: ${videoId}`);
     videoRefs.current.set(videoId, element);
   };
 
   const unregisterVideo = (videoId: string) => {
-    debugLog(`Unregistering video: ${videoId}`);
+    verboseLog(`Unregistering video: ${videoId}`);
     videoRefs.current.delete(videoId);
     videoVisibility.current.delete(videoId);
   };
@@ -70,7 +70,7 @@ export function VideoPlaybackProvider({ children }: { children: ReactNode }) {
 
       // Only update if there's a visible video and it's different from current
       if (mostVisibleId !== activeVideoId) {
-        debugLog(`Switching to most visible video: ${mostVisibleId} (${(maxVisibility * 100).toFixed(1)}% visible)`);
+        verboseLog(`Switching to most visible video: ${mostVisibleId} (${(maxVisibility * 100).toFixed(1)}% visible)`);
         setActiveVideoId(mostVisibleId);
       }
     }, 100); // Small debounce to avoid rapid switching
