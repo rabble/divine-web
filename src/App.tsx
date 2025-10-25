@@ -36,10 +36,11 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay3.openvine.co",
+  relayUrl: "wss://relay.divine.video",
 };
 
 const presetRelays = [
+  { url: 'wss://relay.divine.video', name: 'Divine' },
   { url: 'wss://relay3.openvine.co', name: 'OpenVine' },
   { url: 'wss://ditto.pub/relay', name: 'Ditto' },
   { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },

@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { VIDEO_KIND } from '@/types/video';
+import { useAppContext } from '@/hooks/useAppContext';
 
 export function RelayDebugInfo() {
   const { nostr } = useNostr();
+  const { config } = useAppContext();
   const [isQuerying, setIsQuerying] = useState(false);
   const [rawEvents, setRawEvents] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +83,7 @@ export function RelayDebugInfo() {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Relay: wss://relay3.openvine.co
+            Relay: {config.relayUrl}
           </p>
           <p className="text-sm text-muted-foreground">
             Video Kind: {VIDEO_KIND}

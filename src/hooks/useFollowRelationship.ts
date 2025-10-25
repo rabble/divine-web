@@ -137,7 +137,7 @@ export function useFollowUser() {
 
       // Preserve relay information from existing contact list or use default
       const relayContent = currentContactList?.content || JSON.stringify({
-        'wss://relay3.openvine.co': { read: true, write: true },
+        'wss://relay.divine.video': { read: true, write: true },
       });
 
       // Create new contact list event
