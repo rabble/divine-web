@@ -304,7 +304,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       ]);
 
       // Build base filter - optimize query size
-      const baseFilter: NostrFilter = {
+      const baseFilter: NostrFilter & { sort?: { field: string; dir: string } } = {
         kinds: [VIDEO_KIND], // Query videos and reposts separately for better performance
         limit: Math.min(limit, 30), // Optimized for faster initial load
         ...filter
@@ -318,24 +318,36 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       // Handle different feed types
       if (feedType === 'hashtag' && hashtag) {
         baseFilter['#t'] = [hashtag.toLowerCase()];
-        // Fetch a large sample to find popular ones
-        baseFilter.limit = Math.min(limit * 10, 500);
-        verboseLog(`[useVideoEvents] Hashtag query limit set to: ${baseFilter.limit}`);
+        // Use relay-side sorting for better performance
+        baseFilter.limit = limit;
+        baseFilter.sort = { field: 'loop_count', dir: 'desc' };
+        verboseLog(`[useVideoEvents] Hashtag query with server-side sorting by loop_count`);
       } else if (feedType === 'profile' && pubkey) {
         baseFilter.authors = [pubkey];
+        // Sort profile videos by time (most recent first)
+        baseFilter.sort = { field: 'created_at', dir: 'desc' };
       } else if (feedType === 'home' && user?.pubkey) {
         // Fetch user's follow list and filter by followed authors
         const follows = await fetchFollowList(nostr, user.pubkey, signal);
         if (follows.length > 0) {
           baseFilter.authors = follows;
+          // Sort home feed by popularity
+          baseFilter.sort = { field: 'loop_count', dir: 'desc' };
         } else {
           // If no follows, return empty array
           return [];
         }
       } else if (feedType === 'trending') {
-        // For trending, get more videos to rank by reactions
-        baseFilter.limit = Math.min(limit * 2, 60); // Optimized for faster trending feed
-        // Note: We intentionally don't use 'since' here to get all available videos
+        // For trending, get videos sorted by loop count
+        baseFilter.limit = limit;
+        baseFilter.sort = { field: 'loop_count', dir: 'desc' };
+        verboseLog(`[useVideoEvents] Trending query with server-side sorting`);
+      } else if (feedType === 'discovery') {
+        // Discovery feed sorted by popularity
+        baseFilter.sort = { field: 'loop_count', dir: 'desc' };
+      } else if (feedType === 'recent') {
+        // Recent feed sorted by time
+        baseFilter.sort = { field: 'created_at', dir: 'desc' };
       }
       
       let events: NostrEvent[] = [];
