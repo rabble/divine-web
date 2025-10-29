@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
+import { trackError } from '@/lib/analytics';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -32,6 +33,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by ErrorBoundary:', error, errorInfo);
+
+    // Track error in Firebase Analytics
+    trackError(error, {
+      source: 'ErrorBoundary',
+      componentStack: errorInfo.componentStack,
+    });
 
     this.setState({
       error,

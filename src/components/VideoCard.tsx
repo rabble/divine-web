@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, Plus } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
 import { VineBadge } from '@/components/VineBadge';
+import { AddToListDialog } from '@/components/AddToListDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
@@ -24,7 +25,7 @@ import type { NostrMetadata } from '@nostrify/nostrify';
 import { cn } from '@/lib/utils';
 import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils';
 import { getSafeProfileImage } from '@/lib/imageUtils';
-import { buildVideoNavigationUrl, type VideoNavigationContext } from '@/hooks/useVideoNavigation';
+import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -65,14 +66,15 @@ export function VideoCard({
   commentCount = 0,
   viewCount: _viewCount,
   showComments = false,
-  navigationContext,
-  videoIndex,
+  navigationContext: _navigationContext,
+  videoIndex: _videoIndex,
 }: VideoCardProps) {
   const authorData = useAuthor(video.pubkey);
   const reposterData = useAuthor(video.reposterPubkey || '');
   const shouldShowReposter = video.isRepost && video.reposterPubkey;
   const [videoError, setVideoError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
+  const [showAddToListDialog, setShowAddToListDialog] = useState(false);
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -146,6 +148,17 @@ export function VideoCard({
         open={showComments}
         onOpenChange={handleCloseCommentsModal}
       />
+
+      {/* Add to List Dialog */}
+      {video.vineId && showAddToListDialog && (
+        <AddToListDialog
+          videoId={video.vineId}
+          videoPubkey={video.pubkey}
+          open={showAddToListDialog}
+          onClose={() => setShowAddToListDialog(false)}
+        />
+      )}
+
     <Card className={cn('overflow-hidden', className)}>
       {/* Repost indicator */}
       {video.isRepost && (
@@ -172,11 +185,6 @@ export function VideoCard({
             {video.proofMode && video.proofMode.level !== 'unverified' && (
               <ProofModeBadge level={video.proofMode.level} />
             )}
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            {/* Original Vine badge with timestamp, or just timestamp */}
-            {isMigratedVine && <VineBadge />}
-            <span>{timeAgo}</span>
           </div>
         </div>
       </div>
@@ -233,7 +241,13 @@ export function VideoCard({
         {/* Title and description */}
         <div className="p-4 space-y-2">
           {video.title && (
-            <h3 className="font-semibold text-lg">{video.title}</h3>
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="font-semibold text-lg flex-1">{video.title}</h3>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+                {isMigratedVine && <VineBadge />}
+                <span>{timeAgo}</span>
+              </div>
+            </div>
           )}
           
           {/* Only show content if it's different from the title */}
@@ -269,13 +283,13 @@ export function VideoCard({
             </div>
           )}
 
-          {/* List badges */}
+          {/* List badges - without add button */}
           {video.vineId && (
             <VideoListBadges
               videoId={video.vineId}
               videoPubkey={video.pubkey}
               compact={true}
-              showAddButton={true}
+              showAddButton={false}
               className="pt-2"
             />
           )}
@@ -325,6 +339,19 @@ export function VideoCard({
           <Button variant="ghost" size="sm" className="gap-2" aria-label="Share">
             <Share className="h-4 w-4" />
           </Button>
+
+          {/* Add to list button */}
+          {video.vineId && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={() => setShowAddToListDialog(true)}
+              aria-label="Add to list"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

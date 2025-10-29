@@ -1,5 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { AnalyticsPageTracker } from "./components/AnalyticsPageTracker";
+import { AnalyticsUserTracker } from "./components/AnalyticsUserTracker";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useNostrLogin } from "@nostrify/react/login";
 import { LandingPage } from "@/components/LandingPage";
@@ -53,6 +55,8 @@ export function AppRouter() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <AnalyticsPageTracker />
+      <AnalyticsUserTracker />
       <Routes>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Index />} />

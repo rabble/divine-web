@@ -303,23 +303,22 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         AbortSignal.timeout(10000) // Increased timeout for larger queries
       ]);
 
-      // Build base filter - optimize query size
+      // Build base filter
       const baseFilter: NostrFilter = {
-        kinds: [VIDEO_KIND], // Query videos and reposts separately for better performance
-        limit: Math.min(limit, 30), // Optimized for faster initial load
+        kinds: [VIDEO_KIND],
+        limit: Math.min(limit, 50),
         ...filter
       };
+
+      // Add relay-native sorting for feeds that should sort by popularity
+      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
+      if (shouldSortByPopularity) {
+        (baseFilter as any).sort = { field: 'loop_count', dir: 'desc' };
+      }
 
       // Add pagination
       if (until) {
         baseFilter.until = until;
-      }
-
-      // Add relay-native sorting for feeds that should sort by popularity
-      // The monkeypatch will preserve this parameter when sending to relay.divine.video
-      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
-      if (shouldSortByPopularity) {
-        (baseFilter as any).sort = { field: 'loop_count', dir: 'desc' };
       }
 
       // Handle different feed types
