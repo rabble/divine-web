@@ -75,6 +75,7 @@ All notable changes to Divine Web will be documented in this file.
 
 ### Performance
 - **Relay-native sorting reduces client CPU usage** - Server-side sorting by loop_count offloads processing from browser to relay for trending/hashtag/home/discovery feeds
+- **Batched author profile fetching** - Reduced relay subscriptions by 18-36x per feed load by fetching all author profiles in a single query instead of individual requests
 - Optimized video feed to use virtualization (only renders visible videos)
 - Lazy loading of video metadata with intersection observer
 - Reduced initial query size for better performance

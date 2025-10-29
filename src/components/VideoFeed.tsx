@@ -1,12 +1,13 @@
 // ABOUTME: Video feed component for displaying scrollable lists of videos
 // ABOUTME: Supports different feed types (discovery, home, trending, hashtag, profile)
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Loader2 } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
+import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useRepostVideo } from '@/hooks/usePublishVideo';
@@ -60,6 +61,22 @@ export function VideoFeed({
     limit,
     until: lastTimestamp,
   });
+
+  // Collect all unique pubkeys for batched author fetching
+  const authorPubkeys = useMemo(() => {
+    if (!allVideos || allVideos.length === 0) return [];
+    const pubkeys = new Set<string>();
+    allVideos.forEach(video => {
+      pubkeys.add(video.pubkey);
+      if (video.reposterPubkey) {
+        pubkeys.add(video.reposterPubkey);
+      }
+    });
+    return Array.from(pubkeys);
+  }, [allVideos]);
+
+  // Prefetch all authors in a single query
+  useBatchedAuthors(authorPubkeys);
 
   // Update allVideos when new data comes in
   useEffect(() => {
