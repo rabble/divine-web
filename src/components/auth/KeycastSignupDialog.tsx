@@ -130,27 +130,20 @@ export function KeycastSignupDialog({
       // Step 3.5: Save bunker URL for persistent reconnection
       saveBunkerUrl(bunkerUrl);
 
-      // Step 4: Connect to bunker (wait for it to complete before proceeding)
-      console.log('Step 4: Connecting to bunker...');
+      // Step 4: Connect to bunker in background (non-blocking)
+      console.log('Step 4: Connecting to bunker in background...');
       console.log('User pubkey:', pubkey);
       console.log('Bunker URL:', bunkerUrl.substring(0, 50) + '...');
 
-      try {
-        // Wait for bunker connection with a timeout
-        await Promise.race([
-          login.bunker(bunkerUrl),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Bunker connection timeout')), 30000)
-          ),
-        ]);
-        console.log('✅ Bunker connection completed successfully!');
-      } catch (bunkerError) {
-        console.warn('⚠️ Bunker connection failed:', bunkerError);
-        // Continue anyway - user can try logging in again later
-      }
-
-      // Wait a moment for the login state to propagate
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Fire off bunker connection without awaiting - let it connect in background
+      login.bunker(bunkerUrl)
+        .then(() => {
+          console.log('✅ Bunker connection completed successfully!');
+        })
+        .catch((bunkerError) => {
+          console.warn('⚠️ Bunker connection failed:', bunkerError);
+          // User can try logging in again later
+        });
 
       console.log('✅ Registration complete! Proceeding to profile setup...');
 
