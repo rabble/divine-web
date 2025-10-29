@@ -315,6 +315,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         baseFilter.until = until;
       }
 
+      // Add relay-native sorting for feeds that should sort by popularity
+      // The monkeypatch will preserve this parameter when sending to relay.divine.video
+      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
+      if (shouldSortByPopularity) {
+        (baseFilter as any).sort = { field: 'loop_count', dir: 'desc' };
+      }
+
       // Handle different feed types
       if (feedType === 'hashtag' && hashtag) {
         baseFilter['#t'] = [hashtag.toLowerCase()];

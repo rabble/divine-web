@@ -6,7 +6,7 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 
-const RELAY_URL = 'wss://relay3.openvine.co';
+const RELAY_URL = 'wss://relay.divine.video';
 const VIDEO_KIND = 34236;
 const OUTPUT_FILE = join(process.cwd(), 'public', 'hashtag-thumbnails.json');
 const HASHTAGS_FILE = join(process.cwd(), 'public', 'top_1000_hashtags.json');

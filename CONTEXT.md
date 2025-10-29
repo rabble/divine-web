@@ -8,7 +8,7 @@ This project is Divine Web - an OpenVine-compatible Nostr client for short-form 
 - **Video Format**: MP4 and GIF support with auto-loop playback
 - **Social Features**: Likes, reposts, follows, and hashtag discovery
 - **Feed Types**: Home (following), Discovery (all public), Trending, Hashtag, Profile
-- **Primary Relay**: wss://relay3.openvine.co
+- **Primary Relay**: wss://relay.divine.video
 
 ## Technology Stack
 

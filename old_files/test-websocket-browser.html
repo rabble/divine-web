@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+</head>
+<body>
+    <h1>WebSocket Connection Test</h1>
+    <div id="output"></div>
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(msg) {
+            console.log(msg);
+            const p = document.createElement('p');
+            p.textContent = typeof msg === 'object' ? JSON.stringify(msg, null, 2) : msg;
+            output.appendChild(p);
+        }
+        
+        log('Testing WebSocket connection to wss://relay.divine.video');
+        
+        const ws = new WebSocket('wss://relay.divine.video');
+        
+        ws.onopen = (event) => {
+            log('✅ WebSocket OPEN');
+            log('ReadyState: ' + ws.readyState);
+            
+            // Send a Nostr REQ message
+            const req = JSON.stringify(['REQ', 'test-sub', { kinds: [34236], limit: 3 }]);
+            log('Sending: ' + req);
+            ws.send(req);
+        };
+        
+        ws.onmessage = (event) => {
+            log('📨 MESSAGE: ' + event.data);
+        };
+        
+        ws.onerror = (event) => {
+            log('❌ ERROR: ' + JSON.stringify(event));
+            log('ReadyState: ' + ws.readyState);
+        };
+        
+        ws.onclose = (event) => {
+            log('🔴 CLOSE: code=' + event.code + ' reason=' + event.reason + ' wasClean=' + event.wasClean);
+            log('ReadyState: ' + ws.readyState);
+        };
+        
+        // Check readyState periodically
+        let checkCount = 0;
+        const interval = setInterval(() => {
+            checkCount++;
+            log('ReadyState check #' + checkCount + ': ' + ws.readyState);
+            if (checkCount > 10 || ws.readyState === 1 || ws.readyState === 3) {
+                clearInterval(interval);
+            }
+        }, 100);
+    </script>
+</body>
+</html>

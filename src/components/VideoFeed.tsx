@@ -12,7 +12,6 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useRepostVideo } from '@/hooks/usePublishVideo';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useQueryClient } from '@tanstack/react-query';
-import { RelaySelector } from '@/components/RelaySelector';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/useToast';
@@ -209,10 +208,9 @@ export function VideoFeed({
                   : feedType === 'profile'
                   ? "This user hasn't posted any videos yet"
                   : feedType === 'recent'
-                  ? "No recent videos found. Try another relay?"
-                  : "No videos found. Try another relay?"}
+                  ? "No recent videos found."
+                  : "No videos found."}
               </p>
-              <RelaySelector className="w-full" />
             </div>
           </CardContent>
         </Card>

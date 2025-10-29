@@ -5,6 +5,9 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Relay-native sorting** - Implemented server-side sorting via custom Nostrify monkeypatch
+- Monkeypatch for preserving custom filter parameters (like `sort`) when querying Nostr relays
+- Server-side sorting by `loop_count` for trending, hashtag, home, and discovery feeds
 - **Keycast authentication integration** - Alternative login method using Keycast for NIP-46 remote signing
 - Keycast login form and signup dialog components
 - `useKeycastSession` hook for managing Keycast authentication sessions
@@ -67,6 +70,7 @@ All notable changes to Divine Web will be documented in this file.
 - Changed reaction counting from 24-hour window to all-time for better ranking on low-activity sites
 
 ### Performance
+- **Relay-native sorting reduces client CPU usage** - Server-side sorting by loop_count offloads processing from browser to relay for trending/hashtag/home/discovery feeds
 - Optimized video feed to use virtualization (only renders visible videos)
 - Lazy loading of video metadata with intersection observer
 - Reduced initial query size for better performance

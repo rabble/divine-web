@@ -1,8 +1,8 @@
 import { NRelay1 } from '@nostrify/nostrify';
 
-console.log('Testing NRelay1 connection to wss://relay3.openvine.co\n');
+console.log('Testing NRelay1 connection to wss://relay.divine.video\n');
 
-const relay = new NRelay1('wss://relay3.openvine.co', {
+const relay = new NRelay1('wss://relay.divine.video', {
   idleTimeout: false,
   log: (log) => {
     console.log(`[${log.level}] ${log.ns}:`, log);

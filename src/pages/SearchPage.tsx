@@ -12,7 +12,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { RelaySelector } from '@/components/RelaySelector';
 import { VideoCard } from '@/components/VideoCard';
 import { useSearchVideos } from '@/hooks/useSearchVideos';
 import { useSearchUsers } from '@/hooks/useSearchUsers';
@@ -494,10 +493,9 @@ function NoResultsState() {
             <div>
               <h3 className="text-lg font-semibold mb-2">No results found</h3>
               <p className="text-muted-foreground mb-4">
-                Try different keywords or check another relay
+                Try different keywords
               </p>
             </div>
-            <RelaySelector className="w-full" />
           </div>
         </CardContent>
       </Card>
@@ -519,7 +517,6 @@ function ErrorState() {
                 Something went wrong while searching. Please try again.
               </p>
             </div>
-            <RelaySelector className="w-full" />
           </div>
         </CardContent>
       </Card>

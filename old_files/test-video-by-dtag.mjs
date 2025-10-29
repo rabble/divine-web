@@ -1,6 +1,6 @@
 import { NRelay1 } from '@nostrify/nostrify';
 
-const relay = new NRelay1('wss://relay3.openvine.co');
+const relay = new NRelay1('wss://relay.divine.video');
 
 // Test querying by d tag instead of id
 const dTag = '452334c45fe0e9f5f3eaa7541cfd7b6f8b5332b24466164d7d23eb1a89a59b06';

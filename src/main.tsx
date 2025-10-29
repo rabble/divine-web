@@ -3,6 +3,10 @@ import { createRoot } from 'react-dom/client';
 // Import polyfills first
 import './lib/polyfills.ts';
 
+// Apply Nostr monkeypatch for relay-native sorting BEFORE any Nostr operations
+import { patchNostrifyForCustomParams } from './lib/nostrifyPatch';
+patchNostrifyForCustomParams();
+
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import App from './App.tsx';
 import './index.css';

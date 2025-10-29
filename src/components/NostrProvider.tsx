@@ -36,14 +36,15 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
       open(url: string) {
         verboseLog('[NostrProvider] Opening relay connection to:', url);
         const relay = new NRelay1(url, {
+          idleTimeout: false, // Disable idle timeout to prevent premature connection closure
           log: (log) => verboseLog(`[NRelay1:${log.ns}]`, log),
         });
         verboseLog('[NostrProvider] NRelay1 instance created, readyState:', relay.socket?.readyState);
         return relay;
       },
       reqRouter(filters) {
-        verboseLog('[NostrProvider] ========== reqRouter called ==========');
-        verboseLog('[NostrProvider] Filters:', filters);
+        debugLog('[NostrProvider] ========== reqRouter called ==========');
+        debugLog('[NostrProvider] Filters:', filters);
 
         // Check if this is a bunker-related query (NIP-46 kind 24133)
         const isBunkerQuery = filters.some(f => f.kinds?.includes(24133));
@@ -51,14 +52,14 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         if (isBunkerQuery) {
           // For bunker queries, return undefined to let the caller specify the relay
           // This allows NLogin.fromBunker() to use the relay from the bunker URL
-          verboseLog('[NostrProvider] Bunker query detected - allowing caller to specify relay');
+          debugLog('[NostrProvider] Bunker query detected - allowing caller to specify relay');
           return undefined;
         }
 
-        // For all other queries, route to the app's selected relay
-        verboseLog('[NostrProvider] Routing to relay:', relayUrl.current);
+        // For all queries, route to the app's selected relay
+        debugLog('[NostrProvider] Routing to relay:', relayUrl.current);
         const result = new Map([[relayUrl.current, filters]]);
-        verboseLog('[NostrProvider] Router result:', Array.from(result.entries()));
+        debugLog('[NostrProvider] Router result:', Array.from(result.entries()));
         return result;
       },
       eventRouter(_event: NostrEvent) {
@@ -81,6 +82,12 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
     // Wrap with caching layer
     cachedPool.current = createCachedNostr(pool.current);
     debugLog('[NostrProvider] Wrapped NPool with caching layer');
+
+    // Pre-establish WebSocket connection synchronously
+    // This ensures the connection starts BEFORE any child components query
+    debugLog('[NostrProvider] Pre-warming connection to:', relayUrl.current);
+    pool.current.relay(relayUrl.current);
+    debugLog('[NostrProvider] Connection initiated');
   }
 
   return (

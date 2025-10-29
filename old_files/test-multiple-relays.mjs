@@ -3,7 +3,7 @@ import { NRelay1 } from '@nostrify/nostrify';
 const videoId = '452334c45fe0e9f5f3eaa7541cfd7b6f8b5332b24466164d7d23eb1a89a59b06';
 
 const relays = [
-  'wss://relay3.openvine.co',
+  'wss://relay.divine.video',
   'wss://relay.openvine.com',
   'wss://relay1.openvine.co',
   'wss://relay2.openvine.co',

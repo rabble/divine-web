@@ -1,6 +1,6 @@
 import { NRelay1 } from '@nostrify/nostrify';
 
-const relay = new NRelay1('wss://relay3.openvine.co');
+const relay = new NRelay1('wss://relay.divine.video');
 
 console.log('📤 Querying for ANY video (kind 34236)...');
 
