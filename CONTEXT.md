@@ -509,6 +509,135 @@ The `LoginArea` component handles all the login-related UI and interactions, inc
 
 **Important**: Social applications should include a profile menu button in the main interface (typically in headers/navigation) to provide access to account settings, profile editing, and logout functionality. Don't only show `LoginArea` in logged-out states.
 
+### window.nostr Emulation with Keycast
+
+This project includes **two methods** for providing window.nostr compatibility with Keycast custodial authentication:
+
+#### Method 1: JWT-based HTTP Signing (Recommended)
+
+The simplest approach uses direct HTTP requests with JWT authentication. The `KeycastJWTWindowNostr` component automatically injects `window.nostr` when the user is logged in with Keycast.
+
+**How it works:**
+1. User logs in with email/password → receives JWT token
+2. `KeycastJWTWindowNostr` creates a `NostrSigner` that makes HTTP calls to Keycast API
+3. `window.nostr.signEvent()` → HTTP POST to `/api/sign` with Bearer token → server signs event → returns signed event
+4. Compatible with any library expecting `window.nostr` (nostr-tools, NDK, etc.)
+
+**Already integrated:** The component is already added to `App.tsx` and works automatically when users log in with Keycast.
+
+**Implementation details:**
+- **Signer class**: `KeycastJWTSigner` in `src/lib/KeycastJWTSigner.ts`
+- **Hook**: `useWindowNostrJWT` in `src/hooks/useWindowNostrJWT.ts`
+- **Component**: `KeycastJWTWindowNostr` in `src/components/KeycastJWTWindowNostr.tsx`
+
+**Pros:**
+- Simpler architecture (no relay connection needed)
+- Faster for web applications
+- Direct HTTP requests with standard JWT authentication
+- Lower latency
+
+**Cons:**
+- Requires Keycast server endpoints: `/api/sign`, `/api/user/pubkey`, `/api/encrypt/nip04`, `/api/decrypt/nip04`, `/api/encrypt/nip44`, `/api/decrypt/nip44`
+- Not standard NIP-46 protocol
+
+#### Method 2: Bunker-based NIP-46 Signing
+
+Uses standard NIP-46 remote signing protocol via Nostr relays. The `KeycastAutoConnect` component handles bunker connection.
+
+**How it works:**
+1. User logs in with email/password → receives JWT token
+2. Client uses JWT to fetch bunker URL from `/api/user/bunker`
+3. Bunker URL format: `bunker://pubkey?relay=wss://relay.url&secret=xyz`
+4. NIP-46 client connects to bunker via Nostr relay
+5. Signing requests sent via encrypted NIP-46 messages over relay
+
+**Already integrated:** The component is already added to `App.tsx` for bunker connection, but does NOT inject `window.nostr` by default.
+
+**To enable window.nostr injection with bunker:**
+
+```tsx
+import { useWindowNostr } from '@/hooks/useWindowNostr';
+import { useKeycastSession } from '@/hooks/useKeycastSession';
+
+function MyComponent() {
+  const { getSavedBunkerUrl } = useKeycastSession();
+  const bunkerUrl = getSavedBunkerUrl();
+
+  const { signer, isConnecting, isInjected } = useWindowNostr({
+    bunkerUrl,
+    autoInject: true,
+  });
+
+  if (isInjected) {
+    console.log('✅ window.nostr is ready!');
+  }
+}
+```
+
+**Implementation details:**
+- **Bunker parsing**: `parseBunkerUrl` and `createWindowNostrFromBunker` in `src/lib/bunkerToWindowNostr.ts`
+- **Hook**: `useWindowNostr` in `src/hooks/useWindowNostr.ts`
+- **Uses**: Nostrify's `NConnectSigner` for NIP-46 protocol
+
+**Pros:**
+- Standard NIP-46 protocol
+- Works with existing bunker infrastructure
+- Already supported by Keycast server (`/api/user/bunker` endpoint)
+- Can be used with other NIP-46 clients
+
+**Cons:**
+- More complex architecture (requires relay connection)
+- Higher latency (relay round-trip)
+- Requires stable relay connection
+
+#### Choosing Between Methods
+
+| Use Case | Recommended Method |
+|----------|-------------------|
+| **Web applications** | JWT-based (Method 1) |
+| **NIP-46 compatibility** | Bunker-based (Method 2) |
+| **Lowest latency** | JWT-based (Method 1) |
+| **Standard protocol** | Bunker-based (Method 2) |
+| **Default for this project** | JWT-based (Method 1) |
+
+#### Testing window.nostr Emulation
+
+Once logged in with Keycast, test `window.nostr` in the browser console:
+
+```javascript
+// Get public key
+const pubkey = await window.nostr.getPublicKey();
+console.log('Pubkey:', pubkey);
+
+// Sign an event
+const event = await window.nostr.signEvent({
+  kind: 1,
+  content: 'Hello from window.nostr!',
+  tags: [],
+  created_at: Math.floor(Date.now() / 1000),
+});
+console.log('Signed event:', event);
+```
+
+#### Using with Existing Libraries
+
+Any library that expects `window.nostr` will work automatically:
+
+```typescript
+import { SimplePool } from 'nostr-tools';
+
+// nostr-tools will automatically use window.nostr
+const pool = new SimplePool();
+
+// This will use window.nostr.signEvent() under the hood
+const event = await pool.publish(relays, {
+  kind: 1,
+  content: 'Hello Nostr!',
+  tags: [],
+  created_at: Math.floor(Date.now() / 1000),
+});
+```
+
 ### `npub`, `naddr`, and other Nostr addresses
 
 Nostr defines a set of bech32-encoded identifiers in NIP-19. Their prefixes and purposes:

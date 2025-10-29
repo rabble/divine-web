@@ -5,6 +5,10 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Firebase Analytics integration** - Added comprehensive error tracking and analytics
+- Analytics utility module with event tracking, error reporting, and performance metrics
+- Global error handlers for unhandled errors and promise rejections
+- Helper functions for tracking video interactions, user actions, and page views
 - **Relay-native sorting** - Implemented server-side sorting via custom Nostrify monkeypatch
 - Monkeypatch for preserving custom filter parameters (like `sort`) when querying Nostr relays
 - Server-side sorting by `loop_count` for trending, hashtag, home, and discovery feeds

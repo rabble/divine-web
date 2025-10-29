@@ -2,7 +2,7 @@
 // ABOUTME: Automatically injects/removes window.nostr based on bunker connection state
 
 import { useEffect, useRef, useState } from 'react';
-import type { NostrSigner } from '@nostrify/types';
+import type { NostrSigner } from '@nostrify/nostrify';
 import {
   createWindowNostrFromBunker,
   injectWindowNostr,

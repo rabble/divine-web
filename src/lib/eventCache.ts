@@ -81,7 +81,8 @@ class IndexedDBStore implements NStore {
       new Map(allEvents.map(e => [e.id, e])).values()
     );
 
-    return NSet.sortEvents(uniqueEvents);
+    // Sort events by created_at descending (newest first)
+    return uniqueEvents.sort((a, b) => b.created_at - a.created_at);
   }
 
   private async queryFilter(db: IDBDatabase, filter: NostrFilter): Promise<NostrEvent[]> {

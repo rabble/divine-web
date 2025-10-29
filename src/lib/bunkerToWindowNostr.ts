@@ -1,10 +1,8 @@
 // ABOUTME: Converts bunker URL to window.nostr compatible signer
 // ABOUTME: Parses bunker:// URIs and creates NIP-46 remote signing interface
 
-import { NConnectSigner } from '@nostrify/nostrify';
-import { NSecSigner } from '@nostrify/nostrify';
-import { NRelay } from '@nostrify/nostrify';
-import type { NostrSigner } from '@nostrify/types';
+import { NConnectSigner, NSecSigner, NRelay1 as NRelay, type NostrSigner } from '@nostrify/nostrify';
+import { hexToBytes } from '@noble/hashes/utils';
 
 export interface BunkerUrlParts {
   remotePubkey: string;
@@ -66,11 +64,12 @@ export async function createWindowNostrFromBunker(
   });
 
   // Create relay connection
-  const relay = await NRelay.connect(relayUrl);
+  const relay = new NRelay(relayUrl);
 
   // Create local signer from the connection secret
   // The secret acts as our local nsec for signing requests
-  const localSigner = new NSecSigner(secret);
+  const secretBytes = hexToBytes(secret);
+  const localSigner = new NSecSigner(secretBytes);
 
   // Create NIP-46 remote signer
   const connectSigner = new NConnectSigner({

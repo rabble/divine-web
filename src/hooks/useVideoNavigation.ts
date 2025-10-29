@@ -7,7 +7,7 @@ import { useVideoEvents } from './useVideoEvents';
 import type { ParsedVideoData } from '@/types/video';
 
 export interface VideoNavigationContext {
-  source: 'hashtag' | 'profile' | 'discovery' | 'home' | 'trending';
+  source: 'hashtag' | 'profile' | 'discovery' | 'home' | 'trending' | 'recent';
   hashtag?: string;
   pubkey?: string;
   currentIndex?: number;

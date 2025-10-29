@@ -7,6 +7,10 @@ import './lib/polyfills.ts';
 import { patchNostrifyForCustomParams } from './lib/nostrifyPatch';
 patchNostrifyForCustomParams();
 
+// Initialize Firebase Analytics
+import { initializeAnalytics } from './lib/analytics';
+initializeAnalytics();
+
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import App from './App.tsx';
 import './index.css';
