@@ -14,6 +14,7 @@ import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
 import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
+import { NoAIBadge } from '@/components/NoAIBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useAuthor } from '@/hooks/useAuthor';
@@ -101,7 +102,11 @@ export function VideoCard({
   
   // Check if this is a migrated Vine (has vine_id)
   const isMigratedVine = !!video.vineId;
-  
+
+  // Check if video should display Human-Made badge
+  // Show for: 1) migrated Vines (2013-2017, pre-AI), 2) videos with "human-created" tag
+  const isHumanCreated = isMigratedVine || video.hashtags.some(tag => tag.toLowerCase() === 'human-created');
+
   // Calculate timeAgo - always show actual date/time, badge will indicate if it's original Vine
   const yearsDiff = now.getFullYear() - date.getFullYear();
 
@@ -184,6 +189,15 @@ export function VideoCard({
             {/* ProofMode badge */}
             {video.proofMode && video.proofMode.level !== 'unverified' && (
               <ProofModeBadge level={video.proofMode.level} />
+            )}
+            {/* Human-Made badge */}
+            {isHumanCreated && (
+              <NoAIBadge
+                tooltip={isMigratedVine
+                  ? "Original Vine from 2013-2017 - filmed before AI video generation"
+                  : "Human-created content - not AI generated"
+                }
+              />
             )}
           </div>
         </div>

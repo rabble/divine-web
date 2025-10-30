@@ -28,6 +28,7 @@ import OpenSourcePage from "./pages/OpenSourcePage";
 import ProofModePage from "./pages/ProofModePage";
 import AuthenticityPage from "./pages/AuthenticityPage";
 import DMCAPage from "./pages/DMCAPage";
+import HumanCreatedPage from "./pages/HumanCreatedPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
@@ -77,6 +78,7 @@ export function AppRouter() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
           <Route path="/proofmode" element={<ProofModePage />} />
+          <Route path="/human-created" element={<HumanCreatedPage />} />
           <Route path="/dmca" element={<DMCAPage />} />
           {/* Test pages for debugging */}
           <Route path="/debug-video" element={<DebugVideoPage />} />

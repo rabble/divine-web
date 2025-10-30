@@ -5,6 +5,11 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Human-Made content certification** - Badge system inspired by no-ai-icon.com to certify human-created videos
+- NoAIBadge component with brain icon to indicate human-created content
+- Automatic badge for all migrated Vine videos (2013-2017, pre-AI video generation)
+- User-claimed certification via "human-created" hashtag tag
+- /human-created page explaining certification criteria and linking to no-ai-icon.com
 - **Firebase Analytics integration** - Added comprehensive error tracking and analytics
 - Analytics utility module with event tracking, error reporting, and performance metrics
 - Global error handlers for unhandled errors and promise rejections
