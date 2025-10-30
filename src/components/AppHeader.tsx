@@ -1,7 +1,8 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale, Brain } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
+import { NoAIIcon } from '@/components/NoAIIcon';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,10 +59,10 @@ export function AppHeader() {
             size="sm"
             onClick={() => navigate('/human-created')}
             className="flex items-center gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
-            title="Human-Made Content - No AI"
+            title="Made by Humans - No AI"
           >
-            <Brain className="h-4 w-4" />
-            <span className="hidden sm:inline">Human-Made</span>
+            <NoAIIcon size={16} />
+            <span className="hidden sm:inline">Made by Humans</span>
           </Button>
 
           {/* More menu with info links */}
