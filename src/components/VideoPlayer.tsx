@@ -727,10 +727,26 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   ? (controlsVisible ? "opacity-100 w-12 h-12" : "opacity-0 w-12 h-12")
                   : "opacity-0 group-hover:opacity-100 w-10 h-10"
               )}
-              onClick={toggleMute}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
-              onTouchEnd={(e) => e.stopPropagation()}
+              onClick={isMobile ? undefined : toggleMute}
+              onTouchStart={(e) => {
+                if (isMobile) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }
+              }}
+              onTouchMove={(e) => {
+                if (isMobile) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }
+              }}
+              onTouchEnd={(e) => {
+                if (isMobile) {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  toggleMute(e);
+                }
+              }}
             >
               {globalMuted ? (
                 <VolumeX className="h-5 w-5" />

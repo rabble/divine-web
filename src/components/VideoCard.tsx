@@ -187,6 +187,13 @@ export function VideoCard({
             )}
           </div>
         </div>
+        {/* Original badge and timestamp - aligned with author */}
+        {isMigratedVine && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+            <VineBadge />
+            <span>{timeAgo}</span>
+          </div>
+        )}
       </div>
 
       {/* Video content */}
@@ -241,13 +248,7 @@ export function VideoCard({
         {/* Title and description */}
         <div className="p-4 space-y-2">
           {video.title && (
-            <div className="flex items-start justify-between gap-3">
-              <h3 className="font-semibold text-lg flex-1">{video.title}</h3>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
-                {isMigratedVine && <VineBadge />}
-                <span>{timeAgo}</span>
-              </div>
-            </div>
+            <h3 className="font-semibold text-lg">{video.title}</h3>
           )}
           
           {/* Only show content if it's different from the title */}
@@ -345,11 +346,12 @@ export function VideoCard({
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2"
+              className="gap-1"
               onClick={() => setShowAddToListDialog(true)}
               aria-label="Add to list"
             >
               <Plus className="h-4 w-4" />
+              <span className="text-xs">Add to list</span>
             </Button>
           )}
         </div>
