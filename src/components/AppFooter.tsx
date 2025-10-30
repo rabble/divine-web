@@ -24,6 +24,9 @@ export function AppFooter() {
             <Link to="/about" className="hover:text-foreground transition-colors">
               About
             </Link>
+            <Link to="/human-created" className="hover:text-foreground transition-colors font-semibold">
+              Made by Humans
+            </Link>
             <Link to="/authenticity" className="hover:text-foreground transition-colors">
               Our Mission
             </Link>

@@ -56,13 +56,12 @@ export function AppHeader() {
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => navigate('/human-created')}
-            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
             title="Made by Humans - No AI"
           >
-            <NoAIIcon size={16} />
-            <span className="hidden sm:inline">Made by Humans</span>
+            <NoAIIcon size={18} />
           </Button>
 
           {/* More menu with info links */}
