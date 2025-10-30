@@ -2,7 +2,6 @@ import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartpho
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
-import { NoAIIcon } from '@/components/NoAIIcon';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,10 +57,14 @@ export function AppHeader() {
             variant="ghost"
             size="icon"
             onClick={() => navigate('/human-created')}
-            className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+            className="hover:bg-purple-50 dark:hover:bg-purple-950/20"
             title="Made by Humans - No AI"
           >
-            <NoAIIcon size={18} />
+            <img
+              src="/no-ai-icon.svg"
+              alt="No AI"
+              className="h-5 w-5"
+            />
           </Button>
 
           {/* More menu with info links */}
