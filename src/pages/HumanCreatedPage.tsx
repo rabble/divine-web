@@ -112,22 +112,58 @@ export default function HumanCreatedPage() {
           </CardContent>
         </Card>
 
-        {/* For Content Creators */}
+        {/* Verification with ProofMode */}
         <Card>
           <CardHeader>
-            <CardTitle>For Content Creators</CardTitle>
+            <CardTitle>Verification with ProofMode</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p>
-              If you're creating videos for Divine Web and want to claim your work as human-created, add a{' '}
-              <code className="text-sm bg-muted px-1 py-0.5 rounded">human-created</code> tag to your video events.
-              This helps your audience know they're watching authentic, human-made content.
+              To ensure content authenticity, new videos on Divine require{' '}
+              <span className="font-semibold text-green-600">ProofMode verification</span>. ProofMode provides
+              cryptographic proof that videos are captured directly from your device's camera, not AI-generated
+              or uploaded from elsewhere.
+            </p>
+            <p>
+              When you record a video with ProofMode enabled, your device creates cryptographic signatures
+              and hardware attestations that prove the video's authenticity. This makes it technically difficult
+              to pass off AI-generated content as human-made.
             </p>
             <div className="bg-muted p-4 rounded-lg">
-              <p className="text-sm font-mono">
-                tags: [["t", "human-created"]]
-              </p>
+              <p className="text-sm font-semibold mb-2">ProofMode provides:</p>
+              <ul className="text-sm space-y-1 list-disc list-inside">
+                <li>Device hardware attestation (proves real device, not emulator)</li>
+                <li>Camera capture verification (must be recorded, not uploaded)</li>
+                <li>Cryptographic signatures (detects any tampering)</li>
+              </ul>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Community Reporting */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Community Reporting of AI Content</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p>
+              Divine empowers the community to report and label suspected AI-generated content. If you
+              encounter a video that appears to be AI-generated, you can report it for review.
+            </p>
+            <p>
+              Users can report content that shows signs of AI generation such as:
+            </p>
+            <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+              <li>Unnatural movements or physics defying reality</li>
+              <li>Warped faces, hands with wrong number of fingers, or morphing objects</li>
+              <li>Inconsistent lighting, shadows, or reflections</li>
+              <li>Text that's garbled or nonsensical</li>
+              <li>Background elements that appear or disappear</li>
+            </ul>
+            <p className="text-sm text-muted-foreground mt-4">
+              <strong>Note:</strong> Reporting helps maintain content quality but doesn't automatically remove
+              videos. Each report is reviewed, and repeated violations may result in content labeling or removal.
+            </p>
           </CardContent>
         </Card>
 
