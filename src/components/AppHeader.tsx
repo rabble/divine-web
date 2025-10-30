@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale, Brain } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -56,12 +56,12 @@ export function AppHeader() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/proofmode')}
-            className="flex items-center gap-2"
-            title="ProofMode - Cryptographic Authenticity"
+            onClick={() => navigate('/human-created')}
+            className="flex items-center gap-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-950/20"
+            title="Human-Made Content - No AI"
           >
-            <ShieldCheck className="h-4 w-4" />
-            <span className="hidden sm:inline">ProofMode</span>
+            <Brain className="h-4 w-4" />
+            <span className="hidden sm:inline">Human-Made</span>
           </Button>
 
           {/* More menu with info links */}
