@@ -53,7 +53,17 @@ export function AppHeader() {
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search</span>
           </Button>
-          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/proofmode')}
+            className="flex items-center gap-2"
+            title="ProofMode - Cryptographic Authenticity"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">ProofMode</span>
+          </Button>
+
           {/* More menu with info links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -24,6 +24,12 @@ export function AppFooter() {
             <Link to="/about" className="hover:text-foreground transition-colors">
               About
             </Link>
+            <Link to="/authenticity" className="hover:text-foreground transition-colors">
+              Our Mission
+            </Link>
+            <Link to="/proofmode" className="hover:text-foreground transition-colors">
+              ProofMode
+            </Link>
             <Link to="/open-source" className="hover:text-foreground transition-colors">
               Open Source
             </Link>

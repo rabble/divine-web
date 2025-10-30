@@ -5,6 +5,7 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **ProofMode navigation links** - Added ProofMode icon button to main header navigation and authenticity/ProofMode links to footer for better discoverability
 - **Human-Made content certification** - Badge system inspired by no-ai-icon.com to certify human-created videos
 - NoAIBadge component with brain icon to indicate human-created content
 - Automatic badge for all migrated Vine videos (2013-2017, pre-AI video generation)
