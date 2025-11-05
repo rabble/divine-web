@@ -28,8 +28,8 @@ export function TermsPage() {
               If you do not agree to these terms, you must not use the Service.
             </p>
             <p className="text-muted-foreground">
-              The Service is provided by OpenVine ("we," "us," or "our"). These terms constitute a legally
-              binding agreement between you and OpenVine.
+              The Service is provided by diVine ("we," "us," or "our"). These terms constitute a legally
+              binding agreement between you and diVine.
             </p>
           </CardContent>
         </Card>
@@ -224,7 +224,7 @@ export function TermsPage() {
             <CardTitle>Platform Rights and Limitations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">OpenVine reserves the right to:</p>
+            <p className="text-muted-foreground">diVine reserves the right to:</p>
             <ul className="list-disc list-inside space-y-2 ml-4 text-muted-foreground">
               <li>Remove any content that violates these Terms</li>
               <li>Suspend or terminate accounts that violate these Terms</li>
@@ -268,12 +268,12 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. OPENVINE DISCLAIMS ALL
+              THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND. DIVINE DISCLAIMS ALL
               WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
               PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
             </p>
             <p className="text-muted-foreground">
-              OPENVINE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
+              DIVINE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
               PUNITIVE DAMAGES ARISING FROM YOUR USE OF THE SERVICE.
             </p>
           </CardContent>
