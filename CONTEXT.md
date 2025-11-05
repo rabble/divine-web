@@ -1139,3 +1139,4 @@ describe('MyComponent', () => {
 **Your task is not considered finished until this test passes without errors.**
 
 **This requirement applies regardless of whether you wrote new tests or not.** The test script validates the entire codebase, including TypeScript compilation, ESLint rules, and existing test suite.
+- memorize we never ever deploy to nostrdeploy only to cloudflare

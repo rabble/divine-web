@@ -2,6 +2,7 @@ import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartpho
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +14,8 @@ import {
 
 export function AppHeader() {
   const navigate = useNavigate();
+  const { user } = useCurrentUser();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
       <div className="container flex h-16 items-center justify-between">
@@ -26,33 +29,37 @@ export function AppHeader() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/hashtags')}
-            className="flex items-center gap-2"
-          >
-            <Hash className="h-4 w-4" />
-            <span className="hidden sm:inline">Hashtags</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/lists')}
-            className="flex items-center gap-2"
-          >
-            <List className="h-4 w-4" />
-            <span className="hidden sm:inline">Lists</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/search')}
-            className="flex items-center gap-2"
-          >
-            <Search className="h-4 w-4" />
-            <span className="hidden sm:inline">Search</span>
-          </Button>
+          {user && (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/hashtags')}
+                className="flex items-center gap-2"
+              >
+                <Hash className="h-4 w-4" />
+                <span className="hidden sm:inline">Hashtags</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/lists')}
+                className="flex items-center gap-2"
+              >
+                <List className="h-4 w-4" />
+                <span className="hidden sm:inline">Lists</span>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/search')}
+                className="flex items-center gap-2"
+              >
+                <Search className="h-4 w-4" />
+                <span className="hidden sm:inline">Search</span>
+              </Button>
+            </>
+          )}
           <Button
             variant="ghost"
             size="icon"
