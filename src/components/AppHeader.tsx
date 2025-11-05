@@ -119,6 +119,11 @@ export function AppHeader() {
                 Open Source
               </DropdownMenuItem>
 
+              <DropdownMenuItem onClick={() => navigate('/terms')} className="cursor-pointer">
+                <Scale className="mr-2 h-4 w-4" />
+                EULA/T&C
+              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
                 <Shield className="mr-2 h-4 w-4" />
                 Privacy Policy

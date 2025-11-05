@@ -53,7 +53,7 @@ export function AppFooter() {
               Open Source
             </Link>
             <Link to="/terms" className="hover:text-foreground transition-colors">
-              Terms
+              EULA/T&C
             </Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy
