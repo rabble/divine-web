@@ -277,11 +277,11 @@ export function PrivacyPage() {
           <CardContent>
             <p className="text-muted-foreground">
               For privacy-related questions, email:{' '}
-              <a 
-                href="mailto:rabble@openvine.co" 
+              <a
+                href="mailto:support@divine.video"
                 className="text-primary hover:underline"
               >
-                rabble@openvine.co
+                support@divine.video
               </a>
             </p>
           </CardContent>
