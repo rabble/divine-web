@@ -5,6 +5,24 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Terms of Service (EULA) page** - Comprehensive legal document for App Store compliance at /terms
+  - Zero tolerance policy for objectionable content and abusive users
+  - Clear prohibition of CSAM, illegal content, harassment, hate speech, violence, and spam
+  - User reporting mechanism with 24-hour response commitment
+  - Content filtering methods (CSAM hash-matching via Cloudflare/BunnyCDN, AI analysis)
+  - User blocking and muting tools
+  - Consequences for violations: immediate content removal, permanent ban, law enforcement reporting
+  - Linked in footer navigation and header dropdown menu as "EULA/T&C"
+- **Content Moderation and Safety section in Privacy Policy**
+  - Zero tolerance policy documentation
+  - Content filtering methods explained
+  - User reporting mechanism with 24-hour response commitment
+  - User blocking tools detailed
+  - Enforcement actions outlined
+- **Enhanced Safety Standards page**
+  - Prominent 24-hour response commitment (in red text)
+  - Clear statement about removing offending content AND ejecting users
+  - Detailed response procedures for CSAM reports
 - **Comprehensive FAQ page enhancements** - Added extensive FAQ content covering all aspects of diVine
 - FAQ section about Lists feature - explains how users can curate and organize video collections (democratizing what was previously only available to Vine employees)
 - "Where is the x, y, or z Vine?" FAQ explaining archive limitations and lost content
@@ -51,7 +69,12 @@ All notable changes to Divine Web will be documented in this file.
 - Local thumbnail serving from `/public/thumbnails/` to avoid CDN issues
 
 ### Changed
-- **Updated branding to "diVine"** - Changed all instances of "Divine" to "diVine" throughout FAQ and application for consistent brand styling
+- **Expanded FAQ moderation section** - Added zero tolerance policy, content filtering methods, user blocking tools, and 24-hour response commitment
+- **Enhanced FAQ reporting section** - Added prominent 24-hour response commitment and immediate response process for CSAM reports
+- **Updated branding to "diVine"** - Changed all instances of "Divine" and "OpenVine" to "diVine" throughout application for consistent brand styling
+- **Updated contact email** - Changed from rabble@openvine.co to support@divine.video in Terms of Service and Privacy Policy
+- **Improved profile caching** - Increased useAuthor timeout from 1.5s to 5s, useBatchedAuthors timeout from 3s to 10s, cache staleTime from 1min to 5min, and gcTime from 5min to 30min for more reliable username display
+- **Updated navigation visibility** - Hashtags, Lists, and Search buttons now hidden when user is logged out
 - Cryptocurrency FAQ moved to bottom of Technical Questions section and reframed to emphasize diVine is NOT a crypto/blockchain project
 - FAQ page subtitle updated from "Divine Web" to "diVine"
 - Removed GitHub link from footer navigation (replaced with FAQ link)
@@ -92,6 +115,9 @@ All notable changes to Divine Web will be documented in this file.
 - **Fixed hashtag grid layout not working** - Removed hardcoded single-column wrapper that prevented grid toggle from working
 - **Fixed infinite loading spinner on hashtag pages** - Spinner no longer appears constantly when 20+ videos are loaded
 - Changed reaction counting from 24-hour window to all-time for better ranking on low-activity sites
+
+### Removed
+- **Removed "Made by Humans" badge from video cards** - NoAIBadge component no longer displayed on individual video cards (badge still available on /human-created page)
 
 ### Performance
 - **Relay-native sorting reduces client CPU usage** - Server-side sorting by loop_count offloads processing from browser to relay for trending/hashtag/home/discovery feeds
