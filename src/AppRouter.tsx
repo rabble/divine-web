@@ -2,7 +2,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { AnalyticsPageTracker } from "./components/AnalyticsPageTracker";
 import { AnalyticsUserTracker } from "./components/AnalyticsUserTracker";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useNostrLogin } from "@nostrify/react/login";
 import { LandingPage } from "@/components/LandingPage";
 
@@ -29,6 +28,9 @@ import ProofModePage from "./pages/ProofModePage";
 import AuthenticityPage from "./pages/AuthenticityPage";
 import DMCAPage from "./pages/DMCAPage";
 import HumanCreatedPage from "./pages/HumanCreatedPage";
+import { SafetyPage } from "./pages/SafetyPage";
+import { Support } from "./pages/Support";
+import { FAQPage } from "./pages/FAQPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
@@ -36,23 +38,14 @@ import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 export function AppRouter() {
   // Auto-connect Keycast bunker if user has a session
   KeycastAutoConnect();
-  const { user } = useCurrentUser();
   const { logins } = useNostrLogin();
 
   // Check if there's a Keycast session in localStorage
   const hasKeycastSession = localStorage.getItem('keycast_jwt_token') !== null;
 
-  // Show landing page if not logged in
-  // Allow access if there are logins OR if there's a Keycast session (even if bunker hasn't connected yet)
-  if (logins.length === 0 && !hasKeycastSession) {
-    return (
-      <BrowserRouter>
-        <LandingPage />
-      </BrowserRouter>
-    );
-  }
+  // Check if user is logged in
+  const isLoggedIn = logins.length > 0 || hasKeycastSession;
 
-  // Show full app if logged in
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -60,19 +53,8 @@ export function AppRouter() {
       <AnalyticsUserTracker />
       <Routes>
         <Route element={<AppLayout />}>
-          <Route path="/" element={<Index />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/discovery" element={<DiscoveryPage />} />
-          <Route path="/trending" element={<TrendingPage />} />
-          <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
-          <Route path="/hashtag/:tag" element={<HashtagPage />} />
-          <Route path="/t/:tag" element={<TagPage />} />
-          <Route path="/profile/:npub" element={<ProfilePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/video/:id" element={<VideoPage />} />
-          <Route path="/lists" element={<ListsPage />} />
-          <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
-          {/* Info pages */}
+          {/* Public routes - accessible without login */}
+          <Route path="/" element={isLoggedIn ? <Index /> : <LandingPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/authenticity" element={<AuthenticityPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
@@ -80,12 +62,33 @@ export function AppRouter() {
           <Route path="/proofmode" element={<ProofModePage />} />
           <Route path="/human-created" element={<HumanCreatedPage />} />
           <Route path="/dmca" element={<DMCAPage />} />
-          {/* Test pages for debugging */}
-          <Route path="/debug-video" element={<DebugVideoPage />} />
-          {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
-          <Route path="/u/:userId" element={<UniversalUserPage />} />
-          {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}
-          <Route path="/:nip19" element={<NIP19Page />} />
+          <Route path="/safety" element={<SafetyPage />} />
+          <Route path="/support" element={<Support />} />
+          <Route path="/faq" element={<FAQPage />} />
+
+          {/* Protected routes - require login */}
+          {isLoggedIn && (
+            <>
+              <Route path="/home" element={<HomePage />} />
+              <Route path="/discovery" element={<DiscoveryPage />} />
+              <Route path="/trending" element={<TrendingPage />} />
+              <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
+              <Route path="/hashtag/:tag" element={<HashtagPage />} />
+              <Route path="/t/:tag" element={<TagPage />} />
+              <Route path="/profile/:npub" element={<ProfilePage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/video/:id" element={<VideoPage />} />
+              <Route path="/lists" element={<ListsPage />} />
+              <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
+              {/* Test pages for debugging */}
+              <Route path="/debug-video" element={<DebugVideoPage />} />
+              {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
+              <Route path="/u/:userId" element={<UniversalUserPage />} />
+              {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}
+              <Route path="/:nip19" element={<NIP19Page />} />
+            </>
+          )}
+
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Route>

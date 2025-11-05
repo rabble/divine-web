@@ -2,9 +2,9 @@
 // ABOUTME: Supports searching videos, users, hashtags with proper loading and empty states
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
-import { Search, Hash, Users, Video, ArrowLeft } from 'lucide-react';
+import { Search, Hash, Users, Video } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,7 +23,6 @@ type SearchFilter = 'all' | 'videos' | 'users' | 'hashtags';
 
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [activeFilter, setActiveFilter] = useState<SearchFilter>(
     (searchParams.get('filter') as SearchFilter) || 'all'
@@ -397,8 +396,15 @@ export function SearchPage() {
   );
 }
 
+interface UserCardMetadata {
+  display_name?: string;
+  name?: string;
+  about?: string;
+  picture?: string;
+}
+
 // User card component
-function UserCard({ user }: { user: { pubkey: string; metadata?: any } }) {
+function UserCard({ user }: { user: { pubkey: string; metadata?: UserCardMetadata } }) {
   const displayName = user.metadata?.display_name || user.metadata?.name || genUserName(user.pubkey);
   const username = user.metadata?.name || genUserName(user.pubkey);
   const about = user.metadata?.about;

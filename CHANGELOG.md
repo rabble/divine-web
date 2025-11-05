@@ -5,6 +5,15 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Comprehensive FAQ page enhancements** - Added extensive FAQ content covering all aspects of diVine
+- FAQ section about Lists feature - explains how users can curate and organize video collections (democratizing what was previously only available to Vine employees)
+- "Where is the x, y, or z Vine?" FAQ explaining archive limitations and lost content
+- Request for community contributions of old Vine collections (with or without metadata)
+- Information about millions of archived comments and user avatars awaiting restoration
+- Cryptocurrency clarification FAQ explicitly stating diVine is NOT blockchain/crypto/Web3
+- Link to Safety Standards page from moderation FAQ
+- Android beta test link throughout application (parallel to iOS TestFlight)
+- FAQ link added to footer navigation
 - **ProofMode navigation links** - Added ProofMode icon button to main header navigation and authenticity/ProofMode links to footer for better discoverability
 - **Human-Made content certification** - Badge system inspired by no-ai-icon.com to certify human-created videos
 - NoAIBadge component with brain icon to indicate human-created content
@@ -42,6 +51,11 @@ All notable changes to Divine Web will be documented in this file.
 - Local thumbnail serving from `/public/thumbnails/` to avoid CDN issues
 
 ### Changed
+- **Updated branding to "diVine"** - Changed all instances of "Divine" to "diVine" throughout FAQ and application for consistent brand styling
+- Cryptocurrency FAQ moved to bottom of Technical Questions section and reframed to emphasize diVine is NOT a crypto/blockchain project
+- FAQ page subtitle updated from "Divine Web" to "diVine"
+- Removed GitHub link from footer navigation (replaced with FAQ link)
+- Hidden wallet settings link in account switcher dropdown (feature temporarily disabled)
 - All console.log statements replaced with conditional debug logging
 - Debug information and performance panel now only visible on localhost
 - Updated branding from "OpenVine" to "Divine Web" throughout the application

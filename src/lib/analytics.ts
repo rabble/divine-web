@@ -40,7 +40,7 @@ export function initializeAnalytics() {
 /**
  * Log a custom analytics event
  */
-export function trackEvent(eventName: string, params?: Record<string, any>) {
+export function trackEvent(eventName: string, params?: Record<string, unknown>) {
   if (!analytics) return;
 
   try {
@@ -54,7 +54,7 @@ export function trackEvent(eventName: string, params?: Record<string, any>) {
 /**
  * Log an error event
  */
-export function trackError(error: Error, context?: Record<string, any>) {
+export function trackError(error: Error, context?: Record<string, unknown>) {
   if (!analytics) return;
 
   try {
@@ -139,7 +139,7 @@ export function trackVideoEvent(action: 'play' | 'pause' | 'like' | 'repost' | '
 /**
  * Track user interaction
  */
-export function trackUserAction(action: string, metadata?: Record<string, any>) {
+export function trackUserAction(action: string, metadata?: Record<string, unknown>) {
   trackEvent('user_action', {
     action,
     ...metadata,

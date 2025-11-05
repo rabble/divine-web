@@ -6,8 +6,7 @@ import { KeycastJWTSigner } from './KeycastJWTSigner';
 
 // Mock fetch globally
 const mockFetch = vi.fn();
-// @ts-ignore - Mock fetch for testing
-global.fetch = mockFetch;
+global.fetch = mockFetch as unknown as typeof fetch;
 
 describe('KeycastJWTSigner', () => {
   const mockToken = 'mock-jwt-token';

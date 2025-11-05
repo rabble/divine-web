@@ -1,0 +1,892 @@
+// ABOUTME: Frequently Asked Questions page for diVine Web
+// ABOUTME: Answers common questions about the platform, Nostr, and how to use diVine
+
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  HelpCircle,
+  Video,
+  Shield,
+  Key,
+  Globe,
+  Upload,
+  Settings
+} from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+
+export function FAQPage() {
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="text-center space-y-4 mb-8">
+        <div className="flex items-center justify-center gap-3">
+          <HelpCircle className="h-12 w-12 text-primary" />
+          <h1 className="text-4xl font-bold">Frequently Asked Questions</h1>
+        </div>
+        <p className="text-xl text-muted-foreground">
+          Everything you need to know about diVine
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        {/* Getting Started */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="h-5 w-5" />
+              Getting Started
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="what-is">
+                <AccordionTrigger>What is diVine?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    diVine is a decentralized short-form video platform inspired by the original Vine.
+                    It allows you to create and share 6-second looping videos using the Nostr protocol,
+                    making your content censorship-resistant and truly owned by you.
+                  </p>
+                  <p>
+                    Unlike traditional social media platforms, diVine doesn't store your data on centralized
+                    servers. Instead, it uses the Nostr protocol to distribute your content across a network
+                    of independent relays.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="different">
+                <AccordionTrigger>How is diVine different from TikTok or Instagram Reels?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p><strong>You own your content:</strong> Your videos are cryptographically signed with your private keys,
+                  proving ownership.</p>
+                  <p><strong>Decentralized:</strong> No single company controls the platform or can delete your content.</p>
+                  <p><strong>Censorship-resistant:</strong> Built on Nostr, making it nearly impossible to censor.</p>
+                  <p><strong>No algorithms:</strong> You choose what you see, or pick from community-created algorithms.</p>
+                  <p><strong>Open source:</strong> The code is public and anyone can contribute or build their own client.</p>
+                  <p><strong>6-second loops:</strong> Just like original Vine, keeping it simple and creative.</p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="vine-videos">
+                <AccordionTrigger>What happened to the original Vine videos?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    When Twitter shut down Vine in 2017, volunteer archivists at{' '}
+                    <a href="https://wiki.archiveteam.org/index.php/Vine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      ArchiveTeam
+                    </a>{' '}
+                    preserved millions of Vines before they disappeared forever.
+                  </p>
+                  <p>
+                    We've imported these archived videos to diVine, giving them a permanent home on the
+                    decentralized web. These videos are marked with a special badge to show they're from
+                    the original Vine platform.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="classic-vines">
+                <AccordionTrigger>How many classic Vines have been recovered?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    So far, we've successfully recovered and imported:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li><strong>Around 170,000 classic Vine videos</strong></li>
+                    <li><strong>About 62,000 original Vine users</strong></li>
+                  </ul>
+
+                  <p className="font-semibold mt-4">
+                    Not all old videos are recovered yet
+                  </p>
+                  <p>
+                    The recovery effort is ongoing. Many more Vines likely exist in various archives,
+                    including the Common Crawl dataset (the same data AI companies use for training).
+                    However, working through Common Crawl has been beyond the scope of this project so far.
+                  </p>
+
+                  <p className="font-semibold mt-4">
+                    What else needs to be restored?
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>
+                      <strong>Millions of comments:</strong> We have the comments data from classic Vines,
+                      but haven't restored them yet. This is a priority for future development.
+                    </li>
+                    <li>
+                      <strong>User avatars:</strong> We've recovered some of the original profile pictures
+                      and the goal is to restore those as well.
+                    </li>
+                  </ul>
+
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="font-semibold mb-2">Want to help with digital archaeology?</p>
+                    <p>
+                      We welcome help in the digital archaeology efforts to recover more Vines! If you have
+                      expertise in data recovery, archive research, or access to old Vine backups, please{' '}
+                      <Link to="/support" className="text-primary hover:underline">
+                        get in touch
+                      </Link>
+                      . Every recovered Vine helps preserve internet culture history.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t bg-primary/5 p-4 rounded-lg">
+                    <p className="font-semibold mb-2">Do you have old Vines to share?</p>
+                    <p>
+                      If you have collections of old Vine videos (with or without metadata), we'd love to
+                      have them to help restore them to diVine! Whether it's a handful of videos or an
+                      extensive archive, every contribution helps preserve this important piece of internet
+                      culture. Please{' '}
+                      <Link to="/support" className="text-primary hover:underline">
+                        contact us
+                      </Link>
+                      {' '}to share your collection.
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="vine-account-recovery">
+                <AccordionTrigger>How do I get my Vine account back?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>We're working on building an account recovery system.</strong>
+                  </p>
+                  <p>
+                    Users who associated their Vine account with Twitter, Instagram, Musically (TikTok),
+                    or YouTube will be able to use those accounts as proof of ownership for their diVine
+                    account, and we'll be able to give you the login credentials.
+                  </p>
+                  <p className="font-semibold">
+                    This feature isn't ready yet.
+                  </p>
+                  <p>
+                    diVine is a one-person dev project, and these things take time. Please{' '}
+                    <Link to="/support" className="text-primary hover:underline">
+                      email us
+                    </Link>
+                    {' '}about your account, but please have patience as we work to build this system.
+                  </p>
+
+                  <div className="mt-4 pt-4 border-t">
+                    <p className="font-semibold mb-2">Want your content taken down?</p>
+                    <p>
+                      If you want your old Vine content removed from diVine, we will need similar evidence
+                      that it's yours. Please file a{' '}
+                      <Link to="/dmca" className="text-primary hover:underline">
+                        DMCA takedown request
+                      </Link>
+                      {' '}with proof of ownership, and we'll process it accordingly.
+                    </p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="missing-vine">
+                <AccordionTrigger>Where is the x, y, or z Vine?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    We're actively working to load more old Vines into the system, but unfortunately
+                    the archive team project was only able to save a small percentage of the original
+                    Vines that existed.
+                  </p>
+                  <p>
+                    <strong>Many Vines are lost to history.</strong> Some may only exist on Twitter's
+                    servers but are no longer publicly accessible. When Twitter shut down Vine in 2017,
+                    not all content was archived, and much of it disappeared permanently.
+                  </p>
+                  <p>
+                    If you're looking for a specific Vine that isn't on diVine, it's possible it was never
+                    archived or has been lost. However, we continue to search for and import recovered
+                    Vines as new archives are discovered.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="who-built">
+                <AccordionTrigger>Who built diVine?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    diVine was created by{' '}
+                    <a
+                      href="https://njump.me/rabble@satellite.earth"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      @rabble
+                    </a>
+                    , a long-time advocate for decentralized social media and open-source software.
+                  </p>
+                  <p>
+                    This project was funded by a grant from{' '}
+                    <a
+                      href="https://andotherstuff.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      And Other Stuff
+                    </a>
+                    , an organization supporting innovative projects in decentralized technology and
+                    open-source development.
+                  </p>
+                  <p>
+                    diVine is open source, and we welcome contributions from the community. Check out our{' '}
+                    <a
+                      href="https://github.com/rabble/nostrvine"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      GitHub repository
+                    </a>{' '}
+                    to learn more or get involved.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Accounts & Authentication */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Accounts & Authentication
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="create-account">
+                <AccordionTrigger>How do I create an account?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>Mobile app:</strong> The diVine iOS app automatically creates new Nostr keys for you when you first open it.
+                    No registration required - you can start posting immediately!
+                  </p>
+                  <p>
+                    <strong>Web app:</strong> You have several options:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li><strong>Email signup:</strong> Sign up with email using Keycast, which manages your Nostr keys for you</li>
+                    <li><strong>Browser extension:</strong> Use extensions like Alby, nos2x, or Flamingo</li>
+                    <li><strong>Private key (advanced):</strong> Import your existing Nostr private key (nsec)</li>
+                    <li><strong>Remote signer:</strong> Use a bunker URL for secure remote signing</li>
+                  </ul>
+                  <p className="mt-2">
+                    <strong>Optional:</strong> If you want a username@divine.video address, you can register for one after creating your account.
+                    This is completely optional - most users don't need it.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="nostr">
+                <AccordionTrigger>What is Nostr?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Nostr (Notes and Other Stuff Transmitted by Relays) is a simple, open protocol that
+                    enables censorship-resistant social media. Instead of storing data on one company's servers,
+                    Nostr distributes content across many independent relays.
+                  </p>
+                  <p>
+                    Your account is just a public/private key pair - no email, phone number, or personal
+                    information required. This means true ownership and privacy.
+                  </p>
+                  <p>
+                    Learn more at{' '}
+                    <a href="https://nostr.org" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                      nostr.org
+                    </a>
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="multiple-devices">
+                <AccordionTrigger>Can I use my account on multiple devices?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <p>
+                    Yes! Since Nostr is decentralized, you can use your account on any Nostr client
+                    (diVine web, diVine iOS app, or any other Nostr app) by importing your private key
+                    or connecting your browser extension. Your profile and content will appear the same
+                    across all clients.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="lost-key">
+                <AccordionTrigger>What if I lose my private key?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p className="font-semibold text-destructive">
+                    Important: There is NO password recovery on Nostr!
+                  </p>
+                  <p>
+                    If you lose your private key (nsec), you lose access to your account permanently.
+                    This is the trade-off for true decentralization - no company can recover your account,
+                    but also no company can lock you out.
+                  </p>
+                  <p>
+                    We strongly recommend:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Save your private key in a password manager</li>
+                    <li>Write it down on paper and store it securely</li>
+                    <li>Use a browser extension that securely stores your key</li>
+                    <li>Or use email signup with Keycast, which manages keys for you</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="divine-username">
+                <AccordionTrigger>Can I get a username@divine.video address?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Yes! We're currently beta testing a username registration system that allows you to
+                    claim a human-readable address like username@divine.video (also known as a NIP-05 identifier).
+                  </p>
+                  <p>
+                    <strong>What is a NIP-05 identifier?</strong>
+                  </p>
+                  <p>
+                    A NIP-05 identifier is an email-like address that makes it easier for people to find and
+                    verify you on Nostr. Instead of sharing a long public key (npub), you can share
+                    username@divine.video.
+                  </p>
+                  <p>
+                    <strong>Is it required?</strong>
+                  </p>
+                  <p>
+                    No! This is completely optional. Most users don't need a NIP-05 identifier to use diVine.
+                    Your Nostr public key works perfectly fine for posting, following, and interacting on the platform.
+                  </p>
+                  <p>
+                    <strong>Beta Testing Status:</strong>
+                  </p>
+                  <p>
+                    The username registration system is currently in beta testing. If you're interested in
+                    claiming a username@divine.video address, stay tuned for announcements about when
+                    registration opens to all users.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Posting & Content */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-5 w-5" />
+              Posting & Content
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="post-video">
+                <AccordionTrigger>How do I post a video?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Currently, you can post videos using the diVine mobile apps.
+                    The web version supports browsing and viewing videos, with posting features coming soon.
+                  </p>
+                  <p>
+                    Join the beta:{' '}
+                    <a
+                      href="https://testflight.apple.com/join/phQERxAb"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      iOS TestFlight
+                    </a>{' '}
+                    or{' '}
+                    <a
+                      href="https://play.google.com/apps/test/co.openvine.app/61"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Android Beta
+                    </a>{' '}
+                    to start creating 6-second loops on your phone.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="video-requirements">
+                <AccordionTrigger>What are the video requirements?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <ul className="list-disc list-inside space-y-1">
+                    <li><strong>Length:</strong> 6 seconds maximum (just like original Vine!)</li>
+                    <li><strong>Format:</strong> MP4</li>
+                    <li><strong>Loop:</strong> Videos automatically loop for the perfect vine experience</li>
+                    <li><strong>Size:</strong> Recommended max 10MB for best performance</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="edit-delete">
+                <AccordionTrigger>Can I edit or delete my videos?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>Yes!</strong> You can delete any video you've posted and edit your video records
+                    (such as titles, descriptions, and hashtags) at any time.
+                  </p>
+                  <p>
+                    <strong>How deletion works:</strong> When you delete a video, diVine removes it from our
+                    systems and sends a deletion request to all Nostr relays. Most relays honor these deletion
+                    requests. However, because Nostr is decentralized, some relays may retain copies - this is
+                    the trade-off for a censorship-resistant platform.
+                  </p>
+                  <p>
+                    <strong>Editing metadata:</strong> You can update your video's information (title, description,
+                    hashtags) by editing the event record. Changes will propagate across the Nostr network.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="hashtags">
+                <AccordionTrigger>How do hashtags work?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <p>
+                    Add hashtags to your video description (like #comedy or #skateboarding) to help
+                    others discover your content. You can browse videos by hashtag using the hashtag
+                    discovery page or by clicking on any hashtag in a video description.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="lists">
+                <AccordionTrigger>Can I create and curate lists of videos?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>Yes! This is a feature that every user can use on diVine.</strong>
+                  </p>
+                  <p>
+                    On the original Vine, only Vine employees could curate lists for categories and
+                    "Editor's Choice" collections. Now on diVine, this powerful curation tool is open
+                    to all users!
+                  </p>
+                  <p>
+                    <strong>What you can do with lists:</strong>
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Create themed collections of videos (e.g., "Best Comedy Vines", "Skateboarding Tricks", "Cooking Tips")</li>
+                    <li>Organize your favorite videos into personalized playlists</li>
+                    <li>Share curated collections with others</li>
+                    <li>Follow lists created by other users to discover great content</li>
+                    <li>Build "Editor's Choice" style collections for your own niche or community</li>
+                  </ul>
+                  <p>
+                    Lists use Nostr's NIP-51 (Lists) protocol, making them decentralized and portable
+                    across different Nostr clients. Your lists belong to you and can be accessed from
+                    any compatible app.
+                  </p>
+                  <p>
+                    This democratization of curation means the best collections are built by passionate
+                    community members, not just platform employees!
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Privacy & Safety */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Privacy & Safety
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="privacy">
+                <AccordionTrigger>Is my content private?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    No, all content on diVine is public by default. Nostr is designed as a public
+                    protocol similar to Twitter or Instagram. Everything you post can be seen by anyone.
+                  </p>
+                  <p>
+                    However, your personal information is more private than traditional social media
+                    because you don't need to provide email, phone number, or real name to use diVine.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="moderation">
+                <AccordionTrigger>How does moderation work?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    diVine uses composable moderation, similar to Bluesky's approach. Instead of one
+                    central moderator, you can:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Choose which moderation lists you want to follow</li>
+                    <li>Create your own moderation lists</li>
+                    <li>Subscribe to community-created moderation lists</li>
+                    <li>Block individual users yourself</li>
+                  </ul>
+                  <p>
+                    This gives you control over what you see while allowing different communities
+                    to enforce their own standards.
+                  </p>
+                  <p>
+                    <Link to="/safety" className="text-primary hover:underline">
+                      Learn more about our safety standards
+                    </Link>
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="report">
+                <AccordionTrigger>How do I report inappropriate content?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    You can report content using Nostr's reporting system (NIP-56), which creates a
+                    public report that moderation list maintainers can use to improve their lists.
+                  </p>
+                  <p>
+                    For severe issues (illegal content, DMCA violations), please contact us through
+                    the{' '}
+                    <Link to="/support" className="text-primary hover:underline">
+                      support page
+                    </Link> or review our{' '}
+                    <Link to="/dmca" className="text-primary hover:underline">
+                      DMCA policy
+                    </Link>.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="block">
+                <AccordionTrigger>Can I block users?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Yes! You can block any user, and their content won't appear in your feeds.
+                    Blocking is stored in your account and follows you across all Nostr clients.
+                  </p>
+                  <p className="font-semibold">
+                    Important: Blocks have limitations on decentralized platforms
+                  </p>
+                  <p>
+                    Just like with Bluesky, blocks on diVine don't prevent users from seeing your content
+                    if they want to use special tools or alternative clients. Our primary app attempts to
+                    respect your blocks, but it's not a foolproof system.
+                  </p>
+                  <p className="text-destructive font-semibold">
+                    Don't use diVine for private videos.
+                  </p>
+                  <p>
+                    All videos posted to diVine are public by default. If you need true privacy for video content,
+                    don't post it on diVine.
+                  </p>
+                  <p className="font-semibold">
+                    Direct messages ARE private
+                  </p>
+                  <p>
+                    However, direct messages between users are end-to-end encrypted. We cannot read your
+                    messages that you send between users or when you share videos privately via DM. Your
+                    private conversations are truly private.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Features */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5" />
+              Features & Interactions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="ai-detection">
+                <AccordionTrigger>How do you prove it's not AI?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    diVine uses multiple layers of verification to distinguish authentic, human-created
+                    content from AI-generated videos:
+                  </p>
+
+                  <div>
+                    <p className="font-semibold mb-1">1. User Reporting</p>
+                    <p>
+                      Our community helps identify AI-generated content through our reporting system.
+                      When users report content as AI-generated, those reports are reviewed by our
+                      moderation team and shared with your followers through our composable moderation system.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">2. ProofMode Verification</p>
+                    <p>
+                      Videos shot directly in the diVine mobile app can use ProofMode to cryptographically
+                      prove they were captured on a real phone camera, not generated by AI. ProofMode creates
+                      verifiable signatures that confirm the video's authenticity.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">3. Machine Learning Detection</p>
+                    <p>
+                      We use advanced machine learning techniques to analyze videos and detect:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>AI-generated content patterns and artifacts</li>
+                      <li>Videos recorded off another screen (screen recordings)</li>
+                      <li>Synthetic media characteristics</li>
+                    </ul>
+                  </div>
+
+                  <p className="font-semibold text-orange-600 dark:text-orange-400">
+                    Important: No AI detection system is foolproof
+                  </p>
+                  <p>
+                    While we do our best to identify AI-generated content, detection technology is constantly
+                    evolving alongside AI generation capabilities. We combine multiple approaches - technical
+                    verification, machine learning, and community reporting - to provide the most robust
+                    protection possible.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="proofmode">
+                <AccordionTrigger>What is ProofMode?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    ProofMode is a system for cryptographically proving that videos were captured
+                    by a real camera, not generated by AI. It includes:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>Device hardware attestation</li>
+                    <li>OpenPGP signatures</li>
+                    <li>Content hashes and timestamps</li>
+                  </ul>
+                  <p>
+                    Videos with ProofMode verification show a special badge, helping you trust
+                    that what you're watching is authentic.
+                  </p>
+                  <p>
+                    <Link to="/proofmode" className="text-primary hover:underline">
+                      Learn more about ProofMode
+                    </Link>
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="algorithms">
+                <AccordionTrigger>Can I choose my own algorithm?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Yes! diVine supports multiple feed algorithms:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li><strong>Home:</strong> Videos from people you follow</li>
+                    <li><strong>Discovery:</strong> All recent videos</li>
+                    <li><strong>Trending:</strong> Most popular videos by engagement</li>
+                    <li><strong>Hashtags:</strong> Videos tagged with specific topics</li>
+                  </ul>
+                  <p>
+                    In the future, we'll support custom algorithms created by the community using
+                    Nostr's DVM (Data Vending Machine) system.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="relays">
+                <AccordionTrigger>What are relays and can I choose which ones to use?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Relays are servers that store and distribute Nostr events. Think of them like
+                    email servers - they relay your messages to others.
+                  </p>
+                  <p>
+                    diVine uses specific relays optimized for video content, but you can configure
+                    your own relay list if you prefer. Using multiple relays ensures your content
+                    stays available even if one relay goes down.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Technical */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Technical Questions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="open-source">
+                <AccordionTrigger>Is diVine open source?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <p>
+                    Yes! diVine is completely open source. You can view the code, contribute improvements,
+                    or even run your own version of diVine:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                    <li>
+                      <a
+                        href="https://github.com/rabble/nostrvine"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        iOS/Flutter App on GitHub
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="https://github.com/rabble/divine-web"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Web App on GitHub
+                      </a>
+                    </li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="hosting">
+                <AccordionTrigger>Where are videos stored?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>CDN Delivery:</strong> diVine uses Cloudflare and BunnyCDN to deliver videos
+                    quickly and efficiently to users around the world.
+                  </p>
+                  <p>
+                    <strong>Blossom Server Storage:</strong> Videos are stored on Blossom servers, which are
+                    decentralized media servers for Nostr. Users can choose among many Blossom media servers
+                    in the app to host their content.
+                  </p>
+                  <p>
+                    This decentralized approach means:
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 ml-4">
+                    <li>You can choose which Blossom server hosts your videos</li>
+                    <li>You can run your own Blossom server if you prefer</li>
+                    <li>Videos aren't locked to one provider</li>
+                    <li>Community members can help host content</li>
+                    <li>Content is delivered globally via Cloudflare and BunnyCDN for best performance</li>
+                  </ul>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="mobile-app">
+                <AccordionTrigger>Is there a mobile app?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    Yes! diVine mobile apps are available in beta for both iOS and Android.
+                    Both apps include camera recording, video upload, and all viewing features.
+                  </p>
+                  <p>
+                    <a
+                      href="https://testflight.apple.com/join/phQERxAb"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Join iOS TestFlight beta
+                    </a>
+                    {' '} | {' '}
+                    <a
+                      href="https://play.google.com/apps/test/co.openvine.app/61"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      Join Android beta
+                    </a>
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="other-apps">
+                <AccordionTrigger>Can I use other Nostr apps with my diVine account?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <p>
+                    Absolutely! Your Nostr account works across all Nostr applications. You can use
+                    the same account for diVine videos, Damus for text posts, Amethyst for Android,
+                    and many other Nostr clients. Your profile and follows sync across all of them.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="cost">
+                <AccordionTrigger>Do I need cryptocurrency to use diVine?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>No!</strong> You can browse, post, and interact with diVine completely free.
+                    diVine doesn't require any cryptocurrency or payment to use.
+                  </p>
+                  <p>
+                    diVine is <strong>not</strong> a blockchain, cryptocurrency, Bitcoin, or "Web3" project.
+                    While diVine uses the Nostr protocol (a decentralized communication protocol), it has nothing
+                    to do with cryptocurrency, NFTs, or blockchain technology. It's simply a video sharing platform
+                    that gives you control over your content.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </CardContent>
+        </Card>
+
+        {/* Still have questions? */}
+        <Card className="bg-primary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle>Still have questions?</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              We're here to help! Check out these resources:
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Button variant="outline" asChild>
+                <Link to="/about">About diVine</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/support">Contact Support</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <Link to="/privacy">Privacy Policy</Link>
+              </Button>
+              <Button variant="outline" asChild>
+                <a
+                  href="https://nostr.org"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Learn About Nostr
+                </a>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default FAQPage;

@@ -1,7 +1,7 @@
 // ABOUTME: Generate demo profile data for users without profiles
 // ABOUTME: Creates consistent, unique avatars and usernames based on pubkey
 
-import type { NostrMetadata } from '@nostrify/nostrify';
+import type { NostrMetadata, NostrEvent } from '@nostrify/nostrify';
 
 // Hash function to generate consistent colors from pubkey
 function hashCode(str: string): number {
@@ -94,9 +94,9 @@ export function generateDemoMetadata(pubkey: string): NostrMetadata {
 
 // Enhanced useAuthor hook wrapper
 export function enhanceAuthorData(
-  data: { event?: any; metadata?: NostrMetadata } | undefined,
+  data: { event?: NostrEvent; metadata?: NostrMetadata } | undefined,
   pubkey: string
-): { event?: any; metadata: NostrMetadata } {
+): { event?: NostrEvent; metadata: NostrMetadata } {
   if (!data) {
     return {
       metadata: generateDemoMetadata(pubkey)

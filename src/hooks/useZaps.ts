@@ -203,7 +203,7 @@ export function useZaps(
 
       const zapRequest = nip57.makeZapRequest({
         pubkey: actualTarget.pubkey,
-        event: event as any, // Can be string (event ID) or Event object for addressable events
+        event: event as unknown as Event, // Can be string (event ID) or Event object for addressable events
         amount: zapAmount,
         relays: [config.relayUrl],
         comment

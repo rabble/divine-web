@@ -6,10 +6,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { nip19 } from 'nostr-tools';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { AlertCircle, Loader2 } from 'lucide-react';
-import { debugLog, debugError } from '@/lib/debug';
+import { debugLog } from '@/lib/debug';
 
 /**
  * Determines if a string is likely a Vine user ID (all numeric) or NIP-05 identifier
@@ -64,7 +63,7 @@ function useUniversalUserLookup(identifier: string | undefined) {
                 type: 'vine',
               };
             }
-          } catch (e) {
+          } catch {
             continue;
           }
         }
@@ -103,7 +102,7 @@ function useUniversalUserLookup(identifier: string | undefined) {
                 type: 'nip05',
               };
             }
-          } catch (e) {
+          } catch {
             continue;
           }
         }

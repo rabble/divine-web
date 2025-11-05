@@ -276,23 +276,36 @@ export function AboutPage() {
         {/* TestFlight Link */}
         <Card>
           <CardHeader>
-            <CardTitle>Get the iOS App</CardTitle>
+            <CardTitle>Get the Mobile App</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              Join the iOS beta and start creating 6-second loops on your iPhone!
+              Join our beta programs and start creating 6-second loops on your phone!
             </p>
-            <Button asChild>
-              <a 
-                href="https://testflight.apple.com/join/phQERxAb" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2"
-              >
-                Join iOS TestFlight
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Button>
+            <div className="flex gap-3">
+              <Button asChild>
+                <a
+                  href="https://testflight.apple.com/join/phQERxAb"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  Join iOS TestFlight
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a
+                  href="https://play.google.com/apps/test/co.openvine.app/61"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  Join Android Beta
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 

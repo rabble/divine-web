@@ -12,12 +12,12 @@ import type { NostrSigner } from '@nostrify/nostrify';
 describe('bunkerToWindowNostr', () => {
   describe('parseBunkerUrl', () => {
     it('should parse valid bunker URL', () => {
-      const bunkerUrl =
-        'bunker://a'.repeat(32) + '?relay=wss://relay.damus.io&secret=xyz123';
+      const pubkey = 'a'.repeat(64);
+      const bunkerUrl = `bunker://${pubkey}?relay=wss://relay.damus.io&secret=xyz123`;
       const result = parseBunkerUrl(bunkerUrl);
 
       expect(result).toBeTruthy();
-      expect(result?.remotePubkey).toBe('a'.repeat(64));
+      expect(result?.remotePubkey).toBe(pubkey);
       expect(result?.relayUrl).toBe('wss://relay.damus.io');
       expect(result?.secret).toBe('xyz123');
     });

@@ -8,7 +8,6 @@ import {
   User,
   Upload,
   Sparkles,
-  Shield,
   Globe,
   UserPlus,
   FileSignature,
@@ -33,7 +32,6 @@ import { useUploadFile } from '@/hooks/useUploadFile';
 import { useKeycastSession } from '@/hooks/useKeycastSession';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { registerUser, getBunkerUrl } from '@/lib/keycast';
-import { cn } from '@/lib/utils';
 
 interface KeycastSignupDialogProps {
   isOpen: boolean;

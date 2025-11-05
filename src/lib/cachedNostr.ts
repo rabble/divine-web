@@ -5,11 +5,16 @@ import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { eventCache } from './eventCache';
 import { debugLog } from './debug';
 
+interface NostrClient {
+  query: (filters: NostrFilter[], opts?: { signal?: AbortSignal }) => Promise<NostrEvent[]>;
+  event: (event: NostrEvent) => Promise<void>;
+}
+
 /**
  * Wrap a Nostr client with caching layer
  * Preserves all original methods while adding caching to query and event
  */
-export function createCachedNostr(baseNostr: any): any {
+export function createCachedNostr<T extends NostrClient>(baseNostr: T): T {
   // TEMPORARY: Bypass cache to debug relay connection issue
   debugLog('[CachedNostr] BYPASSING CACHE - using base nostr directly');
   return baseNostr;
@@ -18,7 +23,7 @@ export function createCachedNostr(baseNostr: any): any {
 /**
  * Background query to update cache
  */
-async function queryAndCacheInBackground(
+async function _queryAndCacheInBackground(
   queryFn: (filters: NostrFilter[], opts?: { signal?: AbortSignal }) => Promise<NostrEvent[]>,
   filters: NostrFilter[],
   opts?: { signal?: AbortSignal }

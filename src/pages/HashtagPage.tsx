@@ -62,7 +62,7 @@ export function HashtagPage() {
       .map(([hashtag, count]) => ({ hashtag, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
-  }, [tag, allVideos]);
+  }, [normalizedTag, allVideos]);
 
   if (!normalizedTag || normalizedTag.trim() === '') {
     return (

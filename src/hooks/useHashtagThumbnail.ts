@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
-import { resolveHashtagThumbnail } from '@/lib/hashtagThumbnail';
+import { resolveHashtagThumbnail, type NostrClientLike } from '@/lib/hashtagThumbnail';
 
 export function useHashtagThumbnail(hashtag: string) {
   const { nostr } = useNostr();
@@ -13,7 +13,7 @@ export function useHashtagThumbnail(hashtag: string) {
         AbortSignal.timeout(8000),
       ]);
 
-      return resolveHashtagThumbnail(nostr as any, hashtag, signal);
+      return resolveHashtagThumbnail(nostr as NostrClientLike, hashtag, signal);
     },
     staleTime: Infinity,
     gcTime: Infinity,

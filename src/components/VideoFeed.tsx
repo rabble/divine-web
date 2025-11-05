@@ -1,7 +1,7 @@
 // ABOUTME: Video feed component for displaying scrollable lists of videos
 // ABOUTME: Supports different feed types (discovery, home, trending, hashtag, profile)
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { Loader2 } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';

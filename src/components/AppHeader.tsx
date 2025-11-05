@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -87,13 +87,28 @@ export function AppHeader() {
                   iOS TestFlight Beta
                 </a>
               </DropdownMenuItem>
-              
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://play.google.com/apps/test/co.openvine.app/61"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <Smartphone className="h-4 w-4" />
+                  Android Beta
+                </a>
+              </DropdownMenuItem>
+
               <DropdownMenuSeparator />
               <DropdownMenuLabel>Information</DropdownMenuLabel>
 
               <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
                 <Info className="mr-2 h-4 w-4" />
                 About
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/faq')} className="cursor-pointer">
+                <HelpCircle className="mr-2 h-4 w-4" />
+                FAQ
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => navigate('/authenticity')} className="cursor-pointer">
@@ -114,6 +129,11 @@ export function AppHeader() {
               <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
                 <Shield className="mr-2 h-4 w-4" />
                 Privacy Policy
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/safety')} className="cursor-pointer">
+                <ShieldAlert className="mr-2 h-4 w-4" />
+                Safety Standards
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => navigate('/dmca')} className="cursor-pointer">

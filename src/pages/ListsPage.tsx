@@ -9,7 +9,6 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { List, TrendingUp, Plus, Users, Video, Clock } from 'lucide-react';
@@ -18,7 +17,17 @@ import { CreateListDialog } from '@/components/CreateListDialog';
 import { formatDistanceToNow } from 'date-fns';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 
-function ListCard({ list }: { list: any }) {
+interface ListCardProps {
+  id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  pubkey: string;
+  createdAt: number;
+  videoCoordinates: string[];
+}
+
+function ListCard({ list }: { list: ListCardProps }) {
   const author = useAuthor(list.pubkey);
   const authorMetadata = author.data?.metadata;
   const authorName = authorMetadata?.name || genUserName(list.pubkey);

@@ -9,10 +9,9 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { VideoGrid } from '@/components/VideoGrid';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, List, Video, Clock, Edit, Share2, Copy } from 'lucide-react';
+import { ArrowLeft, List, Video, Clock, Edit, Share2 } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/useToast';
@@ -210,7 +209,7 @@ export default function ListDetailPage() {
           text: list?.description || 'Check out this video list',
           url
         });
-      } catch (err) {
+      } catch {
         // User cancelled or error
       }
     } else {

@@ -74,7 +74,7 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
       // Navigate to the new list
       navigate(`/list/${user.pubkey}/${listId}`);
       onClose();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to create list. Please try again.',

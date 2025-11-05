@@ -19,7 +19,7 @@ export const ENABLE_VERBOSE_LOGGING = true;
 /**
  * Debug log that only outputs on localhost
  */
-export const debugLog = (...args: any[]) => {
+export const debugLog = (...args: unknown[]) => {
   if (isLocalhost) {
     console.log(...args);
   }
@@ -29,7 +29,7 @@ export const debugLog = (...args: any[]) => {
  * Verbose debug log for really detailed/spammy logs
  * Only outputs when ENABLE_VERBOSE_LOGGING is true
  */
-export const verboseLog = (...args: any[]) => {
+export const verboseLog = (...args: unknown[]) => {
   if (isLocalhost && ENABLE_VERBOSE_LOGGING) {
     console.log(...args);
   }
@@ -38,7 +38,7 @@ export const verboseLog = (...args: any[]) => {
 /**
  * Debug error that only outputs on localhost
  */
-export const debugError = (...args: any[]) => {
+export const debugError = (...args: unknown[]) => {
   if (isLocalhost) {
     console.error(...args);
   }
@@ -47,7 +47,7 @@ export const debugError = (...args: any[]) => {
 /**
  * Debug warn that only outputs on localhost
  */
-export const debugWarn = (...args: any[]) => {
+export const debugWarn = (...args: unknown[]) => {
   if (isLocalhost) {
     console.warn(...args);
   }

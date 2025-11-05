@@ -70,8 +70,7 @@ describe('KeycastJWTWindowNostr', () => {
 
   it('should handle case when no token is available', async () => {
     const { useKeycastSession } = await import('@/hooks/useKeycastSession');
-    // @ts-ignore - Mock return value for testing
-    useKeycastSession.mockReturnValueOnce({
+    (useKeycastSession as ReturnType<typeof vi.fn>).mockReturnValueOnce({
       getValidToken: vi.fn(() => null),
     });
 

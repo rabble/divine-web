@@ -18,7 +18,7 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
   // Create NPool instance only once
   const pool = useRef<NPool | undefined>(undefined);
-  const cachedPool = useRef<any | undefined>(undefined);
+  const cachedPool = useRef<NPool | undefined>(undefined);
 
   // Use refs so the pool always has the latest data
   const relayUrl = useRef<string>(config.relayUrl);

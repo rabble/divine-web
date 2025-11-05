@@ -3,7 +3,7 @@ import { VIDEO_KIND } from '@/types/video';
 import { parseVideoEvent, getThumbnailUrl } from '@/lib/videoParser';
 import { debugLog } from '@/lib/debug';
 
-interface NostrClientLike {
+export interface NostrClientLike {
   query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]>;
 }
 
@@ -48,7 +48,7 @@ export async function resolveHashtagThumbnail(
   }
 
   // If cache has null, it means we checked and found nothing, skip live query
-  if (cache.hasOwnProperty(cacheKey)) {
+  if (Object.prototype.hasOwnProperty.call(cache, cacheKey)) {
     debugLog('[resolveHashtagThumbnail] Cache has null for:', hashtag, '- skipping live query');
     return undefined;
   }
@@ -56,10 +56,10 @@ export async function resolveHashtagThumbnail(
     kinds: [VIDEO_KIND],
     limit: 5,
     ['#t']: [hashtag.toLowerCase()],
-  } as any;
+  };
 
   debugLog('[resolveHashtagThumbnail] Querying for hashtag:', hashtag, 'with filter:', filter);
-  let events = await nostr.query([filter], { signal });
+  const events = await nostr.query([filter], { signal });
   debugLog('[resolveHashtagThumbnail] Got', events.length, 'events for hashtag:', hashtag);
 
   const tryParseForThumbnail = (evs: NostrEvent[]) => {
@@ -78,7 +78,7 @@ export async function resolveHashtagThumbnail(
 
   // Fallback: broader query, then filter by content hashtag match
   try {
-    const broadFilter: NostrFilter = { kinds: [VIDEO_KIND], limit: 30 } as any;
+    const broadFilter: NostrFilter = { kinds: [VIDEO_KIND], limit: 30 };
     const broadEvents = await nostr.query([broadFilter], { signal });
     const lower = hashtag.toLowerCase();
     const matched = broadEvents.filter((e) => (` ${e.content} `).toLowerCase().includes(`#${lower}`));

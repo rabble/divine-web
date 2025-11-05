@@ -18,7 +18,7 @@ interface ThumbnailPlayerProps {
 }
 
 export function ThumbnailPlayer({
-  videoId,
+  videoId: _videoId,
   src,
   thumbnailUrl,
   duration,
@@ -110,10 +110,9 @@ export function ThumbnailPlayer({
 }
 
 // Simple thumbnail generation utility
+// Uses video URL fragment to hint browsers to load a frame at 0.1 seconds
+// This provides basic thumbnail support when explicit thumbnails are unavailable
 function generateThumbnailFromVideo(videoUrl: string): string | null {
-  // For now, return null to force placeholder when no thumbnailUrl
-  // In a real implementation, this might use canvas to extract first frame
-  // or call a server-side service to generate thumbnails
   if (!videoUrl) return null;
-  return `${videoUrl}#t=0.1`; // Try to load frame at 0.1 seconds
+  return `${videoUrl}#t=0.1`; // Browser hint to load frame at 0.1 seconds
 }

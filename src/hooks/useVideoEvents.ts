@@ -313,7 +313,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       // Add relay-native sorting for feeds that should sort by popularity
       const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
       if (shouldSortByPopularity) {
-        (baseFilter as any).sort = { field: 'loop_count', dir: 'desc' };
+        (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = { field: 'loop_count', dir: 'desc' };
       }
 
       // Add pagination

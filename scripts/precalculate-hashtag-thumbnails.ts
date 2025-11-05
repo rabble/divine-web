@@ -2,7 +2,7 @@
 // ABOUTME: Script to precalculate and cache hashtag thumbnail URLs
 // ABOUTME: Uses nak CLI to query Nostr for sample videos from each hashtag and saves thumbnail URLs to JSON
 
-import { writeFileSync, readFileSync, existsSync } from 'fs';
+import { writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
 
@@ -138,12 +138,13 @@ async function findThumbnailForHashtag(hashtag: string): Promise<string | null> 
 
     console.log(`[${hashtag}] ✗ No valid thumbnail found in ${events.length} events`);
     return null;
-  } catch (err: any) {
-    if (err.code === 'ENOENT') {
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
       console.error('ERROR: nak command not found. Please install nak: https://github.com/fiatjaf/nak');
       process.exit(1);
     }
-    console.error(`[${hashtag}] Error:`, err.message);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[${hashtag}] Error:`, message);
     return null;
   }
 }

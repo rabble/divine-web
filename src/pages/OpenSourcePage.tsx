@@ -100,18 +100,31 @@ export function OpenSourcePage() {
             </div>
             
             <div className="mt-4 p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm font-medium mb-2">Join iOS Beta Testing!</p>
-              <Button asChild size="sm">
-                <a 
-                  href="https://testflight.apple.com/join/phQERxAb" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
-                  Join TestFlight
-                  <ExternalLink className="h-3 w-3" />
-                </a>
-              </Button>
+              <p className="text-sm font-medium mb-2">Join Beta Testing!</p>
+              <div className="flex gap-2">
+                <Button asChild size="sm">
+                  <a
+                    href="https://testflight.apple.com/join/phQERxAb"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    iOS TestFlight
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
+                <Button asChild size="sm" variant="outline">
+                  <a
+                    href="https://play.google.com/apps/test/co.openvine.app/61"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    Android Beta
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

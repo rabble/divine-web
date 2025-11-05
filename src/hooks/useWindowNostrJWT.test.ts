@@ -101,7 +101,10 @@ describe('useWindowNostrJWT', () => {
     // Manually inject
     result.current.inject();
 
-    expect(result.current.isInjected).toBe(true);
+    // Wait for state update
+    await waitFor(() => {
+      expect(result.current.isInjected).toBe(true);
+    });
     expect(window.nostr).toBeDefined();
   });
 
@@ -117,7 +120,10 @@ describe('useWindowNostrJWT', () => {
     // Manually remove
     result.current.remove();
 
-    expect(result.current.isInjected).toBe(false);
+    // Wait for state update
+    await waitFor(() => {
+      expect(result.current.isInjected).toBe(false);
+    });
     expect(window.nostr).toBeUndefined();
   });
 

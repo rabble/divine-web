@@ -5,7 +5,7 @@ import type { NostrEvent } from '@nostrify/nostrify';
 import type { VideoMetadata, VideoEvent, ProofModeData, ProofModeLevel } from '@/types/video';
 
 // Common video file extensions - used only as hints, not requirements
-const VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8', '.mpd', '.avi', '.mkv', '.ogv', '.ogg'];
+const _VIDEO_EXTENSIONS = ['.mp4', '.webm', '.mov', '.gif', '.m3u8', '.mpd', '.avi', '.mkv', '.ogv', '.ogg'];
 
 /**
  * Checks if a URL looks like it could be a video URL
@@ -138,7 +138,7 @@ function parseImetaTag(tag: string[]): VideoMetadata | null {
  * Convert Divine CDN HLS URL to MP4 URL (only for specific Divine CDN URLs)
  * Example: https://cdn.divine.video/xyz/manifest/video.m3u8 -> https://cdn.divine.video/xyz/downloads/default.mp4
  */
-function convertHlsToMp4(hlsUrl: string): string | null {
+function _convertHlsToMp4(hlsUrl: string): string | null {
   // Only convert Divine CDN URLs to avoid breaking other services
   if (hlsUrl.includes('cdn.divine.video') && hlsUrl.includes('/manifest/video.m3u8')) {
     return hlsUrl.replace('/manifest/video.m3u8', '/downloads/default.mp4');
@@ -240,7 +240,7 @@ export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
     return null;
   }
 
-  let metadata: VideoMetadata = { url: primaryUrl };
+  const metadata: VideoMetadata = { url: primaryUrl };
 
   // Extract additional metadata from imeta tag
   for (const tag of event.tags) {

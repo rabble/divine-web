@@ -2,7 +2,7 @@
 // It is important that all functionality in this file is preserved, and should only be modified if explicitly requested.
 
 import React, { useRef, useState, useEffect } from 'react';
-import { Shield, Upload, AlertTriangle, UserPlus, KeyRound, Sparkles, Cloud, Mail } from 'lucide-react';
+import { Shield, Upload, AlertTriangle, KeyRound, Cloud, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogDescription } from "@/components/ui/dialog";
@@ -27,7 +27,7 @@ const validateBunkerUri = (uri: string) => {
   return uri.startsWith('bunker://');
 };
 
-const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onSignup }) => {
+const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onSignup: _onSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [nsec, setNsec] = useState('');
@@ -169,13 +169,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
       setErrors({ file: 'Failed to read file.' });
     };
     reader.readAsText(file);
-  };
-
-  const handleSignupClick = () => {
-    onClose();
-    if (onSignup) {
-      onSignup();
-    }
   };
 
   const defaultTab = 'email';

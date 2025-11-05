@@ -6,7 +6,7 @@ export interface JWTPayload {
   iat?: number; // Issued at (seconds since epoch)
   sub?: string; // Subject (user ID)
   email?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**

@@ -3,7 +3,6 @@
 
 import type { NostrEvent, NostrFilter, NStore } from '@nostrify/nostrify';
 import { NCache } from '@nostrify/nostrify';
-import { NSet } from '@nostrify/nostrify';
 
 const DB_NAME = 'nostr_events';
 const DB_VERSION = 1;

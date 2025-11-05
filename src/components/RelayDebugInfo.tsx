@@ -2,6 +2,7 @@
 // ABOUTME: Displays raw event data and connection status for troubleshooting
 
 import { useNostr } from '@nostrify/react';
+import type { NostrEvent } from '@nostrify/nostrify';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -14,9 +15,8 @@ export function RelayDebugInfo() {
   const { nostr } = useNostr();
   const { config } = useAppContext();
   const [isQuerying, setIsQuerying] = useState(false);
-  const [rawEvents, setRawEvents] = useState<any[]>([]);
+  const [rawEvents, setRawEvents] = useState<NostrEvent[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<string>('unknown');
 
   const testDirectQuery = async () => {
     setIsQuerying(true);

@@ -7,7 +7,6 @@ import { nip19 } from 'nostr-tools';
 import { useNostr } from '@nostrify/react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import ProfilePage from './ProfilePage';
 
 export function NIP05ProfilePage() {
   const { nip05: nip05Param } = useParams<{ nip05: string }>();
@@ -51,7 +50,7 @@ export function NIP05ProfilePage() {
               foundPubkey = event.pubkey;
               break;
             }
-          } catch (e) {
+          } catch {
             // Skip malformed profiles
             continue;
           }

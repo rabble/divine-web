@@ -30,14 +30,14 @@ export function PerformanceDebugPanel() {
       setMetrics(prev => ({ ...prev, ...event.detail }));
     };
 
-    window.addEventListener('performance-metric' as any, handlePerformanceEvent);
-    
+    window.addEventListener('performance-metric' as keyof WindowEventMap, handlePerformanceEvent);
+
     // Track render performance relative to page load
     const renderStart = Math.round(performance.now() / 1000); // Convert to seconds
     setMetrics(prev => ({ ...prev, renderStart }));
 
     return () => {
-      window.removeEventListener('performance-metric' as any, handlePerformanceEvent);
+      window.removeEventListener('performance-metric' as keyof WindowEventMap, handlePerformanceEvent);
     };
   }, []);
 

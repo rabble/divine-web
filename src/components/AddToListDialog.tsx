@@ -74,7 +74,7 @@ export function AddToListDialog({
       queryClient.invalidateQueries({ queryKey: ['video-lists'] });
 
       onClose();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to add video to lists',
@@ -107,7 +107,7 @@ export function AddToListDialog({
       queryClient.invalidateQueries({ queryKey: ['video-lists'] });
 
       onClose();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to create list',

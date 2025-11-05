@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
-import { debugLog, debugError, verboseLog } from '@/lib/debug';
+import { debugError, verboseLog } from '@/lib/debug';
 import Hls from 'hls.js';
 
 interface VideoPlayerProps {
