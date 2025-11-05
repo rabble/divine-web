@@ -60,20 +60,6 @@ export function AppHeader() {
               </Button>
             </>
           )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate('/human-created')}
-            className="hover:bg-purple-50 dark:hover:bg-purple-950/20"
-            title="Made by Humans - No AI"
-          >
-            <img
-              src="/no-ai-icon.svg"
-              alt="No AI"
-              className="h-5 w-5"
-            />
-          </Button>
-
           {/* More menu with info links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

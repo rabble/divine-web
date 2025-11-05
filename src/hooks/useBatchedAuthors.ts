@@ -27,7 +27,7 @@ export function useBatchedAuthors(pubkeys: string[]) {
       // Single query for all authors
       const events = await nostr.query(
         [{ kinds: [0], authors: uniquePubkeys, limit: uniquePubkeys.length }],
-        { signal: AbortSignal.any([signal, AbortSignal.timeout(3000)]) },
+        { signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]) },
       );
 
       // Parse metadata and create a map
@@ -44,8 +44,8 @@ export function useBatchedAuthors(pubkeys: string[]) {
 
       return authorsMap;
     },
-    staleTime: 60000, // Cache for 1 minute
-    gcTime: 300000, // Keep in cache for 5 minutes
+    staleTime: 300000, // Cache for 5 minutes
+    gcTime: 1800000, // Keep in cache for 30 minutes
     enabled: uniquePubkeys.length > 0,
   });
 
