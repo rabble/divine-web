@@ -355,12 +355,22 @@ export function SafetyPage() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Decentralized Architecture Considerations</h3>
+              <h3 className="font-semibold mb-2">Decentralized Architecture & Limited Responsibility</h3>
+              <p className="text-muted-foreground mb-2">
+                diVine operates on the decentralized Nostr protocol, which means the app can connect to
+                multiple servers (relays and media servers) across the network. <strong>We maintain strict
+                controls over content served through our infrastructure and only bear responsibility for
+                content hosted on our own servers.</strong>
+              </p>
+              <p className="text-muted-foreground mb-2">
+                Our CDN and filtering systems ensure that all media accessed through diVine.video has passed
+                through our safety checks. However, content on other servers in the Nostr network is moderated
+                according to their operators' policies.
+              </p>
               <p className="text-muted-foreground">
-                While diVine operates on the decentralized Nostr protocol, we maintain strict
-                controls over content served through our infrastructure. Our CDN and filtering
-                systems ensure that all media accessed through diVine.video has passed through
-                our safety checks, regardless of where it originates on the Nostr network.
+                <strong>Run your own servers:</strong> If you want different moderation policies, you're welcome
+                to run your own Nostr relays and Blossom media servers with whatever policies you prefer. The
+                diVine app can connect to any compatible server.
               </p>
             </div>
           </CardContent>

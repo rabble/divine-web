@@ -585,6 +585,24 @@ export function FAQPage() {
                     </ul>
                   </div>
 
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
+                    <p className="font-semibold mb-2">Decentralized Network & Limited Responsibility</p>
+                    <p className="mb-2">
+                      The diVine app can connect to multiple servers (relays and media servers) across the
+                      decentralized Nostr network. <strong>We only bear responsibility for content hosted on
+                      our own servers.</strong>
+                    </p>
+                    <p className="mb-2">
+                      Content on other servers is moderated according to their operators' policies. When you
+                      use diVine, you may see content from various servers with different moderation standards.
+                    </p>
+                    <p>
+                      <strong>Run your own servers:</strong> If you want different moderation policies, you're
+                      welcome to run your own Nostr relays and Blossom media servers with whatever policies you
+                      prefer. The diVine app can connect to any compatible server.
+                    </p>
+                  </div>
+
                   <p>
                     <Link to="/safety" className="text-primary hover:underline">
                       Learn more about our safety standards

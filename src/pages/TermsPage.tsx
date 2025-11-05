@@ -249,14 +249,29 @@ export function TermsPage() {
               diVine operates on the decentralized Nostr protocol. This means:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4 text-muted-foreground">
+              <li>The diVine app can connect to multiple servers (relays and media servers) across the network</li>
               <li>Content you post is distributed across multiple independent relays</li>
               <li>Even if we remove content from our platform, it may persist on other relays</li>
               <li>Other Nostr clients may display content using different moderation policies</li>
               <li>Once content is shared, it may be difficult or impossible to completely remove</li>
             </ul>
-            <p className="text-muted-foreground mt-4">
-              While we maintain strict moderation on content served through diVine, we cannot control
-              content on the broader Nostr network. Users should be aware of this when posting content.
+
+            <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
+              <p className="font-semibold mb-2">Limited Responsibility</p>
+              <p className="text-muted-foreground mb-2">
+                <strong>We only bear responsibility for content hosted on our own servers.</strong> Content on
+                other servers in the Nostr network is moderated according to their operators' policies.
+              </p>
+              <p className="text-muted-foreground">
+                While we maintain strict moderation on content served through diVine, we cannot control
+                content on the broader Nostr network. Users should be aware of this when posting content.
+              </p>
+            </div>
+
+            <p className="text-muted-foreground">
+              <strong>Run your own servers:</strong> If you want different moderation policies, you're welcome
+              to run your own Nostr relays and Blossom media servers with whatever policies you prefer. The
+              diVine app can connect to any compatible server.
             </p>
           </CardContent>
         </Card>
