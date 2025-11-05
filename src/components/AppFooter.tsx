@@ -52,6 +52,9 @@ export function AppFooter() {
             <Link to="/open-source" className="hover:text-foreground transition-colors">
               Open Source
             </Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">
               Privacy
             </Link>

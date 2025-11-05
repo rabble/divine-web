@@ -528,20 +528,63 @@ export function FAQPage() {
               <AccordionItem value="moderation">
                 <AccordionTrigger>How does moderation work?</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground space-y-2">
-                  <p>
-                    diVine uses composable moderation, similar to Bluesky's approach. Instead of one
-                    central moderator, you can:
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 ml-4">
-                    <li>Choose which moderation lists you want to follow</li>
-                    <li>Create your own moderation lists</li>
-                    <li>Subscribe to community-created moderation lists</li>
-                    <li>Block individual users yourself</li>
-                  </ul>
-                  <p>
-                    This gives you control over what you see while allowing different communities
-                    to enforce their own standards.
-                  </p>
+                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <p className="font-semibold text-destructive mb-2">
+                      Zero Tolerance for Objectionable Content
+                    </p>
+                    <p>
+                      diVine maintains a strict zero-tolerance policy for objectionable content and abusive users.
+                      By using diVine, you agree to our{' '}
+                      <Link to="/terms" className="text-primary hover:underline font-semibold">
+                        Terms of Service
+                      </Link>
+                      {' '}which prohibit:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                      <li>Child Sexual Abuse Material (CSAM)</li>
+                      <li>Illegal activities and content</li>
+                      <li>Harassment, abuse, and hate speech</li>
+                      <li>Violence and threats</li>
+                      <li>Spam and malicious content</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">Content Filtering</p>
+                    <p>We filter objectionable content using:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>CSAM hash-matching through Cloudflare and BunnyCDN</li>
+                      <li>AI-powered content analysis</li>
+                      <li>Human moderation review</li>
+                      <li>User reports and community moderation</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">User Tools for Blocking Abusive Users</p>
+                    <p>You have multiple tools to protect yourself:</p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>Block users to prevent all interactions</li>
+                      <li>Mute users to hide their content</li>
+                      <li>Report objectionable content for review</li>
+                      <li>Subscribe to community-created moderation lists</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">Composable Moderation</p>
+                    <p>
+                      diVine uses composable moderation, similar to Bluesky's approach. Instead of one
+                      central moderator, you can:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>Choose which moderation lists you want to follow</li>
+                      <li>Create your own moderation lists</li>
+                      <li>Subscribe to community-created moderation lists</li>
+                      <li>Control what you see while respecting different community standards</li>
+                    </ul>
+                  </div>
+
                   <p>
                     <Link to="/safety" className="text-primary hover:underline">
                       Learn more about our safety standards
@@ -553,19 +596,59 @@ export function FAQPage() {
               <AccordionItem value="report">
                 <AccordionTrigger>How do I report inappropriate content?</AccordionTrigger>
                 <AccordionContent className="text-muted-foreground space-y-2">
+                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="font-semibold text-destructive mb-2">
+                      24-Hour Response Commitment
+                    </p>
+                    <p className="font-semibold">
+                      We commit to reviewing and acting on all objectionable content reports within 24 hours.
+                    </p>
+                    <p className="mt-2">
+                      For reports of illegal content (especially CSAM), our response is immediate. We will remove
+                      the content, permanently ban the user who posted it, and report to appropriate authorities.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">How to Report Content</p>
+                    <p>
+                      You can report content using Nostr's reporting system (NIP-56), which creates a
+                      public report that moderation list maintainers can use to improve their lists.
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-2">For Severe Issues</p>
+                    <p>
+                      For illegal content, CSAM, or DMCA violations, please contact us immediately through
+                      the{' '}
+                      <Link to="/support" className="text-primary hover:underline">
+                        support page
+                      </Link>.
+                    </p>
+                    <p className="mt-2">
+                      You can also report CSAM directly to NCMEC's{' '}
+                      <a
+                        href="https://www.cybertipline.org"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        CyberTipline
+                      </a>.
+                    </p>
+                  </div>
+
                   <p>
-                    You can report content using Nostr's reporting system (NIP-56), which creates a
-                    public report that moderation list maintainers can use to improve their lists.
-                  </p>
-                  <p>
-                    For severe issues (illegal content, DMCA violations), please contact us through
-                    the{' '}
-                    <Link to="/support" className="text-primary hover:underline">
-                      support page
-                    </Link> or review our{' '}
+                    Review our{' '}
                     <Link to="/dmca" className="text-primary hover:underline">
                       DMCA policy
-                    </Link>.
+                    </Link>
+                    {' '}for copyright violations and our{' '}
+                    <Link to="/safety" className="text-primary hover:underline">
+                      Safety Standards
+                    </Link>
+                    {' '}for more information about content moderation.
                   </p>
                 </AccordionContent>
               </AccordionItem>

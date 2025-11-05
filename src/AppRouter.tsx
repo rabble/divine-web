@@ -31,6 +31,7 @@ import HumanCreatedPage from "./pages/HumanCreatedPage";
 import { SafetyPage } from "./pages/SafetyPage";
 import { Support } from "./pages/Support";
 import { FAQPage } from "./pages/FAQPage";
+import { TermsPage } from "./pages/TermsPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
@@ -58,6 +59,7 @@ export function AppRouter() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/authenticity" element={<AuthenticityPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
           <Route path="/open-source" element={<OpenSourcePage />} />
           <Route path="/proofmode" element={<ProofModePage />} />
           <Route path="/human-created" element={<HumanCreatedPage />} />

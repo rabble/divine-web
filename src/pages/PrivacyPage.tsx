@@ -164,7 +164,92 @@ export function PrivacyPage() {
                 <div className="h-2 w-2 bg-green-500 rounded-full mt-1.5" />
                 <span>Option to completely delete account</span>
               </li>
+              <li className="flex items-start gap-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full mt-1.5" />
+                <span>Block or mute other users</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full mt-1.5" />
+                <span>Report objectionable content</span>
+              </li>
             </ul>
+          </CardContent>
+        </Card>
+
+        {/* Content Moderation and Safety */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Content Moderation and Safety
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <h4 className="font-semibold mb-3">Zero Tolerance Policy</h4>
+              <p className="text-muted-foreground">
+                diVine maintains a strict zero-tolerance policy for objectionable content and abusive behavior.
+                By using our service, you agree to our{' '}
+                <Link to="/terms" className="text-primary hover:underline">
+                  Terms of Service
+                </Link>
+                {' '}which prohibit:
+              </p>
+              <ul className="space-y-1 text-sm text-muted-foreground mt-2 ml-4">
+                <li>• Child Sexual Abuse Material (CSAM)</li>
+                <li>• Illegal activities and content</li>
+                <li>• Harassment, abuse, and hate speech</li>
+                <li>• Spam and malicious content</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Content Filtering Methods</h4>
+              <p className="text-muted-foreground mb-2">We filter objectionable content using:</p>
+              <ul className="space-y-1 text-sm text-muted-foreground ml-4">
+                <li>• CSAM hash-matching through Cloudflare and BunnyCDN</li>
+                <li>• AI-powered content analysis for adult content and violence</li>
+                <li>• User reports and community moderation</li>
+                <li>• Human moderation review</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">User Reporting Mechanism</h4>
+              <p className="text-muted-foreground">
+                All users can flag objectionable content for review. We commit to reviewing and acting on
+                reports within 24 hours, with immediate action for illegal content. Learn more on our{' '}
+                <Link to="/safety" className="text-primary hover:underline">
+                  Safety Standards
+                </Link>
+                {' '}page.
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">User Blocking Tools</h4>
+              <p className="text-muted-foreground">
+                Users have multiple tools to protect themselves from abusive users:
+              </p>
+              <ul className="space-y-1 text-sm text-muted-foreground mt-2 ml-4">
+                <li>• Block users to prevent all interactions</li>
+                <li>• Mute users to hide their content</li>
+                <li>• Subscribe to community moderation lists</li>
+                <li>• Use trust networks for content filtering</li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold mb-3">Enforcement Actions</h4>
+              <p className="text-muted-foreground">
+                Users who post prohibited content face immediate consequences:
+              </p>
+              <ul className="space-y-1 text-sm text-muted-foreground mt-2 ml-4">
+                <li>• Immediate content removal</li>
+                <li>• Account suspension or permanent ban</li>
+                <li>• Reporting to law enforcement for illegal content</li>
+              </ul>
+            </div>
           </CardContent>
         </Card>
 
@@ -204,6 +289,12 @@ export function PrivacyPage() {
 
         {/* Links */}
         <div className="flex flex-wrap gap-4 justify-center pt-8 border-t">
+          <Link to="/terms" className="text-primary hover:underline">
+            Terms of Service
+          </Link>
+          <Link to="/safety" className="text-primary hover:underline">
+            Safety Standards
+          </Link>
           <Link to="/about" className="text-primary hover:underline">
             About
           </Link>

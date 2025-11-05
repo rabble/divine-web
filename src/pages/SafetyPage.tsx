@@ -1,4 +1,4 @@
-// ABOUTME: Safety Standards page for Divine Web
+// ABOUTME: Safety Standards page for diVine Web
 // ABOUTME: Documents child safety protections and CSAM content filtering
 
 import { Link } from 'react-router-dom';
@@ -29,7 +29,7 @@ export function SafetyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine maintains a zero-tolerance policy for Child Sexual Abuse Material (CSAM)
+              diVine maintains a zero-tolerance policy for Child Sexual Abuse Material (CSAM)
               and child sexual exploitation content. We employ multiple layers of protection
               to prevent, detect, and remove such content from our platform.
             </p>
@@ -50,7 +50,7 @@ export function SafetyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine implements industry-standard technical protections to prevent CSAM
+              diVine implements industry-standard technical protections to prevent CSAM
               from appearing on our platform:
             </p>
 
@@ -58,7 +58,7 @@ export function SafetyPage() {
               <div>
                 <h3 className="font-semibold mb-2">Cloudflare Protection</h3>
                 <p className="text-muted-foreground">
-                  All content served through Divine is filtered by Cloudflare's CSAM scanning
+                  All content served through diVine is filtered by Cloudflare's CSAM scanning
                   technology. Cloudflare actively monitors and blocks known CSAM content using
                   hash-matching databases maintained by organizations like the National Center
                   for Missing &amp; Exploited Children (NCMEC).
@@ -96,8 +96,8 @@ export function SafetyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine empowers users to report content that violates community standards or personal
-              preferences. User reports are reviewed by Divine moderators and also shared with your
+              diVine empowers users to report content that violates community standards or personal
+              preferences. User reports are reviewed by diVine moderators and also shared with your
               followers to help them curate their own experience.
             </p>
 
@@ -122,11 +122,11 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">How Reporting Works</h3>
               <p className="text-muted-foreground mb-2">
-                When you report content on Divine:
+                When you report content on diVine:
               </p>
               <ol className="list-decimal list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>Your report is published to the Nostr network using NIP-56 (content reporting)</li>
-                <li>Divine's moderation team reviews the report and takes appropriate action</li>
+                <li>diVine's moderation team reviews the report and takes appropriate action</li>
                 <li>Anyone who follows you can see your reports and use them to filter their own feed</li>
                 <li>Reports become part of the composable moderation ecosystem</li>
               </ol>
@@ -135,7 +135,7 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">Social Reporting & Trust Networks</h3>
               <p className="text-muted-foreground">
-                Divine's reporting system leverages social trust networks. When you report content,
+                diVine's reporting system leverages social trust networks. When you report content,
                 your followers can automatically filter out content you've flagged. This creates a
                 web of trust where:
               </p>
@@ -177,23 +177,42 @@ export function SafetyPage() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Divine's Response to Reports</h3>
+              <h3 className="font-semibold mb-2">diVine's Response to Reports</h3>
+              <p className="font-semibold text-destructive mb-2">
+                We commit to reviewing and acting on objectionable content reports within 24 hours.
+              </p>
               <p className="text-muted-foreground mb-2">
-                When content is reported, Divine's moderation team:
+                When content is reported, diVine's moderation team:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
-                <li>Reviews reports within 24-48 hours (CSAM reports are prioritized immediately)</li>
-                <li>Takes action ranging from warnings to content removal to account suspension</li>
-                <li>Adds confirmed violations to our moderation lists</li>
-                <li>For CSAM: Immediately removes content, reports to NCMEC, and notifies law enforcement</li>
-                <li>Preserves evidence for legal proceedings when necessary</li>
+                <li>
+                  <strong>Reviews all reports within 24 hours</strong> - We take every report seriously and respond quickly
+                </li>
+                <li>
+                  <strong>CSAM reports are prioritized immediately</strong> - Illegal content receives instant attention
+                </li>
+                <li>
+                  Takes appropriate action: warnings, content removal, or account suspension/permanent ban
+                </li>
+                <li>
+                  <strong>Removes offending content</strong> from our platform and ejects users who posted prohibited material
+                </li>
+                <li>
+                  Adds confirmed violations to our moderation lists
+                </li>
+                <li>
+                  For CSAM: Immediately removes content, permanently bans the user, reports to NCMEC, and notifies law enforcement
+                </li>
+                <li>
+                  Preserves evidence for legal proceedings when necessary
+                </li>
               </ul>
             </div>
 
             <div>
               <h3 className="font-semibold mb-2">Legal Compliance</h3>
               <p className="text-muted-foreground">
-                Divine complies with all applicable laws regarding content reporting and moderation:
+                diVine complies with all applicable laws regarding content reporting and moderation:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>18 U.S.C. § 2258A (mandatory CSAM reporting to NCMEC)</li>
@@ -215,7 +234,7 @@ export function SafetyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine employs advanced AI-powered content analysis to automatically detect and
+              diVine employs advanced AI-powered content analysis to automatically detect and
               classify potentially sensitive content including adult material, violence, and
               AI-generated media.
             </p>
@@ -223,7 +242,7 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">Automated Content Scoring</h3>
               <p className="text-muted-foreground mb-2">
-                Every video uploaded to Divine is automatically analyzed and scored across multiple categories:
+                Every video uploaded to diVine is automatically analyzed and scored across multiple categories:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li><strong>Nudity Detection:</strong> Identifies adult content and explicit material</li>
@@ -267,7 +286,7 @@ export function SafetyPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Following Bluesky's composable moderation approach, Divine allows users to choose
+              Following Bluesky's composable moderation approach, diVine allows users to choose
               their own moderation experience rather than relying on a single centralized authority.
             </p>
 
@@ -287,7 +306,7 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">Default Moderation</h3>
               <p className="text-muted-foreground">
-                Divine provides a default moderation layer focused on:
+                diVine provides a default moderation layer focused on:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>Blocking illegal content (CSAM, illegal activities)</li>
@@ -325,7 +344,7 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">User Empowerment</h3>
               <p className="text-muted-foreground">
-                Divine provides users with tools to protect themselves and their communities:
+                diVine provides users with tools to protect themselves and their communities:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>User blocking and muting capabilities</li>
@@ -338,9 +357,9 @@ export function SafetyPage() {
             <div>
               <h3 className="font-semibold mb-2">Decentralized Architecture Considerations</h3>
               <p className="text-muted-foreground">
-                While Divine operates on the decentralized Nostr protocol, we maintain strict
+                While diVine operates on the decentralized Nostr protocol, we maintain strict
                 controls over content served through our infrastructure. Our CDN and filtering
-                systems ensure that all media accessed through Divine.video has passed through
+                systems ensure that all media accessed through diVine.video has passed through
                 our safety checks, regardless of where it originates on the Nostr network.
               </p>
             </div>
