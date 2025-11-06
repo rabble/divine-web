@@ -238,6 +238,11 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
                 <p className='text-sm text-gray-600 dark:text-gray-300 mb-4 text-center'>
                   Login with your Divine account
                 </p>
+                <div className='p-4 mb-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800'>
+                  <p className='text-sm text-blue-800 dark:text-blue-200 text-center'>
+                    Note: Email signup is currently disabled. The beta is only open to existing Nostr users.
+                  </p>
+                </div>
                 <KeycastLoginForm
                   onSuccess={() => {
                     onLogin();

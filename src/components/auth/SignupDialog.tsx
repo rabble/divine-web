@@ -360,21 +360,25 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
               </div>
 
               <div className='space-y-3'>
-                <p className='text-muted-foreground px-5'>
-                  Join the Nostr network and take control of your social media experience.
-                  Your journey begins by generating a secret key.
-                </p>
+                <div className='p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700'>
+                  <p className='text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2'>
+                    Beta Access Limited
+                  </p>
+                  <p className='text-sm text-amber-800 dark:text-amber-300'>
+                    The current beta is only open to existing Nostr users. New account creation is temporarily disabled.
+                  </p>
+                </div>
 
                 <Button
-                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform transition-all duration-200 hover:scale-105 shadow-lg'
-                  onClick={() => setStep('generate')}
+                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-60'
+                  disabled
                 >
                   <LogIn className='w-5 h-5 mr-2' />
-                  Get Started
+                  Sign Up Disabled
                 </Button>
 
                 <p className='text-xs text-muted-foreground'>
-                  Free forever • Decentralized • Your data, your control
+                  Already have a Nostr account? Use the login options instead.
                 </p>
               </div>
             </div>

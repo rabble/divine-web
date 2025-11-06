@@ -216,7 +216,7 @@ export function FAQPage() {
                   <p>
                     diVine was created by{' '}
                     <a
-                      href="https://njump.me/rabble@satellite.earth"
+                      href="https://rabblelabs.com/about"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
@@ -822,6 +822,67 @@ export function FAQPage() {
                     your own relay list if you prefer. Using multiple relays ensures your content
                     stays available even if one relay goes down.
                   </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="monetization">
+                <AccordionTrigger>Can I monetize my content?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    <strong>Yes - this is a priority feature we're building!</strong> One of the major problems
+                    with the original Vine was that there was no way for Viners to make money from their content.
+                    This led many creators to leave the platform, contributing to Vine's eventual shutdown.
+                  </p>
+                  <p>
+                    diVine fixes this fundamental problem. Because you're in control of your account and content
+                    using Nostr, this new system can never be taken away from you.
+                  </p>
+
+                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
+                    <p className="font-semibold mb-2">Coming Soon: Direct Creator Payments</p>
+                    <p>
+                      We're actively developing a system using Nostr's zaps (Lightning Network payments) and
+                      Cashu wallets for tips and micropayments directly from users to creators. When launched,
+                      this will enable:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                      <li>Viewers can tip creators directly for great content</li>
+                      <li>No middleman taking a large cut of your earnings</li>
+                      <li>Instant, low-fee payments using Bitcoin's Lightning Network</li>
+                      <li>Privacy-preserving payments using Cashu ecash</li>
+                    </ul>
+                  </div>
+
+                  <div>
+                    <p className="font-semibold mb-1">Future Paid Features</p>
+                    <p>
+                      Similar to Twitch, we'll also be providing paid accounts for additional services in the future.
+                      Premium features might include:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4">
+                      <li>Enhanced analytics and creator tools</li>
+                      <li>Priority video hosting and delivery</li>
+                      <li>Subscriber-only content features</li>
+                      <li>Advanced customization options</li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="font-semibold mb-2">Always Open and Permissionless</p>
+                    <p>
+                      The diVine system will always be open source using permissionless open protocols. This means:
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
+                      <li>You own your audience - they follow you, not the platform</li>
+                      <li>You can take your content and followers to any compatible client</li>
+                      <li>No platform lock-in or arbitrary account termination</li>
+                      <li>The code is transparent and auditable by anyone</li>
+                    </ul>
+                    <p className="mt-2">
+                      This fundamental architecture ensures that creators can build sustainable businesses on diVine
+                      without fear of losing everything if the platform changes direction.
+                    </p>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

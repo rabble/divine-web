@@ -5,6 +5,7 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Footer navigation on landing page** - All footer links (About, FAQ, Made by Humans, Our Mission, ProofMode, Open Source, EULA/T&C, Privacy, Safety) now accessible to logged-out users on the landing page, split into two rows for better visual balance
 - **Terms of Service (EULA) page** - Comprehensive legal document for App Store compliance at /terms
   - Zero tolerance policy for objectionable content and abusive users
   - Clear prohibition of CSAM, illegal content, harassment, hate speech, violence, and spam

@@ -3,8 +3,8 @@
 
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Heart, Shield, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export function LandingPage() {
   return (
@@ -72,15 +72,44 @@ export function LandingPage() {
           </Card>
         </div>
 
-        <div className="text-center">
-          <Button
-            variant="ghost"
-            className="text-sm text-muted-foreground hover:text-primary"
-            onClick={() => window.location.href = '/authenticity'}
-          >
-            Learn more about our mission →
-          </Button>
-        </div>
+        <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col items-center gap-3">
+              {/* Navigation Links - Two rows */}
+              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
+                <Link to="/about" className="hover:text-foreground transition-colors">
+                  About
+                </Link>
+                <Link to="/faq" className="hover:text-foreground transition-colors">
+                  FAQ
+                </Link>
+                <Link to="/human-created" className="hover:text-foreground transition-colors font-semibold">
+                  Made by Humans
+                </Link>
+                <Link to="/authenticity" className="hover:text-foreground transition-colors">
+                  Our Mission
+                </Link>
+                <Link to="/proofmode" className="hover:text-foreground transition-colors">
+                  ProofMode
+                </Link>
+              </nav>
+              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
+                <Link to="/open-source" className="hover:text-foreground transition-colors">
+                  Open Source
+                </Link>
+                <Link to="/terms" className="hover:text-foreground transition-colors">
+                  EULA/T&C
+                </Link>
+                <Link to="/privacy" className="hover:text-foreground transition-colors">
+                  Privacy
+                </Link>
+                <Link to="/safety" className="hover:text-foreground transition-colors">
+                  Safety
+                </Link>
+              </nav>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
