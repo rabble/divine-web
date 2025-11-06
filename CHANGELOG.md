@@ -6,6 +6,7 @@ All notable changes to Divine Web will be documented in this file.
 
 ### Added
 - **Footer navigation on landing page** - All footer links (About, FAQ, Made by Humans, Our Mission, ProofMode, Open Source, EULA/T&C, Privacy, Safety) now accessible to logged-out users on the landing page, split into two rows for better visual balance
+- **Cloudflare Pages Function for SPA routing** - Proper server-side routing that returns 200 status codes for all valid routes, fixing SEO issues where bots (like Google) were getting 404 responses
 - **Terms of Service (EULA) page** - Comprehensive legal document for App Store compliance at /terms
   - Zero tolerance policy for objectionable content and abusive users
   - Clear prohibition of CSAM, illegal content, harassment, hate speech, violence, and spam
@@ -91,6 +92,7 @@ All notable changes to Divine Web will be documented in this file.
 - Navigation hints updated from confusing "arrow keys" text to clear "previous" and "next" labels
 
 ### Fixed
+- **Fixed SEO 404 errors for search engine bots** - Implemented Cloudflare Pages Function to return proper 200 status codes for all SPA routes instead of 404s, fixing indexing issues with Google and other search engines
 - **Fixed imeta tag parsing** - Parser now handles both space-separated format (`["imeta", "url https://..."]`) and separate element format (`["imeta", "url", "https://..."]`) to support different event publishers
 - **Blocked vine.co URLs** - Videos will never attempt to load from vine.co domains which are CORS-blocked and no longer functional
 - **Fixed video card spacing** - Added proper gap between video cards in feed to match skeleton loading state
