@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
@@ -14,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar.tsx'
 import { useLoggedInAccounts, type Account } from '@/hooks/useLoggedInAccounts';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
+import { RelaySelector } from '@/components/RelaySelector';
 
 interface AccountSwitcherProps {
   onAddAccountClick: () => void;
@@ -42,10 +44,13 @@ export function AccountSwitcher({ onAddAccountClick }: AccountSwitcherProps) {
           <ChevronDown className='w-4 h-4 text-muted-foreground' />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className='w-56 p-2 animate-scale-in'>
-        <div className='font-medium text-sm px-2 py-1.5'>Switch Relay</div>
+      <DropdownMenuContent className='w-56 p-2 animate-scale-in' onCloseAutoFocus={(e) => e.preventDefault()}>
+        <DropdownMenuLabel>Switch Relay</DropdownMenuLabel>
+        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='p-2'>
+          <RelaySelector className='w-full' />
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <div className='font-medium text-sm px-2 py-1.5'>Switch Account</div>
+        <DropdownMenuLabel>Switch Account</DropdownMenuLabel>
         {otherUsers.map((user) => (
           <DropdownMenuItem
             key={user.id}

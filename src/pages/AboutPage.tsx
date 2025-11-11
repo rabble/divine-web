@@ -19,8 +19,8 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="prose prose-sm dark:prose-invert max-w-none space-y-4">
             <p className="text-lg">
-              In an era of AI-generated content, Divine seeks to recapture the authentic creativity
-              of the original Vine platform.
+              In an era of AI-generated content, Divine is a new short-form video app inspired by
+              Vine's creative 6-second format, preserving authentic human creativity.
             </p>
             <div className="not-prose">
               <Button asChild size="lg" className="w-full sm:w-auto">
@@ -38,19 +38,21 @@ export function AboutPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Heart className="h-5 w-5 text-red-500" />
-              Remember Vine?
+              Inspired by Vine's Creative Format
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Between 2013 and 2017, Vine was a cultural phenomenon that allowed creators to share
-              six-second videos capturing pure, unfiltered moments of creativity.
+              Between 2013 and 2017, Vine was a popular platform that allowed creators to share
+              six-second videos capturing spontaneous moments of creativity. When Twitter shut down Vine,
+              millions of creative videos were lost.
             </p>
             <div className="bg-muted/50 p-4 rounded-lg border">
               <p className="text-muted-foreground">
-                <strong>Note:</strong> Divine has no affiliation with X (formerly Twitter) or the original Vine platform.
-                We're an independent project that preserves archived Vine content and enables new creations using
-                completely open-source technology and the decentralized Nostr protocol.
+                <strong>Important:</strong> Divine is an independent short-form video app with no affiliation
+                to X (formerly Twitter) or the original Vine platform. We're a separate project built on
+                open-source technology and the decentralized Nostr protocol. Divine preserves archived videos
+                from the Internet Archive and enables new 6-second video creation using similar creative constraints.
               </p>
             </div>
           </CardContent>
@@ -96,7 +98,7 @@ export function AboutPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Archive className="h-5 w-5" />
-              Where Did We Get the Vines?
+              Preserving Archived Videos
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -106,15 +108,15 @@ export function AboutPage() {
               <a href="https://wiki.archiveteam.org/index.php/Vine" rel="noopener noreferrer" className="text-primary hover:underline">
                 ArchiveTeam
               </a>{" "}
-              sprang into action to preserve these cultural artifacts before they disappeared.
+              preserved many videos from the original platform through Internet Archive efforts.
             </p>
             <p className="text-muted-foreground">
-              We recovered the Vine videos from ArchiveTeam's preservation work, giving these authentic
-              pre-AI era videos a new home. Divine is committed to restoring creator ownership and
-              attribution when possible, honoring the original creators who made Vine special.
+              Divine has imported archived videos from ArchiveTeam's preservation work, giving these authentic
+              pre-AI era videos a new home on the decentralized web. We're committed to restoring creator ownership
+              and attribution when possible, honoring those who created these cultural artifacts.
             </p>
             <blockquote className="border-l-4 border-primary pl-4 italic text-muted-foreground">
-              "Do it for the Vine!" — Every creator, circa 2015
+              "Do it for the Vine!" — A motto from the creative community, circa 2015
             </blockquote>
           </CardContent>
         </Card>
@@ -251,11 +253,11 @@ export function AboutPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Inspired by the simplicity of original Vine and projects like{" "}
+              Inspired by Vine's simple creative format and projects like{" "}
               <a href="https://neocities.org" rel="noopener noreferrer" className="text-primary hover:underline">
                 Neocities
               </a>,
-              Divine aims to resurrect spontaneous, creative video sharing.
+              Divine brings back spontaneous, creative 6-second video sharing.
             </p>
             <p className="text-muted-foreground">
               Rabble is building decentralized social media technologies and fighting for digital rights.

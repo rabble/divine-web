@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { VIDEO_KIND } from '@/types/video';
+import { VIDEO_KINDS } from '@/types/video';
 import { useAppContext } from '@/hooks/useAppContext';
 
 export function RelayDebugInfo() {
@@ -25,12 +25,12 @@ export function RelayDebugInfo() {
 
     try {
       const signal = AbortSignal.timeout(30000); // Increased timeout
-      console.log(`[RelayDebugInfo] Starting query for kind ${VIDEO_KIND} events...`);
+      console.log(`[RelayDebugInfo] Starting query for video events (kinds ${VIDEO_KINDS.join(', ')})...`);
       console.log('[RelayDebugInfo] Nostr pool instance:', nostr);
       
       // Try a simple test first
       const testFilter = {
-        kinds: [VIDEO_KIND],
+        kinds: VIDEO_KINDS,
         limit: 10
       };
       
@@ -65,7 +65,7 @@ export function RelayDebugInfo() {
       console.log('[RelayDebugInfo useQuery] Starting query...');
       
       const events = await nostr.query([{
-        kinds: [VIDEO_KIND],
+        kinds: VIDEO_KINDS,
         limit: 20
       }], { signal });
 
@@ -86,7 +86,7 @@ export function RelayDebugInfo() {
             Relay: {config.relayUrl}
           </p>
           <p className="text-sm text-muted-foreground">
-            Video Kind: {VIDEO_KIND}
+            Video Kinds: {VIDEO_KINDS.join(', ')}
           </p>
         </div>
 

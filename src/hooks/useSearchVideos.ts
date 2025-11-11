@@ -1,11 +1,11 @@
-// ABOUTME: Hook for searching Kind 34236 (NIP-71) video events with content, hashtag, and author filters
+// ABOUTME: Hook for searching NIP-71 video events (kinds 21, 22, 34236) with content, hashtag, and author filters
 // ABOUTME: Supports debounced queries, case-insensitive search, and multiple search modes
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
-import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 
 interface UseSearchVideosOptions {
@@ -15,11 +15,11 @@ interface UseSearchVideosOptions {
 }
 
 /**
- * Validates that a Kind 34236 (NIP-71) event has required fields
+ * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
-  if (event.kind !== VIDEO_KIND) return false;
-  
+  if (!VIDEO_KINDS.includes(event.kind)) return false;
+
   // Must have d tag for addressability
   const vineId = getVineId(event);
   if (!vineId) return false;
@@ -45,6 +45,7 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
+      kind: event.kind as 21 | 22 | 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
@@ -132,7 +133,7 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
       if (searchParams.type === 'hashtag') {
         // Search by hashtag
         const events = await nostr.query([{
-          kinds: [VIDEO_KIND],
+          kinds: VIDEO_KINDS,
           '#t': [searchParams.value],
           limit,
         }], { signal });
@@ -172,7 +173,7 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
         
         // Search for videos by these authors
         const videoEvents = await nostr.query([{
-          kinds: [VIDEO_KIND],
+          kinds: VIDEO_KINDS,
           authors: matchingPubkeys,
           limit,
         }], { signal });
@@ -186,14 +187,14 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
       try {
         // Try relay-level search first
         events = await nostr.query([{
-          kinds: [VIDEO_KIND],
+          kinds: VIDEO_KINDS,
           search: searchParams.value,
           limit,
         }], { signal });
       } catch {
         // Fallback: get recent videos and filter client-side
         events = await nostr.query([{
-          kinds: [VIDEO_KIND],
+          kinds: VIDEO_KINDS,
           limit: Math.min(limit * 5, 500), // Get more to filter from
         }], { signal });
         

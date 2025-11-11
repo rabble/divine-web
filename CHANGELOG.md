@@ -25,12 +25,12 @@ All notable changes to Divine Web will be documented in this file.
   - Prominent 24-hour response commitment (in red text)
   - Clear statement about removing offending content AND ejecting users
   - Detailed response procedures for CSAM reports
-- **Comprehensive FAQ page enhancements** - Added extensive FAQ content covering all aspects of diVine
+- **Comprehensive FAQ page enhancements** - Added extensive FAQ content covering all aspects of Divine
 - FAQ section about Lists feature - explains how users can curate and organize video collections (democratizing what was previously only available to Vine employees)
 - "Where is the x, y, or z Vine?" FAQ explaining archive limitations and lost content
 - Request for community contributions of old Vine collections (with or without metadata)
 - Information about millions of archived comments and user avatars awaiting restoration
-- Cryptocurrency clarification FAQ explicitly stating diVine is NOT blockchain/crypto/Web3
+- Cryptocurrency clarification FAQ explicitly stating Divine is NOT blockchain/crypto/Web3
 - Link to Safety Standards page from moderation FAQ
 - Android beta test link throughout application (parallel to iOS TestFlight)
 - FAQ link added to footer navigation
@@ -73,12 +73,12 @@ All notable changes to Divine Web will be documented in this file.
 ### Changed
 - **Expanded FAQ moderation section** - Added zero tolerance policy, content filtering methods, user blocking tools, and 24-hour response commitment
 - **Enhanced FAQ reporting section** - Added prominent 24-hour response commitment and immediate response process for CSAM reports
-- **Updated branding to "diVine"** - Changed all instances of "Divine" and "OpenVine" to "diVine" throughout application for consistent brand styling
+- **Updated branding to "Divine"** - Changed all instances of "OpenVine" to "Divine" throughout application for consistent brand styling
 - **Updated contact email** - Changed from rabble@openvine.co to support@divine.video in Terms of Service and Privacy Policy
 - **Improved profile caching** - Increased useAuthor timeout from 1.5s to 5s, useBatchedAuthors timeout from 3s to 10s, cache staleTime from 1min to 5min, and gcTime from 5min to 30min for more reliable username display
 - **Updated navigation visibility** - Hashtags, Lists, and Search buttons now hidden when user is logged out
-- Cryptocurrency FAQ moved to bottom of Technical Questions section and reframed to emphasize diVine is NOT a crypto/blockchain project
-- FAQ page subtitle updated from "Divine Web" to "diVine"
+- Cryptocurrency FAQ moved to bottom of Technical Questions section and reframed to emphasize Divine is NOT a crypto/blockchain project
+- FAQ page subtitle updated to "Divine"
 - Removed GitHub link from footer navigation (replaced with FAQ link)
 - Hidden wallet settings link in account switcher dropdown (feature temporarily disabled)
 - All console.log statements replaced with conditional debug logging

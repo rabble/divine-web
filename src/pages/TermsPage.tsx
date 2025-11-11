@@ -1,9 +1,9 @@
-// ABOUTME: Terms of Service (EULA) page for diVine
+// ABOUTME: Terms of Service (EULA) page for Divine
 // ABOUTME: Defines user agreements, content policies, and platform responsibilities
 
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, AlertTriangle, FileText, UserX, Flag } from 'lucide-react';
+import { AlertTriangle, FileText, UserX, Flag } from 'lucide-react';
 
 export function TermsPage() {
   return (
@@ -24,12 +24,12 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              By accessing or using diVine ("the Service"), you agree to be bound by these Terms of Service.
+              By accessing or using Divine ("the Service"), you agree to be bound by these Terms of Service.
               If you do not agree to these terms, you must not use the Service.
             </p>
             <p className="text-muted-foreground">
-              The Service is provided by diVine ("we," "us," or "our"). These terms constitute a legally
-              binding agreement between you and diVine.
+              The Service is provided by Divine ("we," "us," or "our"). These terms constitute a legally
+              binding agreement between you and Divine.
             </p>
           </CardContent>
         </Card>
@@ -44,13 +44,13 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="font-semibold">
-              diVine maintains a strict zero-tolerance policy for objectionable content and abusive behavior.
+              Divine maintains a strict zero-tolerance policy for objectionable content and abusive behavior.
             </p>
 
             <div>
               <h3 className="font-semibold mb-2">Prohibited Content</h3>
               <p className="text-muted-foreground mb-2">
-                The following content is strictly prohibited on diVine:
+                The following content is strictly prohibited on Divine:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li><strong>Child Sexual Abuse Material (CSAM):</strong> Any content depicting or exploiting minors</li>
@@ -90,7 +90,7 @@ export function TermsPage() {
             <div>
               <h3 className="font-semibold mb-2">Automated Content Filtering</h3>
               <p className="text-muted-foreground">
-                diVine employs multiple methods to filter objectionable content:
+                Divine employs multiple methods to filter objectionable content:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>CSAM hash-matching through Cloudflare and BunnyCDN filtering systems</li>
@@ -107,9 +107,9 @@ export function TermsPage() {
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>Reports are submitted using the Nostr protocol (NIP-56)</li>
-                <li>Our moderation team reviews all reports</li>
                 <li>Your followers can see your reports and use them to filter their own feeds</li>
                 <li>Reports contribute to the decentralized moderation ecosystem</li>
+                <li>Reports create a web of trust that helps communities self-moderate</li>
               </ul>
               <p className="text-muted-foreground mt-2">
                 To report content, use the report button on any post or contact us at{' '}
@@ -122,16 +122,17 @@ export function TermsPage() {
             <div>
               <h3 className="font-semibold mb-2">Response Time Commitment</h3>
               <p className="font-semibold text-destructive">
-                We commit to reviewing and acting on reports of objectionable content within 24 hours.
+                We commit to reviewing and responding to reports of objectionable content within 24 hours.
               </p>
               <p className="text-muted-foreground mt-2">
-                For reports of illegal content (especially CSAM), our response is immediate:
+                For reports of illegal content (especially CSAM), we take immediate action:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
-                <li>Content is removed immediately upon verification</li>
-                <li>The user who posted the content is permanently banned</li>
+                <li>Content is blocked from our infrastructure upon verification</li>
+                <li>Violating accounts are removed from the platform</li>
                 <li>Reports are filed with NCMEC's CyberTipline for CSAM</li>
                 <li>Law enforcement is notified when appropriate</li>
+                <li>We cooperate fully with legal investigations</li>
               </ul>
             </div>
           </CardContent>
@@ -147,13 +148,13 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              diVine provides mechanisms for users to protect themselves from abusive users:
+              Divine provides mechanisms for users to protect themselves from abusive users:
             </p>
 
             <div>
               <h3 className="font-semibold mb-2">User Blocking</h3>
               <p className="text-muted-foreground">
-                You can block any user on diVine. When you block a user:
+                You can block any user on Divine. When you block a user:
               </p>
               <ul className="list-disc list-inside space-y-1 ml-4 text-muted-foreground">
                 <li>You will no longer see their content in your feeds</li>
@@ -187,7 +188,7 @@ export function TermsPage() {
             <CardTitle>User Responsibilities</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">By using diVine, you agree to:</p>
+            <p className="text-muted-foreground">By using Divine, you agree to:</p>
             <ul className="list-disc list-inside space-y-2 ml-4 text-muted-foreground">
               <li>Comply with all applicable laws and regulations</li>
               <li>Respect the rights of other users</li>
@@ -208,11 +209,11 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              diVine is not intended for users under the age of 16. If you are under 16, you may not
+              Divine is not intended for users under the age of 16. If you are under 16, you may not
               create an account or use the Service.
             </p>
             <p className="text-muted-foreground">
-              Some content on diVine is age-restricted and requires users to be 18 or older to view.
+              Some content on Divine is age-restricted and requires users to be 18 or older to view.
               By accessing age-restricted content, you certify that you are at least 18 years old.
             </p>
           </CardContent>
@@ -224,7 +225,7 @@ export function TermsPage() {
             <CardTitle>Platform Rights and Limitations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">diVine reserves the right to:</p>
+            <p className="text-muted-foreground">Divine reserves the right to:</p>
             <ul className="list-disc list-inside space-y-2 ml-4 text-muted-foreground">
               <li>Remove any content that violates these Terms</li>
               <li>Suspend or terminate accounts that violate these Terms</li>
@@ -246,10 +247,10 @@ export function TermsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              diVine operates on the decentralized Nostr protocol. This means:
+              Divine operates on the decentralized Nostr protocol. This means:
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4 text-muted-foreground">
-              <li>The diVine app can connect to multiple servers (relays and media servers) across the network</li>
+              <li>The Divine app can connect to multiple servers (relays and media servers) across the network</li>
               <li>Content you post is distributed across multiple independent relays</li>
               <li>Even if we remove content from our platform, it may persist on other relays</li>
               <li>Other Nostr clients may display content using different moderation policies</li>
@@ -263,7 +264,7 @@ export function TermsPage() {
                 other servers in the Nostr network is moderated according to their operators' policies.
               </p>
               <p className="text-muted-foreground">
-                While we maintain strict moderation on content served through diVine, we cannot control
+                While we maintain strict moderation on content served through Divine, we cannot control
                 content on the broader Nostr network. Users should be aware of this when posting content.
               </p>
             </div>
@@ -271,7 +272,7 @@ export function TermsPage() {
             <p className="text-muted-foreground">
               <strong>Run your own servers:</strong> If you want different moderation policies, you're welcome
               to run your own Nostr relays and Blossom media servers with whatever policies you prefer. The
-              diVine app can connect to any compatible server.
+              Divine app can connect to any compatible server.
             </p>
           </CardContent>
         </Card>

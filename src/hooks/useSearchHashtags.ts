@@ -5,7 +5,7 @@ import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
-import { VIDEO_KIND } from '@/types/video';
+import { VIDEO_KINDS } from '@/types/video';
 
 interface UseSearchHashtagsOptions {
   query: string;
@@ -88,7 +88,7 @@ export function useSearchHashtags(options: UseSearchHashtagsOptions) {
       const since = Math.floor(Date.now() / 1000) - (daysBack * 24 * 60 * 60);
       
       const events = await nostr.query([{
-        kinds: [VIDEO_KIND],
+        kinds: VIDEO_KINDS,
         since,
         limit: 100, // Reduced for performance while maintaining decent hashtag coverage
       }], { signal });

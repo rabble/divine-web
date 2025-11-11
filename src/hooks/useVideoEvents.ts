@@ -1,11 +1,11 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
-// ABOUTME: Handles both Kind 34236 (NIP-71) videos and Kind 6 reposts with proper parsing
+// ABOUTME: Handles NIP-71 videos (kinds 21, 22, 34236) and Kind 6 reposts with proper parsing
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KIND, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 
@@ -19,15 +19,15 @@ interface UseVideoEventsOptions {
 }
 
 /**
- * Validates that a Kind 34236 (NIP-71) event has required fields
+ * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
-  if (event.kind !== VIDEO_KIND) return false;
-  
-  // Must have d tag for addressability - this is required for kind 34236 (NIP-71)
+  if (!VIDEO_KINDS.includes(event.kind)) return false;
+
+  // Must have d tag for addressability - this is required for NIP-71 videos
   const vineId = getVineId(event);
   if (!vineId) return false;
-  
+
   return true;
 }
 
@@ -106,7 +106,7 @@ async function parseVideoEvents(
   const parsedVideos: ParsedVideoData[] = [];
   
   // Separate videos and reposts
-  const videoEvents = events.filter(e => e.kind === VIDEO_KIND);
+  const videoEvents = events.filter(e => VIDEO_KINDS.includes(e.kind));
   const repostEvents = events.filter(e => e.kind === REPOST_KIND);
   
   debugLog(`[useVideoEvents] Processing ${videoEvents.length} videos and ${repostEvents.length} reposts`);
@@ -145,6 +145,7 @@ async function parseVideoEvents(
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
+      kind: event.kind as 21 | 22 | 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
@@ -180,7 +181,8 @@ async function parseVideoEvents(
     
     // Parse addressable coordinate
     const [kind, pubkey, dTag] = aTag[1].split(':');
-    if (kind !== String(VIDEO_KIND) || !pubkey || !dTag) {
+    const kindNum = parseInt(kind, 10);
+    if (!VIDEO_KINDS.includes(kindNum) || !pubkey || !dTag) {
       repostsSkipped++;
       continue;
     }
@@ -195,7 +197,7 @@ async function parseVideoEvents(
       try {
         const signal = AbortSignal.timeout(2000);
         const events = await nostr.query([{
-          kinds: [VIDEO_KIND],
+          kinds: VIDEO_KINDS,
           authors: [pubkey],
           '#d': [dTag],
           limit: 1
@@ -236,6 +238,7 @@ async function parseVideoEvents(
     parsedVideos.push({
       id: repost.id,
       pubkey: originalVideo.pubkey,
+      kind: originalVideo.kind as 21 | 22 | 34236,
       createdAt: originalVideo.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
       content: originalVideo.content,
@@ -305,7 +308,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
 
       // Build base filter
       const baseFilter: NostrFilter = {
-        kinds: [VIDEO_KIND],
+        kinds: VIDEO_KINDS,
         limit: Math.min(limit, 50),
         ...filter
       };
@@ -378,7 +381,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         if (parsed.length === 0) {
           try {
             const fallbackEvents = await nostr.query([
-              { kinds: [VIDEO_KIND, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
+              { kinds: [...VIDEO_KINDS, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
             ], { signal });
             const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr, false);
             parsed = fallbackParsed.filter(v => {

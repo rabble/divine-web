@@ -22,11 +22,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus, List, Check, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
-import { VIDEO_KIND } from '@/types/video';
+import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
 
 interface AddToListDialogProps {
   videoId: string;
   videoPubkey: string;
+  videoKind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // Default to SHORT_VIDEO_KIND if not specified
   open: boolean;
   onClose: () => void;
 }
@@ -34,6 +35,7 @@ interface AddToListDialogProps {
 export function AddToListDialog({
   videoId,
   videoPubkey,
+  videoKind = SHORT_VIDEO_KIND,
   open,
   onClose
 }: AddToListDialogProps) {
@@ -49,7 +51,7 @@ export function AddToListDialog({
   const [newListDescription, setNewListDescription] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  const videoCoordinate = `${VIDEO_KIND}:${videoPubkey}:${videoId}`;
+  const videoCoordinate = `${videoKind}:${videoPubkey}:${videoId}`;
 
   const handleAddToLists = async () => {
     if (selectedLists.size === 0) return;

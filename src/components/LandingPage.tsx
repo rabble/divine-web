@@ -26,7 +26,7 @@ export function LandingPage() {
 
             <div className="bg-primary/5 p-4 rounded-lg border border-primary/20">
               <p className="text-sm text-muted-foreground">
-                Bringing back the authentic creativity of Vine in an age of AI-generated content.
+                Inspired by Vine's 6-second creative format for an age of AI-generated content.
                 Built on Nostr. Verified with ProofMode. Preserved forever.
               </p>
             </div>

@@ -17,11 +17,11 @@ export function VineBadge({ className }: VineBadgeProps) {
         'border-[#00bf8f] text-[#00bf8f] bg-[#00bf8f]/10',
         className
       )}
-      title="Original Vine - Migrated from classic Vine platform (2013-2017)"
+      title="Archived - Video preserved from Internet Archive (2013-2017 era)"
       style={{ fontFamily: 'Pacifico, cursive' }}
     >
       <VineIcon className="h-3 w-3" />
-      <span>Original</span>
+      <span>Archived</span>
     </Badge>
   );
 }

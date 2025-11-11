@@ -23,6 +23,12 @@ export function useAuthor(pubkey: string | undefined) {
         return {};
       }
 
+      // Republish the profile to the main relay in the background
+      // This ensures profiles are cached on relay.divine.video even if they came from profile relays
+      nostr.event(event).catch(() => {
+        // Silently ignore republish errors - this is best-effort caching
+      });
+
       try {
         const metadata = n.json().pipe(n.metadata()).parse(event.content);
         return { metadata, event };

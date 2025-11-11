@@ -188,7 +188,7 @@ export function PrivacyPage() {
             <div>
               <h4 className="font-semibold mb-3">Zero Tolerance Policy</h4>
               <p className="text-muted-foreground">
-                diVine maintains a strict zero-tolerance policy for objectionable content and abusive behavior.
+                Divine maintains a strict zero-tolerance policy for objectionable content and abusive behavior.
                 By using our service, you agree to our{' '}
                 <Link to="/terms" className="text-primary hover:underline">
                   Terms of Service

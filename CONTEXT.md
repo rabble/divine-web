@@ -121,6 +121,58 @@ When building the site for the first time, include "Vibed with MKStack" somewher
 
 This project comes with custom hooks for querying and publishing events on the Nostr network.
 
+### Custom Relay Extension: Sort Parameter
+
+**relay.divine.video implements a custom `sort` extension** to the Nostr filter protocol that enables server-side sorting by loop count. This is NOT part of the standard Nostr protocol and only works with relay.divine.video.
+
+#### How It Works
+
+When querying for videos, you can add a `sort` parameter to the filter:
+
+```typescript
+const filter: NostrFilter = {
+  kinds: [34236],           // Video kind
+  limit: 50,
+  sort: {                   // Custom extension - not standard Nostr!
+    field: 'loop_count',    // Sort by loop count
+    dir: 'desc'             // Highest first
+  }
+};
+```
+
+**Feed types that use sort:**
+- `trending` - Top videos by loop count
+- `discovery` - All videos sorted by loop count
+- `home` - Following feed sorted by loop count
+- `hashtag` - Hashtag-filtered videos sorted by loop count
+
+**Feed types that DON'T use sort:**
+- `profile` - User's videos in chronological order
+- `recent` - All videos in chronological order
+
+#### Implementation in useVideoEvents
+
+The `useVideoEvents` hook automatically adds the sort parameter for applicable feeds (see `src/hooks/useVideoEvents.ts:314-317`):
+
+```typescript
+const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
+if (shouldSortByPopularity) {
+  (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = {
+    field: 'loop_count',
+    dir: 'desc'
+  };
+}
+```
+
+#### Two-Tier Ranking System
+
+1. **Server-side (relay.divine.video)**: Returns top 50 videos by loop count
+2. **Client-side**: Re-ranks those 50 videos by `totalEngagement = loopCount + reactionCount`
+
+This ensures you get high-loop videos from the relay (not just recent ones), then enhances ranking with real-time social signals.
+
+**Important**: This custom extension is specific to relay.divine.video. Standard Nostr relays will ignore the `sort` parameter and return videos in chronological order.
+
 ### Nostr Implementation Guidelines
 
 - Always use the `nostr__read_nips_index` tool before implementing any Nostr features to see what kinds are currently in use across all NIPs.

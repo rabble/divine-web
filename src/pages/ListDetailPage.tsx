@@ -17,7 +17,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/useToast';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
 
 interface VideoList {
@@ -39,7 +39,11 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   const image = event.tags.find(tag => tag[0] === 'image')?.[1];
   
   const videoCoordinates = event.tags
-    .filter(tag => tag[0] === 'a' && tag[1]?.startsWith(`${VIDEO_KIND}:`))
+    .filter(tag => {
+      if (tag[0] !== 'a' || !tag[1]) return false;
+      // Check if the coordinate starts with any of the supported video kinds
+      return VIDEO_KINDS.some(kind => tag[1].startsWith(`${kind}:`));
+    })
     .map(tag => tag[1]);
 
   return {
@@ -66,7 +70,8 @@ async function fetchListVideos(
 
   coordinates.forEach(coord => {
     const [kind, pubkey, dTag] = coord.split(':');
-    if (kind === String(VIDEO_KIND) && pubkey && dTag) {
+    const kindNum = parseInt(kind, 10);
+    if (VIDEO_KINDS.includes(kindNum) && pubkey && dTag) {
       coordinateMap.set(`${pubkey}:${dTag}`, { pubkey, dTag });
     }
   });
@@ -83,7 +88,7 @@ async function fetchListVideos(
   // Create filters for each pubkey group
   pubkeyGroups.forEach((dTags, pubkey) => {
     filters.push({
-      kinds: [VIDEO_KIND],
+      kinds: VIDEO_KINDS,
       authors: [pubkey],
       '#d': dTags,
       limit: dTags.length
@@ -108,6 +113,7 @@ async function fetchListVideos(
     videoMap.set(key, {
       id: event.id,
       pubkey: event.pubkey,
+      kind: event.kind as 21 | 22 | 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,

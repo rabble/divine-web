@@ -23,10 +23,30 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
   // Use refs so the pool always has the latest data
   const relayUrl = useRef<string>(config.relayUrl);
 
-  // Update refs when config changes
+  // Update refs when config changes and close old relay connections
   useEffect(() => {
+    const oldRelayUrl = relayUrl.current;
     relayUrl.current = config.relayUrl;
-    queryClient.resetQueries();
+
+    // If relay URL changed, close old connection and reset queries
+    if (oldRelayUrl !== config.relayUrl && pool.current) {
+      debugLog('[NostrProvider] Relay changed from', oldRelayUrl, 'to', config.relayUrl);
+
+      // Close the old relay connection
+      const oldRelay = pool.current.relays.get(oldRelayUrl);
+      if (oldRelay) {
+        debugLog('[NostrProvider] Closing old relay connection:', oldRelayUrl);
+        oldRelay.close();
+        // Note: Can't delete from ReadonlyMap, but closing the connection is sufficient
+      }
+
+      // Pre-warm the new relay connection
+      debugLog('[NostrProvider] Opening new relay connection:', config.relayUrl);
+      pool.current.relay(config.relayUrl);
+
+      // Reset all queries to fetch fresh data from new relay
+      queryClient.resetQueries();
+    }
   }, [config.relayUrl, queryClient]);
 
   // Initialize NPool only once
@@ -46,12 +66,35 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         debugLog('[NostrProvider] ========== reqRouter called ==========');
         debugLog('[NostrProvider] Filters:', filters);
 
-        // For all queries, route to the app's selected relay
-        // Note: Bunker queries (kind 24133) also go through the main relay
-        debugLog('[NostrProvider] Routing to relay:', relayUrl.current);
-        const result = new Map([[relayUrl.current, filters]]) as ReadonlyMap<string, NostrFilter[]>;
+        const result = new Map<string, NostrFilter[]>();
+
+        // Separate filters by kind for kind-specific relay routing
+        const profileFilters: NostrFilter[] = [];
+        const otherFilters: NostrFilter[] = [];
+
+        for (const filter of filters) {
+          if (filter.kinds?.includes(0)) {
+            // Kind 0 (profile metadata) - route to profile relays
+            profileFilters.push(filter);
+          } else {
+            // All other kinds - route to main relay
+            otherFilters.push(filter);
+          }
+        }
+
+        // Route kind 0 queries to profile-specific relays
+        if (profileFilters.length > 0) {
+          result.set('wss://purplepag.es', profileFilters);
+          result.set('wss://relay.nos.social', profileFilters);
+        }
+
+        // Route other queries to the selected relay
+        if (otherFilters.length > 0) {
+          result.set(relayUrl.current, otherFilters);
+        }
+
         debugLog('[NostrProvider] Router result:', Array.from(result.entries()));
-        return result;
+        return result as ReadonlyMap<string, NostrFilter[]>;
       },
       eventRouter(_event: NostrEvent) {
         // Publish to the selected relay

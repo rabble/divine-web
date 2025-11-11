@@ -1,5 +1,5 @@
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KIND } from '@/types/video';
+import { VIDEO_KINDS } from '@/types/video';
 import { parseVideoEvent, getThumbnailUrl } from '@/lib/videoParser';
 import { debugLog } from '@/lib/debug';
 
@@ -53,7 +53,7 @@ export async function resolveHashtagThumbnail(
     return undefined;
   }
   const filter: NostrFilter & { ['#t']?: string[] } = {
-    kinds: [VIDEO_KIND],
+    kinds: VIDEO_KINDS,
     limit: 5,
     ['#t']: [hashtag.toLowerCase()],
   };
@@ -78,7 +78,7 @@ export async function resolveHashtagThumbnail(
 
   // Fallback: broader query, then filter by content hashtag match
   try {
-    const broadFilter: NostrFilter = { kinds: [VIDEO_KIND], limit: 30 };
+    const broadFilter: NostrFilter = { kinds: VIDEO_KINDS, limit: 30 };
     const broadEvents = await nostr.query([broadFilter], { signal });
     const lower = hashtag.toLowerCase();
     const matched = broadEvents.filter((e) => (` ${e.content} `).toLowerCase().includes(`#${lower}`));

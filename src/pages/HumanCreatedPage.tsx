@@ -62,9 +62,9 @@ export default function HumanCreatedPage() {
           <CardContent className="space-y-4">
             <div className="space-y-4">
               <div>
-                <h3 className="font-semibold mb-2">1. Original Vine Videos (Automatic)</h3>
+                <h3 className="font-semibold mb-2">1. Archived Videos (Automatic)</h3>
                 <p className="text-muted-foreground">
-                  All videos migrated from the original Vine platform (2013-2017) automatically display this badge.
+                  All videos preserved from Internet Archive (2013-2017 era) automatically display this badge.
                   These videos were created before modern AI video generation existed, making them verifiably
                   human-created.
                 </p>

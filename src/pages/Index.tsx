@@ -14,7 +14,7 @@ const Index = () => {
     description: 'Watch and share 6-second looping videos on the decentralized Nostr network.',
   });
 
-  const [activeTab, setActiveTab] = useState('top-vines');
+  const [activeTab, setActiveTab] = useState('trending');
 
   // Show landing page if not logged in
   if (!user) {
@@ -27,9 +27,9 @@ const Index = () => {
       <main className="container py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-6">
-            <TabsTrigger value="top-vines" className="gap-2">
+            <TabsTrigger value="trending" className="gap-2">
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Top Vines</span>
+              <span className="hidden sm:inline">Trending</span>
             </TabsTrigger>
             <TabsTrigger value="new-videos" className="gap-2">
               <Sparkles className="h-4 w-4" />
@@ -37,7 +37,7 @@ const Index = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="top-vines" className="mt-0">
+          <TabsContent value="trending" className="mt-0">
             <VideoFeed feedType="trending" className="max-w-2xl mx-auto" />
           </TabsContent>
 

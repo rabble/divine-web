@@ -1,9 +1,9 @@
-// ABOUTME: Hook for publishing Kind 34236 (NIP-71) video events to Nostr
+// ABOUTME: Hook for publishing NIP-71 video events (kinds 21, 22) to Nostr
 // ABOUTME: Handles video metadata creation and event signing with proper tags
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { VIDEO_KIND } from '@/types/video';
+import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND } from '@/types/video';
 import type { VideoMetadata } from '@/types/video';
 
 interface PublishVideoOptions {
@@ -15,6 +15,7 @@ interface PublishVideoOptions {
   dimensions?: string;
   hashtags?: string[];
   vineId?: string; // Optional, will generate if not provided
+  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND; // Kind 22 (short/vertical) or 21 (horizontal) - defaults to 22
 }
 
 /**
@@ -74,7 +75,8 @@ export function usePublishVideo() {
         duration = 6,
         dimensions = '480x480',
         hashtags = [],
-        vineId = generateVineId()
+        vineId = generateVineId(),
+        kind = SHORT_VIDEO_KIND // Default to short vertical videos (kind 22)
       } = options;
       
       // Build tags according to NIP-71
@@ -115,7 +117,7 @@ export function usePublishVideo() {
       
       // Publish the event
       const event = await publishEvent({
-        kind: VIDEO_KIND,
+        kind,
         content,
         tags
       });
@@ -130,17 +132,19 @@ export function usePublishVideo() {
  */
 export function useRepostVideo() {
   const { mutateAsync: publishEvent } = useNostrPublish();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      originalPubkey, 
-      vineId 
-    }: { 
-      originalPubkey: string; 
+    mutationFn: async ({
+      originalPubkey,
+      vineId,
+      kind = SHORT_VIDEO_KIND
+    }: {
+      originalPubkey: string;
       vineId: string;
+      kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND;
     }) => {
       const tags: string[][] = [
-        ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],
+        ['a', `${kind}:${originalPubkey}:${vineId}`],
         ['p', originalPubkey],
         ['client', 'divine-web']
       ];

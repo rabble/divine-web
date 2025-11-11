@@ -4,7 +4,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import type { ProfileStats } from '@/components/ProfileHeader';
-import { VIDEO_KIND } from '@/types/video';
+import { VIDEO_KINDS } from '@/types/video';
 
 /**
  * Fetch comprehensive profile statistics for a user
@@ -25,7 +25,7 @@ export function useProfileStats(pubkey: string) {
         const [videoEvents, followerEvents, userContactList] = await Promise.all([
           // 1. User's videos (kind 34236 - NIP-71)
           nostr.query([{
-            kinds: [VIDEO_KIND], // Video events
+            kinds: VIDEO_KINDS, // Video events
             authors: [pubkey],
             limit: 500, // Get all videos to count accurately
           }], { signal }),
