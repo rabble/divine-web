@@ -6,6 +6,7 @@ import { useVideoLists, useTrendingVideoLists } from '@/hooks/useVideoLists';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAuthor } from '@/hooks/useAuthor';
 import { Link } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -63,8 +64,8 @@ function ListCard({ list }: { list: ListCardProps }) {
       <CardContent>
         <div className="space-y-3">
           {/* Author */}
-          <Link 
-            to={`/profile/${list.pubkey}`}
+          <Link
+            to={`/profile/${nip19.npubEncode(list.pubkey)}`}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
             <Avatar className="h-6 w-6">

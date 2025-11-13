@@ -2,6 +2,7 @@
 // ABOUTME: Shows list details, videos in the list, and allows editing for list owners
 
 import { useParams, useNavigate } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -317,7 +318,7 @@ export default function ListDetailPage() {
               {/* Author and stats */}
               <div className="space-y-2">
                 <a
-                  href={`/profile/${pubkey}`}
+                  href={`/profile/${pubkey ? nip19.npubEncode(pubkey) : ''}`}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Avatar className="h-8 w-8">
