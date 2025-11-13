@@ -80,17 +80,17 @@ export function VideoCommentsModal({
           </div>
         </DialogHeader>
 
-        <div 
+        <div
           className={cn(
             'flex overflow-hidden',
-            isMobile ? 'flex-col' : 'lg:flex-row',
+            isMobile ? 'flex-col' : 'flex-row',
             'min-h-0' // Important for proper scrolling
           )}
           data-testid="modal-content"
         >
           {/* Video Section */}
           <div className={cn(
-            'bg-black flex items-center justify-center',
+            'bg-black flex items-center justify-center shrink-0',
             isMobile ? 'w-full aspect-square' : 'w-1/2 h-[600px]'
           )}>
             <VideoPlayer
@@ -106,7 +106,7 @@ export function VideoCommentsModal({
 
           {/* Comments Section */}
           <div className={cn(
-            'flex flex-col',
+            'flex flex-col overflow-hidden',
             isMobile ? 'w-full flex-1' : 'w-1/2 h-[600px]'
           )}>
             {isLoadingComments ? (
