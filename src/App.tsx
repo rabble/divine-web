@@ -16,7 +16,6 @@ import { AppProvider } from '@/components/AppProvider';
 import { NWCProvider } from '@/contexts/NWCContext';
 import { AppConfig } from '@/contexts/AppContext';
 import { VideoPlaybackProvider } from '@/contexts/VideoPlaybackContext';
-import { PerformanceDebugPanel } from '@/components/PerformanceDebugPanel';
 import AppRouter from './AppRouter';
 
 const head = createHead({
@@ -63,7 +62,6 @@ export function App() {
                   <TooltipProvider>
                     <Toaster />
                     <Sonner />
-                    {typeof window !== 'undefined' && window.location.hostname === 'localhost' && <PerformanceDebugPanel />}
                     <Suspense>
                       <AppRouter />
                     </Suspense>

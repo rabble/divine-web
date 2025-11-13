@@ -5,6 +5,10 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Public browsing without login** - Users can now browse videos, profiles, hashtags, trending, and discovery feeds without creating an account
+- **Landing page improvements** - Added Divine elevator pitch, "Start Exploring" CTA button, clickable carousel, simplified calls-to-action
+- **Search available to logged-out users** - Search functionality now accessible to everyone, not just logged-in users
+- **macOS app download link** - Direct download link for native macOS app added to Open Source page
 - **Footer navigation on landing page** - All footer links (About, FAQ, Made by Humans, Our Mission, ProofMode, Open Source, EULA/T&C, Privacy, Safety) now accessible to logged-out users on the landing page, split into two rows for better visual balance
 - **Cloudflare Pages Function for SPA routing** - Proper server-side routing that returns 200 status codes for all valid routes, fixing SEO issues where bots (like Google) were getting 404 responses
 - **Terms of Service (EULA) page** - Comprehensive legal document for App Store compliance at /terms
@@ -71,12 +75,17 @@ All notable changes to Divine Web will be documented in this file.
 - Local thumbnail serving from `/public/thumbnails/` to avoid CDN issues
 
 ### Changed
+- **Landing page redesign** - Removed header when logged out, added elevator pitch without directly mentioning Vine, made screenshot carousel clickable
+- **Header navigation updated** - Divine logo now links to /discovery, Hashtags and Search visible to all users
+- **Open Source page revised** - Updated to focus on beta testing, corrected archive numbers (hundreds of thousands vs 900 million), removed Windows and Linux mentions
+- **Reduced reconnection error prominence** - Removed alarming "Reconnection Failed" and "Reconnection Slow" toasts; users can browse without seeing connection errors
+- **Routing updates** - Made discovery, trending, hashtags, profiles, videos, and search accessible without login; only home feed, lists, and list details require login
 - **Expanded FAQ moderation section** - Added zero tolerance policy, content filtering methods, user blocking tools, and 24-hour response commitment
 - **Enhanced FAQ reporting section** - Added prominent 24-hour response commitment and immediate response process for CSAM reports
 - **Updated branding to "Divine"** - Changed all instances of "OpenVine" to "Divine" throughout application for consistent brand styling
 - **Updated contact email** - Changed from rabble@openvine.co to support@divine.video in Terms of Service and Privacy Policy
 - **Improved profile caching** - Increased useAuthor timeout from 1.5s to 5s, useBatchedAuthors timeout from 3s to 10s, cache staleTime from 1min to 5min, and gcTime from 5min to 30min for more reliable username display
-- **Updated navigation visibility** - Hashtags, Lists, and Search buttons now hidden when user is logged out
+- **Updated navigation visibility for public access** - Lists now only visible to logged-in users; Hashtags and Search visible to all users
 - Cryptocurrency FAQ moved to bottom of Technical Questions section and reframed to emphasize Divine is NOT a crypto/blockchain project
 - FAQ page subtitle updated to "Divine"
 - Removed GitHub link from footer navigation (replaced with FAQ link)
@@ -90,6 +99,10 @@ All notable changes to Divine Web will be documented in this file.
 - Migrated from Kind 32222 to Kind 34236 for NIP-71 compliance (addressable video events)
 - Social interaction buttons now show stronger visual feedback (colored backgrounds when active)
 - Navigation hints updated from confusing "arrow keys" text to clear "previous" and "next" labels
+
+### Removed
+- **PerformanceDebugPanel** - Removed debug panel from main app that was showing on localhost
+- **RelayDebugInfo component** - Removed relay debugging UI from Discovery page
 
 ### Fixed
 - **Fixed SEO 404 errors for search engine bots** - Implemented Cloudflare Pages Function to return proper 200 status codes for all SPA routes instead of 404s, fixing indexing issues with Google and other search engines

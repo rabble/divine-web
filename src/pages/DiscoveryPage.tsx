@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
-import { RelayDebugInfo } from '@/components/RelayDebugInfo';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock } from 'lucide-react';
 
@@ -17,10 +16,6 @@ export function DiscoveryPage() {
           <h1 className="text-2xl font-bold">Discovery</h1>
           <p className="text-muted-foreground">Explore videos from archives and new content</p>
         </header>
-
-        <div className="mb-8">
-          <RelayDebugInfo />
-        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="w-full">

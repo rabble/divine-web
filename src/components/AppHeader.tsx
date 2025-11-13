@@ -22,24 +22,36 @@ export function AppHeader() {
         <div className="flex items-center gap-4">
           <button
             className="text-2xl font-logo text-primary"
-            onClick={() => navigate('/')}
-            aria-label="Go to home"
+            onClick={() => navigate('/discovery')}
+            aria-label="Go to discovery"
           >
             Divine
           </button>
         </div>
         <div className="flex items-center gap-2">
+          {/* Public navigation - available to all users */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/hashtags')}
+            className="flex items-center gap-2"
+          >
+            <Hash className="h-4 w-4" />
+            <span className="hidden sm:inline">Hashtags</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/search')}
+            className="flex items-center gap-2"
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Search</span>
+          </Button>
+
+          {/* Protected navigation - requires login */}
           {user && (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/hashtags')}
-                className="flex items-center gap-2"
-              >
-                <Hash className="h-4 w-4" />
-                <span className="hidden sm:inline">Hashtags</span>
-              </Button>
               <Button
                 variant="ghost"
                 size="sm"
@@ -48,15 +60,6 @@ export function AppHeader() {
               >
                 <List className="h-4 w-4" />
                 <span className="hidden sm:inline">Lists</span>
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/search')}
-                className="flex items-center gap-2"
-              >
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Search</span>
               </Button>
             </>
           )}

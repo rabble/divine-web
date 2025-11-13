@@ -41,11 +41,8 @@ export function AppRouter() {
   KeycastAutoConnect();
   const { logins } = useNostrLogin();
 
-  // Check if there's a Keycast session in localStorage
-  const hasKeycastSession = localStorage.getItem('keycast_jwt_token') !== null;
-
   // Check if user is logged in
-  const isLoggedIn = logins.length > 0 || hasKeycastSession;
+  const isLoggedIn = logins.length > 0;
 
   return (
     <BrowserRouter>
@@ -68,26 +65,26 @@ export function AppRouter() {
           <Route path="/support" element={<Support />} />
           <Route path="/faq" element={<FAQPage />} />
 
+          {/* Public browsing routes - accessible without login */}
+          <Route path="/discovery" element={<DiscoveryPage />} />
+          <Route path="/trending" element={<TrendingPage />} />
+          <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
+          <Route path="/hashtag/:tag" element={<HashtagPage />} />
+          <Route path="/t/:tag" element={<TagPage />} />
+          <Route path="/profile/:npub" element={<ProfilePage />} />
+          <Route path="/video/:id" element={<VideoPage />} />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/u/:userId" element={<UniversalUserPage />} />
+          <Route path="/:nip19" element={<NIP19Page />} />
+
           {/* Protected routes - require login */}
           {isLoggedIn && (
             <>
               <Route path="/home" element={<HomePage />} />
-              <Route path="/discovery" element={<DiscoveryPage />} />
-              <Route path="/trending" element={<TrendingPage />} />
-              <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
-              <Route path="/hashtag/:tag" element={<HashtagPage />} />
-              <Route path="/t/:tag" element={<TagPage />} />
-              <Route path="/profile/:npub" element={<ProfilePage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/video/:id" element={<VideoPage />} />
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
               {/* Test pages for debugging */}
               <Route path="/debug-video" element={<DebugVideoPage />} />
-              {/* Universal user route for both Vine user IDs and NIP-05 identifiers */}
-              <Route path="/u/:userId" element={<UniversalUserPage />} />
-              {/* NIP-19 route for npub1, note1, naddr1, nevent1, nprofile1 */}
-              <Route path="/:nip19" element={<NIP19Page />} />
             </>
           )}
 

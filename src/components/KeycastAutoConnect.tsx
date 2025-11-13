@@ -62,17 +62,7 @@ export function KeycastAutoConnect() {
 
         const bunkerStart = Date.now();
 
-        // Set a timeout to warn if reconnection is slow
-        const reconnectTimeout = setTimeout(() => {
-          toast({
-            title: 'Reconnection Slow',
-            description: 'Connection is taking longer than expected...',
-            variant: 'destructive',
-          });
-        }, 30000);
-
         return login.bunker(bunkerUrl).then(() => {
-          clearTimeout(reconnectTimeout);
           const bunkerTime = Date.now() - bunkerStart;
           console.log(`[KeycastAutoConnect] ✅ Auto-reconnected in ${bunkerTime}ms!`);
 
@@ -128,11 +118,9 @@ export function KeycastAutoConnect() {
         clearSession();
         setTimeout(() => window.location.reload(), 1000);
       } else {
-        toast({
-          title: 'Reconnection Failed',
-          description: 'You can browse content, but signing may not work. Try refreshing.',
-          variant: 'destructive',
-        });
+        // Don't show a big error for reconnection failures - users can still browse
+        // If they try to sign something, they'll get an appropriate error then
+        console.warn('[KeycastAutoConnect] Reconnection failed, but user can still browse');
       }
     }
   }, [logins, login, getSavedBunkerUrl, getValidToken, clearSession, saveBunkerUrl]);

@@ -5,12 +5,11 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Github, 
-  Globe, 
-  Smartphone, 
-  Monitor, 
-  ExternalLink,
+import {
+  Github,
+  Globe,
+  Smartphone,
+  Monitor,
   Code2,
   Users,
   Heart,
@@ -28,15 +27,35 @@ export function OpenSourcePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code2 className="h-5 w-5 text-primary" />
-              Overview
+              Beta Testing Now Live!
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <p className="text-lg text-muted-foreground">
-              Divine Web is a decentralized, open-source alternative to Vine, built on the Nostr protocol. 
-              The project aims to restore and celebrate creative video moments while providing a 
-              community-driven platform.
+              Divine is a decentralized, open-source platform for short-form looping videos, built on the Nostr protocol.
+              We're currently in <strong>beta testing</strong> and invite you to join us in shaping the future of creative video sharing!
             </p>
+            <div className="bg-primary/10 p-4 rounded-lg">
+              <h3 className="font-semibold mb-3">Join the Beta</h3>
+              <div className="space-y-2 text-sm">
+                <p className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-blue-500" />
+                  <strong>iOS:</strong> Join via <a href="https://testflight.apple.com/join/phQERxAb" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">TestFlight Beta</a>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-green-500" />
+                  <strong>Android:</strong> Join the <a href="https://play.google.com/apps/test/co.openvine.app/61" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Google Play Beta</a>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Monitor className="h-4 w-4 text-gray-500" />
+                  <strong>Mac:</strong> Download the <a href="https://divine.b-cdn.net/divine-0.0.1%2B85-macos.dmg" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">native macOS app</a>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-500" />
+                  <strong>Web:</strong> You're already here! <Link to="/" className="text-primary hover:underline">Start exploring</Link>
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -45,7 +64,7 @@ export function OpenSourcePage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Smartphone className="h-5 w-5 text-primary" />
-              Platforms
+              Available Platforms
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -55,9 +74,9 @@ export function OpenSourcePage() {
                   <Globe className="h-5 w-5 text-blue-500" />
                   <span>Web App</span>
                 </div>
-                <Badge className="bg-green-500">Available</Badge>
+                <Badge className="bg-green-500">Live</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   <Monitor className="h-5 w-5 text-gray-500" />
@@ -65,7 +84,7 @@ export function OpenSourcePage() {
                 </div>
                 <Badge className="bg-green-500">Available</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   <Smartphone className="h-5 w-5 text-blue-500" />
@@ -73,57 +92,13 @@ export function OpenSourcePage() {
                 </div>
                 <Badge className="bg-yellow-500">Beta</Badge>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   <Smartphone className="h-5 w-5 text-green-500" />
                   <span>Android</span>
                 </div>
-                <Badge variant="secondary">Coming Soon</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <Monitor className="h-5 w-5 text-blue-600" />
-                  <span>Windows</span>
-                </div>
-                <Badge variant="secondary">Coming Soon</Badge>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <Monitor className="h-5 w-5 text-orange-500" />
-                  <span>Linux</span>
-                </div>
-                <Badge variant="secondary">Coming Soon</Badge>
-              </div>
-            </div>
-            
-            <div className="mt-4 p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm font-medium mb-2">Join Beta Testing!</p>
-              <div className="flex gap-2">
-                <Button asChild size="sm">
-                  <a
-                    href="https://testflight.apple.com/join/phQERxAb"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    iOS TestFlight
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </Button>
-                <Button asChild size="sm" variant="outline">
-                  <a
-                    href="https://play.google.com/apps/test/co.openvine.app/61"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    Android Beta
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
-                </Button>
+                <Badge className="bg-yellow-500">Beta</Badge>
               </div>
             </div>
           </CardContent>
@@ -257,8 +232,8 @@ export function OpenSourcePage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
-              Gratitude to ArchiveTeam for preserving over 900 million Vines during 
-              Twitter's platform shutdown. Their dedication to digital preservation 
+              Gratitude to ArchiveTeam for preserving hundreds of thousands of Vines during
+              Twitter's platform shutdown. Their dedication to digital preservation
               ensures these creative moments live on.
             </p>
           </CardContent>

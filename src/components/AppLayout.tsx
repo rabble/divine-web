@@ -1,11 +1,21 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from '@/components/AppHeader';
 import { AppFooter } from '@/components/AppFooter';
+import { useNostrLogin } from '@nostrify/react/login';
 
 export function AppLayout() {
+  const location = useLocation();
+  const { logins } = useNostrLogin();
+
+  // Only consider user logged in if they have active logins, not just a token
+  const isLoggedIn = logins.length > 0;
+
+  // Hide header on landing page (when logged out on root path)
+  const isLandingPage = location.pathname === '/' && !isLoggedIn;
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <AppHeader />
+      {!isLandingPage && <AppHeader />}
       <div className="flex-1">
         <Outlet />
       </div>
