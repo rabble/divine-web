@@ -246,55 +246,57 @@ export function VideoCard({
         </div>
 
         {/* Title and description */}
-        <div className="p-4 space-y-2">
-          {video.title && (
-            <h3 className="font-semibold text-lg">{video.title}</h3>
-          )}
-          
-          {/* Only show content if it's different from the title */}
-          {video.content && video.content.trim() !== video.title?.trim() && (
-            <div className="whitespace-pre-wrap break-words">
-              <NoteContent 
-                event={{ 
-                  id: video.id, 
-                  pubkey: video.pubkey, 
-                  created_at: video.createdAt,
-                  kind: 1,
-                  content: video.content,
-                  tags: [],
-                  sig: ''
-                }} 
-                className="text-sm" 
+        {(video.title || (video.content && video.content.trim() !== video.title?.trim()) || video.hashtags.length > 0 || video.vineId) && (
+          <div className="p-4 space-y-2">
+            {video.title && (
+              <h3 className="font-semibold text-lg">{video.title}</h3>
+            )}
+
+            {/* Only show content if it's different from the title */}
+            {video.content && video.content.trim() !== video.title?.trim() && (
+              <div className="whitespace-pre-wrap break-words">
+                <NoteContent
+                  event={{
+                    id: video.id,
+                    pubkey: video.pubkey,
+                    created_at: video.createdAt,
+                    kind: 1,
+                    content: video.content,
+                    tags: [],
+                    sig: ''
+                  }}
+                  className="text-sm"
+                />
+              </div>
+            )}
+
+            {/* Hashtags */}
+            {video.hashtags.length > 0 && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {video.hashtags.map((tag) => (
+                  <Link
+                    key={tag}
+                    to={`/hashtag/${tag}`}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* List badges - without add button */}
+            {video.vineId && (
+              <VideoListBadges
+                videoId={video.vineId}
+                videoPubkey={video.pubkey}
+                compact={true}
+                showAddButton={false}
+                className="pt-2"
               />
-            </div>
-          )}
-
-          {/* Hashtags */}
-          {video.hashtags.length > 0 && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {video.hashtags.map((tag) => (
-                <Link
-                  key={tag}
-                  to={`/hashtag/${tag}`}
-                  className="text-sm text-primary hover:underline"
-                >
-                  #{tag}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* List badges - without add button */}
-          {video.vineId && (
-            <VideoListBadges
-              videoId={video.vineId}
-              videoPubkey={video.pubkey}
-              compact={true}
-              showAddButton={false}
-              className="pt-2"
-            />
-          )}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* Interaction buttons */}
         <div className="flex items-center gap-1 px-4 pb-4">
