@@ -98,9 +98,9 @@ export function VideoCard({
   
   const date = new Date(timestamp * 1000);
   const now = new Date();
-  
-  // Check if this is a migrated Vine (has vine_id)
-  const isMigratedVine = !!video.vineId;
+
+  // Check if this is a migrated Vine (has originalVineTimestamp from published_at tag)
+  const isMigratedVine = !!video.originalVineTimestamp;
 
   // Calculate timeAgo - always show actual date/time, badge will indicate if it's original Vine
   const yearsDiff = now.getFullYear() - date.getFullYear();
