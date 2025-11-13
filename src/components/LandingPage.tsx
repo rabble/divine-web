@@ -40,24 +40,24 @@ export function LandingPage() {
 
             {/* Mobile App Beta Links */}
             <div className="flex flex-wrap gap-4 justify-center">
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
-                <Smartphone className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-lg">
+                <Smartphone className="h-5 w-5 text-primary" />
                 <a
                   href="https://testflight.apple.com/join/phQERxAb"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium hover:text-primary transition-colors"
+                  className="text-base font-medium hover:text-primary transition-colors"
                 >
                   Get iOS Beta
                 </a>
               </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
-                <Smartphone className="h-4 w-4 text-primary" />
+              <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-lg">
+                <Smartphone className="h-5 w-5 text-primary" />
                 <a
                   href="https://divine.b-cdn.net/app-release.apk"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm font-medium hover:text-primary transition-colors"
+                  className="text-base font-medium hover:text-primary transition-colors"
                 >
                   Get Android APK
                 </a>
@@ -152,23 +152,13 @@ export function LandingPage() {
             </Link>
 
             {/* Action Buttons */}
-            <div className="pt-4 space-y-4">
-              <div>
-                <Link
-                  to="/discovery"
-                  className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-                >
-                  Start Exploring
-                </Link>
-              </div>
-              <div>
-                <Link
-                  to="/discovery"
-                  className="inline-block text-base text-muted-foreground hover:text-primary hover:underline transition-colors"
-                >
-                  Try it now →
-                </Link>
-              </div>
+            <div className="pt-4">
+              <Link
+                to="/discovery"
+                className="inline-block text-base text-muted-foreground hover:text-primary hover:underline transition-colors"
+              >
+                Try it on the web →
+              </Link>
             </div>
           </CardContent>
         </Card>
