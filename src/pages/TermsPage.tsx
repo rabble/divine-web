@@ -325,8 +325,8 @@ export function TermsPage() {
               </li>
               <li>
                 Email:{' '}
-                <a href="mailto:rabble@rabblelabs.com" className="text-primary hover:underline">
-                  rabble@rabblelabs.com
+                <a href="mailto:contact@divine.video" className="text-primary hover:underline">
+                  contact@divine.video
                 </a>
               </li>
             </ul>

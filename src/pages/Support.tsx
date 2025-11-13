@@ -27,10 +27,10 @@ export function Support() {
           </CardHeader>
           <CardContent>
             <a
-              href="mailto:rabble@rabblelabs.com"
+              href="mailto:contact@divine.video"
               className="text-primary hover:underline font-medium"
             >
-              rabble@rabblelabs.com
+              contact@divine.video
             </a>
           </CardContent>
         </Card>

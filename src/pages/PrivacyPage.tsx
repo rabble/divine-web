@@ -278,10 +278,10 @@ export function PrivacyPage() {
             <p className="text-muted-foreground">
               For privacy-related questions, email:{' '}
               <a
-                href="mailto:rabble@rabblelabs.com"
+                href="mailto:contact@divine.video"
                 className="text-primary hover:underline"
               >
-                rabble@rabblelabs.com
+                contact@divine.video
               </a>
             </p>
           </CardContent>
