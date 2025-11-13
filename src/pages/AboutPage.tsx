@@ -22,13 +22,27 @@ export function AboutPage() {
               In an era of AI-generated content, Divine is a new short-form video app inspired by
               Vine's creative 6-second format, preserving authentic human creativity.
             </p>
-            <div className="not-prose">
+            <div className="not-prose space-y-3">
               <Button asChild size="lg" className="w-full sm:w-auto">
                 <Link to="/authenticity">
                   <Heart className="h-5 w-5 mr-2" />
                   Our Mission: Social Media By Humans, For Humans
                 </Link>
               </Button>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <p className="text-sm text-muted-foreground mb-2">
+                  <strong>In the News:</strong>
+                </p>
+                <a
+                  href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline inline-flex items-center gap-1"
+                >
+                  TechCrunch: Jack Dorsey funds Divine, a Vine reboot that includes Vine's video archive
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
             </div>
           </CardContent>
         </Card>
