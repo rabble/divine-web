@@ -1,11 +1,9 @@
-// ABOUTME: Modal component for displaying video and comments side by side
-// ABOUTME: Responsive layout - desktop side-by-side, mobile stacked, uses CommentsSection for NIP-22 comments
+// ABOUTME: Modal component for displaying comments only (no video replay)
+// ABOUTME: Uses CommentsSection for NIP-22 comments
 
-import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { VideoPlayer } from '@/components/VideoPlayer';
 import { CommentsSection } from '@/components/comments/CommentsSection';
 import { cn } from '@/lib/utils';
 import type { ParsedVideoData } from '@/types/video';
@@ -26,19 +24,6 @@ export function VideoCommentsModal({
   isLoadingComments = false,
   className,
 }: VideoCommentsModalProps) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Check screen size for responsive layout
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkScreenSize();
-    window.addEventListener('resize', checkScreenSize);
-    return () => window.removeEventListener('resize', checkScreenSize);
-  }, []);
-
   // Convert ParsedVideoData to NostrEvent for comments
   const videoEvent: NostrEvent = {
     id: video.id,
@@ -58,9 +43,9 @@ export function VideoCommentsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
+      <DialogContent
         className={cn(
-          'max-w-7xl max-h-[90vh] p-0 gap-0',
+          'max-w-2xl w-full max-h-[90vh] p-0 gap-0',
           className
         )}
         data-testid="video-comments-modal"
@@ -69,7 +54,7 @@ export function VideoCommentsModal({
         <DialogHeader className="px-6 py-4 border-b">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold">
-              {video.title || 'Video'}
+              {video.title || 'Comments'}
             </DialogTitle>
             <DialogClose asChild>
               <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -80,54 +65,24 @@ export function VideoCommentsModal({
           </div>
         </DialogHeader>
 
-        <div
-          className={cn(
-            'flex overflow-hidden',
-            isMobile ? 'flex-col' : 'flex-row',
-            'min-h-0' // Important for proper scrolling
-          )}
-          data-testid="modal-content"
-        >
-          {/* Video Section */}
-          <div className={cn(
-            'bg-black flex items-center justify-center shrink-0',
-            isMobile ? 'w-full aspect-square' : 'w-1/2 h-[600px]'
-          )}>
-            <VideoPlayer
-              videoId={video.id}
-              src={video.videoUrl}
-              hlsUrl={video.hlsUrl}
-              poster={video.thumbnailUrl}
-              className="w-full h-full object-contain"
-              autoPlay={false} // Don't autoplay in modal
-              muted={false} // Allow sound in modal
+        {/* Just Comments - No Video */}
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+          {isLoadingComments ? (
+            <div className="flex items-center justify-center h-64">
+              <p className="text-muted-foreground">Loading comments...</p>
+            </div>
+          ) : (
+            <CommentsSection
+              root={videoEvent}
+              title="Comments"
+              emptyStateMessage="No comments yet"
+              emptyStateSubtitle="Be the first to comment on this video!"
+              className="border-0 rounded-none"
+              data-testid="comments-section"
+              data-root-kind={video.kind.toString()}
+              data-root-id={video.id}
             />
-          </div>
-
-          {/* Comments Section */}
-          <div className={cn(
-            'flex flex-col overflow-hidden',
-            isMobile ? 'w-full flex-1' : 'w-1/2 h-[600px]'
-          )}>
-            {isLoadingComments ? (
-              <div className="flex items-center justify-center h-full">
-                <p className="text-muted-foreground">Loading comments...</p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-hidden">
-                <CommentsSection
-                  root={videoEvent}
-                  title="Comments"
-                  emptyStateMessage="No comments yet"
-                  emptyStateSubtitle="Be the first to comment on this video!"
-                  className="h-full border-0 rounded-none"
-                  data-testid="comments-section"
-                  data-root-kind={video.kind.toString()}
-                  data-root-id={video.id}
-                />
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
