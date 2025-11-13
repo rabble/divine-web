@@ -2,7 +2,7 @@
 // ABOUTME: Displays a stock image to showcase decentralized features
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Globe2 } from "lucide-react";
+import { Users } from "lucide-react";
 
 export function DecentralizedDemo() {
   return (

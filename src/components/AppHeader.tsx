@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Smartphone, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -72,19 +72,6 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Get the App</DropdownMenuLabel>
-              <DropdownMenuItem asChild>
-                <a
-                  href="https://divine.b-cdn.net/app-release.apk"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  Android APK
-                </a>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
               <DropdownMenuLabel>Information</DropdownMenuLabel>
 
               <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">

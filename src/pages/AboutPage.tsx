@@ -295,28 +295,9 @@ export function AboutPage() {
             <CardTitle>Get the Mobile App</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-semibold mb-1">iOS</p>
-                <p className="text-muted-foreground text-sm">
-                  TestFlight is full (10k sign ups in 4 hours!) - Stay tuned for updates
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold mb-2">Android</p>
-                <Button asChild>
-                  <a
-                    href="https://divine.b-cdn.net/app-release.apk"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    Download APK
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
+            <p className="text-muted-foreground text-sm">
+              <strong>iOS:</strong> TestFlight is full (10k sign ups in 4 hours!) - Stay tuned for updates
+            </p>
           </CardContent>
         </Card>
 

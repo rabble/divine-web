@@ -402,25 +402,7 @@ export function FAQPage() {
                     The web version supports browsing and viewing videos, with posting features coming soon.
                   </p>
                   <p>
-                    Join the beta:{' '}
-                    <a
-                      href="https://testflight.apple.com/join/phQERxAb"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      iOS TestFlight
-                    </a>{' '}
-                    or{' '}
-                    <a
-                      href="https://divine.b-cdn.net/app-release.apk"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      download the Android APK
-                    </a>{' '}
-                    to start creating 6-second loops on your phone.
+                    iOS TestFlight is currently full (10k signups in 4 hours!). Stay tuned for updates on mobile app availability.
                   </p>
                 </AccordionContent>
               </AccordionItem>
@@ -967,24 +949,8 @@ export function FAQPage() {
                     Yes! Divine mobile apps are available in beta for both iOS and Android.
                     Both apps include camera recording, video upload, and all viewing features.
                   </p>
-                  <p>
-                    <a
-                      href="https://testflight.apple.com/join/phQERxAb"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Join iOS TestFlight beta
-                    </a>
-                    {' '} | {' '}
-                    <a
-                      href="https://divine.b-cdn.net/app-release.apk"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline"
-                    >
-                      Download Android APK
-                    </a>
+                  <p className="text-muted-foreground">
+                    iOS TestFlight is currently full (10k signups in 4 hours!). Stay tuned for updates.
                   </p>
                 </AccordionContent>
               </AccordionItem>

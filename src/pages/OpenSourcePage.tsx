@@ -43,10 +43,6 @@ export function OpenSourcePage() {
                   <strong>iOS:</strong> <span className="text-muted-foreground">TestFlight is full (10k sign ups in 4 hours!) - Stay tuned for updates</span>
                 </p>
                 <p className="flex items-center gap-2">
-                  <Smartphone className="h-4 w-4 text-green-500" />
-                  <strong>Android:</strong> Download the <a href="https://divine.b-cdn.net/app-release.apk" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">APK</a>
-                </p>
-                <p className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-gray-500" />
                   <strong>Mac:</strong> Download the <a href="https://divine.b-cdn.net/divine-0.0.1%2B85-macos.dmg" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">native macOS app</a>
                 </p>

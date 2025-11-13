@@ -3,7 +3,6 @@
 
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Carousel,
@@ -39,21 +38,6 @@ export function LandingPage() {
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.
               </p>
-            </div>
-
-            {/* Mobile App Beta Links */}
-            <div className="flex flex-wrap gap-4 justify-center">
-              <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-lg">
-                <Smartphone className="h-5 w-5 text-primary" />
-                <a
-                  href="https://divine.b-cdn.net/app-release.apk"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base font-medium hover:text-primary transition-colors"
-                >
-                  Get Android APK
-                </a>
-              </div>
             </div>
 
             {/* Screenshot Carousel */}
