@@ -3,7 +3,7 @@
 
 import { LoginArea } from "@/components/auth/LoginArea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, Shield, Users, Smartphone } from "lucide-react";
+import { Smartphone } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Carousel,
@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { AuthenticDemo } from "@/components/landing/AuthenticDemo";
+import { VerifiedDemo } from "@/components/landing/VerifiedDemo";
+import { DecentralizedDemo } from "@/components/landing/DecentralizedDemo";
 
 export function LandingPage() {
   const plugin = useRef(
@@ -163,36 +166,10 @@ export function LandingPage() {
           </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-3 gap-4">
-          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
-            <CardContent className="pt-6 pb-6 text-center">
-              <Heart className="h-8 w-8 mx-auto mb-3 text-red-500" />
-              <h3 className="font-semibold mb-2">Authentic</h3>
-              <p className="text-xs text-muted-foreground">
-                Real moments from real humans, not AI
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
-            <CardContent className="pt-6 pb-6 text-center">
-              <Shield className="h-8 w-8 mx-auto mb-3 text-green-500" />
-              <h3 className="font-semibold mb-2">Verified</h3>
-              <p className="text-xs text-muted-foreground">
-                ProofMode cryptographically proves authenticity
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
-            <CardContent className="pt-6 pb-6 text-center">
-              <Users className="h-8 w-8 mx-auto mb-3 text-blue-500" />
-              <h3 className="font-semibold mb-2">Decentralized</h3>
-              <p className="text-xs text-muted-foreground">
-                Built on Nostr. Your content, your control
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid md:grid-cols-3 gap-4 items-stretch">
+          <AuthenticDemo />
+          <VerifiedDemo />
+          <DecentralizedDemo />
         </div>
 
         {/* Login Section */}
