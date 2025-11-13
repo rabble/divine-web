@@ -85,12 +85,12 @@ export function AppHeader() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <a
-                  href="https://play.google.com/apps/test/co.openvine.app/61"
+                  href="https://divine.b-cdn.net/app-release.apk"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <Smartphone className="h-4 w-4" />
-                  Android Beta
+                  Android APK
                 </a>
               </DropdownMenuItem>
 

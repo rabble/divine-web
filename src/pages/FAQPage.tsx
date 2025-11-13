@@ -413,12 +413,12 @@ export function FAQPage() {
                     </a>{' '}
                     or{' '}
                     <a
-                      href="https://play.google.com/apps/test/co.openvine.app/61"
+                      href="https://divine.b-cdn.net/app-release.apk"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Android Beta
+                      download the Android APK
                     </a>{' '}
                     to start creating 6-second loops on your phone.
                   </p>
@@ -978,12 +978,12 @@ export function FAQPage() {
                     </a>
                     {' '} | {' '}
                     <a
-                      href="https://play.google.com/apps/test/co.openvine.app/61"
+                      href="https://divine.b-cdn.net/app-release.apk"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      Join Android beta
+                      Download Android APK
                     </a>
                   </p>
                 </AccordionContent>

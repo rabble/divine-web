@@ -44,7 +44,7 @@ export function OpenSourcePage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-green-500" />
-                  <strong>Android:</strong> Join the <a href="https://play.google.com/apps/test/co.openvine.app/61" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">Google Play Beta</a>
+                  <strong>Android:</strong> Download the <a href="https://divine.b-cdn.net/app-release.apk" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">APK</a>
                 </p>
                 <p className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-gray-500" />
