@@ -324,6 +324,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         baseFilter.until = until;
       }
 
+      // For 'recent' feed, only get videos from the last 30 days
+      // This excludes old migrated Vine videos with ancient created_at timestamps
+      if (feedType === 'recent' && !until) {
+        const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
+        baseFilter.since = thirtyDaysAgo;
+      }
+
       // Handle different feed types
       if (feedType === 'hashtag' && hashtag) {
         baseFilter['#t'] = [hashtag.toLowerCase()];

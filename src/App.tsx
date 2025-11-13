@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay3.openvine.co", // Temporarily using OpenVine relay for testing
+  relayUrl: "wss://relay.divine.video",
 };
 
 const presetRelays = [
