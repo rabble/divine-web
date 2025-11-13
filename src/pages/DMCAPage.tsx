@@ -122,7 +122,7 @@ export function DMCAPage() {
                 Send DMCA Notices To:
               </h3>
               <p className="text-sm text-muted-foreground">
-                Email: <a href="mailto:dmca@divine.video" className="text-primary hover:underline">dmca@divine.video</a>
+                Email: <a href="mailto:rabble@rabblelabs.com" className="text-primary hover:underline">rabble@rabblelabs.com</a>
               </p>
               <p className="text-sm text-muted-foreground mt-2">
                 We will review valid requests and respond within 10 business days.
@@ -179,8 +179,8 @@ export function DMCAPage() {
             <p className="text-muted-foreground">
               For questions about this policy or copyright issues not related to DMCA takedowns, please contact
               us at{" "}
-              <a href="mailto:copyright@divine.video" className="text-primary hover:underline">
-                copyright@divine.video
+              <a href="mailto:rabble@rabblelabs.com" className="text-primary hover:underline">
+                rabble@rabblelabs.com
               </a>.
             </p>
           </CardContent>
