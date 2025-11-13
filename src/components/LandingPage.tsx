@@ -46,17 +46,6 @@ export function LandingPage() {
               <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-lg">
                 <Smartphone className="h-5 w-5 text-primary" />
                 <a
-                  href="https://testflight.apple.com/join/phQERxAb"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-base font-medium hover:text-primary transition-colors"
-                >
-                  Get iOS Beta
-                </a>
-              </div>
-              <div className="flex items-center gap-3 px-6 py-3 bg-primary/10 rounded-lg">
-                <Smartphone className="h-5 w-5 text-primary" />
-                <a
                   href="https://divine.b-cdn.net/app-release.apk"
                   target="_blank"
                   rel="noopener noreferrer"

@@ -11,17 +11,6 @@ export function AppFooter() {
             <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
               <Smartphone className="h-4 w-4 text-primary" />
               <a
-                href="https://testflight.apple.com/join/phQERxAb"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Get iOS Beta
-              </a>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-lg">
-              <Smartphone className="h-4 w-4 text-primary" />
-              <a
                 href="https://divine.b-cdn.net/app-release.apk"
                 target="_blank"
                 rel="noopener noreferrer"

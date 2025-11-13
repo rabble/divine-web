@@ -40,7 +40,7 @@ export function OpenSourcePage() {
               <div className="space-y-2 text-sm">
                 <p className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-blue-500" />
-                  <strong>iOS:</strong> Join via <a href="https://testflight.apple.com/join/phQERxAb" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">TestFlight Beta</a>
+                  <strong>iOS:</strong> <span className="text-muted-foreground">TestFlight is full (10k sign ups in 4 hours!) - Stay tuned for updates</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-green-500" />

@@ -75,16 +75,6 @@ export function AppHeader() {
               <DropdownMenuLabel>Get the App</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <a
-                  href="https://testflight.apple.com/join/phQERxAb"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Smartphone className="h-4 w-4" />
-                  iOS TestFlight Beta
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <a
                   href="https://divine.b-cdn.net/app-release.apk"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 cursor-pointer"
