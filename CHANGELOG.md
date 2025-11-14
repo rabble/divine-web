@@ -5,6 +5,7 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **iOS beta test announcement** - Added prominent notice about 10,000 signups in hours and pending App Store approval, with link to TechCrunch article
 - **Public browsing without login** - Users can now browse videos, profiles, hashtags, trending, and discovery feeds without creating an account
 - **Landing page improvements** - Added Divine elevator pitch, "Start Exploring" CTA button, clickable carousel, simplified calls-to-action
 - **Search available to logged-out users** - Search functionality now accessible to everyone, not just logged-in users
@@ -75,6 +76,9 @@ All notable changes to Divine Web will be documented in this file.
 - Local thumbnail serving from `/public/thumbnails/` to avoid CDN issues
 
 ### Changed
+- **Reduced video loading flash** - Replaced bright skeleton loaders with subtle dark backgrounds and minimal spinners to eliminate intense flashing during video load
+- **Links open in same tab** - Removed `target="_blank"` from links for normal navigation behavior
+- **Simplified landing page** - Removed three demo cards (Authentic, Verified, Decentralized) for cleaner design
 - **Landing page redesign** - Removed header when logged out, added elevator pitch without directly mentioning Vine, made screenshot carousel clickable
 - **Header navigation updated** - Divine logo now links to /discovery, Hashtags and Search visible to all users
 - **Open Source page revised** - Updated to focus on beta testing, corrected archive numbers (hundreds of thousands vs 900 million), removed Windows and Linux mentions

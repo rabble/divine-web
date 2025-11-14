@@ -14,7 +14,6 @@ import { useRepostVideo } from '@/hooks/usePublishVideo';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/useToast';
 import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
@@ -163,16 +162,18 @@ export function VideoFeed({
           {[...Array(3)].map((_, i) => (
             <Card key={i} className="overflow-hidden" data-testid="video-skeleton">
               <div className="flex items-center gap-3 p-4">
-                <Skeleton className="h-10 w-10 rounded-full" />
+                <div className="h-10 w-10 rounded-full bg-muted/50 animate-pulse" />
                 <div className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-3 w-16" />
+                  <div className="h-4 w-24 bg-muted/50 rounded animate-pulse" />
+                  <div className="h-3 w-16 bg-muted/50 rounded animate-pulse" />
                 </div>
               </div>
-              <Skeleton className="aspect-square w-full" />
+              <div className="aspect-square w-full bg-black/80 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
+              </div>
               <div className="p-4 space-y-2">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-4/5" />
+                <div className="h-4 w-full bg-muted/50 rounded animate-pulse" />
+                <div className="h-4 w-4/5 bg-muted/50 rounded animate-pulse" />
               </div>
             </Card>
           ))}

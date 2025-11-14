@@ -13,9 +13,6 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
-import { AuthenticDemo } from "@/components/landing/AuthenticDemo";
-import { VerifiedDemo } from "@/components/landing/VerifiedDemo";
-import { DecentralizedDemo } from "@/components/landing/DecentralizedDemo";
 
 export function LandingPage() {
   const plugin = useRef(
@@ -37,6 +34,15 @@ export function LandingPage() {
               </p>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
                 Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.
+              </p>
+              <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto pt-4">
+                The beta test group for iOS is full—we had 10,000 people sign up in a couple of hours. We're waiting on Apple and Google to approve the app store release.{" "}
+                <a
+                  href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                  className="text-primary hover:underline"
+                >
+                  Learn more about Divine
+                </a>
               </p>
             </div>
 
@@ -138,12 +144,6 @@ export function LandingPage() {
             </div>
           </CardContent>
         </Card>
-
-        <div className="grid md:grid-cols-3 gap-4 items-stretch">
-          <AuthenticDemo />
-          <VerifiedDemo />
-          <DecentralizedDemo />
-        </div>
 
         {/* Login Section */}
         <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">

@@ -5,7 +5,6 @@ import { useRef, useEffect, useState, forwardRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -646,7 +645,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
             onError={() => setHasError(true)}
           />
           {isLoading && (
-            <Skeleton className="absolute inset-0" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+              <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
+            </div>
           )}
           {hasError && (
             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
@@ -694,11 +695,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
         {/* Loading state */}
         {isLoading && (
-          <div 
-            className="absolute inset-0 flex items-center justify-center"
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-black/80"
             data-testid={isMobile ? "mobile-loading" : undefined}
           >
-            <Skeleton className="w-full h-full" />
+            <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
           </div>
         )}
 

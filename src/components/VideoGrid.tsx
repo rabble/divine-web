@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { Play, Repeat } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { ParsedVideoData } from '@/types/video';
 import { buildVideoNavigationUrl, type VideoNavigationContext } from '@/hooks/useVideoNavigation';
@@ -61,8 +60,8 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
       >
         {[...Array(6)].map((_, i) => (
           <Card key={i} className="overflow-hidden" data-testid="video-skeleton">
-            <div className="aspect-square relative">
-              <Skeleton className="w-full h-full" />
+            <div className="aspect-square relative bg-black/80 flex items-center justify-center">
+              <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
             </div>
           </Card>
         ))}
