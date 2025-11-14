@@ -103,16 +103,17 @@ export function MailerLiteSignup() {
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper {
-          background-color: transparent;
-          border-width: 0px;
-          border-color: transparent;
-          border-radius: 4px;
+          background-color: hsl(var(--card));
+          border-width: 1px;
+          border-color: hsl(var(--border));
+          border-radius: 8px;
           border-style: solid;
           box-sizing: border-box;
           display: inline-block !important;
           margin: 0;
           padding: 0;
           position: relative;
+          box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper.embedPopup,
@@ -124,11 +125,11 @@ export function MailerLiteSignup() {
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody,
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-successBody {
-          padding: 20px 20px 0 20px;
+          padding: 24px 24px 16px 24px;
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody.ml-form-embedBodyHorizontal {
-          padding-bottom: 0;
+          padding-bottom: 16px;
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedContent h4 {
