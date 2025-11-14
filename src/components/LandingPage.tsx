@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
+import { MailerLiteSignup } from "@/components/MailerLiteSignup";
 
 export function LandingPage() {
   const plugin = useRef(
@@ -33,17 +34,19 @@ export function LandingPage() {
                 Short-form looping videos. Authentic moments. Human creativity.
               </p>
               <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-                Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.
-              </p>
-              <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto pt-4">
-                The beta test group for iOS is full—we had 10,000 people sign up in a couple of hours. We're waiting on Apple and Google to approve the app store release.{" "}
+                Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.{" "}
                 <a
                   href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
                   className="text-primary hover:underline"
                 >
-                  Learn more about Divine
+                  Learn more
                 </a>
               </p>
+            </div>
+
+            {/* Mailing List Signup */}
+            <div className="pt-4">
+              <MailerLiteSignup />
             </div>
 
             {/* Screenshot Carousel */}
