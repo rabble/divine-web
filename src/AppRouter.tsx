@@ -32,6 +32,8 @@ import { SafetyPage } from "./pages/SafetyPage";
 import { Support } from "./pages/Support";
 import { FAQPage } from "./pages/FAQPage";
 import { TermsPage } from "./pages/TermsPage";
+import { NewsPage } from "./pages/NewsPage";
+import { PressReleasePage } from "./pages/PressReleasePage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
@@ -64,6 +66,8 @@ export function AppRouter() {
           <Route path="/safety" element={<SafetyPage />} />
           <Route path="/support" element={<Support />} />
           <Route path="/faq" element={<FAQPage />} />
+          <Route path="/news" element={<NewsPage />} />
+          <Route path="/news/vine-revisited" element={<PressReleasePage />} />
 
           {/* Public browsing routes - accessible without login */}
           <Route path="/discovery" element={<DiscoveryPage />} />

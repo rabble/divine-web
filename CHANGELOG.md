@@ -5,6 +5,9 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **News page** - Added /news page with press releases and media coverage about Divine
+- **Press release page** - Full "Vine Revisited" press release from Web Summit Lisbon announcement (November 13, 2024)
+- **TechCrunch article link** - Direct link to TechCrunch coverage on news page
 - **iOS beta test announcement** - Added prominent notice about 10,000 signups in hours and pending App Store approval, with link to TechCrunch article
 - **Public browsing without login** - Users can now browse videos, profiles, hashtags, trending, and discovery feeds without creating an account
 - **Landing page improvements** - Added Divine elevator pitch, "Start Exploring" CTA button, clickable carousel, simplified calls-to-action
