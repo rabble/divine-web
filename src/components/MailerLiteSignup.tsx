@@ -15,29 +15,51 @@ export function MailerLiteSignup() {
     script2.text = 'fetch("https://assets.mailerlite.com/jsonp/922604/forms/171053339050510058/takel")';
     document.body.appendChild(script2);
 
-    // Add ml_webform_success function to window
-    type JQueryLike = (selector: string) => { show: () => void; hide: () => void };
-
-    interface WindowWithMailerLite extends Window {
-      ml_webform_success_33354076?: () => void;
-      ml_jQuery?: JQueryLike;
-      jQuery?: JQueryLike;
-    }
-
-    (window as WindowWithMailerLite).ml_webform_success_33354076 = function() {
-      const $ = (window as WindowWithMailerLite).ml_jQuery || (window as WindowWithMailerLite).jQuery;
-      if ($) {
-        $('.ml-subscribe-form-33354076 .row-success').show();
-        $('.ml-subscribe-form-33354076 .row-form').hide();
-      }
-    };
-
     return () => {
       // Cleanup scripts on unmount
-      document.body.removeChild(script1);
-      document.body.removeChild(script2);
+      if (document.body.contains(script1)) {
+        document.body.removeChild(script1);
+      }
+      if (document.body.contains(script2)) {
+        document.body.removeChild(script2);
+      }
     };
   }, []);
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const email = formData.get('fields[email]') as string;
+
+    if (!email) return;
+
+    // Submit via fetch to avoid page redirect
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors', // MailerLite doesn't support CORS, but we don't need the response
+    }).then(() => {
+      // Show success message
+      const successBody = document.querySelector('.ml-subscribe-form-33354076 .row-success') as HTMLElement;
+      const formBody = document.querySelector('.ml-subscribe-form-33354076 .row-form') as HTMLElement;
+
+      if (successBody && formBody) {
+        successBody.style.display = 'block';
+        formBody.style.display = 'none';
+      }
+    }).catch((error) => {
+      console.error('Error submitting form:', error);
+      // Still show success since we can't read the response anyway with no-cors
+      const successBody = document.querySelector('.ml-subscribe-form-33354076 .row-success') as HTMLElement;
+      const formBody = document.querySelector('.ml-subscribe-form-33354076 .row-form') as HTMLElement;
+
+      if (successBody && formBody) {
+        successBody.style.display = 'block';
+        formBody.style.display = 'none';
+      }
+    });
+  };
 
   return (
     <>
@@ -125,11 +147,11 @@ export function MailerLiteSignup() {
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody,
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-successBody {
-          padding: 24px 24px 16px 24px;
+          padding: 24px 24px 24px 24px;
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody.ml-form-embedBodyHorizontal {
-          padding-bottom: 16px;
+          padding-bottom: 24px;
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedContent h4 {
@@ -137,7 +159,7 @@ export function MailerLiteSignup() {
           font-family: 'Inter Variable', 'Open Sans', Arial, Helvetica, sans-serif;
           font-size: 16px;
           font-weight: 400;
-          margin: 0 0 10px 0;
+          margin: 0 0 8px 0;
           text-align: center;
           word-break: break-word;
         }
@@ -148,7 +170,7 @@ export function MailerLiteSignup() {
           font-size: 14px;
           font-weight: 400;
           line-height: 20px;
-          margin: 0 0 10px 0;
+          margin: 0 0 24px 0;
           text-align: center;
         }
 
@@ -198,7 +220,8 @@ export function MailerLiteSignup() {
         .ml-form-formContent.horozintalForm .ml-form-horizontalRow .horizontal-fields { box-sizing: border-box; float: left; padding-right: 10px; }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-formContent.horozintalForm {
-          padding: 0 0 10px 0;
+          padding: 0 0 0 0;
+          margin-bottom: 0;
         }
 
         .ml-form-successBody { display: none; }
@@ -219,7 +242,7 @@ export function MailerLiteSignup() {
           <div className="ml-form-embedWrapper embedForm">
             <div className="ml-form-embedBody ml-form-embedBodyHorizontal row-form">
               <div className="ml-form-embedContent">
-                <h4>The internet pipes are jammed!</h4>
+                <h4>The divine servers are having a crisis of faith</h4>
                 <p>Our beta test is full and we can't let more folks on the apps until Apple and Google deem us worthy of releasing into the app store. If you want to be the first to know when that happens, join our mailing list.</p>
               </div>
 
@@ -228,7 +251,7 @@ export function MailerLiteSignup() {
                 action="https://assets.mailerlite.com/jsonp/922604/forms/171053339050510058/subscribe"
                 data-code=""
                 method="post"
-                target="_blank"
+                onSubmit={handleSubmit}
               >
                 <div className="ml-form-formContent horozintalForm">
                   <div className="ml-form-horizontalRow">
@@ -259,12 +282,20 @@ export function MailerLiteSignup() {
                 <input type="hidden" name="ml-submit" value="1" />
                 <input type="hidden" name="anticsrf" value="true" />
               </form>
+              <br></br><br></br>
             </div>
 
             <div className="ml-form-successBody row-success" style={{ display: 'none' }}>
               <div className="ml-form-successContent">
-                <h4>Thank you!</h4>
-                <p>You have successfully joined our subscriber list.</p>
+                <div className="flex flex-col items-center gap-4">
+                  <h4 className="text-2xl font-bold font-pacifico">Divine!</h4>
+                  <img
+                    src="/divine_mic.jpg"
+                    alt="Divine microphone"
+                    className="w-full max-w-xs object-contain"
+                  />
+                  <p className="text-center">We'll reach out as soon as we're able to invite you to join us.</p>
+                </div>
               </div>
             </div>
           </div>
