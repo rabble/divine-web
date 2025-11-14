@@ -5,6 +5,7 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **MailerLite signup on About page** - Added email signup form to About page for users to receive updates about app store releases
 - **Divine 404 page** - Campy, glamorous 404 error page featuring Divine with gradient background, playful messaging ("This Page is Divine...ly Missing!"), and fun call-to-action button
 - **News page** - Added /news page with press releases and media coverage about Divine
 - **Press release page** - Full "Vine Revisited" press release from Web Summit Lisbon announcement (November 13, 2024)
