@@ -753,6 +753,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               }}
               onTouchStart={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
+              }}
+              onTouchMove={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
               }}
               onTouchEnd={(e) => {
                 e.stopPropagation();
@@ -781,10 +786,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   e.preventDefault();
                   toggleFullscreen();
                 }}
-                onTouchStart={(e) => e.stopPropagation()}
+                onTouchStart={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+                onTouchMove={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
                 onTouchEnd={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
+                  toggleFullscreen();
                 }}
                 aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
