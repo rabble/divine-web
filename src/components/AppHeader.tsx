@@ -59,7 +59,7 @@ export function AppHeader() {
                 className="hidden md:flex items-center gap-2"
               >
                 <Video className="h-4 w-4" />
-                <span className="hidden sm:inline">Upload</span>
+                <span className="hidden sm:inline">Record</span>
               </Button>
               <Button
                 variant="ghost"
