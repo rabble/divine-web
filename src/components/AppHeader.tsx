@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -72,64 +72,97 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Information</DropdownMenuLabel>
+              {/* About Divine Section */}
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About Divine</DropdownMenuLabel>
 
               <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
                 <Info className="mr-2 h-4 w-4" />
-                About
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => navigate('/faq')} className="cursor-pointer">
-                <HelpCircle className="mr-2 h-4 w-4" />
-                FAQ
+                <span>About</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => navigate('/authenticity')} className="cursor-pointer">
                 <Heart className="mr-2 h-4 w-4" />
-                Our Mission
+                <span>Our Mission</span>
               </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/faq')} className="cursor-pointer">
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>FAQ</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Trust & Safety Section */}
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
 
               <DropdownMenuItem onClick={() => navigate('/proofmode')} className="cursor-pointer">
                 <ShieldCheck className="mr-2 h-4 w-4" />
-                ProofMode
+                <span>ProofMode</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/open-source')} className="cursor-pointer">
-                <Code2 className="mr-2 h-4 w-4" />
-                Open Source
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => navigate('/terms')} className="cursor-pointer">
-                <Scale className="mr-2 h-4 w-4" />
-                EULA/T&C
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
-                <Shield className="mr-2 h-4 w-4" />
-                Privacy Policy
+              <DropdownMenuItem onClick={() => navigate('/human-created')} className="cursor-pointer">
+                <Users className="mr-2 h-4 w-4" />
+                <span>Made by Humans</span>
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => navigate('/safety')} className="cursor-pointer">
                 <ShieldAlert className="mr-2 h-4 w-4" />
-                Safety Standards
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onClick={() => navigate('/dmca')} className="cursor-pointer">
-                <Scale className="mr-2 h-4 w-4" />
-                Copyright & DMCA
+                <span>Safety Standards</span>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
+
+              {/* Technical Section */}
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Technical</DropdownMenuLabel>
+
+              <DropdownMenuItem onClick={() => navigate('/open-source')} className="cursor-pointer">
+                <Code2 className="mr-2 h-4 w-4" />
+                <span>Open Source</span>
+              </DropdownMenuItem>
 
               <DropdownMenuItem asChild>
                 <a
                   href="https://github.com/rabble/nostrvine"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center cursor-pointer"
                 >
-                  <Github className="h-4 w-4" />
-                  GitHub Repository
+                  <Github className="mr-2 h-4 w-4" />
+                  <span>GitHub Repository</span>
+                  <svg
+                    className="ml-auto h-3 w-3 opacity-50"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                    />
+                  </svg>
                 </a>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              {/* Legal Section */}
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Legal</DropdownMenuLabel>
+
+              <DropdownMenuItem onClick={() => navigate('/terms')} className="cursor-pointer">
+                <Scale className="mr-2 h-4 w-4" />
+                <span>Terms & Conditions</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
+                <Shield className="mr-2 h-4 w-4" />
+                <span>Privacy Policy</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => navigate('/dmca')} className="cursor-pointer">
+                <Scale className="mr-2 h-4 w-4" />
+                <span>Copyright & DMCA</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
