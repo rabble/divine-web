@@ -4,10 +4,12 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Lock, Users, Database, UserCheck, AlertCircle } from 'lucide-react';
+import { ZendeskWidget } from '@/components/ZendeskWidget';
 
 export function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
 
       <div className="space-y-8">
@@ -286,25 +288,6 @@ export function PrivacyPage() {
             </p>
           </CardContent>
         </Card>
-
-        {/* Links */}
-        <div className="flex flex-wrap gap-4 justify-center pt-8 border-t">
-          <Link to="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </Link>
-          <Link to="/safety" className="text-primary hover:underline">
-            Safety Standards
-          </Link>
-          <Link to="/about" className="text-primary hover:underline">
-            About
-          </Link>
-          <Link to="/open-source" className="text-primary hover:underline">
-            Open Source
-          </Link>
-          <Link to="/" className="text-primary hover:underline">
-            Back to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

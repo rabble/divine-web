@@ -53,6 +53,10 @@ export function AppFooter() {
               <Link to="/safety" className="hover:text-foreground transition-colors">
                 Safety
               </Link>
+              <span>•</span>
+              <Link to="/support" className="hover:text-foreground transition-colors">
+                Support
+              </Link>
             </div>
           </div>
         </div>

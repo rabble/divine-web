@@ -1,10 +1,59 @@
 // ABOUTME: Support and contact information page for diVine Web
 // ABOUTME: Displays email contact and GitHub issues link for user support
 
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function Support() {
+  useEffect(() => {
+    // Load Zendesk widget script if not already loaded
+    const existingScript = document.getElementById('ze-snippet');
+
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.id = 'ze-snippet';
+      script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
+      script.async = true;
+
+      script.onload = () => {
+        // Wait for zE to be available, then show and open the widget
+        const checkZE = setInterval(() => {
+          if (window.zE) {
+            clearInterval(checkZE);
+            // Always show widget on Support page (even on mobile)
+            window.zE('webWidget', 'show');
+            // Open the web widget automatically
+            window.zE('webWidget', 'open');
+          }
+        }, 100);
+      };
+
+      document.body.appendChild(script);
+    } else {
+      // Script already loaded, show and open the widget
+      if (window.zE) {
+        window.zE('webWidget', 'show');
+        window.zE('webWidget', 'open');
+      }
+    }
+
+    // Cleanup: Hide widget on mobile when leaving Support page
+    return () => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      if (isMobile && window.zE) {
+        window.zE('webWidget', 'hide');
+      }
+    };
+  }, []);
+
+  const openZendeskWidget = () => {
+    if (window.zE) {
+      window.zE('webWidget', 'open');
+    }
+  };
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="space-y-6">
@@ -14,6 +63,24 @@ export function Support() {
             Need help? We're here to assist you.
           </p>
         </div>
+
+        {/* Contact Support Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact Support</CardTitle>
+            <CardDescription>
+              Click the button below to open our support chat and get help immediately.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={openZendeskWidget} size="lg" className="w-full">
+              Open Support Chat
+            </Button>
+            <p className="text-sm text-muted-foreground mt-4 text-center">
+              Our support widget will open in the bottom-right corner
+            </p>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

@@ -6,12 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Github, Heart, Archive, Shield } from 'lucide-react';
 import { MailerLiteSignup } from '@/components/MailerLiteSignup';
+import { ZendeskWidget } from '@/components/ZendeskWidget';
 
 export function AboutPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">About Divine</h1>
-      
+
       <div className="space-y-8">
         {/* The Story */}
         <Card className="border-2 border-primary/20">
@@ -323,6 +325,9 @@ export function AboutPage() {
           </Button>
           <Button variant="outline" asChild>
             <Link to="/open-source">Open Source</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/support">Support</Link>
           </Button>
           <Button variant="outline" asChild>
             <a
