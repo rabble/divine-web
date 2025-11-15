@@ -21,9 +21,17 @@ The Divine web app now supports video recording and uploading directly from your
 - **Upload Progress**: Real-time upload and publishing progress indicators
 - **Blossom Integration**: Videos uploaded to decentralized Blossom servers
 
+### 📁 File Upload
+- **Drag & Drop**: Drag video files directly onto the upload zone
+- **Click to Browse**: Traditional file picker interface
+- **File Validation**: Automatic checks for size, duration, and format
+- **Preview Before Upload**: Review your video before adding metadata
+- **Format Support**: MP4, WebM, MOV, AVI files accepted
+
 ### 🔒 Security
 - **Login Required**: Only authenticated users can upload
-- **Browser Permissions**: Requires camera and microphone access
+- **Browser Permissions**: Camera recording requires microphone access
+- **File Validation**: Size and duration limits enforced
 - **Clean Uploads**: Temporary blob URLs are cleaned up after upload
 
 ## How to Use
@@ -33,11 +41,27 @@ The Divine web app now supports video recording and uploading directly from your
 - Click the **Upload** button in the header
 - Or navigate to `/upload`
 
-### 2. Choose Recording Method
-- **Record with Camera**: Use your device's camera (available now)
-- **Upload Video**: Upload a pre-recorded file (coming soon)
+### 2. Choose Upload Method
 
-### 3. Record Your Video
+#### Option A: Record with Camera
+- Click "Record with Camera" to use live recording
+- Continues to step 3 below
+
+#### Option B: Upload Video File
+- Click "Upload Video File"
+- **Drag & Drop**: Drag a video file onto the upload zone, OR
+- **Click to Browse**: Click the zone to open file picker
+- **Select File**: Choose an MP4, WebM, MOV, or AVI file
+- **Validation**: System automatically checks:
+  - File size (max 50MB)
+  - Duration (max 6 seconds)
+  - Format compatibility
+- **Preview**: Video preview loads with playback controls
+- **Verify**: Check file info (name, size, duration, format)
+- Click "Continue to Add Details" when satisfied
+- Skip to step 4 below
+
+### 3. Record Your Video (Camera Recording Only)
 1. **Allow Permissions**: Grant camera and microphone access when prompted
 2. **Position Camera**: Preview appears immediately
 3. **Record Segments**:
@@ -49,10 +73,10 @@ The Divine web app now supports video recording and uploading directly from your
 5. **Start Over**: Use "Start Over" button to discard and re-record
 6. **Continue**: Tap the checkmark when satisfied
 
-### 4. Add Metadata
+### 4. Add Metadata (All Videos)
 1. **Title** (required): Give your vine a catchy title
 2. **Description** (optional): Add more context
-3. **Hashtags** (optional): 
+3. **Hashtags** (optional):
    - Type a tag and press Enter, Space, or comma
    - Click X on a tag to remove it
    - Multiple hashtags supported
@@ -119,22 +143,21 @@ The system automatically detects the best supported format:
    - Currently uses only the first segment
    - Full FFmpeg.wasm integration planned
 
-2. **File Upload**: Direct video file upload not yet implemented
-   - Coming soon for uploading pre-recorded videos
-
-3. **Advanced Controls**: 
+2. **Advanced Controls**:
    - No zoom, focus, or exposure controls yet
    - Basic camera switching only
+
+3. **Video Editing**: No built-in trimming or editing tools
 
 ### Planned Features
 
 - ✨ FFmpeg.wasm integration for proper segment merging
-- 📁 Direct video file upload
 - 🎨 Video filters and effects
 - 🔍 Advanced camera controls (zoom, focus)
 - 💾 Save drafts locally
 - 🎬 Video trimming and editing
 - 📊 Upload analytics
+- 🖼️ Custom thumbnail selection
 
 ## Troubleshooting
 
@@ -156,13 +179,23 @@ The system automatically detects the best supported format:
 3. Try a different browser
 4. Verify camera is not in use by another app
 
+### File Upload Validation Error
+**Problem**: File rejected during validation
+
+**Solutions**:
+1. Check video duration is under 6 seconds
+2. Verify file size is under 50MB
+3. Ensure file format is MP4, WebM, MOV, or AVI
+4. Try converting video to a supported format
+5. Check file is not corrupted
+
 ### Upload Fails
 **Problem**: Video doesn't upload to Blossom
 
 **Solutions**:
 1. Check internet connection
 2. Verify you're logged in
-3. Try recording a shorter video
+3. Try a smaller file or shorter video
 4. Check browser console for network errors
 5. Contact support if persistent
 
@@ -191,16 +224,17 @@ The system automatically detects the best supported format:
 | Camera Recording | ✅ | ✅ |
 | Segmented Recording | ✅ | ✅ |
 | Multi-segment Merging | ⚠️ Partial | ✅ Full |
-| File Upload | ❌ Coming | ✅ |
+| File Upload | ✅ | ✅ |
+| Drag & Drop Upload | ✅ | ❌ |
 | ProofMode | ❌ | ✅ |
 | Drafts | ❌ | ✅ |
 | Video Editing | ❌ | ⚠️ Limited |
 
-The web app provides core recording functionality with plans to reach feature parity with mobile.
+The web app provides core recording and upload functionality, with some unique web advantages (drag & drop) and plans to reach full feature parity with mobile.
 
 ## Contributing
 
-Found a bug or want to add features? 
+Found a bug or want to add features?
 
 1. Check the issue tracker on GitHub
 2. Submit bug reports with browser info
