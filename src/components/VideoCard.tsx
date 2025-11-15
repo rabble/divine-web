@@ -15,6 +15,7 @@ import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
 import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
+import { OriginalContentBadge } from '@/components/OriginalContentBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
@@ -296,17 +297,21 @@ export function VideoCard({
           </Avatar>
         </Link>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <Link to={profileUrl} className="font-semibold hover:underline truncate">
-              {displayName}
-            </Link>
-            {/* ProofMode badge */}
+          <Link to={profileUrl} className="font-semibold hover:underline truncate">
+            {displayName}
+          </Link>
+          {/* Badge row - matches Flutter's ProofModeBadgeRow */}
+          <div className="flex items-center gap-2 mt-1">
             {video.proofMode && video.proofMode.level !== 'unverified' && (
               <ProofModeBadge
                 level={video.proofMode.level}
                 proofData={video.proofMode}
                 showDetails={true}
               />
+            )}
+            {/* Show Original Content badge if: not reposted, not vintage Vine, and no ProofMode */}
+            {!hasReposts && !isMigratedVine && !video.proofMode && (
+              <OriginalContentBadge size="small" />
             )}
           </div>
         </div>

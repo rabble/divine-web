@@ -433,14 +433,14 @@ export function getOriginalCommentCount(event: NostrEvent): number | undefined {
 
 /**
  * Extract ProofMode verification data from event tags
- * Tags follow Flutter app format:
- * - proof-verification-level: verified_mobile | verified_web | basic_proof | unverified
- * - proof-manifest: JSON string with session data and frame hashes
- * - proof-device-attestation: Device attestation token
- * - proof-pgp-fingerprint: PGP public key fingerprint
+ * Tags follow Flutter app format (matching video_event_publisher.dart):
+ * - verification: verified_mobile | verified_web | basic_proof | unverified
+ * - proofmode: JSON string with native proof data
+ * - device_attestation: Device attestation token
+ * - pgp_fingerprint: PGP public key fingerprint
  */
 export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
-  const levelTag = event.tags.find(tag => tag[0] === 'proof-verification-level');
+  const levelTag = event.tags.find(tag => tag[0] === 'verification');
 
   // If no verification level tag found, return undefined
   if (!levelTag?.[1]) {
@@ -456,9 +456,9 @@ export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
   }
 
   // Extract other proof data
-  const manifestTag = event.tags.find(tag => tag[0] === 'proof-manifest');
-  const attestationTag = event.tags.find(tag => tag[0] === 'proof-device-attestation');
-  const fingerprintTag = event.tags.find(tag => tag[0] === 'proof-pgp-fingerprint');
+  const manifestTag = event.tags.find(tag => tag[0] === 'proofmode');
+  const attestationTag = event.tags.find(tag => tag[0] === 'device_attestation');
+  const fingerprintTag = event.tags.find(tag => tag[0] === 'pgp_fingerprint');
 
   // Parse manifest JSON if present
   let manifestData: Record<string, unknown> | undefined;

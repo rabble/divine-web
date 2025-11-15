@@ -14,10 +14,12 @@ interface ProofModeBadgeProps {
   proofData?: ProofModeData;
   className?: string;
   showDetails?: boolean; // Show popover with details
+  size?: 'small' | 'medium' | 'large';
 }
 
-export function ProofModeBadge({ level, proofData, className, showDetails = false }: ProofModeBadgeProps) {
+export function ProofModeBadge({ level, proofData, className, showDetails = false, size = 'small' }: ProofModeBadgeProps) {
   const config = getProofModeConfig(level);
+  const sizeConfig = getSizeConfig(size);
   const [open, setOpen] = useState(false);
 
   if (!config) return null;
@@ -28,13 +30,14 @@ export function ProofModeBadge({ level, proofData, className, showDetails = fals
     <Badge
       variant="outline"
       className={cn(
-        'flex items-center gap-1 text-xs font-medium cursor-help',
+        'flex items-center gap-1 font-medium cursor-help',
         config.className,
+        sizeConfig.className,
         className
       )}
       title={config.tooltip}
     >
-      <Icon className="h-3 w-3" />
+      <Icon className={sizeConfig.iconSize} />
       <span>{config.label}</span>
     </Badge>
   );
@@ -111,12 +114,32 @@ export function ProofModeBadge({ level, proofData, className, showDetails = fals
   );
 }
 
+function getSizeConfig(size: 'small' | 'medium' | 'large') {
+  switch (size) {
+    case 'small':
+      return {
+        className: 'text-[10px] px-1.5 py-0.5',
+        iconSize: 'h-3 w-3',
+      };
+    case 'medium':
+      return {
+        className: 'text-[11px] px-2 py-1',
+        iconSize: 'h-3.5 w-3.5',
+      };
+    case 'large':
+      return {
+        className: 'text-xs px-2.5 py-1.5',
+        iconSize: 'h-4 w-4',
+      };
+  }
+}
+
 function getProofModeConfig(level: ProofModeLevel) {
   switch (level) {
     case 'verified_mobile':
       return {
         icon: ShieldCheck,
-        label: 'Verified',
+        label: 'Fully Verified',
         className: 'border-green-600 text-green-600 bg-green-50 dark:bg-green-950/20',
         iconColor: 'text-green-600',
         tooltip: 'Full hardware attestation - captured on secure mobile device',
@@ -134,7 +157,7 @@ function getProofModeConfig(level: ProofModeLevel) {
     case 'basic_proof':
       return {
         icon: ShieldAlert,
-        label: 'Signed',
+        label: 'Basic Proof',
         className: 'border-yellow-600 text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20',
         iconColor: 'text-yellow-600',
         tooltip: 'Basic proof - valid signature, integrity verified',
