@@ -15,7 +15,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { useFollowRelationship, useFollowUser, useUnfollowUser } from '@/hooks/useFollowRelationship';
-import { useRequireAuth } from '@/hooks/useAuthenticatedAction';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 
@@ -93,12 +93,15 @@ export function ProfilePage() {
 
   const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
 
-  // Check authentication before follow/unfollow
-  const requireAuth = useRequireAuth();
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
 
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {
-    if (!requireAuth()) return;
+    if (!currentUser) {
+      openLoginDialog();
+      return;
+    }
 
     try {
       if (shouldFollow) {

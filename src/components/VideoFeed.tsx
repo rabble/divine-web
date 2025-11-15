@@ -15,7 +15,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
-import { useRequireAuth } from '@/hooks/useAuthenticatedAction';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
@@ -254,12 +254,15 @@ export function VideoFeed({
     );
   }
 
-  // Handle interactions - check authentication first
-  const requireAuth = useRequireAuth();
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
 
   const handleLike = async (video: ParsedVideoData) => {
     // Check authentication first, show login dialog if not authenticated
-    if (!requireAuth()) return;
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
 
     debugLog('Like video:', video.id);
     try {
@@ -292,7 +295,10 @@ export function VideoFeed({
 
   const handleRepost = async (video: ParsedVideoData) => {
     // Check authentication first, show login dialog if not authenticated
-    if (!requireAuth()) return;
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
 
     if (!video.vineId) {
       toast({

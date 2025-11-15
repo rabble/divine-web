@@ -5,7 +5,7 @@ import { VideoCard } from './VideoCard';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { useRequireAuth } from '@/hooks/useAuthenticatedAction';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import type { ParsedVideoData } from '@/types/video';
 
 interface VideoCardWithMetricsProps {
@@ -23,11 +23,14 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
   // Fetch user's interaction status with this video
   const userInteractions = useVideoUserInteractions(video.id, user?.pubkey);
 
-  // Check authentication before actions
-  const requireAuth = useRequireAuth();
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
 
   const handleLike = () => {
-    if (!requireAuth()) return;
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
 
     console.log('[VideoCardWithMetrics] Like action authenticated, creating event');
     // Create a reaction event (kind 7) for this video
@@ -42,7 +45,10 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
   };
 
   const handleRepost = () => {
-    if (!requireAuth()) return;
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
 
     console.log('[VideoCardWithMetrics] Repost action authenticated, creating event');
     // Create a repost event (kind 6) for this video
