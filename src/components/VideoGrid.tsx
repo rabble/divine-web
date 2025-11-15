@@ -106,8 +106,9 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
             onMouseEnter={() => setHoveredVideo(video.id)}
             onMouseLeave={() => setHoveredVideo(null)}
             tabIndex={0}
+            data-video-id={video.id}
           >
-            <div className="aspect-square relative bg-muted">
+            <div className="aspect-square relative bg-muted" data-thumbnail-container="true">
               {/* Video Thumbnail */}
               {video.thumbnailUrl ? (
                 // Check if thumbnail URL is actually a video file (common for videos without explicit thumbnails)
