@@ -1,7 +1,7 @@
 // NOTE: This file is stable and usually should not be modified.
 // It is important that all functionality in this file is preserved, and should only be modified if explicitly requested.
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import LoginDialog from './LoginDialog';
@@ -10,6 +10,7 @@ import { KeycastSignupDialog } from './KeycastSignupDialog';
 import { useLoggedInAccounts } from '@/hooks/useLoggedInAccounts';
 import { AccountSwitcher } from './AccountSwitcher';
 import { cn } from '@/lib/utils';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 
 export interface LoginAreaProps {
   className?: string;
@@ -17,12 +18,22 @@ export interface LoginAreaProps {
 
 export function LoginArea({ className }: LoginAreaProps) {
   const { currentUser } = useLoggedInAccounts();
-  const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+  const { isOpen: globalLoginDialogOpen, openLoginDialog, closeLoginDialog } = useLoginDialog();
+  const [localLoginDialogOpen, setLocalLoginDialogOpen] = useState(false);
   const [signupDialogOpen, setSignupDialogOpen] = useState(false);
   const [keycastSignupDialogOpen, setKeycastSignupDialogOpen] = useState(false);
 
+  // Combine global and local dialog open states
+  const loginDialogOpen = globalLoginDialogOpen || localLoginDialogOpen;
+
+  // When local dialog closes, also close global dialog
+  const handleCloseLoginDialog = () => {
+    setLocalLoginDialogOpen(false);
+    closeLoginDialog();
+  };
+
   const handleLogin = () => {
-    setLoginDialogOpen(false);
+    handleCloseLoginDialog();
     setSignupDialogOpen(false);
     setKeycastSignupDialogOpen(false);
   };
@@ -30,10 +41,10 @@ export function LoginArea({ className }: LoginAreaProps) {
   return (
     <div className={cn("inline-flex items-center justify-center gap-2", className)}>
       {currentUser ? (
-        <AccountSwitcher onAddAccountClick={() => setLoginDialogOpen(true)} />
+        <AccountSwitcher onAddAccountClick={() => setLocalLoginDialogOpen(true)} />
       ) : (
         <Button
-          onClick={() => setLoginDialogOpen(true)}
+          onClick={() => setLocalLoginDialogOpen(true)}
           variant="outline"
           className='flex items-center gap-2 px-4 py-2 rounded-full w-full font-medium transition-all animate-scale-in'
         >
@@ -44,7 +55,7 @@ export function LoginArea({ className }: LoginAreaProps) {
 
       <LoginDialog
         isOpen={loginDialogOpen}
-        onClose={() => setLoginDialogOpen(false)}
+        onClose={handleCloseLoginDialog}
         onLogin={handleLogin}
         onSignup={() => setSignupDialogOpen(true)}
       />
@@ -58,7 +69,7 @@ export function LoginArea({ className }: LoginAreaProps) {
         isOpen={keycastSignupDialogOpen}
         onClose={() => setKeycastSignupDialogOpen(false)}
         onComplete={handleLogin}
-        onSwitchToLogin={() => setLoginDialogOpen(true)}
+        onSwitchToLogin={() => setLocalLoginDialogOpen(true)}
       />
     </div>
   );

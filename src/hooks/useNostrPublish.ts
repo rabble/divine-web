@@ -2,12 +2,14 @@ import { useNostr } from "@nostrify/react";
 import { useMutation, type UseMutationResult } from "@tanstack/react-query";
 
 import { useCurrentUser } from "./useCurrentUser";
+import { useLoginDialog } from "@/contexts/LoginDialogContext";
 
 import type { NostrEvent } from "@nostrify/nostrify";
 
 export function useNostrPublish(): UseMutationResult<NostrEvent> {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
+  const { openLoginDialog } = useLoginDialog();
 
   return useMutation({
     mutationFn: async (t: Omit<NostrEvent, 'id' | 'pubkey' | 'sig'>) => {
@@ -29,6 +31,8 @@ export function useNostrPublish(): UseMutationResult<NostrEvent> {
         await nostr.event(event, { signal: AbortSignal.timeout(5000) });
         return event;
       } else {
+        // Open login dialog instead of just throwing an error
+        openLoginDialog();
         throw new Error("User is not logged in");
       }
     },
