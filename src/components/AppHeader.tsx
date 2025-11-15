@@ -17,7 +17,7 @@ export function AppHeader() {
   const { user } = useCurrentUser();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-sm">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <button
@@ -120,7 +120,7 @@ export function AppHeader() {
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
-              
+
               <DropdownMenuItem asChild>
                 <a
                   href="https://github.com/rabble/nostrvine"
@@ -133,7 +133,7 @@ export function AppHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          
+
           <LoginArea className="max-w-60" />
         </div>
       </div>

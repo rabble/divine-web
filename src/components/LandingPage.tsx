@@ -21,7 +21,7 @@ export function LandingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-800 dark:to-emerald-900 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4">
       <div className="max-w-2xl w-full space-y-6">
         <Card className="w-full shadow-2xl bg-white dark:bg-gray-900">
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">

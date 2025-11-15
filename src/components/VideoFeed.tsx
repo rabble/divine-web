@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
@@ -106,7 +106,7 @@ export function VideoFeed({
         isRepost: v.isRepost,
         hasUrl: !!v.videoUrl
       })));
-      
+
       // Check if any videos are missing URLs
       const missingUrls = allVideos.filter(v => !v.videoUrl);
       if (missingUrls.length > 0) {
@@ -124,10 +124,10 @@ export function VideoFeed({
   useEffect(() => {
     if (inView && allVideos && allVideos.length > 0 && !isLoading && !isLoadingMore) {
       const oldestVideo = allVideos[allVideos.length - 1];
-      const oldestTimestamp = oldestVideo.isRepost && oldestVideo.repostedAt 
-        ? oldestVideo.repostedAt 
+      const oldestTimestamp = oldestVideo.isRepost && oldestVideo.repostedAt
+        ? oldestVideo.repostedAt
         : oldestVideo.createdAt;
-      
+
       debugLog('Near bottom, loading more videos before timestamp:', oldestTimestamp);
       setIsLoadingMore(true);
       setLastTimestamp(oldestTimestamp);
@@ -152,7 +152,7 @@ export function VideoFeed({
   // Loading state
   if (isLoading && !lastTimestamp) {
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
@@ -168,8 +168,11 @@ export function VideoFeed({
                   <div className="h-3 w-16 bg-muted/50 rounded animate-pulse" />
                 </div>
               </div>
-              <div className="aspect-square w-full bg-black/80 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
+              <div className="aspect-square w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
+                  <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin" />
+                </div>
               </div>
               <div className="p-4 space-y-2">
                 <div className="h-4 w-full bg-muted/50 rounded animate-pulse" />
@@ -185,7 +188,7 @@ export function VideoFeed({
   // Error state
   if (error) {
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
@@ -209,26 +212,40 @@ export function VideoFeed({
   // Empty state
   if (!allVideos || allVideos.length === 0) {
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
       >
-        <Card className="border-dashed">
-          <CardContent className="py-12 px-8 text-center">
-            <div className="max-w-sm mx-auto space-y-6">
-              <p className="text-muted-foreground">
-                {feedType === 'home'
-                  ? "No videos from people you follow yet. Try following some creators!"
-                  : feedType === 'hashtag'
-                  ? `No videos found for #${hashtag}`
-                  : feedType === 'profile'
-                  ? "This user hasn't posted any videos yet"
-                  : feedType === 'recent'
-                  ? "No recent videos found."
-                  : "No videos found."}
-              </p>
+        <Card className="border-dashed border-2 border-primary/20 bg-primary/5">
+          <CardContent className="py-16 px-8 text-center">
+            <div className="max-w-sm mx-auto space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Video className="h-8 w-8 text-primary/60" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-lg font-medium text-foreground">
+                  {feedType === 'home'
+                    ? "Your feed is empty"
+                    : feedType === 'hashtag'
+                    ? `No videos with #${hashtag}`
+                    : feedType === 'profile'
+                    ? "No videos yet"
+                    : feedType === 'recent'
+                    ? "No recent videos"
+                    : "No videos found"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {feedType === 'home'
+                    ? "Follow some creators to see their videos here!"
+                    : feedType === 'hashtag'
+                    ? "Be the first to post with this hashtag!"
+                    : feedType === 'profile'
+                    ? "Check back later for new content"
+                    : "Check back soon for new videos"}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -491,9 +508,15 @@ export function VideoFeed({
       </div>
 
       {/* Load more trigger */}
-      <div ref={bottomRef} className="h-10 flex items-center justify-center">
+      <div ref={bottomRef} className="h-16 flex items-center justify-center">
         {isLoadingMore && (
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="flex items-center gap-3">
+            <div className="relative w-8 h-8">
+              <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
+              <div className="absolute inset-0 border-2 border-transparent border-t-primary rounded-full animate-spin" />
+            </div>
+            <span className="text-sm text-muted-foreground">Loading more...</span>
+          </div>
         )}
       </div>
 

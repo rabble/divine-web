@@ -78,7 +78,7 @@ export function VideoCard({
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
-  const reposter = shouldShowReposter && video.reposterPubkey 
+  const reposter = shouldShowReposter && video.reposterPubkey
     ? enhanceAuthorData(reposterData.data, video.reposterPubkey)
     : null;
 
@@ -95,7 +95,7 @@ export function VideoCard({
 
   // Format time - use original Vine timestamp if available, otherwise use created_at
   const timestamp = video.originalVineTimestamp || video.createdAt;
-  
+
   const date = new Date(timestamp * 1000);
   const now = new Date();
 
@@ -199,7 +199,7 @@ export function VideoCard({
       {/* Video content */}
       <CardContent className="p-0">
         {/* Video player or thumbnail */}
-        <div className="relative aspect-square bg-black">
+        <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
           {!isPlaying ? (
             <ThumbnailPlayer
               videoId={video.id}
@@ -328,10 +328,10 @@ export function VideoCard({
             {repostCount > 0 && <span className="text-xs">{formatCount(repostCount)}</span>}
           </Button>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="gap-2" 
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2"
             onClick={handleCommentsClick}
             aria-label="Comment"
           >
