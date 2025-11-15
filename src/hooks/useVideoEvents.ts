@@ -5,6 +5,7 @@ import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useDeletionEvents } from '@/hooks/useDeletionEvents';
+import { useAppContext } from '@/hooks/useAppContext';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
@@ -300,6 +301,7 @@ async function parseVideoEvents(
 export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
+  const { config } = useAppContext();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
 
   return useQuery({
@@ -463,12 +465,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           .slice(0, limit); // Limit to requested amount
       }
 
-      // Filter out deleted videos (NIP-09)
-      const beforeDeletionFilter = parsed.length;
-      parsed = parsed.filter(video => !deletionService.isDeleted(video.id));
-      const deletedCount = beforeDeletionFilter - parsed.length;
-      if (deletedCount > 0) {
-        debugLog(`[useVideoEvents] Filtered out ${deletedCount} deleted videos`);
+      // Filter out deleted videos (NIP-09) unless user wants to see them
+      if (!config.showDeletedVideos) {
+        const beforeDeletionFilter = parsed.length;
+        parsed = parsed.filter(video => !deletionService.isDeleted(video.id));
+        const deletedCount = beforeDeletionFilter - parsed.length;
+        if (deletedCount > 0) {
+          debugLog(`[useVideoEvents] Filtered out ${deletedCount} deleted videos`);
+        }
       }
 
       const totalTime = performance.now() - startTime;

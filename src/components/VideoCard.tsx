@@ -19,10 +19,13 @@ import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { DeleteVideoDialog } from '@/components/DeleteVideoDialog';
+import { DeletedVideoIndicator } from '@/components/DeletedVideoIndicator';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
+import { useDeletionInfo } from '@/hooks/useDeletionEvents';
+import { useAppContext } from '@/hooks/useAppContext';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -90,6 +93,8 @@ export function VideoCard({
   const muteUser = useMuteItem();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
+  const deletionInfo = useDeletionInfo(video.id);
+  const { config } = useAppContext();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -227,6 +232,16 @@ export function VideoCard({
       }
     }
   };
+
+  // Show deleted indicator if video is deleted and user has enabled showing deleted videos
+  if (deletionInfo && config.showDeletedVideos) {
+    return <DeletedVideoIndicator deletionInfo={deletionInfo} className={className} />;
+  }
+
+  // Don't render if deleted and user wants to hide deleted videos (default)
+  if (deletionInfo && !config.showDeletedVideos) {
+    return null;
+  }
 
   return (
     <>
