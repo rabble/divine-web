@@ -190,12 +190,12 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               )}
 
               {/* Metadata Overlay */}
-              {isHovered && (video.content || video.hashtags.length > 0) ? (
+              {isHovered && (video.content || video.hashtags.length > 0) && (
                 <div
                   className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white"
                   data-testid={`metadata-overlay-${video.id}`}
                 >
-                  {video.content && (
+                  {video.content && video.content.trim() && (
                     <p className="text-sm font-medium mb-1">
                       {truncateText(video.content)}
                     </p>
@@ -210,7 +210,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     </div>
                   )}
                 </div>
-              ) : null}
+              )}
             </div>
           </Card>
         );
