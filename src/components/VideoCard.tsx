@@ -27,6 +27,7 @@ import { cn } from '@/lib/utils';
 import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
+import { useToast } from '@/hooks/useToast';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -77,6 +78,7 @@ export function VideoCard({
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -139,6 +141,47 @@ export function VideoCard({
   const handleVideoEnd = () => {
     if (mode === 'thumbnail') {
       setIsPlaying(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const videoUrl = `${window.location.origin}/video/${video.id}`;
+
+    // Use Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: video.title || 'Check out this video on Divine Web',
+          text: video.content || 'Short-form looping video on Nostr',
+          url: videoUrl,
+        });
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to share video',
+            variant: 'destructive',
+          });
+        }
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(videoUrl);
+        toast({
+          title: 'Link copied!',
+          description: 'Video link has been copied to clipboard',
+        });
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to copy link to clipboard',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -354,6 +397,7 @@ export function VideoCard({
               "gap-2",
               isMobile && "px-2"
             )}
+            onClick={handleShare}
             aria-label="Share"
           >
             <Share className="h-4 w-4" />
