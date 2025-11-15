@@ -30,7 +30,7 @@ export function AppHeader() {
               alt="diVine logo"
               className="w-8 h-8"
             />
-            di<span className="italic">V</span>ine
+            diVine
           </button>
         </div>
         <div className="flex items-center gap-2">
