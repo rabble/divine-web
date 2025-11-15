@@ -168,17 +168,15 @@ export function LandingPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
                 <Link
                   to="/human-created"
-                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary/80 transition-colors"
+                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
-                  <span className="text-base">⭐</span>
                   Made by Humans
                 </Link>
                 <span className="text-muted-foreground">•</span>
                 <Link
                   to="/proofmode"
-                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary/80 transition-colors"
+                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
-                  <span className="text-base">🔒</span>
                   ProofMode
                 </Link>
               </div>
