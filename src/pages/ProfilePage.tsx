@@ -10,6 +10,7 @@ import { VideoGrid } from '@/components/VideoGrid';
 import { VideoFeed } from '@/components/VideoFeed';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { EditProfileDialog } from '@/components/EditProfileDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
@@ -22,6 +23,7 @@ import { enhanceAuthorData } from '@/lib/generateProfile';
 export function ProfilePage() {
   const { npub, nip19: nip19Param } = useParams<{ npub?: string; nip19?: string }>();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const { user: currentUser } = useCurrentUser();
 
   // Get the identifier from either route param
@@ -132,8 +134,17 @@ export function ProfilePage() {
           isOwnProfile={isOwnProfile}
           isFollowing={followData?.isFollowing || false}
           onFollowToggle={handleFollowToggle}
+          onEditProfile={() => setEditProfileOpen(true)}
           isLoading={statsLoading || followLoading || isFollowing || isUnfollowing}
         />
+
+        {/* Edit Profile Dialog */}
+        {isOwnProfile && (
+          <EditProfileDialog
+            open={editProfileOpen}
+            onOpenChange={setEditProfileOpen}
+          />
+        )}
 
         {/* Content Section */}
         <div className="space-y-4">

@@ -1,1 +1,1 @@
-../CONTEXT.md
+CONTEXT.md
