@@ -52,9 +52,16 @@ export function LandingPage() {
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl font-logo text-primary">
-                di<span className="italic">V</span>ine
-              </h1>
+              <div className="flex items-center justify-center gap-3">
+                <img
+                  src="/divine_icon_transparent.png"
+                  alt="diVine logo"
+                  className="w-12 h-12 md:w-16 md:h-16"
+                />
+                <h1 className="text-4xl md:text-5xl font-logo text-primary">
+                  di<span className="italic">V</span>ine
+                </h1>
+              </div>
               <p className="text-xl md:text-2xl font-semibold text-foreground">
                 Short-form looping videos. Authentic moments. Human creativity.
               </p>

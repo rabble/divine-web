@@ -1,5 +1,5 @@
-// ABOUTME: Main upload page for recording and publishing videos
-// ABOUTME: Orchestrates camera recording, file upload, metadata input, and publishing flow
+// ABOUTME: Main record page for recording and publishing videos
+// ABOUTME: Orchestrates camera recording, file recording, metadata input, and publishing flow
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +22,7 @@ export function UploadPage() {
   const [step, setStep] = useState<UploadStep>('choose');
   const [recordedSegments, setRecordedSegments] = useState<RecordedSegment[]>([]);
 
-  // Require login to upload
+  // Require login to record
   if (!user) {
     return (
       <div className="container max-w-lg mx-auto py-12 px-4">
@@ -30,7 +30,7 @@ export function UploadPage() {
           <Camera className="h-16 w-16 mx-auto text-muted-foreground" />
           <h1 className="text-2xl font-bold">Login Required</h1>
           <p className="text-muted-foreground">
-            You need to be logged in to upload videos
+            You need to be logged in to record videos
           </p>
           <Button onClick={() => navigate('/')}>
             Go to Home
@@ -70,7 +70,7 @@ export function UploadPage() {
     setStep('choose');
   };
 
-  // Choose upload method
+  // Choose record method
   if (step === 'choose') {
     return (
       <div className="container max-w-lg mx-auto py-12 px-4">

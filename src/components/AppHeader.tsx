@@ -21,10 +21,15 @@ export function AppHeader() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            className="text-2xl font-logo text-primary"
+            className="flex items-center gap-2 text-2xl font-logo text-primary"
             onClick={() => navigate('/discovery')}
             aria-label="Go to discovery"
           >
+            <img
+              src="/divine_icon_transparent.png"
+              alt="diVine logo"
+              className="w-8 h-8"
+            />
             di<span className="italic">V</span>ine
           </button>
         </div>
@@ -59,7 +64,7 @@ export function AppHeader() {
                 className="hidden md:flex items-center gap-2"
               >
                 <Video className="h-4 w-4" />
-                <span className="hidden sm:inline">Upload</span>
+                <span className="hidden sm:inline">Record</span>
               </Button>
               <Button
                 variant="ghost"
