@@ -2,7 +2,8 @@
 // ABOUTME: Supports searching videos, users, hashtags with proper loading and empty states
 
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 import { useSeoMeta } from '@unhead/react';
 import { Search, Hash, Users, Video } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -405,13 +406,33 @@ interface UserCardMetadata {
 
 // User card component
 function UserCard({ user }: { user: { pubkey: string; metadata?: UserCardMetadata } }) {
+  const navigate = useNavigate();
   const displayName = user.metadata?.display_name || user.metadata?.name || genUserName(user.pubkey);
   const username = user.metadata?.name || genUserName(user.pubkey);
   const about = user.metadata?.about;
   const picture = getSafeProfileImage(user.metadata?.picture);
+  const npub = nip19.npubEncode(user.pubkey);
+
+  const handleClick = () => {
+    navigate(`/${npub}`);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
-    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`View profile of ${displayName}`}
+    >
       <CardContent className="p-4">
         <div className="flex items-start gap-3">
           <Avatar className="h-12 w-12">
