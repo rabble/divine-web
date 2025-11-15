@@ -84,16 +84,18 @@ export function usePostComment() {
 
       return event;
     },
-    onMutate: async ({ root, content }) => {
+    onMutate: async ({ root, content, reply }) => {
       const videoId = root instanceof URL ? root.toString() : root.id;
-      const commentsQueryKey = ['comments', videoId];
       const metricsQueryKey = ['video-social-metrics', videoId];
 
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: commentsQueryKey });
+      // Cancel all comment queries for this video (regardless of limit)
+      await queryClient.cancelQueries({
+        predicate: (query) => {
+          return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+        }
+      });
 
-      // Snapshot previous value
-      const previousComments = queryClient.getQueryData(commentsQueryKey);
+      // Snapshot previous metrics
       const previousMetrics = queryClient.getQueryData(metricsQueryKey);
 
       // Optimistically update comment count
@@ -102,8 +104,8 @@ export function usePostComment() {
         commentCount: (old?.commentCount || 0) + 1,
       }));
 
-      // Optimistically add comment to list (if comments are loaded)
-      if (user && previousComments) {
+      // Optimistically add comment to all matching comment queries
+      if (user) {
         const optimisticComment: NostrEvent = {
           id: `temp-${Date.now()}`,
           pubkey: user.pubkey,
@@ -114,21 +116,51 @@ export function usePostComment() {
           sig: '',
         };
 
-        queryClient.setQueryData(commentsQueryKey, (old: any) => {
-          if (Array.isArray(old)) {
-            return [optimisticComment, ...old];
+        // Update all comment queries for this video
+        queryClient.setQueriesData(
+          {
+            predicate: (query) => {
+              return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+            }
+          },
+          (old: any) => {
+            // useComments returns an object with { allComments, topLevelComments, getDescendants, getDirectReplies }
+            // We need to preserve this structure
+            if (old && typeof old === 'object' && 'topLevelComments' in old) {
+              // If this is a reply, add to allComments but not topLevelComments
+              if (reply) {
+                return {
+                  ...old,
+                  allComments: [optimisticComment, ...old.allComments],
+                };
+              }
+              // If this is a top-level comment, add to both
+              return {
+                ...old,
+                allComments: [optimisticComment, ...old.allComments],
+                topLevelComments: [optimisticComment, ...old.topLevelComments],
+              };
+            }
+            // If the cache structure is unexpected, don't update it
+            // This prevents corrupting the cache
+            return old;
           }
-          return [optimisticComment];
-        });
+        );
       }
 
-      return { previousComments, previousMetrics, videoId };
+      return { previousMetrics, videoId };
     },
     onError: (_err, _variables, context) => {
       // Rollback on error
       if (context) {
-        queryClient.setQueryData(['comments', context.videoId], context.previousComments);
+        // Rollback metrics
         queryClient.setQueryData(['video-social-metrics', context.videoId], context.previousMetrics);
+        // Refetch comments to get the correct state
+        queryClient.invalidateQueries({
+          predicate: (query) => {
+            return query.queryKey[0] === 'comments' && query.queryKey[1] === context.videoId;
+          }
+        });
       }
     },
     onSettled: (_, __, { root }) => {
