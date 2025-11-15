@@ -47,24 +47,16 @@ export function useMediaRecorder() {
   // Get optimal video constraints based on device
   const getOptimalVideoConstraints = useCallback(() => {
     const isMobile = window.innerWidth < 768;
-    const isPortrait = window.innerHeight > window.innerWidth;
 
-    if (isMobile && isPortrait) {
-      // Mobile portrait - Vine/TikTok style vertical video
+    if (isMobile) {
+      // Mobile - always use square for consistent recording
       return {
-        width: { ideal: 720, max: 1080 },
-        height: { ideal: 1280, max: 1920 },
-        aspectRatio: { ideal: 9/16 },
-      };
-    } else if (isMobile && !isPortrait) {
-      // Mobile landscape
-      return {
-        width: { ideal: 1280, max: 1920 },
-        height: { ideal: 720, max: 1080 },
-        aspectRatio: { ideal: 16/9 },
+        width: { ideal: 1080 },
+        height: { ideal: 1080 },
+        aspectRatio: { ideal: 1 },
       };
     } else {
-      // Desktop - request square or slightly portrait for better desktop experience
+      // Desktop - square for better desktop experience
       return {
         width: { ideal: 1080 },
         height: { ideal: 1080 },
