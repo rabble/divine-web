@@ -59,7 +59,7 @@ export function LandingPage() {
                   className="w-12 h-12 md:w-16 md:h-16"
                 />
                 <h1 className="text-4xl md:text-5xl font-logo text-primary">
-                  di<span className="italic">V</span>ine
+                  diVine
                 </h1>
               </div>
               <p className="text-xl md:text-2xl font-semibold text-foreground">
