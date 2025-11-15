@@ -21,33 +21,34 @@ export function LandingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 relative overflow-hidden">
-      {/* Decorative curved line */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 1000 1000"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M -50,200 Q 250,100 500,300 T 1050,400"
-          stroke="white"
-          strokeWidth="8"
-          fill="none"
-          opacity="0.4"
-          strokeLinecap="round"
-        />
-        <path
-          d="M -50,600 Q 250,500 500,700 T 1050,800"
-          stroke="white"
-          strokeWidth="6"
-          fill="none"
-          opacity="0.3"
-          strokeLinecap="round"
-        />
-      </svg>
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 relative overflow-hidden">
+        {/* Decorative curved line */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 1000 1000"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M -50,200 Q 250,100 500,300 T 1050,400"
+            stroke="white"
+            strokeWidth="8"
+            fill="none"
+            opacity="0.4"
+            strokeLinecap="round"
+          />
+          <path
+            d="M -50,600 Q 250,500 500,700 T 1050,800"
+            stroke="white"
+            strokeWidth="6"
+            fill="none"
+            opacity="0.3"
+            strokeLinecap="round"
+          />
+        </svg>
 
-      <div className="max-w-2xl w-full space-y-6 relative z-10">
+        <div className="max-w-2xl w-full space-y-6 relative z-10">
         <Card className="w-full shadow-2xl bg-white dark:bg-gray-900">
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
@@ -185,63 +186,7 @@ export function LandingPage() {
             <LoginArea className="w-full justify-center" />
           </CardContent>
         </Card>
-
-        <Card className="bg-white/80 dark:bg-black/40 backdrop-blur-md border-white/20">
-          <CardContent className="pt-6 pb-6">
-            <div className="flex flex-col items-center gap-4 text-center">
-              {/* Featured Authenticity Section */}
-              <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
-                <Link
-                  to="/human-created"
-                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
-                >
-                  Made by Humans
-                </Link>
-                <span className="text-muted-foreground">•</span>
-                <Link
-                  to="/proofmode"
-                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
-                >
-                  ProofMode
-                </Link>
-              </div>
-
-              {/* Compact Navigation Links */}
-              <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Link to="/about" className="hover:text-foreground transition-colors">
-                    About
-                  </Link>
-                  <span>•</span>
-                  <Link to="/faq" className="hover:text-foreground transition-colors">
-                    FAQ
-                  </Link>
-                  <span>•</span>
-                  <Link to="/authenticity" className="hover:text-foreground transition-colors">
-                    Our Mission
-                  </Link>
-                  <span>•</span>
-                  <Link to="/open-source" className="hover:text-foreground transition-colors">
-                    Open Source
-                  </Link>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <Link to="/privacy" className="hover:text-foreground transition-colors">
-                    Privacy
-                  </Link>
-                  <span>•</span>
-                  <Link to="/terms" className="hover:text-foreground transition-colors">
-                    EULA/T&C
-                  </Link>
-                  <span>•</span>
-                  <Link to="/safety" className="hover:text-foreground transition-colors">
-                    Safety
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );
