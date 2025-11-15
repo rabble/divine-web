@@ -69,7 +69,6 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary hover:!bg-primary/10 hover:!text-primary"
               >
                 <MoreVertical className="h-4 w-4" />
                 <span className="sr-only">More options</span>
@@ -81,7 +80,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/about')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Info className="mr-2 h-4 w-4" />
                 <span>About</span>
@@ -89,7 +88,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/authenticity')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Heart className="mr-2 h-4 w-4" />
                 <span>Our Mission</span>
@@ -97,7 +96,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/faq')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>FAQ</span>
@@ -110,7 +109,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/proofmode')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <ShieldCheck className="mr-2 h-4 w-4" />
                 <span>ProofMode</span>
@@ -118,7 +117,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/human-created')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Users className="mr-2 h-4 w-4" />
                 <span>Made by Humans</span>
@@ -126,7 +125,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/safety')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <ShieldAlert className="mr-2 h-4 w-4" />
                 <span>Safety Standards</span>
@@ -139,7 +138,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/open-source')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Code2 className="mr-2 h-4 w-4" />
                 <span>Open Source</span>
@@ -149,7 +148,7 @@ export function AppHeader() {
                 <a
                   href="https://github.com/rabble/nostrvine"
                   rel="noopener noreferrer"
-                  className="flex items-center cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                  className="flex items-center cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
                 >
                   <Github className="mr-2 h-4 w-4" />
                   <span>GitHub Repository</span>
@@ -177,7 +176,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/terms')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Scale className="mr-2 h-4 w-4" />
                 <span>Terms & Conditions</span>
@@ -185,7 +184,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/privacy')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Shield className="mr-2 h-4 w-4" />
                 <span>Privacy Policy</span>
@@ -193,7 +192,7 @@ export function AppHeader() {
 
               <DropdownMenuItem
                 onClick={() => navigate('/dmca')}
-                className="cursor-pointer hover:!bg-primary/5 focus:!bg-primary/10 focus:!text-primary"
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
                 <Scale className="mr-2 h-4 w-4" />
                 <span>Copyright & DMCA</span>
