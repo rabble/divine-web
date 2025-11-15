@@ -19,7 +19,7 @@ interface DeleteVideoParams {
  * Only the video author can delete their own content
  */
 export function useDeleteVideo() {
-  const { publishEvent } = useNostrPublish();
+  const publishMutation = useNostrPublish();
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -38,7 +38,7 @@ export function useDeleteVideo() {
       debugLog('[useDeleteVideo] Deleting video:', video.id);
 
       // Create NIP-09 deletion event
-      const deletionEvent = await publishEvent({
+      const deletionEvent = await publishMutation.mutateAsync({
         kind: 5, // NIP-09 deletion event
         content: reason || 'Video deleted by author',
         tags: [
@@ -81,7 +81,7 @@ export function useDeleteVideo() {
     },
     onError: (error: Error) => {
       debugError('[useDeleteVideo] Error deleting video:', error);
-      
+
       toast({
         title: 'Delete Failed',
         description: error.message || 'Failed to delete video. Please try again.',
@@ -98,7 +98,7 @@ export function useCanDeleteVideo(video?: ParsedVideoData): boolean {
   const { user } = useCurrentUser();
 
   if (!user?.pubkey || !video) return false;
-  
+
   // User can only delete their own videos
   return user.pubkey === video.pubkey;
 }
