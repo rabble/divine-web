@@ -307,14 +307,14 @@ export function VideoCard({
         {/* Video metadata */}
         <div className="px-4 py-2" data-testid="video-metadata">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {video.loopCount && video.loopCount > 0 && (
+            {(video.loopCount ?? 0) > 0 && (
               <span className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                {formatViewCount(video.loopCount)}
+                {formatViewCount(video.loopCount!)}
               </span>
             )}
-            {video.duration && video.duration > 0 && (
-              <span>{formatDuration(video.duration)}</span>
+            {(video.duration ?? 0) > 0 && (
+              <span>{formatDuration(video.duration!)}</span>
             )}
           </div>
         </div>
