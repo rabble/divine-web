@@ -171,7 +171,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
     reader.readAsText(file);
   };
 
-  const defaultTab = 'email';
+  const defaultTab = 'extension';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
