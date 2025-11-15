@@ -70,12 +70,19 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
         // Separate filters by kind for kind-specific relay routing
         const profileFilters: NostrFilter[] = [];
+        const videoFilters: NostrFilter[] = [];
         const otherFilters: NostrFilter[] = [];
+
+        // Video kinds from NIP-71
+        const VIDEO_KINDS = [21, 22, 34236];
 
         for (const filter of filters) {
           if (filter.kinds?.includes(0)) {
             // Kind 0 (profile metadata) - route to profile relays
             profileFilters.push(filter);
+          } else if (filter.kinds?.some(k => VIDEO_KINDS.includes(k))) {
+            // Video kinds - route to video relays with fallbacks
+            videoFilters.push(filter);
           } else {
             // All other kinds - route to main relay
             otherFilters.push(filter);
@@ -88,7 +95,27 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
           result.set('wss://relay.nos.social', profileFilters);
         }
 
-        // Route other queries to the selected relay
+        // Route video queries to multiple relays for redundancy
+        if (videoFilters.length > 0) {
+          // Primary relay first
+          result.set(relayUrl.current, videoFilters);
+
+          // Add fallback relays for video content
+          // This ensures videos still load if primary relay is down
+          const fallbackRelays = [
+            'wss://relay3.openvine.co',
+            'wss://relay.nostr.band',
+            'wss://relay.damus.io',
+          ];
+
+          for (const fallbackRelay of fallbackRelays) {
+            if (fallbackRelay !== relayUrl.current) {
+              result.set(fallbackRelay, videoFilters);
+            }
+          }
+        }
+
+        // Route other queries to the selected relay only
         if (otherFilters.length > 0) {
           result.set(relayUrl.current, otherFilters);
         }

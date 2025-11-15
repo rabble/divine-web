@@ -368,6 +368,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         verboseLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
         verboseLog('[useVideoEvents] First event:', events[0]);
 
+        // Log if we got zero events for debugging
+        if (events.length === 0) {
+          debugLog('[useVideoEvents] WARNING: Query returned 0 events');
+          debugLog('[useVideoEvents] Filter used:', JSON.stringify(baseFilter));
+          debugLog('[useVideoEvents] This could indicate a relay issue or no matching content');
+        }
+
         // Only query reposts if we don't have enough videos
         if (events.length < limit && feedType !== 'profile') {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
@@ -378,6 +385,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         }
       } catch (err) {
         debugError('[useVideoEvents] Query error:', err);
+        debugError('[useVideoEvents] Filter that caused error:', JSON.stringify(baseFilter));
+        debugError('[useVideoEvents] This likely indicates a relay connectivity issue');
         throw err;
       }
 
