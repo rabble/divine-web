@@ -168,7 +168,7 @@ export function LandingPage() {
             <div className="pt-4 flex flex-wrap gap-3 justify-center">
               <button
                 onClick={() => setSignupDialogOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-green-600 hover:bg-green-700 text-white border-2 border-green-600 hover:border-green-700 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-primary hover:bg-primary/90 text-white border-2 border-primary hover:border-primary/90 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
               >
                 Sign Up
               </button>
