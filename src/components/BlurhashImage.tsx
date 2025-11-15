@@ -110,14 +110,13 @@ export function BlurhashPlaceholder({
 
 /**
  * Validates if a string is a valid blurhash
- * Blurhashes always start with 'L' and are 6+ characters
+ * Blurhashes are 6+ characters using base83 encoding
  */
 export function isValidBlurhash(blurhash: string | undefined | null): blurhash is string {
   if (!blurhash || typeof blurhash !== 'string') return false;
   if (blurhash.length < 6) return false;
-  if (!blurhash.startsWith('L')) return false;
-  
-  // Validate base83 characters
+
+  // Validate base83 characters (0-9, A-Z, a-z, and some special chars)
   const validChars = /^[0-9A-Za-z#$%*+,\-./:;=?@[\]^_{|}~]+$/;
   return validChars.test(blurhash);
 }
