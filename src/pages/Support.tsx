@@ -18,10 +18,12 @@ export function Support() {
       script.async = true;
 
       script.onload = () => {
-        // Wait for zE to be available, then open the widget
+        // Wait for zE to be available, then show and open the widget
         const checkZE = setInterval(() => {
           if (window.zE) {
             clearInterval(checkZE);
+            // Always show widget on Support page (even on mobile)
+            window.zE('webWidget', 'show');
             // Open the web widget automatically
             window.zE('webWidget', 'open');
           }
@@ -30,8 +32,9 @@ export function Support() {
 
       document.body.appendChild(script);
     } else {
-      // Script already loaded, just open the widget
+      // Script already loaded, show and open the widget
       if (window.zE) {
+        window.zE('webWidget', 'show');
         window.zE('webWidget', 'open');
       }
     }

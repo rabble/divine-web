@@ -3,7 +3,11 @@
 
 import { useEffect } from 'react';
 
-export function ZendeskWidget() {
+interface ZendeskWidgetProps {
+  hideOnMobile?: boolean;
+}
+
+export function ZendeskWidget({ hideOnMobile = true }: ZendeskWidgetProps) {
   useEffect(() => {
     // Check if script already exists
     const existingScript = document.getElementById('ze-snippet');
@@ -14,11 +18,53 @@ export function ZendeskWidget() {
       script.id = 'ze-snippet';
       script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
       script.async = true;
+
+      script.onload = () => {
+        // Apply mobile hiding if needed
+        if (hideOnMobile) {
+          applyMobileHiding();
+        }
+      };
+
       document.body.appendChild(script);
+    } else if (hideOnMobile) {
+      // Script already loaded, apply mobile hiding
+      applyMobileHiding();
+    }
+
+    function applyMobileHiding() {
+      // Wait for zE to be available
+      const checkZE = setInterval(() => {
+        if (window.zE) {
+          clearInterval(checkZE);
+
+          // Hide on mobile (screens < 768px)
+          const isMobile = window.matchMedia('(max-width: 767px)').matches;
+          if (isMobile) {
+            window.zE('webWidget', 'hide');
+          } else {
+            window.zE('webWidget', 'show');
+          }
+
+          // Listen for window resize to handle orientation changes
+          const handleResize = () => {
+            const isMobileNow = window.matchMedia('(max-width: 767px)').matches;
+            if (window.zE) {
+              if (isMobileNow) {
+                window.zE('webWidget', 'hide');
+              } else {
+                window.zE('webWidget', 'show');
+              }
+            }
+          };
+
+          window.addEventListener('resize', handleResize);
+        }
+      }, 100);
     }
 
     // No cleanup needed - keep widget available across navigation
-  }, []);
+  }, [hideOnMobile]);
 
   return null; // This component doesn't render anything visible
 }
