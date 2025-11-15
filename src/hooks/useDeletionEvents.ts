@@ -3,7 +3,7 @@
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
-import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
+import type { NostrFilter } from '@nostrify/nostrify';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog } from '@/lib/debug';
 
@@ -12,7 +12,7 @@ import { debugLog } from '@/lib/debug';
  * Updates the deletion service when new deletion events are received
  */
 export function useDeletionEvents() {
-  const nostr = useNostr();
+  const { nostr } = useNostr();
 
   return useQuery({
     queryKey: ['deletion-events'],

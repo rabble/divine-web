@@ -4,7 +4,7 @@
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useDeletionEvents } from '@/hooks/useDeletionEvents';
+// import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
 import { useAppContext } from '@/hooks/useAppContext';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';

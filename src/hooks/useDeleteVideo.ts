@@ -62,7 +62,7 @@ export function useDeleteVideo() {
         deletedVideoId: video.id,
       };
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (data, _variables) => {
       // Show success toast
       toast({
         title: 'Video Deleted',
