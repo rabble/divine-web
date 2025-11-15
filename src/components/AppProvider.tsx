@@ -1,7 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useDeletionEvents } from '@/hooks/useDeletionEvents';
 import { AppContext, type AppConfig, type AppContextType, type Theme } from '@/contexts/AppContext';
 import { LoginDialogProvider } from '@/contexts/LoginDialogContext';
 
@@ -50,9 +49,6 @@ export function AppProvider(props: AppProviderProps) {
   const updateConfig = (updater: (currentConfig: AppConfig) => AppConfig) => {
     setConfig(updater);
   };
-
-  // Subscribe to deletion events globally
-  useDeletionEvents();
 
   const appContextValue: AppContextType = {
     config,
