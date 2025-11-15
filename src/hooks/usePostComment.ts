@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { NKinds, type NostrEvent } from '@nostrify/nostrify';
 
 interface PostCommentParams {
@@ -12,6 +13,7 @@ interface PostCommentParams {
 export function usePostComment() {
   const { mutateAsync: publishEvent } = useNostrPublish();
   const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
 
   return useMutation({
     mutationFn: async ({ root, reply, content }: PostCommentParams) => {
@@ -82,10 +84,61 @@ export function usePostComment() {
 
       return event;
     },
-    onSuccess: (_, { root }) => {
-      // Invalidate and refetch comments
+    onMutate: async ({ root, content }) => {
+      const videoId = root instanceof URL ? root.toString() : root.id;
+      const commentsQueryKey = ['comments', videoId];
+      const metricsQueryKey = ['video-social-metrics', videoId];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: commentsQueryKey });
+
+      // Snapshot previous value
+      const previousComments = queryClient.getQueryData(commentsQueryKey);
+      const previousMetrics = queryClient.getQueryData(metricsQueryKey);
+
+      // Optimistically update comment count
+      queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+        ...old,
+        commentCount: (old?.commentCount || 0) + 1,
+      }));
+
+      // Optimistically add comment to list (if comments are loaded)
+      if (user && previousComments) {
+        const optimisticComment: NostrEvent = {
+          id: `temp-${Date.now()}`,
+          pubkey: user.pubkey,
+          created_at: Math.floor(Date.now() / 1000),
+          kind: 1111,
+          content,
+          tags: [],
+          sig: '',
+        };
+
+        queryClient.setQueryData(commentsQueryKey, (old: any) => {
+          if (Array.isArray(old)) {
+            return [optimisticComment, ...old];
+          }
+          return [optimisticComment];
+        });
+      }
+
+      return { previousComments, previousMetrics, videoId };
+    },
+    onError: (_err, _variables, context) => {
+      // Rollback on error
+      if (context) {
+        queryClient.setQueryData(['comments', context.videoId], context.previousComments);
+        queryClient.setQueryData(['video-social-metrics', context.videoId], context.previousMetrics);
+      }
+    },
+    onSettled: (_, __, { root }) => {
+      // Refetch to sync with server
+      const videoId = root instanceof URL ? root.toString() : root.id;
       queryClient.invalidateQueries({
-        queryKey: ['comments', root instanceof URL ? root.toString() : root.id]
+        queryKey: ['comments', videoId]
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['video-social-metrics', videoId]
       });
     },
   });

@@ -9,10 +9,9 @@ import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
-import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { useRepostVideo } from '@/hooks/usePublishVideo';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useOptimisticRepost } from '@/hooks/useOptimisticRepost';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
@@ -50,9 +49,8 @@ export function VideoFeed({
 
   const { user } = useCurrentUser();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { mutateAsync: publishEvent } = useNostrPublish();
-  const { mutateAsync: repostVideo, isPending: isReposting } = useRepostVideo();
+  const { toggleLike } = useOptimisticLike();
+  const { toggleRepost } = useOptimisticRepost();
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -257,147 +255,6 @@ export function VideoFeed({
   // Get login dialog opener
   const { openLoginDialog } = useLoginDialog();
 
-  const handleLike = async (video: ParsedVideoData) => {
-    // Check authentication first, show login dialog if not authenticated
-    if (!user) {
-      openLoginDialog();
-      return;
-    }
-
-    debugLog('Like video:', video.id);
-    try {
-      await publishEvent({
-        kind: 7, // Reaction event
-        content: '+', // Positive reaction
-        tags: [
-          ['e', video.id], // Reference to the video event
-          ['p', video.pubkey], // Reference to the video author
-        ],
-      });
-
-      toast({
-        title: 'Liked!',
-        description: 'Your reaction has been published',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
-    } catch (error) {
-      console.error('Failed to like video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to like video',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleRepost = async (video: ParsedVideoData) => {
-    // Check authentication first, show login dialog if not authenticated
-    if (!user) {
-      openLoginDialog();
-      return;
-    }
-
-    if (!video.vineId) {
-      toast({
-        title: 'Error',
-        description: 'Cannot repost this video',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (isReposting) return; // Prevent multiple simultaneous reposts
-
-    debugLog('Repost video:', video.id, 'vineId:', video.vineId);
-    try {
-      await repostVideo({
-        originalPubkey: video.pubkey,
-        vineId: video.vineId,
-      });
-
-      toast({
-        title: 'Reposted!',
-        description: 'Video has been reposted to your feed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
-    } catch (error) {
-      console.error('Failed to repost video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to repost video',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleUnlike = async (likeEventId: string) => {
-    if (!user) return;
-
-    debugLog('Unlike video, deleting event:', likeEventId);
-    try {
-      await publishEvent({
-        kind: 5, // Delete event (NIP-09)
-        content: 'Unliked', // Optional reason
-        tags: [
-          ['e', likeEventId], // Reference to the event being deleted
-        ],
-      });
-
-      toast({
-        title: 'Unliked!',
-        description: 'Your like has been removed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
-    } catch (error) {
-      console.error('Failed to unlike video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove like',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleUnrepost = async (repostEventId: string) => {
-    if (!user) return;
-
-    debugLog('Un-repost video, deleting event:', repostEventId);
-    try {
-      await publishEvent({
-        kind: 5, // Delete event (NIP-09)
-        content: 'Un-reposted', // Optional reason
-        tags: [
-          ['e', repostEventId], // Reference to the event being deleted
-        ],
-      });
-
-      toast({
-        title: 'Un-reposted!',
-        description: 'Your repost has been removed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
-    } catch (error) {
-      console.error('Failed to un-repost video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove repost',
-        variant: 'destructive',
-      });
-    }
-  };
-
   const handleOpenComments = (video: ParsedVideoData) => {
     setShowCommentsForVideo(video.id);
   };
@@ -435,27 +292,47 @@ export function VideoFeed({
     const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
 
     const handleVideoLike = async () => {
-      if (userInteractions?.hasLiked) {
-        // Unlike - delete the like event
-        if (userInteractions.likeEventId) {
-          await handleUnlike(userInteractions.likeEventId);
-        }
-      } else {
-        // Like the video
-        await handleLike(video);
+      // Check authentication first, show login dialog if not authenticated
+      if (!user) {
+        openLoginDialog();
+        return;
       }
+
+      debugLog('Toggle like for video:', video.id);
+      await toggleLike({
+        videoId: video.id,
+        videoPubkey: video.pubkey,
+        userPubkey: user.pubkey,
+        isCurrentlyLiked: userInteractions?.hasLiked || false,
+        currentLikeEventId: userInteractions?.likeEventId || null,
+      });
     };
 
     const handleVideoRepost = async () => {
-      if (userInteractions?.hasReposted) {
-        // Un-repost - delete the repost event
-        if (userInteractions.repostEventId) {
-          await handleUnrepost(userInteractions.repostEventId);
-        }
-      } else {
-        // Repost the video
-        await handleRepost(video);
+      // Check authentication first, show login dialog if not authenticated
+      if (!user) {
+        openLoginDialog();
+        return;
       }
+
+      if (!video.vineId) {
+        toast({
+          title: 'Error',
+          description: 'Cannot repost this video',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      debugLog('Toggle repost for video:', video.id);
+      await toggleRepost({
+        videoId: video.id,
+        videoPubkey: video.pubkey,
+        vineId: video.vineId,
+        userPubkey: user.pubkey,
+        isCurrentlyReposted: userInteractions?.hasReposted || false,
+        currentRepostEventId: userInteractions?.repostEventId || null,
+      });
     };
 
     return (
