@@ -29,7 +29,7 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   const title = event.tags.find(tag => tag[0] === 'title')?.[1] || dTag;
   const description = event.tags.find(tag => tag[0] === 'description')?.[1];
   const image = event.tags.find(tag => tag[0] === 'image')?.[1];
-  
+
   // Extract video coordinates from 'a' tags
   const videoCoordinates = event.tags
     .filter(tag => tag[0] === 'a' && tag[1]?.startsWith(`${VIDEO_KIND}:`))
@@ -72,7 +72,7 @@ export function useVideoLists(pubkey?: string) {
     queryFn: async (context) => {
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(5000)
+        AbortSignal.timeout(10000) // Increased timeout to allow more relay queries
       ]);
 
       const filter: NostrFilter = {
@@ -84,12 +84,18 @@ export function useVideoLists(pubkey?: string) {
         filter.authors = [targetPubkey];
       }
 
+      console.log('[useVideoLists] Querying for lists with filter:', filter);
+
       const events = await nostr.query([filter], { signal });
-      
+
+      console.log('[useVideoLists] Found', events.length, 'list events');
+
       const lists = events
         .map(parseVideoList)
         .filter((list): list is VideoList => list !== null)
         .sort((a, b) => b.createdAt - a.createdAt);
+
+      console.log('[useVideoLists] Parsed', lists.length, 'valid lists');
 
       return lists;
     },
