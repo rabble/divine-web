@@ -3,18 +3,28 @@
 
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
+import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock } from 'lucide-react';
 
 export function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState('trending');
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-2xl mx-auto">
         <header className="mb-6">
-          <h1 className="text-2xl font-bold">Discovery</h1>
-          <p className="text-muted-foreground">Explore videos from archives and new content</p>
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <h1 className="text-2xl font-bold">Discovery</h1>
+              <p className="text-muted-foreground">Explore videos from archives and new content</p>
+            </div>
+            <VerifiedOnlyToggle
+              enabled={verifiedOnly}
+              onToggle={setVerifiedOnly}
+            />
+          </div>
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -32,6 +42,7 @@ export function DiscoveryPage() {
           <TabsContent value="trending" className="space-y-6">
             <VideoFeed
               feedType="trending"
+              verifiedOnly={verifiedOnly}
               data-testid="video-feed-trending"
               className="space-y-6"
             />
@@ -40,6 +51,7 @@ export function DiscoveryPage() {
           <TabsContent value="new-videos" className="space-y-6">
             <VideoFeed
               feedType="recent"
+              verifiedOnly={verifiedOnly}
               data-testid="video-feed-new-videos"
               className="space-y-6"
             />

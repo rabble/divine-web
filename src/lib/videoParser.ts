@@ -349,7 +349,7 @@ export function getLoopCount(event: NostrEvent): number {
     const count = parseInt(loopCountTag[1]);
     if (!isNaN(count)) return count;
   }
-  
+
   // Check for view_count tag as fallback
   const viewCountTag = event.tags.find(tag => tag[0] === 'view_count' || tag[0] === 'views');
   if (viewCountTag?.[1]) {
@@ -399,38 +399,48 @@ export function getOriginalCommentCount(event: NostrEvent): number | undefined {
 
 /**
  * Extract ProofMode verification data from event tags
+ * Tags follow Flutter app format:
+ * - proof-verification-level: verified_mobile | verified_web | basic_proof | unverified
+ * - proof-manifest: JSON string with session data and frame hashes
+ * - proof-device-attestation: Device attestation token
+ * - proof-pgp-fingerprint: PGP public key fingerprint
  */
 export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
-  const versionTag = event.tags.find(tag => tag[0] === 'proof-version');
-  const levelTag = event.tags.find(tag => tag[0] === 'verification-level');
+  const levelTag = event.tags.find(tag => tag[0] === 'proof-verification-level');
 
-  // If no ProofMode tags found, return undefined
-  if (!versionTag && !levelTag) {
+  // If no verification level tag found, return undefined
+  if (!levelTag?.[1]) {
     return undefined;
   }
 
   // Parse verification level
   let level: ProofModeLevel = 'unverified';
-  if (levelTag?.[1]) {
-    const tagLevel = levelTag[1];
-    if (tagLevel === 'verified_mobile' || tagLevel === 'verified_web' ||
-        tagLevel === 'basic_proof' || tagLevel === 'unverified') {
-      level = tagLevel;
-    }
+  const tagLevel = levelTag[1];
+  if (tagLevel === 'verified_mobile' || tagLevel === 'verified_web' ||
+      tagLevel === 'basic_proof' || tagLevel === 'unverified') {
+    level = tagLevel;
   }
 
   // Extract other proof data
   const manifestTag = event.tags.find(tag => tag[0] === 'proof-manifest');
-  const attestationTag = event.tags.find(tag => tag[0] === 'device-attestation');
-  const pubkeyTag = event.tags.find(tag => tag[0] === 'pgp-pubkey');
-  const fingerprintTag = event.tags.find(tag => tag[0] === 'pgp-fingerprint');
+  const attestationTag = event.tags.find(tag => tag[0] === 'proof-device-attestation');
+  const fingerprintTag = event.tags.find(tag => tag[0] === 'proof-pgp-fingerprint');
+
+  // Parse manifest JSON if present
+  let manifestData: Record<string, unknown> | undefined;
+  if (manifestTag?.[1]) {
+    try {
+      manifestData = JSON.parse(manifestTag[1]);
+    } catch {
+      // Invalid JSON, ignore
+    }
+  }
 
   return {
     level,
-    version: versionTag?.[1],
     manifest: manifestTag?.[1],
+    manifestData,
     deviceAttestation: attestationTag?.[1],
-    pgpPubkey: pubkeyTag?.[1],
     pgpFingerprint: fingerprintTag?.[1],
   };
 }
@@ -443,24 +453,24 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
   if (event.videoMetadata?.thumbnailUrl) {
     return event.videoMetadata.thumbnailUrl;
   }
-  
+
   // Check for image tag
   const imageTag = event.tags.find(tag => tag[0] === 'image');
   if (imageTag?.[1]) {
     return imageTag[1];
   }
-  
+
   // Check for thumb tag
   const thumbTag = event.tags.find(tag => tag[0] === 'thumb');
   if (thumbTag?.[1]) {
     return thumbTag[1];
   }
-  
+
   // If we have a video URL, return it as fallback (video element can show first frame)
   if (event.videoMetadata?.url) {
     return event.videoMetadata.url;
   }
-  
+
   // No thumbnail available
   return undefined;
 }

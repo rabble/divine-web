@@ -255,7 +255,11 @@ export function VideoCard({
             </Link>
             {/* ProofMode badge */}
             {video.proofMode && video.proofMode.level !== 'unverified' && (
-              <ProofModeBadge level={video.proofMode.level} />
+              <ProofModeBadge
+                level={video.proofMode.level}
+                proofData={video.proofMode}
+                showDetails={true}
+              />
             )}
           </div>
         </div>

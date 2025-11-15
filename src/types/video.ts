@@ -50,11 +50,10 @@ export type ProofModeLevel = 'verified_mobile' | 'verified_web' | 'basic_proof' 
 
 export interface ProofModeData {
   level: ProofModeLevel;
-  version?: string;
-  manifest?: string;
-  deviceAttestation?: string;
-  pgpPubkey?: string;
-  pgpFingerprint?: string;
+  manifest?: string; // Raw JSON string
+  manifestData?: Record<string, unknown>; // Parsed manifest object
+  deviceAttestation?: string; // Hardware attestation token (iOS App Attest / Android Play Integrity)
+  pgpFingerprint?: string; // PGP public key fingerprint for signature verification
 }
 
 export interface ParsedVideoData {

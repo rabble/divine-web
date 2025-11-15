@@ -26,6 +26,7 @@ interface VideoFeedProps {
   pubkey?: string;
   limit?: number;
   className?: string;
+  verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
   'data-testid'?: string;
   'data-hashtag-testid'?: string;
   'data-profile-testid'?: string;
@@ -37,6 +38,7 @@ export function VideoFeed({
   pubkey,
   limit = 20, // Initial batch size
   className,
+  verifiedOnly = false,
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
@@ -62,11 +64,12 @@ export function VideoFeed({
     until: lastTimestamp,
   });
 
-  // Filter videos based on mute list
+  // Filter videos based on mute list and verification status
   const filteredVideos = useMemo(() => {
     if (!allVideos || allVideos.length === 0) return [];
 
     return allVideos.filter(video => {
+      // Check moderation filters
       const moderationResult = checkContent({
         pubkey: video.pubkey,
         eventId: video.id,
@@ -74,10 +77,21 @@ export function VideoFeed({
         text: video.content
       });
 
-      // Filter out content that should be hidden or blocked
-      return !moderationResult.shouldFilter;
+      // Filter out muted content
+      if (moderationResult.shouldFilter) {
+        return false;
+      }
+
+      // Filter for verified-only if enabled
+      if (verifiedOnly) {
+        return video.proofMode &&
+               (video.proofMode.level === 'verified_mobile' ||
+                video.proofMode.level === 'verified_web');
+      }
+
+      return true;
     });
-  }, [allVideos, checkContent]);
+  }, [allVideos, checkContent, verifiedOnly]);
 
   // Collect all unique pubkeys for batched author fetching
   const authorPubkeys = useMemo(() => {

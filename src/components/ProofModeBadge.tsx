@@ -1,28 +1,34 @@
 // ABOUTME: Badge component for displaying ProofMode verification status
-// ABOUTME: Shows different icons and colors based on verification level
+// ABOUTME: Shows different icons and colors based on verification level with detailed tooltip
 
-import { Shield, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { useState } from 'react';
+import { Shield, ShieldCheck, ShieldAlert, Info } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import type { ProofModeLevel } from '@/types/video';
+import type { ProofModeLevel, ProofModeData } from '@/types/video';
+import { Link } from 'react-router-dom';
 
 interface ProofModeBadgeProps {
   level: ProofModeLevel;
+  proofData?: ProofModeData;
   className?: string;
+  showDetails?: boolean; // Show popover with details
 }
 
-export function ProofModeBadge({ level, className }: ProofModeBadgeProps) {
+export function ProofModeBadge({ level, proofData, className, showDetails = false }: ProofModeBadgeProps) {
   const config = getProofModeConfig(level);
+  const [open, setOpen] = useState(false);
 
   if (!config) return null;
 
   const Icon = config.icon;
 
-  return (
+  const badge = (
     <Badge
       variant="outline"
       className={cn(
-        'flex items-center gap-1 text-xs font-medium',
+        'flex items-center gap-1 text-xs font-medium cursor-help',
         config.className,
         className
       )}
@@ -31,6 +37,77 @@ export function ProofModeBadge({ level, className }: ProofModeBadgeProps) {
       <Icon className="h-3 w-3" />
       <span>{config.label}</span>
     </Badge>
+  );
+
+  if (!showDetails || !proofData) {
+    return badge;
+  }
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        {badge}
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="start">
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Icon className={cn("h-5 w-5", config.iconColor)} />
+            <h3 className="font-semibold">{config.label} Video</h3>
+          </div>
+
+          <p className="text-sm text-muted-foreground">{config.description}</p>
+
+          {/* Verification Details */}
+          <div className="space-y-2 text-sm">
+            {proofData.deviceAttestation && (
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Hardware Attestation</p>
+                  <p className="text-xs text-muted-foreground">
+                    Verified on secure mobile device
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {proofData.pgpFingerprint && (
+              <div className="flex items-start gap-2">
+                <Shield className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Cryptographic Signature</p>
+                  <p className="text-xs text-muted-foreground font-mono break-all">
+                    {proofData.pgpFingerprint}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {proofData.manifestData && (
+              <div className="flex items-start gap-2">
+                <Info className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Proof Manifest</p>
+                  <p className="text-xs text-muted-foreground">
+                    Contains frame hashes and session data
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 border-t">
+            <Link
+              to="/proof-mode"
+              className="text-sm text-primary hover:underline"
+              onClick={() => setOpen(false)}
+            >
+              Learn more about ProofMode →
+            </Link>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -41,21 +118,27 @@ function getProofModeConfig(level: ProofModeLevel) {
         icon: ShieldCheck,
         label: 'Verified',
         className: 'border-green-600 text-green-600 bg-green-50 dark:bg-green-950/20',
-        tooltip: 'Full hardware attestation - captured on secure mobile device'
+        iconColor: 'text-green-600',
+        tooltip: 'Full hardware attestation - captured on secure mobile device',
+        description: 'This video was captured on a verified mobile device with hardware-backed security attestation. It includes cryptographic proof that the content is authentic and has not been tampered with.'
       };
     case 'verified_web':
       return {
         icon: Shield,
         label: 'Verified',
         className: 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950/20',
-        tooltip: 'Software verification - valid signature but no hardware attestation'
+        iconColor: 'text-blue-600',
+        tooltip: 'Software verification - valid signature but no hardware attestation',
+        description: 'This video has been cryptographically signed and includes proof of authenticity. While it lacks hardware attestation, the signature confirms the content has not been altered since creation.'
       };
     case 'basic_proof':
       return {
         icon: ShieldAlert,
         label: 'Signed',
         className: 'border-yellow-600 text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20',
-        tooltip: 'Basic proof - valid signature, integrity verified'
+        iconColor: 'text-yellow-600',
+        tooltip: 'Basic proof - valid signature, integrity verified',
+        description: 'This video includes basic cryptographic proof data. Some verification information is present but it does not meet the full criteria for verified status.'
       };
     case 'unverified':
     default:
