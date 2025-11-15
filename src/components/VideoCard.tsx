@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, Plus } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, Plus, ListPlus } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { ProofModeBadge } from '@/components/ProofModeBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -75,6 +76,7 @@ export function VideoCard({
   const [videoError, setVideoError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
+  const isMobile = useIsMobile();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -299,12 +301,15 @@ export function VideoCard({
         )}
 
         {/* Interaction buttons */}
-        <div className="flex items-center gap-1 px-4 pb-4">
+        <div className={cn(
+          "flex items-center px-4 pb-4",
+          isMobile ? "gap-0.5" : "gap-1"
+        )}>
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              'gap-2',
+              isMobile ? 'gap-1 px-2' : 'gap-2',
               isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
             )}
             onClick={onLike}
@@ -318,7 +323,7 @@ export function VideoCard({
             variant="ghost"
             size="sm"
             className={cn(
-              'gap-2',
+              isMobile ? 'gap-1 px-2' : 'gap-2',
               isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
             )}
             onClick={onRepost}
@@ -331,7 +336,10 @@ export function VideoCard({
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2"
+            className={cn(
+              "gap-2",
+              isMobile && "gap-1 px-2"
+            )}
             onClick={handleCommentsClick}
             aria-label="Comment"
           >
@@ -339,21 +347,31 @@ export function VideoCard({
             {commentCount > 0 && <span className="text-xs">{formatCount(commentCount)}</span>}
           </Button>
 
-          <Button variant="ghost" size="sm" className="gap-2" aria-label="Share">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "gap-2",
+              isMobile && "px-2"
+            )}
+            aria-label="Share"
+          >
             <Share className="h-4 w-4" />
           </Button>
 
-          {/* Add to list button */}
+          {/* Add to list button - icon only on mobile */}
           {video.vineId && (
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1"
+              className={cn(
+                isMobile ? "px-2" : "gap-1"
+              )}
               onClick={() => setShowAddToListDialog(true)}
               aria-label="Add to list"
             >
-              <Plus className="h-4 w-4" />
-              <span className="text-xs">Add to list</span>
+              <ListPlus className="h-4 w-4" />
+              {!isMobile && <span className="text-xs">Add to list</span>}
             </Button>
           )}
         </div>
