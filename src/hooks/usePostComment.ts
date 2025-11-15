@@ -2,11 +2,19 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { NKinds, type NostrEvent } from '@nostrify/nostrify';
+import type { VideoSocialMetrics } from '@/hooks/useVideoSocialMetrics';
 
 interface PostCommentParams {
   root: NostrEvent | URL; // The root event to comment on
   reply?: NostrEvent | URL; // Optional reply to another comment
   content: string;
+}
+
+interface CommentsQueryData {
+  allComments: NostrEvent[];
+  topLevelComments: NostrEvent[];
+  getDescendants: (commentId: string) => NostrEvent[];
+  getDirectReplies: (commentId: string) => NostrEvent[];
 }
 
 /** Post a NIP-22 (kind 1111) comment on an event. */
@@ -99,7 +107,7 @@ export function usePostComment() {
       const previousMetrics = queryClient.getQueryData(metricsQueryKey);
 
       // Optimistically update comment count
-      queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+      queryClient.setQueryData(metricsQueryKey, (old: VideoSocialMetrics | undefined) => ({
         ...old,
         commentCount: (old?.commentCount || 0) + 1,
       }));
@@ -123,7 +131,7 @@ export function usePostComment() {
               return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
             }
           },
-          (old: any) => {
+          (old: CommentsQueryData | undefined) => {
             // useComments returns an object with { allComments, topLevelComments, getDescendants, getDirectReplies }
             // We need to preserve this structure
             if (old && typeof old === 'object' && 'topLevelComments' in old) {

@@ -18,7 +18,7 @@ export interface LoginAreaProps {
 
 export function LoginArea({ className }: LoginAreaProps) {
   const { currentUser } = useLoggedInAccounts();
-  const { isOpen: globalLoginDialogOpen, openLoginDialog, closeLoginDialog } = useLoginDialog();
+  const { isOpen: globalLoginDialogOpen, closeLoginDialog } = useLoginDialog();
   const [localLoginDialogOpen, setLocalLoginDialogOpen] = useState(false);
   const [signupDialogOpen, setSignupDialogOpen] = useState(false);
   const [keycastSignupDialogOpen, setKeycastSignupDialogOpen] = useState(false);

@@ -319,7 +319,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
 
       // If filtering by specific IDs, ensure we query them directly
       const isDirectIdLookup = filter?.ids && filter.ids.length > 0;
-      if (isDirectIdLookup) {
+      if (isDirectIdLookup && filter.ids) {
         // For direct ID lookups, remove limit restriction
         baseFilter.limit = filter.ids.length;
         debugLog('[useVideoEvents] Direct ID lookup mode:', filter.ids);

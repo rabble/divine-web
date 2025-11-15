@@ -6,6 +6,7 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useRepostVideo } from '@/hooks/usePublishVideo';
 import { useToast } from '@/hooks/useToast';
 import { debugLog } from '@/lib/debug';
+import type { VideoSocialMetrics } from '@/hooks/useVideoSocialMetrics';
 
 interface OptimisticRepostParams {
   videoId: string;
@@ -14,6 +15,13 @@ interface OptimisticRepostParams {
   userPubkey: string;
   isCurrentlyReposted: boolean;
   currentRepostEventId: string | null;
+}
+
+interface UserInteractions {
+  hasLiked: boolean;
+  hasReposted: boolean;
+  likeEventId: string | null;
+  repostEventId: string | null;
 }
 
 export function useOptimisticRepost() {
@@ -40,11 +48,11 @@ export function useOptimisticRepost() {
     try {
       if (isCurrentlyReposted) {
         // Optimistic un-repost
-        queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+        queryClient.setQueryData(metricsQueryKey, (old: VideoSocialMetrics | undefined) => ({
           ...old,
           repostCount: Math.max(0, (old?.repostCount || 0) - 1),
         }));
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           hasReposted: false,
           repostEventId: null,
@@ -67,11 +75,11 @@ export function useOptimisticRepost() {
         });
       } else {
         // Optimistic repost
-        queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+        queryClient.setQueryData(metricsQueryKey, (old: VideoSocialMetrics | undefined) => ({
           ...old,
           repostCount: (old?.repostCount || 0) + 1,
         }));
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           hasReposted: true,
           repostEventId: 'pending', // Temporary ID until real one comes back
@@ -86,7 +94,7 @@ export function useOptimisticRepost() {
         });
 
         // Update with real event ID
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           repostEventId: event.id,
         }));
@@ -98,7 +106,7 @@ export function useOptimisticRepost() {
       }
     } catch (error) {
       console.error('Failed to toggle repost:', error);
-      
+
       // Rollback on error
       queryClient.setQueryData(metricsQueryKey, previousMetrics);
       queryClient.setQueryData(interactionsQueryKey, previousInteractions);

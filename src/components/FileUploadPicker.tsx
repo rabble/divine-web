@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Upload, X, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
 
 interface FileUploadPickerProps {
   onFileSelected: (file: File, previewUrl: string, duration: number) => void;

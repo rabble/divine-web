@@ -304,7 +304,7 @@ export function useReportHistory() {
 /**
  * Hook to check if content should be filtered
  */
-export function useContentModeration(pubkey?: string) {
+export function useContentModeration() {
   const { data: muteList = [] } = useMuteList();
 
   // Debug: Log mute list when it changes
