@@ -83,7 +83,7 @@ Kind 3 contact lists are now queried from **4 relays** (same as kind 0 profiles)
 1. `wss://purplepag.es` - Profile aggregator
 2. `wss://relay.nos.social` - Popular general relay
 3. `wss://relay.damus.io` - Damus relay (very popular)
-4. `wss://nos.lol` - Another popular relay
+4. `wss://relay.ditto.pub` - Ditto relay (user's NIP-05 relay)
 
 This matches how profiles are fetched and gives the best chance of finding your contact list.
 

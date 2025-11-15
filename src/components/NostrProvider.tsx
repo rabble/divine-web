@@ -88,7 +88,7 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
             'wss://purplepag.es',
             'wss://relay.nos.social',
             'wss://relay.damus.io',
-            'wss://nos.lol',
+            'wss://relay.ditto.pub',
           ];
 
           debugLog(`[NostrProvider] Routing ${profileRelayFilters.length} profile/contact filters to ${profileRelays.length} relays`);
@@ -116,7 +116,7 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
           allRelays.add('wss://purplepag.es');
           allRelays.add('wss://relay.nos.social');
           allRelays.add('wss://relay.damus.io');
-          allRelays.add('wss://nos.lol');
+          allRelays.add('wss://relay.ditto.pub');
         }
 
         // For list events (kind 30000, 30001, 30005), publish to multiple relays for better discoverability
