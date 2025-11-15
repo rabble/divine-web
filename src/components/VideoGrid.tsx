@@ -1,7 +1,7 @@
 // ABOUTME: Video grid component displaying videos in responsive grid layout
 // ABOUTME: Shows video thumbnails with play overlays and metadata on hover
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Play, Repeat } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -37,6 +37,8 @@ function truncateText(text: string, maxLength: number = 50): string {
 export function VideoGrid({ videos, loading = false, className, navigationContext }: VideoGridProps) {
   const navigate = useNavigate();
   const [hoveredVideo, setHoveredVideo] = useState<string | null>(null);
+  const [failedThumbnails, setFailedThumbnails] = useState<Set<string>>(new Set());
+  const videoRefs = useRef<Map<string, HTMLVideoElement>>(new Map());
 
   const handleVideoClick = (videoId: string, index: number) => {
     const url = navigationContext
@@ -49,6 +51,35 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       handleVideoClick(videoId, index);
+    }
+  };
+
+  const handleThumbnailError = (videoId: string) => {
+    setFailedThumbnails((prev) => new Set(prev).add(videoId));
+  };
+
+  const handleMouseEnter = (videoId: string) => {
+    setHoveredVideo(videoId);
+    // Auto-play video on hover if thumbnail failed
+    if (failedThumbnails.has(videoId)) {
+      const videoEl = videoRefs.current.get(videoId);
+      if (videoEl) {
+        videoEl.play().catch(() => {
+          // Ignore play errors
+        });
+      }
+    }
+  };
+
+  const handleMouseLeave = (videoId: string) => {
+    setHoveredVideo(null);
+    // Pause video when not hovering if thumbnail failed
+    if (failedThumbnails.has(videoId)) {
+      const videoEl = videoRefs.current.get(videoId);
+      if (videoEl) {
+        videoEl.pause();
+        videoEl.currentTime = 0;
+      }
     }
   };
 
@@ -95,6 +126,8 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
     >
       {videos.map((video, index) => {
         const isHovered = hoveredVideo === video.id;
+        const thumbnailFailed = failedThumbnails.has(video.id);
+        const shouldShowVideo = !video.thumbnailUrl || thumbnailFailed;
 
         return (
           <Card
@@ -103,16 +136,34 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
             data-testid="video-grid-item"
             onClick={() => handleVideoClick(video.id, index)}
             onKeyDown={(e) => handleKeyDown(e, video.id, index)}
-            onMouseEnter={() => setHoveredVideo(video.id)}
-            onMouseLeave={() => setHoveredVideo(null)}
+            onMouseEnter={() => handleMouseEnter(video.id)}
+            onMouseLeave={() => handleMouseLeave(video.id)}
             tabIndex={0}
             data-video-id={video.id}
           >
             <div className="aspect-square relative bg-muted" data-thumbnail-container="true">
-              {/* Video Thumbnail */}
-              {video.thumbnailUrl ? (
-                // Check if thumbnail URL is actually a video file (common for videos without explicit thumbnails)
-                // Also check if it's the same as videoUrl (indicates no separate thumbnail)
+              {/* Video Thumbnail or Actual Video */}
+              {shouldShowVideo && video.videoUrl ? (
+                <video
+                  ref={(el) => {
+                    if (el) {
+                      videoRefs.current.set(video.id, el);
+                    } else {
+                      videoRefs.current.delete(video.id);
+                    }
+                  }}
+                  className="w-full h-full object-cover"
+                  src={video.videoUrl}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  crossOrigin="anonymous"
+                  data-testid={`video-player-${video.id}`}
+                  onError={() => handleThumbnailError(video.id)}
+                />
+              ) : video.thumbnailUrl ? (
+                // Check if thumbnail URL is actually a video file
                 video.thumbnailUrl === video.videoUrl ||
                 video.thumbnailUrl.match(/\.(mp4|webm|mov|m3u8|mpd|avi|mkv|ogv|ogg)($|\?|#)/i) ||
                 video.thumbnailUrl.includes('/manifest/') ? (
@@ -124,10 +175,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     preload="metadata"
                     crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
-                    onError={(e) => {
-                      // If video fails to load, hide it
-                      e.currentTarget.style.display = 'none';
-                    }}
+                    onError={() => handleThumbnailError(video.id)}
                   />
                 ) : (
                   <img
@@ -137,29 +185,9 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     loading="lazy"
                     crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
-                    onError={(e) => {
-                      // If image fails to load, try as video instead
-                      const videoEl = document.createElement('video');
-                      videoEl.className = 'w-full h-full object-cover';
-                      videoEl.src = `${video.thumbnailUrl}#t=0.1`;
-                      videoEl.muted = true;
-                      videoEl.playsInline = true;
-                      videoEl.preload = 'metadata';
-                      videoEl.crossOrigin = 'anonymous';
-                      e.currentTarget.replaceWith(videoEl);
-                    }}
+                    onError={() => handleThumbnailError(video.id)}
                   />
                 )
-              ) : video.videoUrl ? (
-                <video
-                  className="w-full h-full object-cover"
-                  src={`${video.videoUrl}#t=0.1`}
-                  muted
-                  playsInline
-                  preload="metadata"
-                  crossOrigin="anonymous"
-                  data-testid={`video-thumbnail-${video.id}`}
-                />
               ) : (
                 <div
                   className="w-full h-full bg-muted flex items-center justify-center"
