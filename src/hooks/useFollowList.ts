@@ -24,18 +24,26 @@ export function useFollowList() {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(5000)]);
 
       try {
-        debugLog(`[useFollowList] Fetching follow list for user: ${user.pubkey}`);
-        
-        const contactListEvents = await nostr.query([{
+        debugLog(`[useFollowList] ========== FETCHING FOLLOW LIST ==========`);
+        debugLog(`[useFollowList] User pubkey: ${user.pubkey}`);
+
+        const queryFilter = {
           kinds: [3],
           authors: [user.pubkey],
           limit: 1,
-        }], { signal });
+        };
+        debugLog(`[useFollowList] Query filter:`, queryFilter);
+
+        const contactListEvents = await nostr.query([queryFilter], { signal });
 
         debugLog(`[useFollowList] Received ${contactListEvents.length} kind 3 events`);
 
         if (contactListEvents.length === 0) {
-          debugLog(`[useFollowList] No contact list found for user`);
+          debugLog(`[useFollowList] ⚠️ WARNING: No contact list found for user ${user.pubkey}`);
+          debugLog(`[useFollowList] This means either:`);
+          debugLog(`[useFollowList]   1. User has never followed anyone`);
+          debugLog(`[useFollowList]   2. Contact list not on any connected relay`);
+          debugLog(`[useFollowList]   3. Query failed to reach relays`);
           return [];
         }
 
@@ -43,17 +51,28 @@ export function useFollowList() {
         const contactList = contactListEvents
           .sort((a, b) => b.created_at - a.created_at)[0];
 
+        debugLog(`[useFollowList] Contact list event ID: ${contactList.id}`);
+        debugLog(`[useFollowList] Contact list created at: ${new Date(contactList.created_at * 1000).toISOString()}`);
         debugLog(`[useFollowList] Contact list has ${contactList.tags.length} total tags`);
 
         // Extract followed pubkeys from 'p' tags
-        const follows = contactList.tags
-          .filter(tag => tag[0] === 'p' && tag[1])
+        const pTags = contactList.tags.filter(tag => tag[0] === 'p');
+        debugLog(`[useFollowList] Found ${pTags.length} 'p' tags`);
+
+        const follows = pTags
+          .filter(tag => tag[1]) // Must have pubkey value
           .map(tag => tag[1]);
 
-        debugLog(`[useFollowList] Extracted ${follows.length} followed pubkeys`);
-        
+        debugLog(`[useFollowList] ✅ Extracted ${follows.length} valid followed pubkeys`);
+
         if (follows.length > 0) {
-          debugLog(`[useFollowList] Following: ${follows.slice(0, 5).join(', ')}${follows.length > 5 ? '...' : ''}`);
+          debugLog(`[useFollowList] Sample follows (first 5):`);
+          follows.slice(0, 5).forEach((pk, i) => {
+            debugLog(`[useFollowList]   ${i + 1}. ${pk}`);
+          });
+          if (follows.length > 5) {
+            debugLog(`[useFollowList]   ... and ${follows.length - 5} more`);
+          }
         }
 
         return follows;
