@@ -54,7 +54,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
 
   if (loading) {
     return (
-      <div 
+      <div
         className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4", className)}
         data-testid="video-grid"
       >
@@ -71,7 +71,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
 
   if (videos.length === 0) {
     return (
-      <div 
+      <div
         className={cn("col-span-full", className)}
         data-testid="video-grid-empty"
       >
@@ -106,24 +106,58 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
             onMouseEnter={() => setHoveredVideo(video.id)}
             onMouseLeave={() => setHoveredVideo(null)}
             tabIndex={0}
+            data-video-id={video.id}
           >
-            <div className="aspect-square relative bg-muted">
+            <div className="aspect-square relative bg-muted" data-thumbnail-container="true">
               {/* Video Thumbnail */}
               {video.thumbnailUrl ? (
-                <img
-                  className="w-full h-full object-cover"
-                  src={video.thumbnailUrl}
-                  alt={video.content || 'Video thumbnail'}
-                  loading="lazy"
-                  data-testid={`video-thumbnail-${video.id}`}
-                />
+                // Check if thumbnail URL is actually a video file (common for videos without explicit thumbnails)
+                // Also check if it's the same as videoUrl (indicates no separate thumbnail)
+                video.thumbnailUrl === video.videoUrl ||
+                video.thumbnailUrl.match(/\.(mp4|webm|mov|m3u8|mpd|avi|mkv|ogv|ogg)($|\?|#)/i) ||
+                video.thumbnailUrl.includes('/manifest/') ? (
+                  <video
+                    className="w-full h-full object-cover"
+                    src={`${video.thumbnailUrl}#t=0.1`}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    crossOrigin="anonymous"
+                    data-testid={`video-thumbnail-${video.id}`}
+                    onError={(e) => {
+                      // If video fails to load, hide it
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <img
+                    className="w-full h-full object-cover"
+                    src={video.thumbnailUrl}
+                    alt={video.content || 'Video thumbnail'}
+                    loading="lazy"
+                    crossOrigin="anonymous"
+                    data-testid={`video-thumbnail-${video.id}`}
+                    onError={(e) => {
+                      // If image fails to load, try as video instead
+                      const videoEl = document.createElement('video');
+                      videoEl.className = 'w-full h-full object-cover';
+                      videoEl.src = `${video.thumbnailUrl}#t=0.1`;
+                      videoEl.muted = true;
+                      videoEl.playsInline = true;
+                      videoEl.preload = 'metadata';
+                      videoEl.crossOrigin = 'anonymous';
+                      e.currentTarget.replaceWith(videoEl);
+                    }}
+                  />
+                )
               ) : video.videoUrl ? (
                 <video
                   className="w-full h-full object-cover"
-                  src={video.videoUrl}
+                  src={`${video.videoUrl}#t=0.1`}
                   muted
                   playsInline
                   preload="metadata"
+                  crossOrigin="anonymous"
                   data-testid={`video-thumbnail-${video.id}`}
                 />
               ) : (
@@ -136,7 +170,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               )}
 
               {/* Play Overlay */}
-              <div 
+              <div
                 className="absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity group-hover:bg-black/40"
                 data-testid={`play-overlay-${video.id}`}
               >
@@ -146,7 +180,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               </div>
 
               {/* Loop Count Badge */}
-              {video.loopCount && (
+              {video.loopCount !== undefined && video.loopCount > 0 && (
                 <div className="absolute bottom-2 right-2">
                   <Badge variant="secondary" className="text-xs bg-black/80 text-white">
                     <Repeat className="w-3 h-3 mr-1" />
@@ -156,14 +190,16 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               )}
 
               {/* Metadata Overlay */}
-              {isHovered && (
-                <div 
+              {isHovered && (video.content || video.hashtags.length > 0) && (
+                <div
                   className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white"
                   data-testid={`metadata-overlay-${video.id}`}
                 >
-                  <p className="text-sm font-medium mb-1">
-                    {truncateText(video.content)}
-                  </p>
+                  {video.content && video.content.trim() && (
+                    <p className="text-sm font-medium mb-1">
+                      {truncateText(video.content)}
+                    </p>
+                  )}
                   {video.hashtags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
                       {video.hashtags.slice(0, 3).map((tag) => (
