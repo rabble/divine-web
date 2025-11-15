@@ -91,7 +91,7 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
         // Route kind 0 queries to profile-specific relays
         if (profileFilters.length > 0) {
-          result.set('wss://relay.ditto.pub', profileFilters);
+          result.set('wss://purplepag.es', profileFilters);
           result.set('wss://relay.nos.social', profileFilters);
         }
 
