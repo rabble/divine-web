@@ -67,7 +67,7 @@ export function SearchPage() {
   });
 
   useSeoMeta({
-    title: searchQuery ? `Search: ${searchQuery} - Divine Web` : 'Search - Divine Web',
+    title: searchQuery ? `Search: ${searchQuery} - diVine Web` : 'Search - diVine Web',
     description: 'Search for videos, users, and hashtags on Divine Web',
   });
 
@@ -434,10 +434,10 @@ function UserCard({ user }: { user: { pubkey: string; metadata?: UserCardMetadat
 }
 
 // Hashtag card component
-function HashtagCard({ 
-  hashtag, 
-  onClick 
-}: { 
+function HashtagCard({
+  hashtag,
+  onClick
+}: {
   hashtag: { tag: string; count: number };
   onClick: () => void;
 }) {

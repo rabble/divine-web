@@ -1,6 +1,6 @@
 {
-  "name": "Divine Web",
-  "short_name": "Divine",
+  "name": "diVine Web",
+  "short_name": "diVine",
   "description": "Short-form looping videos on Nostr",
   "start_url": "/",
   "display": "standalone",

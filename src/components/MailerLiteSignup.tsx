@@ -288,10 +288,10 @@ export function MailerLiteSignup() {
             <div className="ml-form-successBody row-success" style={{ display: 'none' }}>
               <div className="ml-form-successContent">
                 <div className="flex flex-col items-center gap-4">
-                  <h4 className="text-2xl font-bold font-pacifico">Divine!</h4>
+                  <h4 className="text-2xl font-bold font-pacifico">diVine!</h4>
                   <img
                     src="/divine_mic.jpg"
-                    alt="Divine microphone"
+                    alt="diVine microphone"
                     className="w-full max-w-xs object-contain"
                   />
                   <p className="text-center">We'll reach out as soon as we're able to invite you to join us.</p>

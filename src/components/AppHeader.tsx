@@ -25,7 +25,7 @@ export function AppHeader() {
             onClick={() => navigate('/discovery')}
             aria-label="Go to discovery"
           >
-            Divine
+            di<span className="italic">V</span>ine
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -75,8 +75,8 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {/* About Divine Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About Divine</DropdownMenuLabel>
+              {/* About diVine Section */}
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About diVine</DropdownMenuLabel>
 
               <DropdownMenuItem
                 onClick={() => navigate('/about')}
