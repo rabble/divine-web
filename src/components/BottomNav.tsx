@@ -1,13 +1,20 @@
-import { Hash, List, Search, Video } from 'lucide-react';
+import { Hash, List, Search, Video, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { cn } from '@/lib/utils';
+import { nip19 } from 'nostr-tools';
 
 export function BottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useCurrentUser();
+
+  const getUserProfilePath = () => {
+    if (!user?.pubkey) return '/';
+    const npub = nip19.npubEncode(user.pubkey);
+    return `/${npub}`;
+  };
 
   const navItems = [
     {
@@ -15,24 +22,35 @@ export function BottomNav() {
       label: 'Hashtags',
       path: '/hashtags',
       requiresAuth: false,
+      isPrimary: false,
     },
     {
       icon: Search,
       label: 'Search',
       path: '/search',
       requiresAuth: false,
-    },
-    {
-      icon: List,
-      label: 'Lists',
-      path: '/lists',
-      requiresAuth: true,
+      isPrimary: false,
     },
     {
       icon: Video,
       label: 'Upload',
       path: '/upload',
       requiresAuth: true,
+      isPrimary: true,
+    },
+    {
+      icon: List,
+      label: 'Lists',
+      path: '/lists',
+      requiresAuth: true,
+      isPrimary: false,
+    },
+    {
+      icon: User,
+      label: 'Profile',
+      path: getUserProfilePath(),
+      requiresAuth: true,
+      isPrimary: false,
     },
   ];
 
@@ -49,12 +67,13 @@ export function BottomNav() {
           return (
             <Button
               key={item.path}
-              variant="ghost"
+              variant={item.isPrimary ? "default" : "ghost"}
               size="sm"
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-                isActive && "text-primary bg-primary/10"
+                !item.isPrimary && isActive && "text-primary bg-primary/10",
+                item.isPrimary && "bg-primary text-primary-foreground hover:bg-primary/90"
               )}
             >
               <Icon className="h-5 w-5" />
