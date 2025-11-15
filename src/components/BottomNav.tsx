@@ -16,74 +16,80 @@ export function BottomNav() {
     return `/${npub}`;
   };
 
-  const navItems = [
-    {
-      icon: Hash,
-      label: 'Hashtags',
-      path: '/hashtags',
-      requiresAuth: false,
-      isPrimary: false,
-    },
-    {
-      icon: Search,
-      label: 'Search',
-      path: '/search',
-      requiresAuth: false,
-      isPrimary: false,
-    },
-    {
-      icon: Video,
-      label: 'Upload',
-      path: '/upload',
-      requiresAuth: true,
-      isPrimary: true,
-    },
-    {
-      icon: List,
-      label: 'Lists',
-      path: '/lists',
-      requiresAuth: true,
-      isPrimary: false,
-    },
-    {
-      icon: User,
-      label: 'Profile',
-      path: getUserProfilePath(),
-      requiresAuth: true,
-      isPrimary: false,
-    },
-  ];
-
-  // Filter items based on auth status
-  const visibleItems = navItems.filter(item => !item.requiresAuth || user);
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-primary/10 bg-background/95 backdrop-blur-md shadow-lg">
       <div className="flex items-center justify-around h-16 px-2">
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+        {/* Hashtags */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/hashtags')}
+          className={cn(
+            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
+            isActive('/hashtags') && "text-primary bg-primary/10"
+          )}
+        >
+          <Hash className="h-5 w-5" />
+          <span className="text-xs">Hashtags</span>
+        </Button>
 
-          return (
-            <Button
-              key={item.path}
-              variant={item.isPrimary ? "default" : "ghost"}
-              size="sm"
-              onClick={() => navigate(item.path)}
-              className={cn(
-                "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-                !item.isPrimary && isActive && "text-primary bg-primary/10",
-                item.isPrimary && "bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl mx-2 aspect-square w-14 h-14"
-              )}
-            >
-              <Icon className={cn(
-                "h-5 w-5",
-                item.isPrimary && "h-7 w-7"
-              )} />
-              {!item.isPrimary && <span className="text-xs">{item.label}</span>}
-            </Button>
-          );
-        })}
+        {/* Search */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => navigate('/search')}
+          className={cn(
+            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
+            isActive('/search') && "text-primary bg-primary/10"
+          )}
+        >
+          <Search className="h-5 w-5" />
+          <span className="text-xs">Search</span>
+        </Button>
+
+        {/* Upload - TikTok style center button */}
+        {user && (
+          <button
+            onClick={() => navigate('/upload')}
+            className="flex items-center justify-center bg-primary text-primary-foreground hover:bg-primary/90 rounded-full w-12 h-12 mx-2 transition-colors shadow-lg"
+          >
+            <Video className="h-6 w-6" />
+          </button>
+        )}
+
+        {/* Lists */}
+        {user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/lists')}
+            className={cn(
+              "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
+              isActive('/lists') && "text-primary bg-primary/10"
+            )}
+          >
+            <List className="h-5 w-5" />
+            <span className="text-xs">Lists</span>
+          </Button>
+        )}
+
+        {/* Profile */}
+        {user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(getUserProfilePath())}
+            className={cn(
+              "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
+              isActive(getUserProfilePath()) && "text-primary bg-primary/10"
+            )}
+          >
+            <User className="h-5 w-5" />
+            <span className="text-xs">Profile</span>
+          </Button>
+        )}
       </div>
     </nav>
   );
