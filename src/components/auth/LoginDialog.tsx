@@ -179,7 +179,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
         className={cn("max-w-[95vw] sm:max-w-md max-h-[90vh] max-h-[90dvh] p-0 overflow-hidden rounded-2xl overflow-y-scroll")}
       >
         <DialogHeader className={cn('px-6 pt-6 pb-1 relative')}>
-
             <DialogDescription className="text-center">
               Log in to continue
             </DialogDescription>
@@ -354,6 +353,24 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Sign up link */}
+          {onSignup && (
+            <div className='text-center pt-2 pb-2'>
+              <p className='text-sm text-muted-foreground'>
+                Don't have an account?{' '}
+                <button
+                  onClick={() => {
+                    onClose();
+                    onSignup();
+                  }}
+                  className='text-primary hover:underline font-medium'
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

@@ -19,13 +19,14 @@ interface SignupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
+  onLogin?: () => void;
 }
 
 const sanitizeFilename = (filename: string) => {
   return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
-const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete }) => {
+const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete, onLogin }) => {
   const [step, setStep] = useState<'welcome' | 'generate' | 'download' | 'profile' | 'done'>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [nsec, setNsec] = useState('');
@@ -360,26 +361,39 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
               </div>
 
               <div className='space-y-3'>
-                <div className='p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700'>
-                  <p className='text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2'>
-                    Beta Access Limited
-                  </p>
-                  <p className='text-sm text-amber-800 dark:text-amber-300'>
-                    The current beta is only open to existing Nostr users. New account creation is temporarily disabled.
-                  </p>
-                </div>
+                <p className='text-muted-foreground px-5'>
+                  Join the Nostr network and take control of your social media experience.
+                  Your journey begins by generating a secret key.
+                </p>
 
                 <Button
-                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-60'
-                  disabled
+                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform transition-all duration-200 hover:scale-105 shadow-lg'
+                  onClick={() => setStep('generate')}
                 >
                   <LogIn className='w-5 h-5 mr-2' />
-                  Sign Up Disabled
+                  Get Started
                 </Button>
 
                 <p className='text-xs text-muted-foreground'>
-                  Already have a Nostr account? Use the login options instead.
+                  Free forever • Decentralized • Your data, your control
                 </p>
+
+                {onLogin && (
+                  <div className='text-center pt-2'>
+                    <p className='text-sm text-muted-foreground'>
+                      Already have an account?{' '}
+                      <button
+                        onClick={() => {
+                          onClose();
+                          onLogin();
+                        }}
+                        className='text-primary hover:underline font-medium'
+                      >
+                        Log in
+                      </button>
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
