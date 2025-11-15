@@ -24,9 +24,15 @@ interface UseVideoEventsOptions {
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
-  // Must have d tag for addressability - this is required for NIP-71 videos
-  const vineId = getVineId(event);
-  if (!vineId) return false;
+  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
+  // Kinds 21 and 22 are regular events and don't require d tag
+  if (event.kind === 34236) {
+    const vineId = getVineId(event);
+    if (!vineId) {
+      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+      return false;
+    }
+  }
 
   return true;
 }
@@ -127,11 +133,8 @@ async function parseVideoEvents(
       continue;
     }
 
-    const vineId = getVineId(event);
-    if (!vineId) {
-      invalidVideos++;
-      continue;
-    }
+    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
+    const vineId = getVineId(event) || event.id;
 
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
@@ -222,11 +225,8 @@ async function parseVideoEvents(
       continue;
     }
 
-    const vineId = getVineId(originalVideo);
-    if (!vineId) {
-      repostsSkipped++;
-      continue;
-    }
+    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
+    const vineId = getVineId(originalVideo) || originalVideo.id;
 
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
@@ -314,13 +314,16 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       };
 
       // If filtering by specific IDs, ensure we query them directly
-      if (filter?.ids && filter.ids.length > 0) {
+      const isDirectIdLookup = filter?.ids && filter.ids.length > 0;
+      if (isDirectIdLookup) {
         // For direct ID lookups, remove limit restriction
         baseFilter.limit = filter.ids.length;
+        debugLog('[useVideoEvents] Direct ID lookup mode:', filter.ids);
       }
 
       // Add relay-native sorting for feeds that should sort by popularity
-      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
+      // But NOT for direct ID lookups - those should just fetch the specific event
+      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType) && !isDirectIdLookup;
       if (shouldSortByPopularity) {
         (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = { field: 'loop_count', dir: 'desc' };
       }
@@ -362,26 +365,32 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       try {
         // Query videos first
         const queryStartTime = performance.now();
-        verboseLog('[useVideoEvents] Sending query with filter:', baseFilter);
+        debugLog('[useVideoEvents] Sending query with filter:', JSON.stringify(baseFilter, null, 2));
         verboseLog('[useVideoEvents] Calling nostr.query...');
         events = await nostr.query([baseFilter], { signal });
-        verboseLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
-        verboseLog('[useVideoEvents] First event:', events[0]);
+        debugLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        if (events.length > 0) {
+          verboseLog('[useVideoEvents] First event:', events[0]);
+        }
 
         // Log if we got zero events for debugging
         if (events.length === 0) {
           debugLog('[useVideoEvents] WARNING: Query returned 0 events');
           debugLog('[useVideoEvents] Filter used:', JSON.stringify(baseFilter));
+          debugLog('[useVideoEvents] feedType:', feedType);
+          debugLog('[useVideoEvents] isDirectIdLookup:', isDirectIdLookup);
           debugLog('[useVideoEvents] This could indicate a relay issue or no matching content');
         }
 
-        // Only query reposts if we don't have enough videos
-        if (events.length < limit && feedType !== 'profile') {
+        // Only query reposts if we don't have enough videos and NOT doing a direct ID lookup
+        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup) {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
           debugLog(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);
           events = [...events, ...repostEvents];
+        } else if (isDirectIdLookup) {
+          debugLog('[useVideoEvents] Skipping repost query for direct ID lookup');
         }
       } catch (err) {
         debugError('[useVideoEvents] Query error:', err);
