@@ -365,21 +365,21 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       try {
         // Query videos first
         const queryStartTime = performance.now();
-        debugLog('[useVideoEvents] Sending query with filter:', JSON.stringify(baseFilter, null, 2));
+        console.log('[useVideoEvents] Sending query with filter:', JSON.stringify(baseFilter, null, 2));
         verboseLog('[useVideoEvents] Calling nostr.query...');
         events = await nostr.query([baseFilter], { signal });
-        debugLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        console.log(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
         if (events.length > 0) {
-          verboseLog('[useVideoEvents] First event:', events[0]);
+          console.log('[useVideoEvents] First event:', events[0]);
         }
 
         // Log if we got zero events for debugging
         if (events.length === 0) {
-          debugLog('[useVideoEvents] WARNING: Query returned 0 events');
-          debugLog('[useVideoEvents] Filter used:', JSON.stringify(baseFilter));
-          debugLog('[useVideoEvents] feedType:', feedType);
-          debugLog('[useVideoEvents] isDirectIdLookup:', isDirectIdLookup);
-          debugLog('[useVideoEvents] This could indicate a relay issue or no matching content');
+          console.warn('[useVideoEvents] WARNING: Query returned 0 events');
+          console.log('[useVideoEvents] Filter used:', JSON.stringify(baseFilter));
+          console.log('[useVideoEvents] feedType:', feedType);
+          console.log('[useVideoEvents] isDirectIdLookup:', isDirectIdLookup);
+          console.log('[useVideoEvents] This could indicate a relay issue or no matching content');
         }
 
         // Only query reposts if we don't have enough videos and NOT doing a direct ID lookup

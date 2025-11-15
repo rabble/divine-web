@@ -2,13 +2,15 @@
 // ABOUTME: Prevents debug logs from appearing in production
 
 /**
- * Check if we're running on localhost
+ * Check if we're running on localhost or dev environment
  */
 export const isLocalhost = typeof window !== 'undefined' &&
   (window.location.hostname === 'localhost' ||
    window.location.hostname === '127.0.0.1' ||
    window.location.hostname.startsWith('192.168.') ||
-   window.location.hostname.startsWith('10.'));
+   window.location.hostname.startsWith('10.') ||
+   window.location.hostname.includes('shakespeare') ||
+   window.location.hostname.includes('local'));
 
 /**
  * Enable verbose logging (video playback, visibility updates, etc.)

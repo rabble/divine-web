@@ -21,7 +21,7 @@ export function VideoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  debugLog('[VideoPage] Rendering with id:', id);
+  console.log('[VideoPage] Rendering with id:', id);
 
   // All hooks must be called before any early returns
   const {
@@ -34,11 +34,12 @@ export function VideoPage() {
     isLoading,
   } = useVideoNavigation(id || '');
 
-  debugLog('[VideoPage] Navigation state:', {
+  console.log('[VideoPage] Navigation state:', {
     hasContext: !!context,
     hasVideo: !!currentVideo,
     isLoading,
-    contextSource: context?.source
+    contextSource: context?.source,
+    videoId: currentVideo?.id
   });
 
   // Get author data for profile context
