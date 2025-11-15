@@ -1,7 +1,6 @@
 // ABOUTME: Landing page component shown to logged-out users
-// ABOUTME: Displays the Divine Video brand message and login prompt
+// ABOUTME: Displays the Divine Video brand message
 
-import { LoginArea } from "@/components/auth/LoginArea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import {
@@ -174,16 +173,6 @@ export function LandingPage() {
                 </svg>
               </Link>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Login Section */}
-        <Card className="bg-white/80 dark:bg-black/40 backdrop-blur-md border-white/20">
-          <CardContent className="pt-8 pb-8 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              Log in with Nostr to continue
-            </p>
-            <LoginArea className="w-full justify-center" />
           </CardContent>
         </Card>
         </div>
