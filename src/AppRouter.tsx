@@ -36,6 +36,7 @@ import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
+import { UploadPage } from "./pages/UploadPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {
@@ -87,6 +88,7 @@ export function AppRouter() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
+              <Route path="/upload" element={<UploadPage />} />
               {/* Test pages for debugging */}
               <Route path="/debug-video" element={<DebugVideoPage />} />
             </>

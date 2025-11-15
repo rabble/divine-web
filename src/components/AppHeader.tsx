@@ -1,4 +1,4 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users } from 'lucide-react';
+import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -52,6 +52,15 @@ export function AppHeader() {
           {/* Protected navigation - requires login */}
           {user && (
             <>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate('/upload')}
+                className="flex items-center gap-2"
+              >
+                <Video className="h-4 w-4" />
+                <span className="hidden sm:inline">Upload</span>
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"

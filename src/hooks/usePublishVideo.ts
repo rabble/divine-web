@@ -3,7 +3,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND } from '@/types/video';
+import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
 import type { VideoMetadata } from '@/types/video';
 
 interface PublishVideoOptions {
@@ -15,7 +15,7 @@ interface PublishVideoOptions {
   dimensions?: string;
   hashtags?: string[];
   vineId?: string; // Optional, will generate if not provided
-  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND; // Kind 22 (short/vertical) or 21 (horizontal) - defaults to 22
+  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // Kind 22 (short/vertical), 21 (horizontal), or 34236 (legacy) - defaults to 22
 }
 
 /**
@@ -30,7 +30,7 @@ function generateVineId(): string {
  */
 function buildImetaTag(metadata: VideoMetadata): string[] {
   const tag = ['imeta'];
-  
+
   if (metadata.url) {
     tag.push('url', metadata.url);
   }
@@ -55,7 +55,7 @@ function buildImetaTag(metadata: VideoMetadata): string[] {
   if (metadata.hash) {
     tag.push('x', metadata.hash);
   }
-  
+
   return tag;
 }
 
@@ -64,7 +64,7 @@ function buildImetaTag(metadata: VideoMetadata): string[] {
  */
 export function usePublishVideo() {
   const { mutateAsync: publishEvent } = useNostrPublish();
-  
+
   return useMutation({
     mutationFn: async (options: PublishVideoOptions) => {
       const {
@@ -78,7 +78,7 @@ export function usePublishVideo() {
         vineId = generateVineId(),
         kind = SHORT_VIDEO_KIND // Default to short vertical videos (kind 22)
       } = options;
-      
+
       // Build tags according to NIP-71
       const tags: string[][] = [
         ['d', vineId], // Required for addressability
@@ -114,14 +114,14 @@ export function usePublishVideo() {
 
       // Add client tag for attribution
       tags.push(['client', 'divine-web']);
-      
+
       // Publish the event
       const event = await publishEvent({
         kind,
         content,
         tags
       });
-      
+
       return event;
     }
   });
@@ -148,13 +148,13 @@ export function useRepostVideo() {
         ['p', originalPubkey],
         ['client', 'divine-web']
       ];
-      
+
       const event = await publishEvent({
         kind: 6, // Repost kind
         content: '',
         tags
       });
-      
+
       return event;
     }
   });
