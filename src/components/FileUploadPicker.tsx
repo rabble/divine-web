@@ -1,11 +1,12 @@
 // ABOUTME: File picker component for uploading pre-recorded videos
 // ABOUTME: Validates video files and provides preview before upload
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Upload, X, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 interface FileUploadPickerProps {
   onFileSelected: (file: File, previewUrl: string, duration: number) => void;
@@ -27,6 +28,17 @@ export function FileUploadPicker({ onFileSelected, onCancel }: FileUploadPickerP
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  // Detect desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Validate video file
   const validateVideo = useCallback(async (file: File): Promise<{ isValid: boolean; duration: number; error?: string }> => {
@@ -196,7 +208,8 @@ export function FileUploadPicker({ onFileSelected, onCancel }: FileUploadPickerP
     return `${seconds.toFixed(1)}s`;
   };
 
-  return (
+  // Main content
+  const pickerContent = (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
       <div className="border-b p-4 flex items-center justify-between">
@@ -351,4 +364,18 @@ export function FileUploadPicker({ onFileSelected, onCancel }: FileUploadPickerP
       </div>
     </div>
   );
+
+  // Desktop: wrap in centered modal
+  if (isDesktop) {
+    return (
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="relative w-full max-w-3xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl bg-background">
+          {pickerContent}
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile: full screen
+  return pickerContent;
 }

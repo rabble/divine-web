@@ -1,5 +1,5 @@
-// ABOUTME: Form for adding metadata to uploaded video files
-// ABOUTME: Handles video preview and publishing for file uploads
+// ABOUTME: Responsive form for adding metadata to uploaded video files
+// ABOUTME: Handles video preview and publishing for file uploads - mobile-first design
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { useUploadFile } from '@/hooks/useUploadFile';
 import { usePublishVideo } from '@/hooks/usePublishVideo';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/useToast';
+import { cn } from '@/lib/utils';
 
 interface VideoMetadataFormFileProps {
   file: File;
@@ -34,12 +35,23 @@ export function VideoMetadataFormFile({
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
   const { mutateAsync: publishVideo, isPending: isPublishing } = usePublishVideo();
 
   const isProcessing = isUploading || isPublishing;
+
+  // Detect desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Set up video preview
   useEffect(() => {
@@ -136,25 +148,32 @@ export function VideoMetadataFormFile({
     }
   };
 
-  const currentProgress = isUploading 
+  const currentProgress = isUploading
     ? uploadProgress // Upload progress
-    : isPublishing 
+    : isPublishing
     ? 80 + (20) // Publishing is the final 20%
     : 0;
 
-  return (
+  // Form content
+  const formContent = (
     <div className="flex flex-col h-full bg-background">
-      {/* Video Preview */}
-      <div className="relative aspect-video bg-black">
+      {/* Video Preview - responsive aspect ratio */}
+      <div className={cn(
+        "relative bg-black flex-shrink-0",
+        "aspect-video max-h-[40vh]",
+        "md:max-h-[45vh]"
+      )}>
         <video
           ref={videoRef}
           className="w-full h-full object-contain"
           controls
+          loop
         />
       </div>
 
-      {/* Metadata Form */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Metadata Form - scrollable */}
+      <div className="flex-1 overflow-y-auto" style={{ paddingBottom: 'var(--sab)' }}>
+        <div className="p-4 space-y-4">
         <div>
           <Label htmlFor="title">Title *</Label>
           <Input
@@ -250,7 +269,7 @@ export function VideoMetadataFormFile({
 
         {/* Upload Progress */}
         {isProcessing && (
-          <div className="space-y-2">
+          <div className="space-y-2 pt-2">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
                 {isUploading ? 'Uploading video...' : 'Publishing to Nostr...'}
@@ -260,34 +279,51 @@ export function VideoMetadataFormFile({
             <Progress value={currentProgress} className="h-2" />
           </div>
         )}
+        </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="border-t p-4 space-y-2">
-        <Button
-          onClick={handlePublish}
-          className="w-full"
-          disabled={isProcessing || !title.trim()}
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {isUploading ? 'Uploading...' : 'Publishing...'}
-            </>
-          ) : (
-            'Publish Vine'
-          )}
-        </Button>
+      {/* Action Buttons - fixed at bottom */}
+      <div className="border-t bg-background flex-shrink-0">
+        <div className="p-4 space-y-2">
+          <Button
+            onClick={handlePublish}
+            className="w-full h-11"
+            disabled={isProcessing || !title.trim()}
+          >
+            {isProcessing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {isUploading ? 'Uploading...' : 'Publishing...'}
+              </>
+            ) : (
+              'Publish Vine'
+            )}
+          </Button>
 
-        <Button
-          onClick={onCancel}
-          variant="outline"
-          className="w-full"
-          disabled={isProcessing}
-        >
-          Cancel
-        </Button>
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            className="w-full h-11"
+            disabled={isProcessing}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
     </div>
   );
+
+  // Desktop: wrap in centered modal
+  if (isDesktop) {
+    return (
+      <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div className="relative w-full max-w-2xl max-h-[90vh] rounded-2xl overflow-hidden shadow-2xl bg-background">
+          {formContent}
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile: full screen
+  return formContent;
 }

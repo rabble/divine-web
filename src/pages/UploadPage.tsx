@@ -151,58 +151,44 @@ export function UploadPage() {
   // Recording step
   if (step === 'record') {
     return (
-      <div className="fixed inset-0 z-50">
-        <CameraRecorder
-          onRecordingComplete={handleRecordingComplete}
-          onCancel={handleCancel}
-        />
-      </div>
+      <CameraRecorder
+        onRecordingComplete={handleRecordingComplete}
+        onCancel={handleCancel}
+      />
     );
   }
 
   // File upload step
   if (step === 'upload-file') {
     return (
-      <div className="fixed inset-0 z-50 bg-background overflow-hidden">
-        <div className="h-full max-w-4xl mx-auto">
-          <FileUploadPicker
-            onFileSelected={handleFileSelected}
-            onCancel={handleCancel}
-          />
-        </div>
-      </div>
+      <FileUploadPicker
+        onFileSelected={handleFileSelected}
+        onCancel={handleCancel}
+      />
     );
   }
 
   // Metadata step (for recorded videos)
   if (step === 'metadata' && recordedSegments.length > 0) {
     return (
-      <div className="fixed inset-0 z-50 bg-background overflow-hidden">
-        <div className="h-full max-w-2xl mx-auto">
-          <VideoMetadataForm
-            segments={recordedSegments}
-            onCancel={handleCancel}
-            onPublished={handlePublished}
-          />
-        </div>
-      </div>
+      <VideoMetadataForm
+        segments={recordedSegments}
+        onCancel={handleCancel}
+        onPublished={handlePublished}
+      />
     );
   }
 
   // Metadata step (for uploaded files)
   if (step === 'metadata-file' && uploadedFile) {
     return (
-      <div className="fixed inset-0 z-50 bg-background overflow-hidden">
-        <div className="h-full max-w-2xl mx-auto">
-          <VideoMetadataFormFile
-            file={uploadedFile.file}
-            previewUrl={uploadedFile.previewUrl}
-            duration={uploadedFile.duration}
-            onCancel={handleCancel}
-            onPublished={handleFilePublished}
-          />
-        </div>
-      </div>
+      <VideoMetadataFormFile
+        file={uploadedFile.file}
+        previewUrl={uploadedFile.previewUrl}
+        duration={uploadedFile.duration}
+        onCancel={handleCancel}
+        onPublished={handleFilePublished}
+      />
     );
   }
 
