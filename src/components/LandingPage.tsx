@@ -32,17 +32,17 @@ export function LandingPage() {
         <path
           d="M -50,200 Q 250,100 500,300 T 1050,400"
           stroke="white"
-          strokeWidth="3"
+          strokeWidth="8"
           fill="none"
-          opacity="0.15"
+          opacity="0.4"
           strokeLinecap="round"
         />
         <path
           d="M -50,600 Q 250,500 500,700 T 1050,800"
           stroke="white"
-          strokeWidth="2"
+          strokeWidth="6"
           fill="none"
-          opacity="0.1"
+          opacity="0.3"
           strokeLinecap="round"
         />
       </svg>
