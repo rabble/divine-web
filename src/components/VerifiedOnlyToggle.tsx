@@ -25,11 +25,11 @@ export function VerifiedOnlyToggle({ enabled, onToggle, className }: VerifiedOnl
           className="flex items-center gap-2 cursor-pointer text-sm"
         >
           <ShieldCheck className="h-4 w-4 text-green-600" />
-          <span>Verified only</span>
+          <span>Verified</span>
         </Label>
       </div>
       {enabled && (
-        <p className="text-xs text-muted-foreground mt-1 ml-6">
+        <p className="text-xs text-muted-foreground mt-2">
           Showing only videos with ProofMode verification
         </p>
       )}
