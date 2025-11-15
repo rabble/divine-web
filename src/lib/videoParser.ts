@@ -317,10 +317,13 @@ export function getVineId(event: NostrEvent): string | null {
 }
 
 /**
- * Get original Vine timestamp from event tags
+ * Get original publication timestamp from event tags
+ * NOTE: This is the published_at tag (NIP-31) which can be used by ANY video
+ * to set a custom publication date. DO NOT use this to determine if a video
+ * is from Vine - use getOriginPlatform() instead.
  */
 export function getOriginalVineTimestamp(event: NostrEvent): number | undefined {
-  // Check for published_at tag (NIP-31 timestamp) - this is the original Vine creation time
+  // Check for published_at tag (NIP-31 timestamp)
   const publishedAtTag = event.tags.find(tag => tag[0] === 'published_at');
   if (publishedAtTag?.[1]) {
     const timestamp = parseInt(publishedAtTag[1]);
@@ -337,6 +340,37 @@ export function getOriginalVineTimestamp(event: NostrEvent): number | undefined 
   }
 
   return undefined;
+}
+
+/**
+ * Get origin platform information from event tags
+ * Format: ["origin", platform, external-id, original-url, optional-metadata]
+ * Example: ["origin", "vine", "hBFP5LFKUOU", "https://vine.co/v/hBFP5LFKUOU"]
+ */
+export function getOriginPlatform(event: NostrEvent): {
+  platform: string;
+  externalId: string;
+  url?: string;
+  metadata?: string;
+} | undefined {
+  const originTag = event.tags.find(tag => tag[0] === 'origin');
+  if (!originTag || !originTag[1] || !originTag[2]) return undefined;
+
+  return {
+    platform: originTag[1],
+    externalId: originTag[2],
+    url: originTag[3],
+    metadata: originTag[4]
+  };
+}
+
+/**
+ * Check if video is migrated from original Vine platform
+ * Uses 'origin' tag, NOT 'published_at' tag
+ */
+export function isVineMigrated(event: NostrEvent): boolean {
+  const origin = getOriginPlatform(event);
+  return origin?.platform?.toLowerCase() === 'vine';
 }
 
 /**

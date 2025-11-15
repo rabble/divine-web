@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/useToast';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 
 interface VideoList {
   id: string;
@@ -164,7 +164,9 @@ async function fetchListVideos(
       likeCount: getOriginalLikeCount(event),
       repostCount: getOriginalRepostCount(event),
       commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event)
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event)
     });
   });
 

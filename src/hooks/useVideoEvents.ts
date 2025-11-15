@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
@@ -165,7 +165,9 @@ async function parseVideoEvents(
       likeCount: getOriginalLikeCount(event),
       repostCount: getOriginalRepostCount(event),
       commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event)
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event)
     });
   }
 
@@ -257,7 +259,9 @@ async function parseVideoEvents(
       likeCount: getOriginalLikeCount(originalVideo),
       repostCount: getOriginalRepostCount(originalVideo),
       commentCount: getOriginalCommentCount(originalVideo),
-      proofMode: getProofModeData(originalVideo)
+      proofMode: getProofModeData(originalVideo),
+      origin: getOriginPlatform(originalVideo),
+      isVineMigrated: isVineMigrated(originalVideo)
     });
   }
 
