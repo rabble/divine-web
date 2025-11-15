@@ -93,7 +93,7 @@ export function HashtagPage() {
             className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            ← Back to Discovery
+            Back to Discovery
           </Link>
         </div>
 
@@ -117,7 +117,7 @@ export function HashtagPage() {
 
           {/* View Toggle */}
           <div className="flex items-center justify-between">
-            <div 
+            <div
               className="flex items-center bg-muted rounded-lg p-1"
               role="group"
               aria-label="View mode selection"
@@ -189,7 +189,7 @@ export function HashtagPage() {
         )}
 
         {/* Video Feed */}
-        <VideoFeed 
+        <VideoFeed
           feedType="hashtag"
           hashtag={normalizedTag}
           data-testid="video-feed-hashtag"
