@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export function AppFooter() {
   return (
-    <footer className="mt-auto border-t border-primary/10 py-6 bg-muted/30">
+    <footer className="mt-auto border-t border-primary/10 py-6 pb-[calc(1.5rem+4rem+env(safe-area-inset-bottom))] md:pb-6 bg-muted/30">
       <div className="container">
         <div className="flex flex-col items-center gap-4 text-center max-w-3xl mx-auto">
           {/* Featured Authenticity Section */}
