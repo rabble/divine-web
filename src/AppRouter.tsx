@@ -37,7 +37,7 @@ import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
-import { UploadPage } from "./pages/UploadPage";
+// import { UploadPage } from "./pages/UploadPage"; // DISABLED: Upload route is commented out
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {

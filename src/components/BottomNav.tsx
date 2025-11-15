@@ -1,4 +1,4 @@
-import { Hash, List, Search, Video, User } from 'lucide-react';
+import { Hash, List, Search, User } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
