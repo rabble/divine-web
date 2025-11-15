@@ -15,6 +15,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { useFollowRelationship, useFollowUser, useUnfollowUser } from '@/hooks/useFollowRelationship';
+import { useAuthenticatedAction } from '@/hooks/useAuthenticatedAction';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 
@@ -92,10 +93,8 @@ export function ProfilePage() {
 
   const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
 
-  // Handle follow/unfollow
-  const handleFollowToggle = async (shouldFollow: boolean) => {
-    // Don't check for currentUser here - let the mutations handle it and show login dialog
-
+  // Handle follow/unfollow - wrapped with authentication check
+  const handleFollowToggle = useAuthenticatedAction(async (shouldFollow: boolean) => {
     try {
       if (shouldFollow) {
         await followUser({
@@ -112,7 +111,7 @@ export function ProfilePage() {
     } catch (error) {
       console.error('Failed to update follow status:', error);
     }
-  };
+  });
 
   return (
     <div className="container mx-auto px-4 py-6">

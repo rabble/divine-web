@@ -15,6 +15,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
+import { useAuthenticatedAction } from '@/hooks/useAuthenticatedAction';
 import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
@@ -253,17 +254,8 @@ export function VideoFeed({
     );
   }
 
-  // Handle interactions
-  const handleLike = async (video: ParsedVideoData) => {
-    if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to like videos',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  // Handle interactions - wrapped with authentication check
+  const handleLike = useAuthenticatedAction(async (video: ParsedVideoData) => {
     debugLog('Like video:', video.id);
     try {
       await publishEvent({
@@ -291,18 +283,9 @@ export function VideoFeed({
         variant: 'destructive',
       });
     }
-  };
+  });
 
-  const handleRepost = async (video: ParsedVideoData) => {
-    if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to repost videos',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  const handleRepost = useAuthenticatedAction(async (video: ParsedVideoData) => {
     if (!video.vineId) {
       toast({
         title: 'Error',
@@ -337,7 +320,7 @@ export function VideoFeed({
         variant: 'destructive',
       });
     }
-  };
+  });
 
   const handleUnlike = async (likeEventId: string) => {
     if (!user) return;
