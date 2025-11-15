@@ -66,7 +66,11 @@ export function AppHeader() {
           {/* More menu with info links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="data-[state=open]:bg-primary/10 data-[state=open]:text-primary"
+              >
                 <MoreVertical className="h-4 w-4" />
                 <span className="sr-only">More options</span>
               </Button>
@@ -75,17 +79,26 @@ export function AppHeader() {
               {/* About Divine Section */}
               <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About Divine</DropdownMenuLabel>
 
-              <DropdownMenuItem onClick={() => navigate('/about')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/about')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Info className="mr-2 h-4 w-4" />
                 <span>About</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/authenticity')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/authenticity')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Heart className="mr-2 h-4 w-4" />
                 <span>Our Mission</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/faq')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/faq')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>FAQ</span>
               </DropdownMenuItem>
@@ -95,17 +108,26 @@ export function AppHeader() {
               {/* Trust & Safety Section */}
               <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
 
-              <DropdownMenuItem onClick={() => navigate('/proofmode')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/proofmode')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <ShieldCheck className="mr-2 h-4 w-4" />
                 <span>ProofMode</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/human-created')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/human-created')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Users className="mr-2 h-4 w-4" />
                 <span>Made by Humans</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/safety')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/safety')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <ShieldAlert className="mr-2 h-4 w-4" />
                 <span>Safety Standards</span>
               </DropdownMenuItem>
@@ -115,7 +137,10 @@ export function AppHeader() {
               {/* Technical Section */}
               <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Technical</DropdownMenuLabel>
 
-              <DropdownMenuItem onClick={() => navigate('/open-source')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/open-source')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Code2 className="mr-2 h-4 w-4" />
                 <span>Open Source</span>
               </DropdownMenuItem>
@@ -124,7 +149,7 @@ export function AppHeader() {
                 <a
                   href="https://github.com/rabble/nostrvine"
                   rel="noopener noreferrer"
-                  className="flex items-center cursor-pointer"
+                  className="flex items-center cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
                 >
                   <Github className="mr-2 h-4 w-4" />
                   <span>GitHub Repository</span>
@@ -150,17 +175,26 @@ export function AppHeader() {
               {/* Legal Section */}
               <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Legal</DropdownMenuLabel>
 
-              <DropdownMenuItem onClick={() => navigate('/terms')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/terms')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Scale className="mr-2 h-4 w-4" />
                 <span>Terms & Conditions</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/privacy')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/privacy')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Shield className="mr-2 h-4 w-4" />
                 <span>Privacy Policy</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => navigate('/dmca')} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigate('/dmca')}
+                className="cursor-pointer hover:bg-primary/5 focus:bg-primary/10 focus:text-primary"
+              >
                 <Scale className="mr-2 h-4 w-4" />
                 <span>Copyright & DMCA</span>
               </DropdownMenuItem>
