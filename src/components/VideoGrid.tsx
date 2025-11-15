@@ -118,6 +118,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     muted
                     playsInline
                     preload="metadata"
+                    crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
                   />
                 ) : (
@@ -126,6 +127,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     src={video.thumbnailUrl}
                     alt={video.content || 'Video thumbnail'}
                     loading="lazy"
+                    crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
                   />
                 )
@@ -136,6 +138,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                   muted
                   playsInline
                   preload="metadata"
+                  crossOrigin="anonymous"
                   data-testid={`video-thumbnail-${video.id}`}
                 />
               ) : (

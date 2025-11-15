@@ -47,7 +47,7 @@ export function ThumbnailPlayer({
   const effectiveThumbnailUrl = thumbnailUrl || generateThumbnailFromVideo(src);
 
   return (
-    <div 
+    <div
       className={cn(
         'relative aspect-square bg-black cursor-pointer group overflow-hidden',
         'hover:scale-105 transition-transform duration-200',
@@ -62,12 +62,13 @@ export function ThumbnailPlayer({
           src={effectiveThumbnailUrl}
           alt="Video thumbnail"
           className="w-full h-full object-cover"
+          crossOrigin="anonymous"
           data-testid="video-thumbnail"
           onLoad={handleThumbnailLoad}
           onError={handleThumbnailError}
         />
       ) : (
-        <div 
+        <div
           className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400"
           data-testid="thumbnail-placeholder"
         >
@@ -98,7 +99,7 @@ export function ThumbnailPlayer({
 
       {/* Duration overlay */}
       {duration && (
-        <div 
+        <div
           className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded backdrop-blur-sm"
           data-testid="thumbnail-duration"
         >
