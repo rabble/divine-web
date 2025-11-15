@@ -245,19 +245,6 @@ export function OpenSourcePage() {
             </blockquote>
           </CardContent>
         </Card>
-
-        {/* Links */}
-        <div className="flex flex-wrap gap-4 justify-center pt-8 border-t">
-          <Link to="/about" className="text-primary hover:underline">
-            About
-          </Link>
-          <Link to="/privacy" className="text-primary hover:underline">
-            Privacy Policy
-          </Link>
-          <Link to="/" className="text-primary hover:underline">
-            Back to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

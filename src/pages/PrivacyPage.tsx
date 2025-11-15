@@ -288,25 +288,6 @@ export function PrivacyPage() {
             </p>
           </CardContent>
         </Card>
-
-        {/* Links */}
-        <div className="flex flex-wrap gap-4 justify-center pt-8 border-t">
-          <Link to="/terms" className="text-primary hover:underline">
-            Terms of Service
-          </Link>
-          <Link to="/safety" className="text-primary hover:underline">
-            Safety Standards
-          </Link>
-          <Link to="/about" className="text-primary hover:underline">
-            About
-          </Link>
-          <Link to="/open-source" className="text-primary hover:underline">
-            Open Source
-          </Link>
-          <Link to="/" className="text-primary hover:underline">
-            Back to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

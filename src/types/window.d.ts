@@ -6,7 +6,7 @@ import type { NostrSigner } from '@nostrify/nostrify';
 declare global {
   interface Window {
     nostr?: NostrSigner;
-    zE?: (command: string, action: string) => void;
+    zE?: (namespace: string, action: string, ...args: unknown[]) => void;
   }
 }
 

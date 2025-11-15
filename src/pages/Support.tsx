@@ -1,52 +1,49 @@
 // ABOUTME: Support and contact information page for diVine Web
 // ABOUTME: Displays email contact and GitHub issues link for user support
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export function Support() {
-  const zendeskFormRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    // Load Zendesk widget script
-    const script = document.createElement('script');
-    script.id = 'ze-snippet';
-    script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
-    script.async = true;
+    // Load Zendesk widget script if not already loaded
+    const existingScript = document.getElementById('ze-snippet');
 
-    script.onload = () => {
-      // Wait for zE to be available, then open the contact form
-      const checkZE = setInterval(() => {
-        if (window.zE) {
-          clearInterval(checkZE);
-          // Hide the launcher button on support page
-          window.zE('messenger', 'hide');
-          // Open the messenger automatically to show the form
-          window.zE('messenger', 'open');
-        }
-      }, 100);
-    };
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.id = 'ze-snippet';
+      script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
+      script.async = true;
 
-    document.body.appendChild(script);
+      script.onload = () => {
+        // Wait for zE to be available, then open the widget
+        const checkZE = setInterval(() => {
+          if (window.zE) {
+            clearInterval(checkZE);
+            // Open the web widget automatically
+            window.zE('webWidget', 'open');
+          }
+        }, 100);
+      };
 
-    // Cleanup function to remove the script when component unmounts
-    return () => {
-      const existingScript = document.getElementById('ze-snippet');
-      if (existingScript) {
-        existingScript.remove();
-      }
-      // Also remove any Zendesk-created elements
-      const zendeskContainer = document.getElementById('launcher');
-      if (zendeskContainer) {
-        zendeskContainer.remove();
-      }
-      // Reset zE to undefined
+      document.body.appendChild(script);
+    } else {
+      // Script already loaded, just open the widget
       if (window.zE) {
-        window.zE('messenger', 'close');
+        window.zE('webWidget', 'open');
       }
-    };
+    }
+
+    // Don't cleanup - keep widget available
   }, []);
+
+  const openZendeskWidget = () => {
+    if (window.zE) {
+      window.zE('webWidget', 'open');
+    }
+  };
 
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
@@ -58,18 +55,21 @@ export function Support() {
           </p>
         </div>
 
-        {/* Zendesk embedded form container */}
+        {/* Contact Support Card */}
         <Card>
           <CardHeader>
             <CardTitle>Contact Support</CardTitle>
             <CardDescription>
-              Fill out the form below and we'll get back to you as soon as possible.
+              Click the button below to open our support chat and get help immediately.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div ref={zendeskFormRef} id="zendesk-form-container" className="min-h-[400px]">
-              {/* Zendesk messenger will appear here */}
-            </div>
+            <Button onClick={openZendeskWidget} size="lg" className="w-full">
+              Open Support Chat
+            </Button>
+            <p className="text-sm text-muted-foreground mt-4 text-center">
+              Our support widget will open in the bottom-right corner
+            </p>
           </CardContent>
         </Card>
 
