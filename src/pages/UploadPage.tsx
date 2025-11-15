@@ -1,19 +1,27 @@
 // ABOUTME: Main upload page for recording and publishing videos
-// ABOUTME: Orchestrates camera recording, metadata input, and publishing flow
+// ABOUTME: Orchestrates camera recording, file upload, metadata input, and publishing flow
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CameraRecorder } from '@/components/CameraRecorder';
 import { VideoMetadataForm } from '@/components/VideoMetadataForm';
+import { VideoMetadataFormFile } from '@/components/VideoMetadataFormFile';
+import { FileUploadPicker } from '@/components/FileUploadPicker';
 import { Button } from '@/components/ui/button';
 import { Camera, Upload } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
-type UploadStep = 'choose' | 'record' | 'metadata';
+type UploadStep = 'choose' | 'record' | 'upload-file' | 'metadata' | 'metadata-file';
 
 interface RecordedSegment {
   blob: Blob;
   blobUrl: string;
+}
+
+interface UploadedFile {
+  file: File;
+  previewUrl: string;
+  duration: number;
 }
 
 export function UploadPage() {
@@ -21,6 +29,7 @@ export function UploadPage() {
   const { user } = useCurrentUser();
   const [step, setStep] = useState<UploadStep>('choose');
   const [recordedSegments, setRecordedSegments] = useState<RecordedSegment[]>([]);
+  const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
   // Require login to upload
   if (!user) {
@@ -46,7 +55,13 @@ export function UploadPage() {
     setStep('metadata');
   };
 
-  // Handle publish completion
+  // Handle file selection
+  const handleFileSelected = (file: File, previewUrl: string, duration: number) => {
+    setUploadedFile({ file, previewUrl, duration });
+    setStep('metadata-file');
+  };
+
+  // Handle publish completion (for recorded videos)
   const handlePublished = () => {
     // Clean up recorded segments
     recordedSegments.forEach(segment => {
@@ -54,7 +69,20 @@ export function UploadPage() {
     });
     setRecordedSegments([]);
     setStep('choose');
-    
+
+    // Navigate to home to see the published video
+    navigate('/');
+  };
+
+  // Handle publish completion (for uploaded files)
+  const handleFilePublished = () => {
+    // Clean up uploaded file
+    if (uploadedFile?.previewUrl) {
+      URL.revokeObjectURL(uploadedFile.previewUrl);
+    }
+    setUploadedFile(null);
+    setStep('choose');
+
     // Navigate to home to see the published video
     navigate('/');
   };
@@ -66,6 +94,13 @@ export function UploadPage() {
       URL.revokeObjectURL(segment.blobUrl);
     });
     setRecordedSegments([]);
+
+    // Clean up uploaded file
+    if (uploadedFile?.previewUrl) {
+      URL.revokeObjectURL(uploadedFile.previewUrl);
+    }
+    setUploadedFile(null);
+
     setStep('choose');
   };
 
@@ -90,17 +125,13 @@ export function UploadPage() {
             </Button>
 
             <Button
-              onClick={() => {
-                // TODO: Implement file upload
-                alert('File upload coming soon!');
-              }}
+              onClick={() => setStep('upload-file')}
               variant="outline"
               className="w-full h-16 text-lg"
               size="lg"
-              disabled
             >
               <Upload className="mr-2 h-5 w-5" />
-              Upload Video (Coming Soon)
+              Upload Video File
             </Button>
           </div>
 
@@ -129,7 +160,21 @@ export function UploadPage() {
     );
   }
 
-  // Metadata step
+  // File upload step
+  if (step === 'upload-file') {
+    return (
+      <div className="fixed inset-0 z-50 bg-background overflow-hidden">
+        <div className="h-full max-w-4xl mx-auto">
+          <FileUploadPicker
+            onFileSelected={handleFileSelected}
+            onCancel={handleCancel}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Metadata step (for recorded videos)
   if (step === 'metadata' && recordedSegments.length > 0) {
     return (
       <div className="fixed inset-0 z-50 bg-background overflow-hidden">
@@ -138,6 +183,23 @@ export function UploadPage() {
             segments={recordedSegments}
             onCancel={handleCancel}
             onPublished={handlePublished}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Metadata step (for uploaded files)
+  if (step === 'metadata-file' && uploadedFile) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background overflow-hidden">
+        <div className="h-full max-w-2xl mx-auto">
+          <VideoMetadataFormFile
+            file={uploadedFile.file}
+            previewUrl={uploadedFile.previewUrl}
+            duration={uploadedFile.duration}
+            onCancel={handleCancel}
+            onPublished={handleFilePublished}
           />
         </div>
       </div>
