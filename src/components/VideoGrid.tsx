@@ -179,7 +179,7 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               </div>
 
               {/* Loop Count Badge */}
-              {video.loopCount && (
+              {video.loopCount && video.loopCount > 0 && (
                 <div className="absolute bottom-2 right-2">
                   <Badge variant="secondary" className="text-xs bg-black/80 text-white">
                     <Repeat className="w-3 h-3 mr-1" />
