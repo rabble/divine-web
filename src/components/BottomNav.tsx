@@ -15,24 +15,28 @@ export function BottomNav() {
       label: 'Hashtags',
       path: '/hashtags',
       requiresAuth: false,
+      isPrimary: false,
     },
     {
       icon: Search,
       label: 'Search',
       path: '/search',
       requiresAuth: false,
-    },
-    {
-      icon: Video,
-      label: 'Upload',
-      path: '/upload',
-      requiresAuth: true,
+      isPrimary: false,
     },
     {
       icon: List,
       label: 'Lists',
       path: '/lists',
       requiresAuth: true,
+      isPrimary: false,
+    },
+    {
+      icon: Video,
+      label: 'Upload',
+      path: '/upload',
+      requiresAuth: true,
+      isPrimary: true,
     },
   ];
 
@@ -45,16 +49,17 @@ export function BottomNav() {
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
-          
+
           return (
             <Button
               key={item.path}
-              variant="ghost"
+              variant={item.isPrimary ? "default" : "ghost"}
               size="sm"
               onClick={() => navigate(item.path)}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-                isActive && "text-primary bg-primary/10"
+                !item.isPrimary && isActive && "text-primary bg-primary/10",
+                item.isPrimary && "bg-primary text-primary-foreground hover:bg-primary/90"
               )}
             >
               <Icon className="h-5 w-5" />
