@@ -5,6 +5,7 @@ import { VideoCard } from './VideoCard';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import type { ParsedVideoData } from '@/types/video';
 
 interface VideoCardWithMetricsProps {
@@ -15,16 +16,23 @@ interface VideoCardWithMetricsProps {
 export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsProps) {
   const { user } = useCurrentUser();
   const { mutate: createEvent } = useNostrPublish();
-  
+
   // Fetch social metrics for this video
   const socialMetrics = useVideoSocialMetrics(video.id, video.pubkey);
-  
+
   // Fetch user's interaction status with this video
   const userInteractions = useVideoUserInteractions(video.id, user?.pubkey);
 
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
+
   const handleLike = () => {
-    if (!user) return;
-    
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
+
+    console.log('[VideoCardWithMetrics] Like action authenticated, creating event');
     // Create a reaction event (kind 7) for this video
     createEvent({
       kind: 7,
@@ -37,8 +45,12 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
   };
 
   const handleRepost = () => {
-    if (!user) return;
-    
+    if (!user) {
+      openLoginDialog();
+      return;
+    }
+
+    console.log('[VideoCardWithMetrics] Repost action authenticated, creating event');
     // Create a repost event (kind 6) for this video
     createEvent({
       kind: 6,

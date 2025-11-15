@@ -10,7 +10,7 @@ const Index = () => {
   const { user } = useCurrentUser();
 
   useSeoMeta({
-    title: 'Divine Web - Short-form Looping Videos on Nostr',
+    title: 'diVine Web - Short-form Looping Videos on Nostr',
     description: 'Watch and share 6-second looping videos on the decentralized Nostr network.',
   });
 

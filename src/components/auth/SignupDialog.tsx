@@ -19,13 +19,14 @@ interface SignupDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
+  onLogin?: () => void;
 }
 
 const sanitizeFilename = (filename: string) => {
   return filename.replace(/[^a-z0-9_.-]/gi, '_');
 }
 
-const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete }) => {
+const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete, onLogin }) => {
   const [step, setStep] = useState<'welcome' | 'generate' | 'download' | 'profile' | 'done'>('welcome');
   const [isLoading, setIsLoading] = useState(false);
   const [nsec, setNsec] = useState('');
@@ -249,44 +250,15 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
   };
 
   const getTitle = () => {
-    if (step === 'welcome') return (
-      <span className="flex items-center justify-center gap-2">
-        <UserPlus className="w-5 h-5 text-primary" />
-        Create Your Account
-      </span>
-    );
-    if (step === 'generate') return (
-      <span className="flex items-center justify-center gap-2">
-        <Wand2 className="w-5 h-5 text-primary" />
-        Generating Your Key
-      </span>
-    );
-    if (step === 'download') return (
-      <span className="flex items-center justify-center gap-2">
-        <Lock className="w-5 h-5 text-primary" />
-        Secret Key
-      </span>
-    );
-    if (step === 'profile') return (
-      <span className="flex items-center justify-center gap-2">
-        <FileSignature className="w-5 h-5 text-primary" />
-        Create Your Profile
-      </span>
-    );
-    return (
-      <span className="flex items-center justify-center gap-2">
-        <User className="w-5 h-5 text-primary" />
-        Welcome!
-      </span>
-    );
+    if (step === 'welcome') return 'Sign Up';
+    if (step === 'generate') return 'Sign Up';
+    if (step === 'download') return 'Sign Up';
+    if (step === 'profile') return 'Sign Up';
+    return 'Welcome';
   };
 
   const getDescription = () => {
-    if (step === 'welcome') return 'Ready to join the Nostr network?';
-    if (step === 'generate') return 'Creating your secret key to access Nostr.';
-
-    if (step === 'profile') return 'Tell others about yourself.';
-    return 'Your account is ready!';
+    return '';
   };
 
   // Reset state when dialog opens
@@ -325,363 +297,156 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
           </DialogDescription>
         </DialogHeader>
         <div className='px-6 pt-2 pb-4 space-y-4 overflow-y-scroll flex-1'>
-          {/* Welcome Step - New engaging introduction */}
+          {/* Welcome Step */}
           {step === 'welcome' && (
-            <div className='text-center space-y-4'>
-              {/* Hero illustration */}
-              <div className='relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50'>
-                <div className='flex justify-center items-center space-x-4 mb-3'>
-                  <div className='relative'>
-                    <UserPlus className='w-12 h-12 text-blue-600' />
-                    <Sparkles className='w-4 h-4 text-yellow-500 absolute -top-1 -right-1 animate-pulse' />
-                  </div>
-                  <Globe className='w-16 h-16 text-blue-700 animate-spin-slow' />
-                  <div className='relative'>
-                    <FileText className='w-12 h-12 text-blue-600' />
-                    <Sparkles className='w-4 h-4 text-yellow-500 absolute -top-1 -left-1 animate-pulse' style={{animationDelay: '0.3s'}} />
-                  </div>
-                </div>
-
-                {/* Benefits */}
-                <div className='grid grid-cols-1 gap-2 text-sm'>
-                  <div className='flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300'>
-                    <Shield className='w-4 h-4' />
-                    Decentralized and censorship-resistant
-                  </div>
-                  <div className='flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300'>
-                    <User className='w-4 h-4' />
-                    You are in control of your data
-                  </div>
-                  <div className='flex items-center justify-center gap-2 text-blue-700 dark:text-blue-300'>
-                    <Globe className='w-4 h-4' />
-                    Join a global network
-                  </div>
-                </div>
+            <div className='text-center space-y-6'>
+              <div className='w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center'>
+                <Key className='w-12 h-12 text-primary' />
               </div>
 
-              <div className='space-y-3'>
-                <div className='p-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border-2 border-amber-300 dark:border-amber-700'>
-                  <p className='text-sm font-semibold text-amber-900 dark:text-amber-200 mb-2'>
-                    Beta Access Limited
-                  </p>
-                  <p className='text-sm text-amber-800 dark:text-amber-300'>
-                    The current beta is only open to existing Nostr users. New account creation is temporarily disabled.
-                  </p>
-                </div>
-
-                <Button
-                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed opacity-60'
-                  disabled
-                >
-                  <LogIn className='w-5 h-5 mr-2' />
-                  Sign Up Disabled
-                </Button>
-
-                <p className='text-xs text-muted-foreground'>
-                  Already have a Nostr account? Use the login options instead.
+              <div className='space-y-2'>
+                <h3 className='text-xl font-semibold'>Create Account</h3>
+                <p className='text-muted-foreground'>
+                  Generate a secret key to get started
                 </p>
               </div>
+
+              <Button
+                className='w-full rounded-full py-6'
+                onClick={() => setStep('generate')}
+              >
+                Continue
+              </Button>
+
+              {onLogin && (
+                <p className='text-sm text-muted-foreground'>
+                  Already have an account?{' '}
+                  <button
+                    onClick={() => {
+                      onClose();
+                      onLogin();
+                    }}
+                    className='text-primary hover:underline font-medium'
+                  >
+                    Log in
+                  </button>
+                </p>
+              )}
             </div>
           )}
 
-          {/* Generate Step - Enhanced with animations */}
+          {/* Generate Step */}
           {step === 'generate' && (
-            <div className='text-center space-y-4'>
-              <div className='relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-purple-100 dark:from-blue-950/50 dark:to-purple-950/50 overflow-hidden'>
-                {/* Animated background elements */}
-                {showSparkles && (
-                  <div className='absolute inset-0'>
-                    {[...Array(12)].map((_, i) => (
-                      <Sparkles
-                        key={i}
-                        className={`absolute w-4 h-4 text-yellow-400 animate-ping`}
-                        style={{
-                          left: `${Math.random() * 80 + 10}%`,
-                          top: `${Math.random() * 80 + 10}%`,
-                          animationDelay: `${Math.random() * 2}s`
-                        }}
-                      />
-                    ))}
+            <div className='text-center space-y-6'>
+              {isLoading ? (
+                <div className='space-y-4'>
+                  <div className='w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center'>
+                    <div className='w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin'></div>
                   </div>
-                )}
-
-                <div className='relative z-10'>
-                  {isLoading ? (
-                    <div className='space-y-3'>
-                      <div className='relative'>
-                        <Key className='w-20 h-20 text-primary mx-auto animate-pulse' />
-                        <div className='absolute inset-0 flex items-center justify-center'>
-                          <div className='w-24 h-24 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin'></div>
-                        </div>
-                      </div>
-                      <div className='space-y-2'>
-                        <p className='text-lg font-semibold text-primary flex items-center justify-center gap-2'>
-                          <Sparkles className='w-5 h-5' />
-                          Generating your secret key...
-                        </p>
-                        <p className='text-sm text-muted-foreground'>
-                          Creating your secure key
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className='space-y-3'>
-                      <Key className='w-20 h-20 text-primary mx-auto' />
-                      <div className='space-y-2'>
-                        <p className='text-lg font-semibold'>
-                          Ready to generate your secret key?
-                        </p>
-                        <p className='text-sm text-muted-foreground px-5'>
-                          This key will be your password to access applications within the Nostr network.
-                        </p>
-
-                      </div>
-                    </div>
-                  )}
+                  <p className='text-muted-foreground'>Generating key...</p>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <div className='w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center'>
+                    <Key className='w-12 h-12 text-primary' />
+                  </div>
 
-              {!isLoading && (
-                <Button
-                  className='w-full rounded-full py-6 text-lg font-semibold bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transform transition-all duration-200 hover:scale-105 shadow-lg'
-                  onClick={generateKey}
-                  disabled={isLoading}
-                >
-                  <Sparkles className='w-5 h-5 mr-2' />
-                  Generate My Secret Key
-                </Button>
+                  <div className='space-y-2'>
+                    <h3 className='text-xl font-semibold'>Generate Secret Key</h3>
+                    <p className='text-muted-foreground'>
+                      This key is your password for Nostr
+                    </p>
+                  </div>
+
+                  <Button
+                    className='w-full rounded-full py-6'
+                    onClick={generateKey}
+                    disabled={isLoading}
+                  >
+                    Generate Key
+                  </Button>
+                </>
               )}
             </div>
           )}
 
-          {/* Download Step - Whimsical and magical */}
+          {/* Download Step */}
           {step === 'download' && (
-            <div className='text-center space-y-4'>
-              {/* Key reveal */}
-              <div className='relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50 overflow-hidden'>
-                {/* Sparkles */}
-                <div className='absolute inset-0 pointer-events-none'>
-                  <Sparkles className='absolute top-3 left-4 w-3 h-3 text-yellow-400 animate-pulse' style={{animationDelay: '0s'}} />
-                  <Sparkles className='absolute top-6 right-6 w-3 h-3 text-yellow-500 animate-pulse' style={{animationDelay: '0.5s'}} />
-                  <Sparkles className='absolute bottom-4 left-6 w-3 h-3 text-yellow-400 animate-pulse' style={{animationDelay: '1s'}} />
-                  <Sparkles className='absolute bottom-3 right-4 w-3 h-3 text-yellow-500 animate-pulse' style={{animationDelay: '1.5s'}} />
+            <div className='text-center space-y-6'>
+              <div className='space-y-4'>
+                <div className='w-24 h-24 mx-auto bg-primary/10 rounded-full flex items-center justify-center'>
+                  <Lock className='w-12 h-12 text-primary' />
                 </div>
 
-                <div className='relative z-10 flex justify-center items-center mb-3'>
-                  <div className='relative'>
-                    <div className='w-16 h-16 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-full flex items-center justify-center shadow-lg animate-pulse'>
-                      <Key className='w-8 h-8 text-indigo-800' />
-                    </div>
-                    <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center animate-bounce'>
-                      <Sparkles className='w-3 h-3 text-white' />
-                    </div>
-                  </div>
-                </div>
-
-                <div className='relative z-10 space-y-2'>
-                  <p className='text-base font-semibold'>
-                    Your secret key has been generated!
+                <div className='space-y-2'>
+                  <h3 className='text-xl font-semibold'>Save Your Key</h3>
+                  <p className='text-sm text-destructive font-medium'>
+                    If you lose this key, you lose your account
                   </p>
-
-                  {/* Warning */}
-                  <div className='relative mx-auto max-w-sm'>
-                    <div className='p-3 bg-gradient-to-r from-amber-100 via-yellow-50 to-amber-100 dark:from-amber-950/40 dark:via-yellow-950/20 dark:to-amber-950/40 rounded-lg border-2 border-amber-300 dark:border-amber-700 shadow-md'>
-                      <div className='flex items-center gap-2 mb-1'>
-                        <FileText className='w-3 h-3 text-amber-700' />
-                        <span className='text-xs font-bold text-amber-800 dark:text-amber-200'>
-                          Important Warning
-                        </span>
-                      </div>
-                      <p className='text-xs text-red-700 dark:text-amber-300 italic'>
-                        This key is your primary and only means of accessing your account. Store it safely and securely.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
-              {/* Key vault */}
-
-
-              {/* Security options */}
               <div className='space-y-3'>
-
-
-                <div className='grid grid-cols-1 gap-2'>
-                  {/* Download Option */}
-                   <Card className={`cursor-pointer transition-all duration-200 ${
-                    keySecured === 'downloaded'
-                       ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-950/20'
-                       : 'hover:bg-primary/5 hover:border-primary/20'
-                   }`}>
-                    <CardContent className='p-3'>
-                      <Button
-                        variant="ghost"
-                        className='w-full h-auto p-0 justify-start hover:bg-transparent'
-                        onClick={downloadKey}
-                      >
-                        <div className='flex items-center gap-3 w-full'>
-                          <div className={`p-1.5 rounded-lg ${
-                            keySecured === 'downloaded'
-                               ? 'bg-green-100 dark:bg-green-900'
-                               : 'bg-primary/10'
-                           }`}>
-                            {keySecured === 'downloaded' ? (
-                               <CheckCircle className='w-4 h-4 text-green-600' />
-                             ) : (
-                               <Download className='w-4 h-4 text-primary' />
-                             )}
-                          </div>
-                          <div className='flex-1 text-left'>
-                             <div className='font-medium text-sm'>
-                               Download as File
-                             </div>
-                             <div className='text-xs text-muted-foreground'>
-                               Save as secret-key.txt file
-                             </div>
-                          </div>
-                          {keySecured === 'downloaded' && (
-                             <div className='text-xs font-medium text-green-600'>
-                               ✓ Downloaded
-                             </div>
-                           )}
-                        </div>
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  {/* Copy Option */}
-                   <Card className={`cursor-pointer transition-all duration-200 ${
-                    keySecured === 'copied'
-                       ? 'ring-2 ring-green-500 bg-green-50 dark:bg-green-950/20'
-                       : 'hover:bg-primary/5 hover:border-primary/20'
-                   }`}>
-                    <CardContent className='p-3'>
-                      <Button
-                        variant="ghost"
-                        className='w-full h-auto p-0 justify-start hover:bg-transparent'
-                        onClick={copyKey}
-                      >
-                        <div className='flex items-center gap-3 w-full'>
-                          <div className={`p-1.5 rounded-lg ${
-                            keySecured === 'copied'
-                               ? 'bg-green-100 dark:bg-green-900'
-                               : 'bg-primary/10'
-                           }`}>
-                            {keySecured === 'copied' ? (
-                               <CheckCircle className='w-4 h-4 text-green-600' />
-                             ) : (
-                               <Copy className='w-4 h-4 text-primary' />
-                             )}
-                          </div>
-                          <div className='flex-1 text-left'>
-                             <div className='font-medium text-sm'>
-                               Copy to Clipboard
-                             </div>
-                             <div className='text-xs text-muted-foreground'>
-                               Save to password manager
-                            </div>
-                            <div className='text-[.7rem] text-muted-foreground'>
-                              {nsec.slice(0,16)}...
-                            </div>
-                          </div>
-                          {keySecured === 'copied' && (
-                             <div className='text-xs font-medium text-green-600'>
-                               ✓ Copied
-                             </div>
-                           )}
-                        </div>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Continue button */}
                 <Button
-                  className={`w-full rounded-full py-4 text-base font-semibold transform transition-all duration-200 shadow-lg ${
-                    keySecured !== 'none'
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-950/50 dark:to-purple-950/50 hover:scale-105'
-                      : 'bg-gradient-to-r from-blue-600/60 to-indigo-600/60 text-muted cursor-not-allowed'
-                  }`}
-                  onClick={finishKeySetup}
-                  disabled={keySecured === 'none'}
+                  variant={keySecured === 'downloaded' ? 'default' : 'outline'}
+                  className='w-full justify-start'
+                  onClick={downloadKey}
                 >
-                  <LogIn className='w-4 h-4 mr-2 flex-shrink-0' />
-                  <span className="text-center leading-tight">
-                    {keySecured === 'none' ? (
-                      <>
-                        Please secure your key first
-                      </>
-                    ) : (
-                      <>
-                        <span className="hidden sm:inline">My Key is Safe - Continue</span>
-                        <span className="sm:hidden">Key Secured - Continue</span>
-                      </>
-                    )}
-                  </span>
+                  <Download className='w-4 h-4 mr-2' />
+                  Download Key
+                  {keySecured === 'downloaded' && (
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                  )}
+                </Button>
+
+                <Button
+                  variant={keySecured === 'copied' ? 'default' : 'outline'}
+                  className='w-full justify-start'
+                  onClick={copyKey}
+                >
+                  <Copy className='w-4 h-4 mr-2' />
+                  Copy to Clipboard
+                  {keySecured === 'copied' && (
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                  )}
                 </Button>
               </div>
+
+              <Button
+                className='w-full rounded-full py-6'
+                onClick={finishKeySetup}
+                disabled={keySecured === 'none'}
+              >
+                {keySecured === 'none' ? 'Save your key to continue' : 'Continue'}
+              </Button>
             </div>
           )}
 
-          {/* Profile Step - Optional profile setup */}
+          {/* Profile Step */}
           {step === 'profile' && (
-            <div className='text-center space-y-4'>
-              {/* Profile setup illustration */}
-              <div className='relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50 overflow-hidden'>
-                {/* Sparkles */}
-                <div className='absolute inset-0 pointer-events-none'>
-                  <Sparkles className='absolute top-3 left-4 w-3 h-3 text-yellow-400 animate-pulse' style={{animationDelay: '0s'}} />
-                  <Sparkles className='absolute top-6 right-6 w-3 h-3 text-yellow-500 animate-pulse' style={{animationDelay: '0.5s'}} />
-                  <Sparkles className='absolute bottom-4 left-6 w-3 h-3 text-yellow-400 animate-pulse' style={{animationDelay: '1s'}} />
-                </div>
-
-                <div className='relative z-10 flex justify-center items-center mb-3'>
-                  <div className='relative'>
-                    <div className='w-16 h-16 bg-gradient-to-br from-blue-200 to-indigo-300 rounded-full flex items-center justify-center shadow-lg'>
-                      <User className='w-8 h-8 text-blue-800' />
-                    </div>
-                    <div className='absolute -top-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center animate-bounce'>
-                      <Sparkles className='w-3 h-3 text-white' />
-                    </div>
-                  </div>
-                </div>
-
-                <div className='relative z-10 space-y-2'>
-                  <p className='text-base font-semibold'>
-                    Almost there! Let's set up your profile
-                  </p>
-
-                  <p className='text-sm text-muted-foreground'>
-                    Your profile is your identity on Nostr.
-                  </p>
-                </div>
+            <div className='space-y-6'>
+              <div className='text-center space-y-2'>
+                <h3 className='text-xl font-semibold'>Set Up Profile</h3>
+                <p className='text-sm text-muted-foreground'>Optional</p>
               </div>
 
-              {/* Publishing status indicator */}
               {isPublishing && (
-                <div className='relative p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800'>
-                  <div className='flex items-center justify-center gap-3'>
-                    <div className='w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin' />
-                    <span className='text-sm font-medium text-blue-700 dark:text-blue-300'>
-                      Publishing your profile...
-                    </span>
-                  </div>
+                <div className='flex items-center justify-center gap-2 p-4 bg-muted rounded-lg'>
+                  <div className='w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin' />
+                  <span className='text-sm'>Publishing...</span>
                 </div>
               )}
 
-              {/* Profile form */}
-              <div className={`space-y-4 text-left ${isPublishing ? 'opacity-50 pointer-events-none' : ''}`}>
+              <div className={`space-y-4 ${isPublishing ? 'opacity-50 pointer-events-none' : ''}`}>
                 <div className='space-y-2'>
                   <label htmlFor='profile-name' className='text-sm font-medium'>
-                    Display Name
+                    Name
                   </label>
                   <Input
                     id='profile-name'
                     value={profileData.name}
                     onChange={(e) => setProfileData(prev => ({ ...prev, name: e.target.value }))}
                     placeholder='Your name'
-                    className='rounded-lg'
                     disabled={isPublishing}
                   />
                 </div>
@@ -694,8 +459,8 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                     id='profile-about'
                     value={profileData.about}
                     onChange={(e) => setProfileData(prev => ({ ...prev, about: e.target.value }))}
-                    placeholder='Tell others about yourself...'
-                    className='rounded-lg resize-none'
+                    placeholder='About you'
+                    className='resize-none'
                     rows={3}
                     disabled={isPublishing}
                   />
@@ -703,15 +468,15 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
 
                 <div className='space-y-2'>
                   <label htmlFor='profile-picture' className='text-sm font-medium'>
-                    Avatar
+                    Avatar URL
                   </label>
                   <div className='flex gap-2'>
                     <Input
                       id='profile-picture'
                       value={profileData.picture}
                       onChange={(e) => setProfileData(prev => ({ ...prev, picture: e.target.value }))}
-                      placeholder='https://example.com/your-avatar.jpg'
-                      className='rounded-lg flex-1'
+                      placeholder='https://...'
+                      className='flex-1'
                       disabled={isPublishing}
                     />
                     <input
@@ -727,8 +492,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                       size='icon'
                       onClick={() => avatarFileInputRef.current?.click()}
                       disabled={isUploading || isPublishing}
-                      className='rounded-lg shrink-0'
-                      title='Upload avatar image'
+                      title='Upload'
                     >
                       {isUploading ? (
                         <div className='w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin' />
@@ -740,40 +504,22 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                 </div>
               </div>
 
-              {/* Action buttons */}
               <div className='space-y-3'>
                 <Button
-                  className='w-full rounded-full py-4 text-base font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transform transition-all duration-200 hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none'
+                  className='w-full rounded-full py-6'
                   onClick={() => finishSignup(false)}
                   disabled={isPublishing || isUploading}
                 >
-                  {isPublishing ? (
-                    <>
-                      <div className='w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin' />
-                      Creating Profile...
-                    </>
-                  ) : (
-                    <>
-                      <User className='w-4 h-4 mr-2' />
-                      Create Profile & Finish
-                    </>
-                  )}
+                  {isPublishing ? 'Publishing...' : 'Create Profile'}
                 </Button>
 
                 <Button
                   variant='outline'
-                  className='w-full rounded-full py-3 disabled:opacity-50 disabled:cursor-not-allowed'
+                  className='w-full'
                   onClick={() => finishSignup(true)}
                   disabled={isPublishing || isUploading}
                 >
-                  {isPublishing ? (
-                    <>
-                      <div className='w-4 h-4 mr-2 border-2 border-current border-t-transparent rounded-full animate-spin' />
-                      Setting up account...
-                    </>
-                  ) : (
-                    'Skip for now'
-                  )}
+                  Skip
                 </Button>
               </div>
             </div>

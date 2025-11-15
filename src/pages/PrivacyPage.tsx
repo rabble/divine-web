@@ -9,7 +9,7 @@ export function PrivacyPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
-      
+
       <div className="space-y-8">
         {/* Key Commitments */}
         <Card>
@@ -20,7 +20,7 @@ export function PrivacyPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">Divine Web is committed to:</p>
+            <p className="text-muted-foreground mb-4">diVine Web is committed to:</p>
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <div className="h-2 w-2 bg-primary rounded-full mt-1.5" />
@@ -89,7 +89,7 @@ export function PrivacyPage() {
                 <li>• Followers/Following lists</li>
               </ul>
             </div>
-            
+
             <div>
               <h4 className="font-semibold mb-3">What We Don't Collect</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
@@ -128,7 +128,7 @@ export function PrivacyPage() {
             <CardTitle>Data Sharing Conditions</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">Divine Web may share data:</p>
+            <p className="text-muted-foreground mb-4">diVine Web may share data:</p>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>• As part of distributed network operation</li>
               <li>• With necessary third-party services</li>
@@ -263,7 +263,7 @@ export function PrivacyPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Users should understand content shared publicly may be copied by others, 
+              Users should understand content shared publicly may be copied by others,
               even after deletion. This is inherent to decentralized networks.
             </p>
           </CardContent>

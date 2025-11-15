@@ -3,18 +3,19 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
-import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { useRepostVideo } from '@/hooks/usePublishVideo';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useOptimisticRepost } from '@/hooks/useOptimisticRepost';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useQueryClient } from '@tanstack/react-query';
+import { useContentModeration } from '@/hooks/useModeration';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
@@ -25,6 +26,7 @@ interface VideoFeedProps {
   pubkey?: string;
   limit?: number;
   className?: string;
+  verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
   'data-testid'?: string;
   'data-hashtag-testid'?: string;
   'data-profile-testid'?: string;
@@ -36,6 +38,7 @@ export function VideoFeed({
   pubkey,
   limit = 20, // Initial batch size
   className,
+  verifiedOnly = false,
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
@@ -49,9 +52,9 @@ export function VideoFeed({
 
   const { user } = useCurrentUser();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const { mutateAsync: publishEvent } = useNostrPublish();
-  const { mutateAsync: repostVideo, isPending: isReposting } = useRepostVideo();
+  const { toggleLike } = useOptimisticLike();
+  const { toggleRepost } = useOptimisticRepost();
+  const { checkContent } = useContentModeration();
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -61,18 +64,47 @@ export function VideoFeed({
     until: lastTimestamp,
   });
 
+  // Filter videos based on mute list and verification status
+  const filteredVideos = useMemo(() => {
+    if (!allVideos || allVideos.length === 0) return [];
+
+    return allVideos.filter(video => {
+      // Check moderation filters
+      const moderationResult = checkContent({
+        pubkey: video.pubkey,
+        eventId: video.id,
+        hashtags: video.hashtags,
+        text: video.content
+      });
+
+      // Filter out muted content
+      if (moderationResult.shouldFilter) {
+        return false;
+      }
+
+      // Filter for verified-only if enabled
+      if (verifiedOnly) {
+        return video.proofMode &&
+               (video.proofMode.level === 'verified_mobile' ||
+                video.proofMode.level === 'verified_web');
+      }
+
+      return true;
+    });
+  }, [allVideos, checkContent, verifiedOnly]);
+
   // Collect all unique pubkeys for batched author fetching
   const authorPubkeys = useMemo(() => {
-    if (!allVideos || allVideos.length === 0) return [];
+    if (!filteredVideos || filteredVideos.length === 0) return [];
     const pubkeys = new Set<string>();
-    allVideos.forEach(video => {
+    filteredVideos.forEach(video => {
       pubkeys.add(video.pubkey);
       if (video.reposterPubkey) {
         pubkeys.add(video.reposterPubkey);
       }
     });
     return Array.from(pubkeys);
-  }, [allVideos]);
+  }, [filteredVideos]);
 
   // Prefetch all authors in a single query
   useBatchedAuthors(authorPubkeys);
@@ -97,23 +129,25 @@ export function VideoFeed({
 
   // Log video data when it changes
   useEffect(() => {
-    debugLog(`[VideoFeed] Feed type: ${feedType}, Videos loaded:`, allVideos?.length || 0);
-    if (allVideos && allVideos.length > 0) {
-      debugLog('[VideoFeed] First few videos:', allVideos.slice(0, 3).map(v => ({
+    const filtered = filteredVideos.length;
+    const total = allVideos?.length || 0;
+    debugLog(`[VideoFeed] Feed type: ${feedType}, Videos: ${filtered} shown / ${total} total (${total - filtered} filtered)`);
+    if (filteredVideos && filteredVideos.length > 0) {
+      debugLog('[VideoFeed] First few videos:', filteredVideos.slice(0, 3).map(v => ({
         id: v.id,
         videoUrl: v.videoUrl,
         thumbnailUrl: v.thumbnailUrl,
         isRepost: v.isRepost,
         hasUrl: !!v.videoUrl
       })));
-      
+
       // Check if any videos are missing URLs
-      const missingUrls = allVideos.filter(v => !v.videoUrl);
+      const missingUrls = filteredVideos.filter(v => !v.videoUrl);
       if (missingUrls.length > 0) {
         debugWarn(`[VideoFeed] ${missingUrls.length} videos missing URLs`);
       }
     }
-  }, [allVideos, feedType]);
+  }, [filteredVideos, allVideos, feedType]);
 
   const { ref: bottomRef, inView } = useInView({
     threshold: 0.1,
@@ -124,10 +158,10 @@ export function VideoFeed({
   useEffect(() => {
     if (inView && allVideos && allVideos.length > 0 && !isLoading && !isLoadingMore) {
       const oldestVideo = allVideos[allVideos.length - 1];
-      const oldestTimestamp = oldestVideo.isRepost && oldestVideo.repostedAt 
-        ? oldestVideo.repostedAt 
+      const oldestTimestamp = oldestVideo.isRepost && oldestVideo.repostedAt
+        ? oldestVideo.repostedAt
         : oldestVideo.createdAt;
-      
+
       debugLog('Near bottom, loading more videos before timestamp:', oldestTimestamp);
       setIsLoadingMore(true);
       setLastTimestamp(oldestTimestamp);
@@ -152,7 +186,7 @@ export function VideoFeed({
   // Loading state
   if (isLoading && !lastTimestamp) {
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
@@ -168,8 +202,11 @@ export function VideoFeed({
                   <div className="h-3 w-16 bg-muted/50 rounded animate-pulse" />
                 </div>
               </div>
-              <div className="aspect-square w-full bg-black/80 flex items-center justify-center">
-                <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
+              <div className="aspect-square w-full bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                <div className="relative w-12 h-12">
+                  <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
+                  <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin" />
+                </div>
               </div>
               <div className="p-4 space-y-2">
                 <div className="h-4 w-full bg-muted/50 rounded animate-pulse" />
@@ -185,7 +222,7 @@ export function VideoFeed({
   // Error state
   if (error) {
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
@@ -206,29 +243,50 @@ export function VideoFeed({
     );
   }
 
-  // Empty state
-  if (!allVideos || allVideos.length === 0) {
+  // Empty state (check filteredVideos instead of allVideos)
+  if (!filteredVideos || filteredVideos.length === 0) {
+    // Check if we have videos but they're all filtered
+    const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
+
     return (
-      <div 
+      <div
         className={className}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
       >
-        <Card className="border-dashed">
-          <CardContent className="py-12 px-8 text-center">
-            <div className="max-w-sm mx-auto space-y-6">
-              <p className="text-muted-foreground">
-                {feedType === 'home'
-                  ? "No videos from people you follow yet. Try following some creators!"
-                  : feedType === 'hashtag'
-                  ? `No videos found for #${hashtag}`
-                  : feedType === 'profile'
-                  ? "This user hasn't posted any videos yet"
-                  : feedType === 'recent'
-                  ? "No recent videos found."
-                  : "No videos found."}
-              </p>
+        <Card className="border-dashed border-2 border-primary/20 bg-primary/5">
+          <CardContent className="py-16 px-8 text-center">
+            <div className="max-w-sm mx-auto space-y-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                <Video className="h-8 w-8 text-primary/60" />
+              </div>
+              <div className="space-y-2">
+                <p className="text-lg font-medium text-foreground">
+                  {allFiltered
+                    ? "All videos filtered"
+                    : feedType === 'home'
+                    ? "Your feed is empty"
+                    : feedType === 'hashtag'
+                    ? `No videos with #${hashtag}`
+                    : feedType === 'profile'
+                    ? "No videos yet"
+                    : feedType === 'recent'
+                    ? "No recent videos"
+                    : "No videos found"}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {allFiltered
+                    ? "All videos from this feed match your mute filters. Adjust your moderation settings to see content."
+                    : feedType === 'home'
+                    ? "Follow some creators to see their videos here!"
+                    : feedType === 'hashtag'
+                    ? "Be the first to post with this hashtag!"
+                    : feedType === 'profile'
+                    ? "Check back later for new content"
+                    : "Check back soon for new videos"}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -236,153 +294,8 @@ export function VideoFeed({
     );
   }
 
-  // Handle interactions
-  const handleLike = async (video: ParsedVideoData) => {
-    if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to like videos',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    debugLog('Like video:', video.id);
-    try {
-      await publishEvent({
-        kind: 7, // Reaction event
-        content: '+', // Positive reaction
-        tags: [
-          ['e', video.id], // Reference to the video event
-          ['p', video.pubkey], // Reference to the video author
-        ],
-      });
-
-      toast({
-        title: 'Liked!',
-        description: 'Your reaction has been published',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
-    } catch (error) {
-      console.error('Failed to like video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to like video',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleRepost = async (video: ParsedVideoData) => {
-    if (!user) {
-      toast({
-        title: 'Login Required',
-        description: 'Please log in to repost videos',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!video.vineId) {
-      toast({
-        title: 'Error',
-        description: 'Cannot repost this video',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (isReposting) return; // Prevent multiple simultaneous reposts
-
-    debugLog('Repost video:', video.id, 'vineId:', video.vineId);
-    try {
-      await repostVideo({
-        originalPubkey: video.pubkey,
-        vineId: video.vineId,
-      });
-
-      toast({
-        title: 'Reposted!',
-        description: 'Video has been reposted to your feed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
-    } catch (error) {
-      console.error('Failed to repost video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to repost video',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleUnlike = async (likeEventId: string) => {
-    if (!user) return;
-
-    debugLog('Unlike video, deleting event:', likeEventId);
-    try {
-      await publishEvent({
-        kind: 5, // Delete event (NIP-09)
-        content: 'Unliked', // Optional reason
-        tags: [
-          ['e', likeEventId], // Reference to the event being deleted
-        ],
-      });
-
-      toast({
-        title: 'Unliked!',
-        description: 'Your like has been removed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
-    } catch (error) {
-      console.error('Failed to unlike video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove like',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleUnrepost = async (repostEventId: string) => {
-    if (!user) return;
-
-    debugLog('Un-repost video, deleting event:', repostEventId);
-    try {
-      await publishEvent({
-        kind: 5, // Delete event (NIP-09)
-        content: 'Un-reposted', // Optional reason
-        tags: [
-          ['e', repostEventId], // Reference to the event being deleted
-        ],
-      });
-
-      toast({
-        title: 'Un-reposted!',
-        description: 'Your repost has been removed',
-      });
-
-      // Invalidate queries to refresh UI
-      queryClient.invalidateQueries({ queryKey: ['video-user-interactions'] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics'] });
-    } catch (error) {
-      console.error('Failed to un-repost video:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to remove repost',
-        variant: 'destructive',
-      });
-    }
-  };
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
 
   const handleOpenComments = (video: ParsedVideoData) => {
     setShowCommentsForVideo(video.id);
@@ -421,27 +334,47 @@ export function VideoFeed({
     const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
 
     const handleVideoLike = async () => {
-      if (userInteractions?.hasLiked) {
-        // Unlike - delete the like event
-        if (userInteractions.likeEventId) {
-          await handleUnlike(userInteractions.likeEventId);
-        }
-      } else {
-        // Like the video
-        await handleLike(video);
+      // Check authentication first, show login dialog if not authenticated
+      if (!user) {
+        openLoginDialog();
+        return;
       }
+
+      debugLog('Toggle like for video:', video.id);
+      await toggleLike({
+        videoId: video.id,
+        videoPubkey: video.pubkey,
+        userPubkey: user.pubkey,
+        isCurrentlyLiked: userInteractions?.hasLiked || false,
+        currentLikeEventId: userInteractions?.likeEventId || null,
+      });
     };
 
     const handleVideoRepost = async () => {
-      if (userInteractions?.hasReposted) {
-        // Un-repost - delete the repost event
-        if (userInteractions.repostEventId) {
-          await handleUnrepost(userInteractions.repostEventId);
-        }
-      } else {
-        // Repost the video
-        await handleRepost(video);
+      // Check authentication first, show login dialog if not authenticated
+      if (!user) {
+        openLoginDialog();
+        return;
       }
+
+      if (!video.vineId) {
+        toast({
+          title: 'Error',
+          description: 'Cannot repost this video',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      debugLog('Toggle repost for video:', video.id);
+      await toggleRepost({
+        videoId: video.id,
+        videoPubkey: video.pubkey,
+        vineId: video.vineId,
+        userPubkey: user.pubkey,
+        isCurrentlyReposted: userInteractions?.hasReposted || false,
+        currentRepostEventId: userInteractions?.repostEventId || null,
+      });
     };
 
     return (
@@ -481,7 +414,7 @@ export function VideoFeed({
       data-profile-testid={profileTestId}
     >
       <div className="grid gap-6">
-        {allVideos.map((video, index) => (
+        {filteredVideos.map((video, index) => (
           <VideoCardWithMetrics
             key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
             video={video}
@@ -491,9 +424,15 @@ export function VideoFeed({
       </div>
 
       {/* Load more trigger */}
-      <div ref={bottomRef} className="h-10 flex items-center justify-center">
+      <div ref={bottomRef} className="h-16 flex items-center justify-center">
         {isLoadingMore && (
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div className="flex items-center gap-3">
+            <div className="relative w-8 h-8">
+              <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
+              <div className="absolute inset-0 border-2 border-transparent border-t-primary rounded-full animate-spin" />
+            </div>
+            <span className="text-sm text-muted-foreground">Loading more...</span>
+          </div>
         )}
       </div>
 

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserPlus, UserCheck, CheckCircle } from 'lucide-react';
+import { UserPlus, UserCheck, CheckCircle, Pencil } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrMetadata } from '@nostrify/nostrify';
@@ -25,6 +25,7 @@ interface ProfileHeaderProps {
   isOwnProfile: boolean;
   isFollowing: boolean;
   onFollowToggle: (shouldFollow: boolean) => void;
+  onEditProfile?: () => void;
   isLoading?: boolean;
   className?: string;
 }
@@ -41,12 +42,12 @@ function formatNumber(num: number): string {
 
 function formatJoinedDate(date: Date | null): string {
   if (!date) return 'Recently joined';
-  
+
   const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: 'long',
   };
-  
+
   return `Joined ${date.toLocaleDateString('en-US', options)}`;
 }
 
@@ -57,6 +58,7 @@ export function ProfileHeader({
   isOwnProfile,
   isFollowing,
   onFollowToggle,
+  onEditProfile,
   isLoading: _isLoading = false,
   className,
 }: ProfileHeaderProps) {
@@ -126,8 +128,21 @@ export function ProfileHeader({
           </div>
         </div>
 
-        {/* Follow Button */}
-        {!isOwnProfile && (
+        {/* Edit Profile / Follow Button */}
+        {isOwnProfile ? (
+          <div className="flex-shrink-0 self-center sm:self-start">
+            <Button
+              onClick={onEditProfile}
+              variant="outline"
+              size="sm"
+              className="min-w-[100px]"
+              data-testid="edit-profile-button"
+            >
+              <Pencil className="w-4 h-4 mr-2" />
+              Edit Profile
+            </Button>
+          </div>
+        ) : (
           <div className="flex-shrink-0 self-center sm:self-start">
             <Button
               onClick={handleFollowClick}
@@ -153,7 +168,7 @@ export function ProfileHeader({
       </div>
 
       {/* Stats Section */}
-      <div 
+      <div
         className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4 border-t"
         data-testid="profile-stats"
       >

@@ -27,7 +27,7 @@ const validateBunkerUri = (uri: string) => {
   return uri.startsWith('bunker://');
 };
 
-const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onSignup: _onSignup }) => {
+const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onSignup }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFileLoading, setIsFileLoading] = useState(false);
   const [nsec, setNsec] = useState('');
@@ -171,7 +171,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
     reader.readAsText(file);
   };
 
-  const defaultTab = 'email';
+  const defaultTab = 'extension';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -179,7 +179,6 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
         className={cn("max-w-[95vw] sm:max-w-md max-h-[90vh] max-h-[90dvh] p-0 overflow-hidden rounded-2xl overflow-y-scroll")}
       >
         <DialogHeader className={cn('px-6 pt-6 pb-1 relative')}>
-
             <DialogDescription className="text-center">
               Log in to continue
             </DialogDescription>
@@ -236,7 +235,7 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
               <div className='p-4 rounded-lg bg-gray-50 dark:bg-gray-800'>
                 <Mail className='w-12 h-12 mx-auto mb-3 text-primary' />
                 <p className='text-sm text-gray-600 dark:text-gray-300 mb-4 text-center'>
-                  Login with your Divine account
+                  Login with your diVine account
                 </p>
                 <div className='p-4 mb-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800'>
                   <p className='text-sm text-blue-800 dark:text-blue-200 text-center'>
@@ -354,6 +353,24 @@ const LoginDialog: React.FC<LoginDialogProps> = ({ isOpen, onClose, onLogin, onS
               </div>
             </TabsContent>
           </Tabs>
+
+          {/* Sign up link */}
+          {onSignup && (
+            <div className='text-center pt-2 pb-2'>
+              <p className='text-sm text-muted-foreground'>
+                Don't have an account?{' '}
+                <button
+                  onClick={() => {
+                    onClose();
+                    onSignup();
+                  }}
+                  className='text-primary hover:underline font-medium'
+                >
+                  Sign up
+                </button>
+              </p>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

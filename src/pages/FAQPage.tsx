@@ -1,4 +1,4 @@
-// ABOUTME: Frequently Asked Questions page for Divine Web
+// ABOUTME: Frequently Asked Questions page for diVine Web
 // ABOUTME: Answers common questions about the platform, Nostr, and how to use Divine
 
 import { Link } from 'react-router-dom';
@@ -318,7 +318,7 @@ export function FAQPage() {
                 <AccordionContent className="text-muted-foreground">
                   <p>
                     Yes! Since Nostr is decentralized, you can use your account on any Nostr client
-                    (Divine web, Divine iOS app, or any other Nostr app) by importing your private key
+                    (diVine web, diVine iOS app, or any other Nostr app) by importing your private key
                     or connecting your browser extension. Your profile and content will appear the same
                     across all clients.
                   </p>

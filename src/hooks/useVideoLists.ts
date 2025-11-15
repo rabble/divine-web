@@ -8,7 +8,9 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KIND } from '@/types/video';
 
-interface VideoList {
+export type PlayOrder = 'chronological' | 'reverse' | 'manual' | 'shuffle';
+
+export interface VideoList {
   id: string;
   name: string;
   description?: string;
@@ -17,6 +19,11 @@ interface VideoList {
   createdAt: number;
   videoCoordinates: string[]; // Array of "34236:pubkey:d-tag" coordinates (NIP-71)
   public: boolean;
+  tags?: string[]; // Categorization tags
+  isCollaborative?: boolean; // Allow others to add videos
+  allowedCollaborators?: string[]; // Pubkeys allowed to collaborate
+  thumbnailEventId?: string; // Featured video as thumbnail
+  playOrder?: PlayOrder; // How videos should be ordered
 }
 
 /**
@@ -29,11 +36,31 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   const title = event.tags.find(tag => tag[0] === 'title')?.[1] || dTag;
   const description = event.tags.find(tag => tag[0] === 'description')?.[1];
   const image = event.tags.find(tag => tag[0] === 'image')?.[1];
-  
+
   // Extract video coordinates from 'a' tags
   const videoCoordinates = event.tags
     .filter(tag => tag[0] === 'a' && tag[1]?.startsWith(`${VIDEO_KIND}:`))
     .map(tag => tag[1]);
+
+  // Extract categorization tags (t tags)
+  const tags = event.tags
+    .filter(tag => tag[0] === 't')
+    .map(tag => tag[1]);
+
+  // Extract collaborative settings
+  const isCollaborative = event.tags.find(tag => tag[0] === 'collaborative')?.[1] === 'true';
+  const allowedCollaborators = event.tags
+    .filter(tag => tag[0] === 'collaborator')
+    .map(tag => tag[1]);
+
+  // Extract featured thumbnail
+  const thumbnailEventId = event.tags.find(tag => tag[0] === 'thumbnail-event')?.[1];
+
+  // Extract play order
+  const playOrderTag = event.tags.find(tag => tag[0] === 'play-order')?.[1];
+  const playOrder: PlayOrder = playOrderTag === 'reverse' || playOrderTag === 'manual' || playOrderTag === 'shuffle'
+    ? playOrderTag
+    : 'chronological';
 
   // Parse encrypted content if present (private items)
   let privateCoordinates: string[] = [];
@@ -55,7 +82,12 @@ function parseVideoList(event: NostrEvent): VideoList | null {
     pubkey: event.pubkey,
     createdAt: event.created_at,
     videoCoordinates: [...videoCoordinates, ...privateCoordinates],
-    public: true // For now, all lists are public
+    public: true, // For now, all lists are public
+    tags,
+    isCollaborative,
+    allowedCollaborators,
+    thumbnailEventId,
+    playOrder
   };
 }
 
@@ -84,12 +116,18 @@ export function useVideoLists(pubkey?: string) {
         filter.authors = [targetPubkey];
       }
 
+      console.log('[useVideoLists] Querying for lists with filter:', filter);
+
       const events = await nostr.query([filter], { signal });
-      
+
+      console.log('[useVideoLists] Found', events.length, 'list events');
+
       const lists = events
         .map(parseVideoList)
         .filter((list): list is VideoList => list !== null)
         .sort((a, b) => b.createdAt - a.createdAt);
+
+      console.log('[useVideoLists] Parsed', lists.length, 'valid lists');
 
       return lists;
     },
@@ -149,13 +187,23 @@ export function useCreateVideoList() {
       name,
       description,
       image,
-      videoCoordinates
+      videoCoordinates,
+      tags: listTags,
+      isCollaborative,
+      allowedCollaborators,
+      thumbnailEventId,
+      playOrder
     }: {
       id: string;
       name: string;
       description?: string;
       image?: string;
       videoCoordinates: string[];
+      tags?: string[];
+      isCollaborative?: boolean;
+      allowedCollaborators?: string[];
+      thumbnailEventId?: string;
+      playOrder?: PlayOrder;
     }) => {
       if (!user) throw new Error('Must be logged in to create lists');
 
@@ -170,6 +218,33 @@ export function useCreateVideoList() {
 
       if (image) {
         tags.push(['image', image]);
+      }
+
+      // Add categorization tags
+      if (listTags && listTags.length > 0) {
+        listTags.forEach(tag => {
+          tags.push(['t', tag]);
+        });
+      }
+
+      // Add collaborative settings
+      if (isCollaborative) {
+        tags.push(['collaborative', 'true']);
+        if (allowedCollaborators && allowedCollaborators.length > 0) {
+          allowedCollaborators.forEach(pubkey => {
+            tags.push(['collaborator', pubkey]);
+          });
+        }
+      }
+
+      // Add featured thumbnail
+      if (thumbnailEventId) {
+        tags.push(['thumbnail-event', thumbnailEventId]);
+      }
+
+      // Add play order
+      if (playOrder && playOrder !== 'chronological') {
+        tags.push(['play-order', playOrder]);
       }
 
       // Add video coordinates as 'a' tags
@@ -261,6 +336,106 @@ export function useAddVideoToList() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['video-lists'] });
       queryClient.invalidateQueries({ queryKey: ['videos-in-lists'] });
+    }
+  });
+}
+
+/**
+ * Hook to remove a video from a list
+ */
+export function useRemoveVideoFromList() {
+  const { nostr } = useNostr();
+  const { mutate: publishEvent } = useNostrPublish();
+  const queryClient = useQueryClient();
+  const { user } = useCurrentUser();
+
+  return useMutation({
+    mutationFn: async ({
+      listId,
+      videoCoordinate
+    }: {
+      listId: string;
+      videoCoordinate: string;
+    }) => {
+      if (!user) throw new Error('Must be logged in to modify lists');
+
+      // Fetch current list
+      const signal = AbortSignal.timeout(5000);
+      const events = await nostr.query([{
+        kinds: [30005],
+        authors: [user.pubkey],
+        '#d': [listId],
+        limit: 1
+      }], { signal });
+
+      if (events.length === 0) {
+        throw new Error('List not found');
+      }
+
+      const currentList = parseVideoList(events[0]);
+      if (!currentList) throw new Error('Invalid list format');
+
+      // Filter out the video to remove
+      const updatedCoordinates = currentList.videoCoordinates.filter(
+        coord => coord !== videoCoordinate
+      );
+
+      // Rebuild tags without the removed video
+      const tags: string[][] = [
+        ['d', listId],
+        ['title', currentList.name]
+      ];
+
+      if (currentList.description) {
+        tags.push(['description', currentList.description]);
+      }
+
+      if (currentList.image) {
+        tags.push(['image', currentList.image]);
+      }
+
+      // Add categorization tags
+      if (currentList.tags && currentList.tags.length > 0) {
+        currentList.tags.forEach(tag => {
+          tags.push(['t', tag]);
+        });
+      }
+
+      // Add collaborative settings
+      if (currentList.isCollaborative) {
+        tags.push(['collaborative', 'true']);
+        if (currentList.allowedCollaborators && currentList.allowedCollaborators.length > 0) {
+          currentList.allowedCollaborators.forEach(pubkey => {
+            tags.push(['collaborator', pubkey]);
+          });
+        }
+      }
+
+      // Add featured thumbnail
+      if (currentList.thumbnailEventId) {
+        tags.push(['thumbnail-event', currentList.thumbnailEventId]);
+      }
+
+      // Add play order
+      if (currentList.playOrder && currentList.playOrder !== 'chronological') {
+        tags.push(['play-order', currentList.playOrder]);
+      }
+
+      // Add remaining videos
+      updatedCoordinates.forEach(coord => {
+        tags.push(['a', coord]);
+      });
+
+      await publishEvent({
+        kind: 30005,
+        content: '',
+        tags
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['videos-in-lists'] });
+      queryClient.invalidateQueries({ queryKey: ['list-videos'] });
     }
   });
 }

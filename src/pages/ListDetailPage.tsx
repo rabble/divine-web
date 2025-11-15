@@ -7,19 +7,22 @@ import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useRemoveVideoFromList, type PlayOrder } from '@/hooks/useVideoLists';
 import { VideoGrid } from '@/components/VideoGrid';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowLeft, List, Video, Clock, Edit, Share2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ArrowLeft, List, Video, Clock, Edit, Share2, Users, Shuffle, ArrowUpDown, MoreVertical, Trash2 } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/useToast';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 
 interface VideoList {
   id: string;
@@ -29,6 +32,11 @@ interface VideoList {
   pubkey: string;
   createdAt: number;
   videoCoordinates: string[];
+  tags?: string[];
+  isCollaborative?: boolean;
+  allowedCollaborators?: string[];
+  thumbnailEventId?: string;
+  playOrder?: PlayOrder;
 }
 
 function parseVideoList(event: NostrEvent): VideoList | null {
@@ -38,7 +46,7 @@ function parseVideoList(event: NostrEvent): VideoList | null {
   const title = event.tags.find(tag => tag[0] === 'title')?.[1] || dTag;
   const description = event.tags.find(tag => tag[0] === 'description')?.[1];
   const image = event.tags.find(tag => tag[0] === 'image')?.[1];
-  
+
   const videoCoordinates = event.tags
     .filter(tag => {
       if (tag[0] !== 'a' || !tag[1]) return false;
@@ -47,6 +55,26 @@ function parseVideoList(event: NostrEvent): VideoList | null {
     })
     .map(tag => tag[1]);
 
+  // Extract categorization tags
+  const tags = event.tags
+    .filter(tag => tag[0] === 't')
+    .map(tag => tag[1]);
+
+  // Extract collaborative settings
+  const isCollaborative = event.tags.find(tag => tag[0] === 'collaborative')?.[1] === 'true';
+  const allowedCollaborators = event.tags
+    .filter(tag => tag[0] === 'collaborator')
+    .map(tag => tag[1]);
+
+  // Extract featured thumbnail
+  const thumbnailEventId = event.tags.find(tag => tag[0] === 'thumbnail-event')?.[1];
+
+  // Extract play order
+  const playOrderTag = event.tags.find(tag => tag[0] === 'play-order')?.[1];
+  const playOrder: PlayOrder = playOrderTag === 'reverse' || playOrderTag === 'manual' || playOrderTag === 'shuffle'
+    ? playOrderTag
+    : 'chronological';
+
   return {
     id: dTag,
     name: title,
@@ -54,7 +82,12 @@ function parseVideoList(event: NostrEvent): VideoList | null {
     image,
     pubkey: event.pubkey,
     createdAt: event.created_at,
-    videoCoordinates
+    videoCoordinates,
+    tags,
+    isCollaborative,
+    allowedCollaborators,
+    thumbnailEventId,
+    playOrder
   };
 }
 
@@ -99,17 +132,17 @@ async function fetchListVideos(
   if (filters.length === 0) return [];
 
   const events = await nostr.query(filters, { signal });
-  
+
   // Parse and order videos according to list order
   const videoMap = new Map<string, ParsedVideoData>();
-  
+
   events.forEach(event => {
     const vineId = getVineId(event);
     if (!vineId) return;
-    
+
     const videoEvent = parseVideoEvent(event);
     if (!videoEvent?.videoMetadata?.url) return;
-    
+
     const key = `${event.pubkey}:${vineId}`;
     videoMap.set(key, {
       id: event.id,
@@ -131,7 +164,9 @@ async function fetchListVideos(
       likeCount: getOriginalLikeCount(event),
       repostCount: getOriginalRepostCount(event),
       commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event)
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event)
     });
   });
 
@@ -149,21 +184,49 @@ async function fetchListVideos(
   return orderedVideos;
 }
 
+const PlayOrderIcon = ({ order }: { order?: PlayOrder }) => {
+  switch (order) {
+    case 'shuffle':
+      return <Shuffle className="h-4 w-4" />;
+    case 'reverse':
+      return <ArrowUpDown className="h-4 w-4" />;
+    case 'manual':
+      return <List className="h-4 w-4" />;
+    default:
+      return <Clock className="h-4 w-4" />;
+  }
+};
+
+const PlayOrderLabel = ({ order }: { order?: PlayOrder }) => {
+  switch (order) {
+    case 'shuffle':
+      return 'Shuffle';
+    case 'reverse':
+      return 'Newest First';
+    case 'manual':
+      return 'Custom Order';
+    default:
+      return 'Oldest First';
+  }
+};
+
 export default function ListDetailPage() {
   const { pubkey, listId } = useParams<{ pubkey: string; listId: string }>();
   const navigate = useNavigate();
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { toast } = useToast();
-  
+  const removeVideo = useRemoveVideoFromList();
+
   const isOwner = user?.pubkey === pubkey;
+  const canEdit = isOwner; // TODO: Add collaborator check
 
   // Fetch list details
   const { data: list, isLoading: listLoading } = useQuery({
     queryKey: ['list-detail', pubkey, listId],
     queryFn: async (context) => {
       if (!pubkey || !listId) throw new Error('Invalid list parameters');
-      
+
       const signal = AbortSignal.any([
         context.signal,
         AbortSignal.timeout(5000)
@@ -190,7 +253,7 @@ export default function ListDetailPage() {
     queryKey: ['list-videos', pubkey, listId, list?.videoCoordinates],
     queryFn: async (context) => {
       if (!list) return [];
-      
+
       const signal = AbortSignal.any([
         context.signal,
         AbortSignal.timeout(10000)
@@ -208,7 +271,7 @@ export default function ListDetailPage() {
 
   const handleShare = async () => {
     const url = window.location.href;
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -316,7 +379,7 @@ export default function ListDetailPage() {
           <CardContent>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               {/* Author and stats */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <a
                   href={`/profile/${pubkey ? nip19.npubEncode(pubkey) : ''}`}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
@@ -330,8 +393,8 @@ export default function ListDetailPage() {
                     <p className="text-xs text-muted-foreground">List creator</p>
                   </div>
                 </a>
-                
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                   <div className="flex items-center gap-1">
                     <Video className="h-4 w-4" />
                     <span>{list.videoCoordinates.length} videos</span>
@@ -340,7 +403,30 @@ export default function ListDetailPage() {
                     <Clock className="h-4 w-4" />
                     <span>{formatDistanceToNow(list.createdAt * 1000, { addSuffix: true })}</span>
                   </div>
+                  {list.playOrder && (
+                    <div className="flex items-center gap-1">
+                      <PlayOrderIcon order={list.playOrder} />
+                      <span><PlayOrderLabel order={list.playOrder} /></span>
+                    </div>
+                  )}
+                  {list.isCollaborative && (
+                    <div className="flex items-center gap-1 text-green-600">
+                      <Users className="h-4 w-4" />
+                      <span>Collaborative</span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Tags */}
+                {list.tags && list.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {list.tags.map(tag => (
+                      <Badge key={tag} variant="secondary">
+                        #{tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
@@ -370,13 +456,72 @@ export default function ListDetailPage() {
         ) : videos && videos.length > 0 ? (
           <div>
             <h2 className="text-lg font-semibold mb-4">Videos in this list</h2>
-            <VideoGrid
-              videos={videos}
-              navigationContext={{
-                source: 'profile', // Lists are profile-related
-                pubkey: list.pubkey,
-              }}
-            />
+
+            {canEdit ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {videos.map((video) => {
+                  const videoCoord = `${video.kind}:${video.pubkey}:${video.vineId}`;
+                  return (
+                    <div key={video.id} className="relative group">
+                      <VideoGrid
+                        videos={[video]}
+                        navigationContext={{
+                          source: 'profile',
+                          pubkey: list.pubkey,
+                        }}
+                      />
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              className="h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={async () => {
+                                try {
+                                  await removeVideo.mutateAsync({
+                                    listId: list.id,
+                                    videoCoordinate: videoCoord
+                                  });
+                                  toast({
+                                    title: 'Video removed',
+                                    description: 'Video removed from list',
+                                  });
+                                } catch {
+                                  toast({
+                                    title: 'Error',
+                                    description: 'Failed to remove video',
+                                    variant: 'destructive',
+                                  });
+                                }
+                              }}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove from list
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <VideoGrid
+                videos={videos}
+                navigationContext={{
+                  source: 'profile',
+                  pubkey: list.pubkey,
+                }}
+              />
+            )}
           </div>
         ) : (
           <Card className="border-dashed">

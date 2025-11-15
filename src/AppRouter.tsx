@@ -19,6 +19,7 @@ import VideoPage from "./pages/VideoPage";
 import { TagPage } from "./pages/TagPage";
 import ListsPage from "./pages/ListsPage";
 import ListDetailPage from "./pages/ListDetailPage";
+import ModerationSettingsPage from "./pages/ModerationSettingsPage";
 // import { NIP05ProfilePage } from "./pages/NIP05ProfilePage";
 import { UniversalUserPage } from "./pages/UniversalUserPage";
 import AboutPage from "./pages/AboutPage";
@@ -36,6 +37,7 @@ import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
+import { UploadPage } from "./pages/UploadPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {
@@ -87,6 +89,8 @@ export function AppRouter() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
+              <Route path="/upload" element={<UploadPage />} />
+              <Route path="/settings/moderation" element={<ModerationSettingsPage />} />
               {/* Test pages for debugging */}
               <Route path="/debug-video" element={<DebugVideoPage />} />
             </>

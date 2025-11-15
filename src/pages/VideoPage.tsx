@@ -310,8 +310,14 @@ export function VideoPage() {
     return (
       <div className="container py-6">
         <Card className="border-dashed">
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">Video not found</p>
+          <CardContent className="py-12 text-center space-y-4">
+            <p className="text-muted-foreground text-lg font-semibold">Video not found</p>
+            <p className="text-sm text-muted-foreground">
+              This video may not exist, or the relays may be experiencing issues.
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Try checking your relay settings or refreshing the page.
+            </p>
           </CardContent>
         </Card>
       </div>

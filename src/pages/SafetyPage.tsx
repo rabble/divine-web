@@ -1,4 +1,4 @@
-// ABOUTME: Safety Standards page for Divine Web
+// ABOUTME: Safety Standards page for diVine Web
 // ABOUTME: Documents child safety protections and CSAM content filtering
 
 import { Link } from 'react-router-dom';

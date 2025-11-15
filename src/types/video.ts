@@ -50,11 +50,17 @@ export type ProofModeLevel = 'verified_mobile' | 'verified_web' | 'basic_proof' 
 
 export interface ProofModeData {
   level: ProofModeLevel;
-  version?: string;
-  manifest?: string;
-  deviceAttestation?: string;
-  pgpPubkey?: string;
-  pgpFingerprint?: string;
+  manifest?: string; // Raw JSON string
+  manifestData?: Record<string, unknown>; // Parsed manifest object
+  deviceAttestation?: string; // Hardware attestation token (iOS App Attest / Android Play Integrity)
+  pgpFingerprint?: string; // PGP public key fingerprint for signature verification
+}
+
+export interface OriginData {
+  platform: string;      // e.g., 'vine', 'tiktok', 'instagram'
+  externalId: string;    // Original platform's ID
+  url?: string;          // Original platform URL
+  metadata?: string;     // Optional additional metadata
 }
 
 export interface ParsedVideoData {
@@ -62,7 +68,7 @@ export interface ParsedVideoData {
   pubkey: string;
   kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // NIP-71 video kind
   createdAt: number;
-  originalVineTimestamp?: number; // Original Vine posting time if available
+  originalVineTimestamp?: number; // Custom published_at timestamp (NIP-31 - can be set by any video)
   content: string;
   videoUrl: string;
   fallbackVideoUrls?: string[];  // Alternative URLs to try if primary fails
@@ -80,4 +86,6 @@ export interface ParsedVideoData {
   repostCount?: number;
   commentCount?: number;
   proofMode?: ProofModeData; // ProofMode verification data
+  origin?: OriginData;        // Import source platform info (if imported content)
+  isVineMigrated: boolean;    // True only if origin platform is 'vine'
 }

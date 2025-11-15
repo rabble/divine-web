@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 
 interface UseSearchVideosOptions {
   query: string;
@@ -23,7 +23,7 @@ function validateVideoEvent(event: NostrEvent): boolean {
   // Must have d tag for addressability
   const vineId = getVineId(event);
   if (!vineId) return false;
-  
+
   return true;
 }
 
@@ -32,16 +32,16 @@ function validateVideoEvent(event: NostrEvent): boolean {
  */
 function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
   const parsedVideos: ParsedVideoData[] = [];
-  
+
   for (const event of events) {
     if (!validateVideoEvent(event)) continue;
-    
+
     const videoEvent = parseVideoEvent(event);
     if (!videoEvent) continue;
-    
+
     const vineId = getVineId(event);
     if (!vineId) continue;
-    
+
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
@@ -62,10 +62,12 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
       likeCount: getOriginalLikeCount(event),
       repostCount: getOriginalRepostCount(event),
       commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event)
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event)
     });
   }
-  
+
   return parsedVideos.sort((a, b) => b.createdAt - a.createdAt);
 }
 
@@ -74,23 +76,23 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
  */
 function parseSearchQuery(query: string, searchType: 'content' | 'author' | 'auto') {
   const trimmedQuery = query.trim();
-  
+
   if (searchType === 'author') {
     return { type: 'author', value: trimmedQuery };
   }
-  
+
   if (searchType === 'content') {
     if (trimmedQuery.startsWith('#')) {
       return { type: 'hashtag', value: trimmedQuery.slice(1).toLowerCase() };
     }
     return { type: 'content', value: trimmedQuery };
   }
-  
+
   // Auto detection
   if (trimmedQuery.startsWith('#')) {
     return { type: 'hashtag', value: trimmedQuery.slice(1).toLowerCase() };
   }
-  
+
   return { type: 'content', value: trimmedQuery };
 }
 
@@ -100,11 +102,11 @@ function parseSearchQuery(query: string, searchType: 'content' | 'author' | 'aut
 export function useSearchVideos(options: UseSearchVideosOptions) {
   const { nostr } = useNostr();
   const { query, searchType = 'auto', limit = 50 } = options;
-  
+
   // Debounce the query - disable in test environment
   const isTest = process.env.NODE_ENV === 'test';
   const debounceDelay = isTest ? 0 : 300;
-  
+
   const debouncedQuery = useMemo(() => {
     let timeoutId: NodeJS.Timeout;
     return new Promise<string>((resolve) => {
@@ -112,24 +114,24 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
       timeoutId = setTimeout(() => resolve(query), debounceDelay);
     });
   }, [query, debounceDelay]);
-  
+
   return useQuery({
     queryKey: ['search-videos', query, searchType, limit],
     queryFn: async (context) => {
       // Wait for debounced query
       const actualQuery = await debouncedQuery;
-      
+
       if (!actualQuery.trim()) {
         return [];
       }
-      
+
       const signal = AbortSignal.any([
         context.signal,
         AbortSignal.timeout(8000)
       ]);
-      
+
       const searchParams = parseSearchQuery(actualQuery, searchType);
-      
+
       if (searchParams.type === 'hashtag') {
         // Search by hashtag
         const events = await nostr.query([{
@@ -137,10 +139,10 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
           '#t': [searchParams.value],
           limit,
         }], { signal });
-        
+
         return parseVideoResults(events);
       }
-      
+
       if (searchParams.type === 'author') {
         // First search for users matching the query
         const userEvents = await nostr.query([{
@@ -148,7 +150,7 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
           search: searchParams.value,
           limit: 20,
         }], { signal });
-        
+
         // Extract pubkeys of matching users
         const matchingPubkeys = userEvents
           .filter(event => {
@@ -166,24 +168,24 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
             }
           })
           .map(event => event.pubkey);
-        
+
         if (matchingPubkeys.length === 0) {
           return [];
         }
-        
+
         // Search for videos by these authors
         const videoEvents = await nostr.query([{
           kinds: VIDEO_KINDS,
           authors: matchingPubkeys,
           limit,
         }], { signal });
-        
+
         return parseVideoResults(videoEvents);
       }
-      
+
       // Content search - use search filter if available, fallback to client-side filtering
       let events: NostrEvent[];
-      
+
       try {
         // Try relay-level search first
         events = await nostr.query([{
@@ -197,14 +199,14 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
           kinds: VIDEO_KINDS,
           limit: Math.min(limit * 5, 500), // Get more to filter from
         }], { signal });
-        
+
         // Client-side filtering
         const searchValue = searchParams.value.toLowerCase();
-        events = events.filter(event => 
+        events = events.filter(event =>
           event.content.toLowerCase().includes(searchValue)
         );
       }
-      
+
       return parseVideoResults(events);
     },
     enabled: !!query.trim(),

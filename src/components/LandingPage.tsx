@@ -1,7 +1,6 @@
 // ABOUTME: Landing page component shown to logged-out users
-// ABOUTME: Displays the Divine Video brand message and login prompt
+// ABOUTME: Displays the diVine Video brand message
 
-import { LoginArea } from "@/components/auth/LoginArea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import {
@@ -21,14 +20,40 @@ export function LandingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 p-4">
-      <div className="max-w-2xl w-full space-y-6">
-        <Card className="w-full">
+    <div className="flex flex-col min-h-screen">
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 relative overflow-hidden">
+        {/* Decorative curved line */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 1000 1000"
+          preserveAspectRatio="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M -50,200 Q 250,100 500,300 T 1050,400"
+            stroke="white"
+            strokeWidth="8"
+            fill="none"
+            opacity="0.4"
+            strokeLinecap="round"
+          />
+          <path
+            d="M -50,600 Q 250,500 500,700 T 1050,800"
+            stroke="white"
+            strokeWidth="6"
+            fill="none"
+            opacity="0.3"
+            strokeLinecap="round"
+          />
+        </svg>
+
+        <div className="max-w-2xl w-full space-y-6 relative z-10">
+        <Card className="w-full shadow-2xl bg-white dark:bg-gray-900">
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
             <div className="space-y-4">
               <h1 className="text-4xl md:text-5xl font-logo text-primary">
-                Divine
+                di<span className="italic">V</span>ine
               </h1>
               <p className="text-xl md:text-2xl font-semibold text-foreground">
                 Short-form looping videos. Authentic moments. Human creativity.
@@ -44,9 +69,17 @@ export function LandingPage() {
               </p>
             </div>
 
-            {/* Mailing List Signup */}
+            {/* Action Button */}
             <div className="pt-4">
-              <MailerLiteSignup />
+              <Link
+                to="/discovery"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-white dark:bg-gray-800 text-primary border-2 border-primary rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+              >
+                Try it on the web
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
 
             {/* Screenshot Carousel */}
@@ -68,7 +101,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-0.png"
-                        alt="Divine Video feed screenshot"
+                        alt="diVine Video feed screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -77,7 +110,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-1.png"
-                        alt="Divine Video profile screenshot"
+                        alt="diVine Video profile screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -86,7 +119,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-2.png"
-                        alt="Divine Video hashtags screenshot"
+                        alt="diVine Video hashtags screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -95,7 +128,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-3.png"
-                        alt="Divine Video discovery screenshot"
+                        alt="diVine Video discovery screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -104,7 +137,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-4.png"
-                        alt="Divine Video trending screenshot"
+                        alt="diVine Video trending screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -113,7 +146,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-5.png"
-                        alt="Divine Video lists screenshot"
+                        alt="diVine Video lists screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -122,7 +155,7 @@ export function LandingPage() {
                     <div className="p-1">
                       <img
                         src="/screenshots/iPad 13 inch-6.png"
-                        alt="Divine Video search screenshot"
+                        alt="diVine Video search screenshot"
                         className="w-full h-auto rounded-lg shadow-lg"
                       />
                     </div>
@@ -136,66 +169,13 @@ export function LandingPage() {
               <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white dark:from-background to-transparent pointer-events-none z-10" />
             </Link>
 
-            {/* Action Buttons */}
+            {/* Mailing List Signup */}
             <div className="pt-4">
-              <Link
-                to="/discovery"
-                className="inline-block text-base text-muted-foreground hover:text-primary hover:underline transition-colors"
-              >
-                Try it on the web →
-              </Link>
+              <MailerLiteSignup />
             </div>
           </CardContent>
         </Card>
-
-        {/* Login Section */}
-        <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
-          <CardContent className="pt-8 pb-8 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              Log in with Nostr to continue
-            </p>
-            <LoginArea className="w-full justify-center" />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
-          <CardContent className="pt-6 pb-6">
-            <div className="flex flex-col items-center gap-3">
-              {/* Navigation Links - Two rows */}
-              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-                <Link to="/about" className="hover:text-foreground transition-colors">
-                  About
-                </Link>
-                <Link to="/faq" className="hover:text-foreground transition-colors">
-                  FAQ
-                </Link>
-                <Link to="/human-created" className="hover:text-foreground transition-colors font-semibold">
-                  Made by Humans
-                </Link>
-                <Link to="/authenticity" className="hover:text-foreground transition-colors">
-                  Our Mission
-                </Link>
-                <Link to="/proofmode" className="hover:text-foreground transition-colors">
-                  ProofMode
-                </Link>
-              </nav>
-              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-                <Link to="/open-source" className="hover:text-foreground transition-colors">
-                  Open Source
-                </Link>
-                <Link to="/terms" className="hover:text-foreground transition-colors">
-                  EULA/T&C
-                </Link>
-                <Link to="/privacy" className="hover:text-foreground transition-colors">
-                  Privacy
-                </Link>
-                <Link to="/safety" className="hover:text-foreground transition-colors">
-                  Safety
-                </Link>
-              </nav>
-            </div>
-          </CardContent>
-        </Card>
+        </div>
       </div>
     </div>
   );

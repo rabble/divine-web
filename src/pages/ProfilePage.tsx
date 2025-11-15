@@ -10,17 +10,20 @@ import { VideoGrid } from '@/components/VideoGrid';
 import { VideoFeed } from '@/components/VideoFeed';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { EditProfileDialog } from '@/components/EditProfileDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { useFollowRelationship, useFollowUser, useUnfollowUser } from '@/hooks/useFollowRelationship';
+import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 
 export function ProfilePage() {
   const { npub, nip19: nip19Param } = useParams<{ npub?: string; nip19?: string }>();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const { user: currentUser } = useCurrentUser();
 
   // Get the identifier from either route param
@@ -54,10 +57,10 @@ export function ProfilePage() {
   const { data: authorData } = useAuthor(pubkey || '');
   const author = pubkey ? enhanceAuthorData(authorData, pubkey) : null;
   const metadata = author?.metadata;
-  
+
   // Fetch profile statistics
   const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '');
-  
+
   // Fetch videos
   const { data: videos, isLoading: videosLoading, error: videosError } = useVideoEvents({
     feedType: 'profile',
@@ -92,9 +95,15 @@ export function ProfilePage() {
 
   const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
 
+  // Get login dialog opener
+  const { openLoginDialog } = useLoginDialog();
+
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      openLoginDialog();
+      return;
+    }
 
     try {
       if (shouldFollow) {
@@ -125,8 +134,17 @@ export function ProfilePage() {
           isOwnProfile={isOwnProfile}
           isFollowing={followData?.isFollowing || false}
           onFollowToggle={handleFollowToggle}
+          onEditProfile={() => setEditProfileOpen(true)}
           isLoading={statsLoading || followLoading || isFollowing || isUnfollowing}
         />
+
+        {/* Edit Profile Dialog */}
+        {isOwnProfile && (
+          <EditProfileDialog
+            open={editProfileOpen}
+            onOpenChange={setEditProfileOpen}
+          />
+        )}
 
         {/* Content Section */}
         <div className="space-y-4">
@@ -138,7 +156,7 @@ export function ProfilePage() {
                 {stats ? `${stats.videosCount} videos` : 'Loading...'} from {displayName}
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -184,7 +202,7 @@ export function ProfilePage() {
               }}
             />
           ) : (
-            <VideoFeed 
+            <VideoFeed
               feedType="profile"
               pubkey={pubkey}
               data-testid="video-feed-profile"

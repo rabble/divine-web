@@ -16,6 +16,10 @@ export interface AppContextType {
   updateConfig: (updater: (currentConfig: AppConfig) => AppConfig) => void;
   /** Optional list of preset relays to display in the RelaySelector */
   presetRelays?: { name: string; url: string }[];
+  /** Whether the camera recorder is currently active */
+  isRecording: boolean;
+  /** Set recording state */
+  setIsRecording: (isRecording: boolean) => void;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);

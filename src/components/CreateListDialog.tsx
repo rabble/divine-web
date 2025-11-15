@@ -2,7 +2,7 @@
 // ABOUTME: Allows users to create lists with name, description, and optional cover image
 
 import { useState } from 'react';
-import { useCreateVideoList } from '@/hooks/useVideoLists';
+import { useCreateVideoList, type PlayOrder } from '@/hooks/useVideoLists';
 import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
@@ -15,7 +15,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, List } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, List, X } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -33,7 +35,22 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [playOrder, setPlayOrder] = useState<PlayOrder>('chronological');
+  const [isCollaborative, setIsCollaborative] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [currentTag, setCurrentTag] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+
+  const handleAddTag = () => {
+    if (currentTag.trim() && !tags.includes(currentTag.trim())) {
+      setTags([...tags, currentTag.trim()]);
+      setCurrentTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
 
   const handleCreate = async () => {
     if (!name.trim()) {
@@ -57,13 +74,16 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
     setIsCreating(true);
     try {
       const listId = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      
+
       await createList.mutateAsync({
         id: listId,
         name,
         description: description || undefined,
         image: imageUrl || undefined,
-        videoCoordinates: [] // Start with empty list
+        videoCoordinates: [], // Start with empty list
+        tags: tags.length > 0 ? tags : undefined,
+        playOrder,
+        isCollaborative
       });
 
       toast({
@@ -99,7 +119,7 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
           <div className="space-y-2">
             <Label htmlFor="name">List Name *</Label>
             <Input
@@ -147,7 +167,88 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
             )}
           </div>
 
-          <div className="flex gap-2 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="play-order">Play Order</Label>
+            <Select value={playOrder} onValueChange={(value) => setPlayOrder(value as PlayOrder)} disabled={isCreating}>
+              <SelectTrigger id="play-order">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="chronological">Chronological (oldest first)</SelectItem>
+                <SelectItem value="reverse">Reverse (newest first)</SelectItem>
+                <SelectItem value="manual">Manual (custom order)</SelectItem>
+                <SelectItem value="shuffle">Shuffle (random order)</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              How videos should be ordered when viewing the list
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags (for discovery)</Label>
+            <div className="flex gap-2">
+              <Input
+                id="tags"
+                placeholder="comedy, funny, animals..."
+                value={currentTag}
+                onChange={(e) => setCurrentTag(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
+                disabled={isCreating}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddTag}
+                disabled={!currentTag.trim() || isCreating}
+              >
+                Add
+              </Button>
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map(tag => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-sm"
+                  >
+                    #{tag}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTag(tag)}
+                      className="hover:text-destructive"
+                      disabled={isCreating}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between space-x-2 pt-2">
+            <div className="space-y-0.5">
+              <Label htmlFor="collaborative">Collaborative List</Label>
+              <p className="text-xs text-muted-foreground">
+                Allow others to add videos to this list
+              </p>
+            </div>
+            <Switch
+              id="collaborative"
+              checked={isCollaborative}
+              onCheckedChange={setIsCollaborative}
+              disabled={isCreating}
+            />
+          </div>
+
+          <div className="flex gap-2 pt-4 sticky bottom-0 bg-background">
             <Button
               variant="outline"
               onClick={onClose}

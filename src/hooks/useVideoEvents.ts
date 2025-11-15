@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 
 interface UseVideoEventsOptions {
@@ -24,9 +24,15 @@ interface UseVideoEventsOptions {
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
-  // Must have d tag for addressability - this is required for NIP-71 videos
-  const vineId = getVineId(event);
-  if (!vineId) return false;
+  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
+  // Kinds 21 and 22 are regular events and don't require d tag
+  if (event.kind === 34236) {
+    const vineId = getVineId(event);
+    if (!vineId) {
+      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+      return false;
+    }
+  }
 
   return true;
 }
@@ -104,44 +110,41 @@ async function parseVideoEvents(
   sortChronologically = false
 ): Promise<ParsedVideoData[]> {
   const parsedVideos: ParsedVideoData[] = [];
-  
+
   // Separate videos and reposts
   const videoEvents = events.filter(e => VIDEO_KINDS.includes(e.kind));
   const repostEvents = events.filter(e => e.kind === REPOST_KIND);
-  
+
   debugLog(`[useVideoEvents] Processing ${videoEvents.length} videos and ${repostEvents.length} reposts`);
-  
+
   let validVideos = 0;
   let invalidVideos = 0;
-  
+
   // Process direct video events
   for (const event of videoEvents) {
     if (!validateVideoEvent(event)) {
       invalidVideos++;
       continue;
     }
-    
+
     const videoEvent = parseVideoEvent(event);
     if (!videoEvent) {
       invalidVideos++;
       continue;
     }
-    
-    const vineId = getVineId(event);
-    if (!vineId) {
-      invalidVideos++;
-      continue;
-    }
-    
+
+    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
+    const vineId = getVineId(event) || event.id;
+
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
       debugError(`[useVideoEvents] No video URL in metadata for event ${event.id}:`, videoEvent.videoMetadata);
       invalidVideos++;
       continue;
     }
-    
+
     validVideos++;
-    
+
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
@@ -162,12 +165,14 @@ async function parseVideoEvents(
       likeCount: getOriginalLikeCount(event),
       repostCount: getOriginalRepostCount(event),
       commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event)
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event)
     });
   }
-  
+
   debugLog(`[useVideoEvents] Parsed ${validVideos} valid videos, ${invalidVideos} invalid`);
-  
+
   // Process reposts
   let repostsFetched = 0;
   let repostsSkipped = 0;
@@ -178,7 +183,7 @@ async function parseVideoEvents(
       repostsSkipped++;
       continue;
     }
-    
+
     // Parse addressable coordinate
     const [kind, pubkey, dTag] = aTag[1].split(':');
     const kindNum = parseInt(kind, 10);
@@ -186,12 +191,12 @@ async function parseVideoEvents(
       repostsSkipped++;
       continue;
     }
-    
+
     // Fetch original video if not in current batch
-    let originalVideo = videoEvents.find(e => 
+    let originalVideo = videoEvents.find(e =>
       e.pubkey === pubkey && getVineId(e) === dTag
     );
-    
+
     if (!originalVideo) {
       // Fetch from relay
       try {
@@ -202,7 +207,7 @@ async function parseVideoEvents(
           '#d': [dTag],
           limit: 1
         }], { signal });
-        
+
         originalVideo = events[0];
         repostsFetched++;
       } catch {
@@ -210,31 +215,28 @@ async function parseVideoEvents(
         continue;
       }
     }
-    
+
     if (!originalVideo || !validateVideoEvent(originalVideo)) {
       repostsSkipped++;
       continue;
     }
-    
+
     const videoEvent = parseVideoEvent(originalVideo);
     if (!videoEvent) {
       repostsSkipped++;
       continue;
     }
-    
-    const vineId = getVineId(originalVideo);
-    if (!vineId) {
-      repostsSkipped++;
-      continue;
-    }
-    
+
+    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
+    const vineId = getVineId(originalVideo) || originalVideo.id;
+
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
       debugError(`[useVideoEvents] No video URL in repost metadata for event ${originalVideo.id}:`, videoEvent.videoMetadata);
       repostsSkipped++;
       continue;
     }
-    
+
     parsedVideos.push({
       id: repost.id,
       pubkey: originalVideo.pubkey,
@@ -257,10 +259,12 @@ async function parseVideoEvents(
       likeCount: getOriginalLikeCount(originalVideo),
       repostCount: getOriginalRepostCount(originalVideo),
       commentCount: getOriginalCommentCount(originalVideo),
-      proofMode: getProofModeData(originalVideo)
+      proofMode: getProofModeData(originalVideo),
+      origin: getOriginPlatform(originalVideo),
+      isVineMigrated: isVineMigrated(originalVideo)
     });
   }
-  
+
   debugLog(`[useVideoEvents] Processed reposts: ${repostsFetched} fetched, ${repostsSkipped} skipped`);
 
   // Sort videos based on mode
@@ -313,8 +317,17 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         ...filter
       };
 
+      // If filtering by specific IDs, ensure we query them directly
+      const isDirectIdLookup = filter?.ids && filter.ids.length > 0;
+      if (isDirectIdLookup) {
+        // For direct ID lookups, remove limit restriction
+        baseFilter.limit = filter.ids.length;
+        debugLog('[useVideoEvents] Direct ID lookup mode:', filter.ids);
+      }
+
       // Add relay-native sorting for feeds that should sort by popularity
-      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType);
+      // But NOT for direct ID lookups - those should just fetch the specific event
+      const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType) && !isDirectIdLookup;
       if (shouldSortByPopularity) {
         (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = { field: 'loop_count', dir: 'desc' };
       }
@@ -349,32 +362,47 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       } else if (feedType === 'trending') {
         baseFilter.limit = limit;
       }
-      
+
       let events: NostrEvent[] = [];
       let repostEvents: NostrEvent[] = [];
-      
+
       try {
         // Query videos first
         const queryStartTime = performance.now();
-        verboseLog('[useVideoEvents] Sending query with filter:', baseFilter);
+        console.log('[useVideoEvents] Sending query with filter:', JSON.stringify(baseFilter, null, 2));
         verboseLog('[useVideoEvents] Calling nostr.query...');
         events = await nostr.query([baseFilter], { signal });
-        verboseLog(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
-        verboseLog('[useVideoEvents] First event:', events[0]);
-        
-        // Only query reposts if we don't have enough videos
-        if (events.length < limit && feedType !== 'profile') {
+        console.log(`[useVideoEvents] Video query took ${(performance.now() - queryStartTime).toFixed(0)}ms, got ${events.length} events`);
+        if (events.length > 0) {
+          console.log('[useVideoEvents] First event:', events[0]);
+        }
+
+        // Log if we got zero events for debugging
+        if (events.length === 0) {
+          console.warn('[useVideoEvents] WARNING: Query returned 0 events');
+          console.log('[useVideoEvents] Filter used:', JSON.stringify(baseFilter));
+          console.log('[useVideoEvents] feedType:', feedType);
+          console.log('[useVideoEvents] isDirectIdLookup:', isDirectIdLookup);
+          console.log('[useVideoEvents] This could indicate a relay issue or no matching content');
+        }
+
+        // Only query reposts if we don't have enough videos and NOT doing a direct ID lookup
+        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup) {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
           debugLog(`[useVideoEvents] Repost query took ${(performance.now() - repostStartTime).toFixed(0)}ms, got ${repostEvents.length} events`);
           events = [...events, ...repostEvents];
+        } else if (isDirectIdLookup) {
+          debugLog('[useVideoEvents] Skipping repost query for direct ID lookup');
         }
       } catch (err) {
         debugError('[useVideoEvents] Query error:', err);
+        debugError('[useVideoEvents] Filter that caused error:', JSON.stringify(baseFilter));
+        debugError('[useVideoEvents] This likely indicates a relay connectivity issue');
         throw err;
       }
-      
+
       const parseStartTime = performance.now();
       // Use chronological sorting for 'recent' feedType
       const sortChronologically = feedType === 'recent';
@@ -430,10 +458,10 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           })
           .slice(0, limit); // Limit to requested amount
       }
-      
+
       const totalTime = performance.now() - startTime;
       debugLog(`[useVideoEvents] Total query time: ${totalTime.toFixed(0)}ms, returning ${parsed.length} videos`);
-      
+
       // Emit performance metrics
       if (typeof window !== 'undefined') {
         const metrics = {
@@ -447,7 +475,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           detail: metrics
         }));
       }
-      
+
       return parsed;
     },
     staleTime: 60000, // 1 minute - increase to reduce re-queries

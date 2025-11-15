@@ -3,11 +3,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, Plus } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, Plus, ListPlus, MoreVertical, Flag, UserX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { VideoCommentsModal } from '@/components/VideoCommentsModal';
 import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
@@ -16,7 +17,10 @@ import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
+import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { useMuteItem } from '@/hooks/useModeration';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -26,6 +30,8 @@ import { cn } from '@/lib/utils';
 import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
+import { useToast } from '@/hooks/useToast';
+import { MuteType } from '@/types/moderation';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -75,10 +81,14 @@ export function VideoCard({
   const [videoError, setVideoError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const isMobile = useIsMobile();
+  const { toast } = useToast();
+  const muteUser = useMuteItem();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
-  const reposter = shouldShowReposter && video.reposterPubkey 
+  const reposter = shouldShowReposter && video.reposterPubkey
     ? enhanceAuthorData(reposterData.data, video.reposterPubkey)
     : null;
 
@@ -95,12 +105,12 @@ export function VideoCard({
 
   // Format time - use original Vine timestamp if available, otherwise use created_at
   const timestamp = video.originalVineTimestamp || video.createdAt;
-  
+
   const date = new Date(timestamp * 1000);
   const now = new Date();
 
-  // Check if this is a migrated Vine (has originalVineTimestamp from published_at tag)
-  const isMigratedVine = !!video.originalVineTimestamp;
+  // Check if this is a migrated Vine from original Vine platform (uses 'origin' tag)
+  const isMigratedVine = video.isVineMigrated;
 
   // Calculate timeAgo - always show actual date/time, badge will indicate if it's original Vine
   const yearsDiff = now.getFullYear() - date.getFullYear();
@@ -137,6 +147,68 @@ export function VideoCard({
   const handleVideoEnd = () => {
     if (mode === 'thumbnail') {
       setIsPlaying(false);
+    }
+  };
+
+  const handleMuteUser = async () => {
+    try {
+      await muteUser.mutateAsync({
+        type: MuteType.USER,
+        value: video.pubkey,
+        reason: 'Muted from video'
+      });
+
+      toast({
+        title: 'User muted',
+        description: `${displayName} has been muted`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to mute user',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleShare = async () => {
+    const videoUrl = `${window.location.origin}/video/${video.id}`;
+
+    // Use Web Share API if available
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: video.title || 'Check out this video on diVine Web',
+          text: video.content || 'Short-form looping video on Nostr',
+          url: videoUrl,
+        });
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as Error).name !== 'AbortError') {
+          console.error('Error sharing:', error);
+          toast({
+            title: 'Error',
+            description: 'Failed to share video',
+            variant: 'destructive',
+          });
+        }
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(videoUrl);
+        toast({
+          title: 'Link copied!',
+          description: 'Video link has been copied to clipboard',
+        });
+      } catch (error) {
+        console.error('Failed to copy link:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to copy link to clipboard',
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -183,23 +255,25 @@ export function VideoCard({
             </Link>
             {/* ProofMode badge */}
             {video.proofMode && video.proofMode.level !== 'unverified' && (
-              <ProofModeBadge level={video.proofMode.level} />
+              <ProofModeBadge
+                level={video.proofMode.level}
+                proofData={video.proofMode}
+                showDetails={true}
+              />
             )}
           </div>
         </div>
         {/* Original badge and timestamp - aligned with author */}
-        {isMigratedVine && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
-            <VineBadge />
-            <span>{timeAgo}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+          {isMigratedVine && <VineBadge />}
+          <span>{timeAgo}</span>
+        </div>
       </div>
 
       {/* Video content */}
       <CardContent className="p-0">
         {/* Video player or thumbnail */}
-        <div className="relative aspect-square bg-black">
+        <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
           {!isPlaying ? (
             <ThumbnailPlayer
               videoId={video.id}
@@ -233,14 +307,14 @@ export function VideoCard({
         {/* Video metadata */}
         <div className="px-4 py-2" data-testid="video-metadata">
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            {video.loopCount && video.loopCount > 0 && (
+            {(video.loopCount ?? 0) > 0 && (
               <span className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                {formatViewCount(video.loopCount)}
+                {formatViewCount(video.loopCount!)}
               </span>
             )}
-            {video.duration && (
-              <span>{formatDuration(video.duration)}</span>
+            {(video.duration ?? 0) > 0 && (
+              <span>{formatDuration(video.duration!)}</span>
             )}
           </div>
         </div>
@@ -299,12 +373,15 @@ export function VideoCard({
         )}
 
         {/* Interaction buttons */}
-        <div className="flex items-center gap-1 px-4 pb-4">
+        <div className={cn(
+          "flex items-center px-4 pb-4",
+          isMobile ? "gap-0.5" : "gap-1"
+        )}>
           <Button
             variant="ghost"
             size="sm"
             className={cn(
-              'gap-2',
+              isMobile ? 'gap-1 px-2' : 'gap-2',
               isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
             )}
             onClick={onLike}
@@ -318,7 +395,7 @@ export function VideoCard({
             variant="ghost"
             size="sm"
             className={cn(
-              'gap-2',
+              isMobile ? 'gap-1 px-2' : 'gap-2',
               isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
             )}
             onClick={onRepost}
@@ -328,10 +405,13 @@ export function VideoCard({
             {repostCount > 0 && <span className="text-xs">{formatCount(repostCount)}</span>}
           </Button>
 
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="gap-2" 
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "gap-2",
+              isMobile && "gap-1 px-2"
+            )}
             onClick={handleCommentsClick}
             aria-label="Comment"
           >
@@ -339,26 +419,73 @@ export function VideoCard({
             {commentCount > 0 && <span className="text-xs">{formatCount(commentCount)}</span>}
           </Button>
 
-          <Button variant="ghost" size="sm" className="gap-2" aria-label="Share">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "gap-2",
+              isMobile && "px-2"
+            )}
+            onClick={handleShare}
+            aria-label="Share"
+          >
             <Share className="h-4 w-4" />
           </Button>
 
-          {/* Add to list button */}
+          {/* Add to list button - icon only on mobile */}
           {video.vineId && (
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1"
+              className={cn(
+                isMobile ? "px-2" : "gap-1"
+              )}
               onClick={() => setShowAddToListDialog(true)}
               aria-label="Add to list"
             >
-              <Plus className="h-4 w-4" />
-              <span className="text-xs">Add to list</span>
+              <ListPlus className="h-4 w-4" />
+              {!isMobile && <span className="text-xs">Add to list</span>}
             </Button>
           )}
+
+          {/* More options menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-2"
+                aria-label="More options"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setShowReportDialog(true)}>
+                <Flag className="h-4 w-4 mr-2" />
+                Report video
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleMuteUser} className="text-destructive focus:text-destructive">
+                <UserX className="h-4 w-4 mr-2" />
+                Mute {displayName}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardContent>
     </Card>
+
+    {/* Dialogs */}
+    {showReportDialog && (
+      <ReportContentDialog
+        open={showReportDialog}
+        onClose={() => setShowReportDialog(false)}
+        eventId={video.id}
+        pubkey={video.pubkey}
+        contentType="video"
+      />
+    )}
     </>
   );
 }

@@ -1,4 +1,4 @@
-// ABOUTME: Support and contact information page for Divine Web
+// ABOUTME: Support and contact information page for diVine Web
 // ABOUTME: Displays email contact and GitHub issues link for user support
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

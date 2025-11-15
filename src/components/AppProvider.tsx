@@ -1,7 +1,8 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AppContext, type AppConfig, type AppContextType, type Theme } from '@/contexts/AppContext';
+import { LoginDialogProvider } from '@/contexts/LoginDialogContext';
 
 interface AppProviderProps {
   children: ReactNode;
@@ -40,6 +41,9 @@ export function AppProvider(props: AppProviderProps) {
     }
   );
 
+  // Recording state (not persisted)
+  const [isRecording, setIsRecording] = useState(false);
+
   // Generic config updater with callback pattern
   const updateConfig = (updater: (currentConfig: AppConfig) => AppConfig) => {
     setConfig(updater);
@@ -49,6 +53,8 @@ export function AppProvider(props: AppProviderProps) {
     config,
     updateConfig,
     presetRelays,
+    isRecording,
+    setIsRecording,
   };
 
   // Apply theme effects to document
@@ -56,7 +62,9 @@ export function AppProvider(props: AppProviderProps) {
 
   return (
     <AppContext.Provider value={appContextValue}>
-      {children}
+      <LoginDialogProvider>
+        {children}
+      </LoginDialogProvider>
     </AppContext.Provider>
   );
 }
@@ -88,11 +96,11 @@ function useApplyTheme(theme: Theme) {
     if (theme !== 'system') return;
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = () => {
       const root = window.document.documentElement;
       root.classList.remove('light', 'dark');
-      
+
       const systemTheme = mediaQuery.matches ? 'dark' : 'light';
       root.classList.add(systemTheme);
     };

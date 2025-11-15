@@ -1,9 +1,7 @@
 // ABOUTME: Modal component for displaying comments only (no video replay)
 // ABOUTME: Uses CommentsSection for NIP-22 comments
 
-import { X } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CommentsSection } from '@/components/comments/CommentsSection';
 import { cn } from '@/lib/utils';
 import type { ParsedVideoData } from '@/types/video';
@@ -52,17 +50,9 @@ export function VideoCommentsModal({
         data-video-id={video.id}
       >
         <DialogHeader className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">
-              {video.title || 'Comments'}
-            </DialogTitle>
-            <DialogClose asChild>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DialogClose>
-          </div>
+          <DialogTitle className="text-lg font-semibold">
+            {video.title || 'Comments'}
+          </DialogTitle>
         </DialogHeader>
 
         {/* Just Comments - No Video */}

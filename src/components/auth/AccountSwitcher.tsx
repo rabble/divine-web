@@ -1,7 +1,9 @@
 // NOTE: This file is stable and usually should not be modified.
 // It is important that all functionality in this file is preserved, and should only be modified if explicitly requested.
 
-import { ChevronDown, LogOut, UserIcon, UserPlus /*, Wallet */ } from 'lucide-react';
+import { ChevronDown, LogOut, UserIcon, UserPlus, User /*, Wallet */ } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { nip19 } from 'nostr-tools';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,12 +25,18 @@ interface AccountSwitcherProps {
 
 export function AccountSwitcher({ onAddAccountClick }: AccountSwitcherProps) {
   const { currentUser, otherUsers, setLogin, removeLogin } = useLoggedInAccounts();
+  const navigate = useNavigate();
 
   if (!currentUser) return null;
 
   const getDisplayName = (account: Account): string => {
     return account.metadata.name ?? genUserName(account.pubkey);
   }
+
+  const handleMyProfileClick = () => {
+    const npub = nip19.npubEncode(currentUser.pubkey);
+    navigate(`/profile/${npub}`);
+  };
 
   return (
     <DropdownMenu modal={false}>
@@ -45,6 +53,14 @@ export function AccountSwitcher({ onAddAccountClick }: AccountSwitcherProps) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className='w-56 p-2 animate-scale-in' onCloseAutoFocus={(e) => e.preventDefault()}>
+        <DropdownMenuItem
+          onClick={handleMyProfileClick}
+          className='flex items-center gap-2 cursor-pointer p-2 rounded-md'
+        >
+          <User className='w-4 h-4' />
+          <span>My Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuLabel>Switch Relay</DropdownMenuLabel>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className='p-2'>
           <RelaySelector className='w-full' />
