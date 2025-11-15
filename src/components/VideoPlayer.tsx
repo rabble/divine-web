@@ -741,36 +741,29 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute bottom-4 right-4 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px] transition-opacity",
+                "absolute bottom-4 right-4 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
                 isMobile
-                  ? (controlsVisible ? "opacity-100 w-12 h-12" : "opacity-0 w-12 h-12")
+                  ? (controlsVisible ? "opacity-100 w-14 h-14" : "opacity-100 w-14 h-14")
                   : "opacity-0 group-hover:opacity-100 w-10 h-10"
               )}
-              onClick={isMobile ? undefined : toggleMute}
-              onTouchStart={(e) => {
-                if (isMobile) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                toggleMute(e);
               }}
-              onTouchMove={(e) => {
-                if (isMobile) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }
+              onTouchStart={(e) => {
+                e.stopPropagation();
               }}
               onTouchEnd={(e) => {
-                if (isMobile) {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleMute(e);
-                }
+                e.stopPropagation();
+                e.preventDefault();
+                toggleMute(e);
               }}
             >
               {globalMuted ? (
-                <VolumeX className="h-5 w-5" />
+                <VolumeX className="h-6 w-6" />
               ) : (
-                <Volume2 className="h-5 w-5" />
+                <Volume2 className="h-6 w-6" />
               )}
             </Button>
 
@@ -780,22 +773,25 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "absolute bottom-4 left-4 w-12 h-12 rounded-full bg-black/50 hover:bg-black/70 text-white min-h-[44px] transition-opacity",
-                  controlsVisible ? "opacity-100" : "opacity-0"
+                  "absolute bottom-4 left-4 w-14 h-14 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
+                  controlsVisible ? "opacity-100" : "opacity-100"
                 )}
                 onClick={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   toggleFullscreen();
                 }}
                 onTouchStart={(e) => e.stopPropagation()}
-                onTouchMove={(e) => e.stopPropagation()}
-                onTouchEnd={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
                 aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
               >
                 {isFullscreen ? (
-                  <Minimize className="h-5 w-5" />
+                  <Minimize className="h-6 w-6" />
                 ) : (
-                  <Maximize className="h-5 w-5" />
+                  <Maximize className="h-6 w-6" />
                 )}
               </Button>
             )}
