@@ -1,10 +1,11 @@
 // ABOUTME: Settings page for content moderation
 // ABOUTME: Manage mute lists, view report history, and configure filtering
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useMuteList, useMuteItem, useUnmuteItem, useReportHistory } from '@/hooks/useModeration';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAuthor } from '@/hooks/useAuthor';
+import { useNostr } from '@nostrify/react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,14 +15,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  Shield, 
-  UserX, 
-  Hash, 
-  Type, 
-  FileText, 
-  Plus, 
-  Trash2, 
+import {
+  Shield,
+  UserX,
+  Hash,
+  Type,
+  FileText,
+  Plus,
+  Trash2,
   Flag,
   AlertCircle
 } from 'lucide-react';
@@ -32,8 +33,8 @@ import { getSafeProfileImage } from '@/lib/imageUtils';
 import { formatDistanceToNow } from 'date-fns';
 import { nip19 } from 'nostr-tools';
 
-function MutedUserItem({ pubkey, reason, onUnmute }: { 
-  pubkey: string; 
+function MutedUserItem({ pubkey, reason, onUnmute }: {
+  pubkey: string;
   reason?: string;
   onUnmute: () => void;
 }) {
@@ -69,6 +70,7 @@ function MutedUserItem({ pubkey, reason, onUnmute }: {
 
 export default function ModerationSettingsPage() {
   const { user } = useCurrentUser();
+  const { nostr } = useNostr();
   const { toast } = useToast();
   const { data: muteList = [], isLoading: muteListLoading } = useMuteList();
   const { data: reportHistory = [] } = useReportHistory();
@@ -78,10 +80,50 @@ export default function ModerationSettingsPage() {
   const [muteType, setMuteType] = useState<MuteType>(MuteType.USER);
   const [muteValue, setMuteValue] = useState('');
   const [muteReason, setMuteReason] = useState('');
+  const [showDebug, setShowDebug] = useState(false);
+  const [rawMuteEvent, setRawMuteEvent] = useState<unknown>(null);
 
   const mutedUsers = muteList.filter(item => item.type === MuteType.USER);
   const mutedHashtags = muteList.filter(item => item.type === MuteType.HASHTAG);
   const mutedKeywords = muteList.filter(item => item.type === MuteType.KEYWORD);
+
+  // Debug: Log state
+  console.log('[ModerationSettingsPage] Render state:', {
+    user: user?.pubkey,
+    muteListLoading,
+    muteListLength: muteList.length,
+    mutedUsers: mutedUsers.length,
+    mutedHashtags: mutedHashtags.length,
+    mutedKeywords: mutedKeywords.length,
+    muteList
+  });
+
+  // Fetch raw mute list event for debugging
+  useEffect(() => {
+    if (!user || !showDebug) return;
+
+    const fetchRawEvent = async () => {
+      try {
+        const events = await nostr.query([{
+          kinds: [10001],
+          authors: [user.pubkey],
+          limit: 1
+        }], { signal: AbortSignal.timeout(5000) });
+
+        if (events.length > 0) {
+          setRawMuteEvent(events[0]);
+          console.log('[ModerationSettingsPage] Raw mute event:', events[0]);
+        } else {
+          setRawMuteEvent(null);
+          console.log('[ModerationSettingsPage] No mute event found');
+        }
+      } catch (error) {
+        console.error('[ModerationSettingsPage] Error fetching raw event:', error);
+      }
+    };
+
+    fetchRawEvent();
+  }, [user, showDebug, nostr, muteList.length]); // Re-fetch when mute list changes
 
   const handleMute = async () => {
     if (!muteValue.trim()) {
@@ -95,7 +137,7 @@ export default function ModerationSettingsPage() {
 
     try {
       let value = muteValue.trim();
-      
+
       // Handle npub conversion for users
       if (muteType === MuteType.USER) {
         try {
@@ -173,14 +215,126 @@ export default function ModerationSettingsPage() {
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
-          <Shield className="h-8 w-8" />
-          Moderation Settings
-        </h1>
-        <p className="text-muted-foreground">
-          Control what content you see and report violations
-        </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2 mb-2">
+              <Shield className="h-8 w-8" />
+              Moderation Settings
+            </h1>
+            <p className="text-muted-foreground">
+              Control what content you see and report violations
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowDebug(!showDebug)}
+          >
+            {showDebug ? 'Hide' : 'Show'} Debug Info
+          </Button>
+        </div>
+
+        {/* Debug Panel */}
+        {showDebug && (
+          <Card className="mt-4 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20">
+            <CardHeader>
+              <CardTitle className="text-sm">Debug Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm font-mono">
+              <div>
+                <strong>User pubkey:</strong> {user?.pubkey || 'Not logged in'}
+              </div>
+              <div>
+                <strong>Mute list loading:</strong> {muteListLoading ? 'Yes' : 'No'}
+              </div>
+              <div>
+                <strong>Total mute items:</strong> {muteList.length}
+              </div>
+              <div>
+                <strong>Muted users:</strong> {mutedUsers.length}
+                {mutedUsers.length > 0 && (
+                  <div className="ml-4 mt-1 text-xs break-all">
+                    {mutedUsers.map(item => (
+                      <div key={item.value} className="py-1">
+                        • {item.value} {item.reason && `(${item.reason})`}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <strong>Muted hashtags:</strong> {mutedHashtags.length}
+                {mutedHashtags.length > 0 && (
+                  <div className="ml-4 mt-1 text-xs">
+                    {mutedHashtags.map(item => (
+                      <span key={item.value} className="mr-2">#{item.value}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <strong>Muted keywords:</strong> {mutedKeywords.length}
+                {mutedKeywords.length > 0 && (
+                  <div className="ml-4 mt-1 text-xs">
+                    {mutedKeywords.map(item => (
+                      <span key={item.value} className="mr-2">"{item.value}"</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div className="pt-2 border-t border-yellow-600/50">
+                <strong>Parsed mute list:</strong>
+                <pre className="mt-2 p-2 bg-black/10 rounded text-xs overflow-auto max-h-40">
+                  {JSON.stringify(muteList, null, 2)}
+                </pre>
+              </div>
+              {rawMuteEvent && (
+                <div className="pt-2 border-t border-yellow-600/50">
+                  <strong>Raw Nostr event (kind 10001):</strong>
+                  <pre className="mt-2 p-2 bg-black/10 rounded text-xs overflow-auto max-h-60">
+                    {JSON.stringify(rawMuteEvent, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Status Card */}
+      <Card className="mb-6 border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
+        <CardContent className="py-4">
+          <div className="flex items-start gap-3">
+            <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium text-sm">
+                Moderation Status: {muteListLoading ? 'Loading...' : 'Active'}
+              </p>
+              <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                <div>
+                  • <strong>{mutedUsers.length}</strong> users muted
+                </div>
+                <div>
+                  • <strong>{mutedHashtags.length}</strong> hashtags muted
+                </div>
+                <div>
+                  • <strong>{mutedKeywords.length}</strong> keywords muted
+                </div>
+                {muteList.length > 0 && (
+                  <div className="text-green-600 dark:text-green-400 mt-2">
+                    ✓ Content filtering is active across all feeds
+                  </div>
+                )}
+                {muteList.length === 0 && !muteListLoading && (
+                  <div className="text-muted-foreground mt-2">
+                    No filters active - all content will be shown
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="mute-list" className="space-y-6">
         <TabsList>

@@ -116,6 +116,16 @@ export function AppHeader() {
               {/* Trust & Safety Section */}
               <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
 
+              {user && (
+                <DropdownMenuItem
+                  onClick={() => navigate('/settings/moderation')}
+                  className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
+                >
+                  <ShieldAlert className="mr-2 h-4 w-4" />
+                  <span>Moderation Settings</span>
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem
                 onClick={() => navigate('/proofmode')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
