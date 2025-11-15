@@ -21,8 +21,6 @@ export function VideoPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  console.log('[VideoPage] Rendering with id:', id);
-
   // All hooks must be called before any early returns
   const {
     context,
@@ -33,14 +31,6 @@ export function VideoPage() {
     goToPrevious,
     isLoading,
   } = useVideoNavigation(id || '');
-
-  console.log('[VideoPage] Navigation state:', {
-    hasContext: !!context,
-    hasVideo: !!currentVideo,
-    isLoading,
-    contextSource: context?.source,
-    videoId: currentVideo?.id
-  });
 
   // Get author data for profile context
   const authorData = useAuthor(context?.pubkey || '');
@@ -323,18 +313,10 @@ export function VideoPage() {
           <CardContent className="py-12 text-center space-y-4">
             <p className="text-muted-foreground text-lg font-semibold">Video not found</p>
             <p className="text-sm text-muted-foreground">
-              This video event doesn't exist on any of the queried relays.
+              This video may not exist, or the relays may be experiencing issues.
             </p>
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p>Possible reasons:</p>
-              <ul className="list-disc list-inside text-left max-w-md mx-auto">
-                <li>The video was published to different relays</li>
-                <li>The event has been deleted</li>
-                <li>The event ID may be incorrect</li>
-              </ul>
-            </div>
-            <p className="text-xs text-muted-foreground pt-2">
-              Event ID: <code className="bg-muted px-2 py-1 rounded">{id}</code>
+            <p className="text-xs text-muted-foreground">
+              Try checking your relay settings or refreshing the page.
             </p>
           </CardContent>
         </Card>
