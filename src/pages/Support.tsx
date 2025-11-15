@@ -1,10 +1,33 @@
 // ABOUTME: Support and contact information page for diVine Web
 // ABOUTME: Displays email contact and GitHub issues link for user support
 
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
 
 export function Support() {
+  useEffect(() => {
+    // Load Zendesk widget script
+    const script = document.createElement('script');
+    script.id = 'ze-snippet';
+    script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
+    script.async = true;
+    document.body.appendChild(script);
+
+    // Cleanup function to remove the script when component unmounts
+    return () => {
+      const existingScript = document.getElementById('ze-snippet');
+      if (existingScript) {
+        existingScript.remove();
+      }
+      // Also remove any Zendesk-created elements
+      const zendeskContainer = document.getElementById('launcher');
+      if (zendeskContainer) {
+        zendeskContainer.remove();
+      }
+    };
+  }, []);
+
   return (
     <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="space-y-6">
