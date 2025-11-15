@@ -89,9 +89,8 @@ export function AppRouter() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
-              {/* DISABLED: Upload route
+              {/* TEMPORARILY ENABLED for testing deletion features */}
               <Route path="/upload" element={<UploadPage />} />
-              */}
               <Route path="/settings/moderation" element={<ModerationSettingsPage />} />
               {/* Test pages for debugging */}
               <Route path="/debug-video" element={<DebugVideoPage />} />

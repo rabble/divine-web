@@ -49,7 +49,7 @@ export function BottomNav() {
           <span className="text-xs">Search</span>
         </Button>
 
-        {/* DISABLED: Upload - TikTok style center button
+        {/* TEMPORARILY ENABLED: Upload - TikTok style center button for testing deletion features */}
         {user && (
           <button
             onClick={() => navigate('/upload')}
@@ -58,7 +58,6 @@ export function BottomNav() {
             <Video className="h-6 w-6" />
           </button>
         )}
-        */}
 
         {/* Lists */}
         {user && (
