@@ -19,6 +19,7 @@ import VideoPage from "./pages/VideoPage";
 import { TagPage } from "./pages/TagPage";
 import ListsPage from "./pages/ListsPage";
 import ListDetailPage from "./pages/ListDetailPage";
+import ModerationSettingsPage from "./pages/ModerationSettingsPage";
 // import { NIP05ProfilePage } from "./pages/NIP05ProfilePage";
 import { UniversalUserPage } from "./pages/UniversalUserPage";
 import AboutPage from "./pages/AboutPage";
@@ -89,6 +90,7 @@ export function AppRouter() {
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
               <Route path="/upload" element={<UploadPage />} />
+              <Route path="/settings/moderation" element={<ModerationSettingsPage />} />
               {/* Test pages for debugging */}
               <Route path="/debug-video" element={<DebugVideoPage />} />
             </>

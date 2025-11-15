@@ -3,11 +3,12 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, Plus, ListPlus } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, Plus, ListPlus, MoreVertical, Flag, UserX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { VideoCommentsModal } from '@/components/VideoCommentsModal';
 import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
@@ -16,8 +17,10 @@ import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
+import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useMuteItem } from '@/hooks/useModeration';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -28,6 +31,7 @@ import { formatViewCount, formatDuration, formatCount } from '@/lib/formatUtils'
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { useToast } from '@/hooks/useToast';
+import { MuteType } from '@/types/moderation';
 
 interface VideoCardProps {
   video: ParsedVideoData;
@@ -77,8 +81,10 @@ export function VideoCard({
   const [videoError, setVideoError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const muteUser = useMuteItem();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -141,6 +147,27 @@ export function VideoCard({
   const handleVideoEnd = () => {
     if (mode === 'thumbnail') {
       setIsPlaying(false);
+    }
+  };
+
+  const handleMuteUser = async () => {
+    try {
+      await muteUser.mutateAsync({
+        type: MuteType.USER,
+        value: video.pubkey,
+        reason: 'Muted from video'
+      });
+
+      toast({
+        title: 'User muted',
+        description: `${displayName} has been muted`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to mute user',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -418,9 +445,45 @@ export function VideoCard({
               {!isMobile && <span className="text-xs">Add to list</span>}
             </Button>
           )}
+
+          {/* More options menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-2"
+                aria-label="More options"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setShowReportDialog(true)}>
+                <Flag className="h-4 w-4 mr-2" />
+                Report video
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleMuteUser} className="text-destructive focus:text-destructive">
+                <UserX className="h-4 w-4 mr-2" />
+                Mute {displayName}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </CardContent>
     </Card>
+
+    {/* Dialogs */}
+    {showReportDialog && (
+      <ReportContentDialog
+        open={showReportDialog}
+        onClose={() => setShowReportDialog(false)}
+        eventId={video.id}
+        pubkey={video.pubkey}
+        contentType="video"
+      />
+    )}
     </>
   );
 }
