@@ -29,12 +29,12 @@ export function AppHeader() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {/* Public navigation - available to all users */}
+          {/* Public navigation - available to all users - hidden on mobile, shown in bottom nav */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/hashtags')}
-            className="flex items-center gap-2"
+            className="hidden md:flex items-center gap-2"
           >
             <Hash className="h-4 w-4" />
             <span className="hidden sm:inline">Hashtags</span>
@@ -43,20 +43,20 @@ export function AppHeader() {
             variant="ghost"
             size="sm"
             onClick={() => navigate('/search')}
-            className="flex items-center gap-2"
+            className="hidden md:flex items-center gap-2"
           >
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search</span>
           </Button>
 
-          {/* Protected navigation - requires login */}
+          {/* Protected navigation - requires login - hidden on mobile, shown in bottom nav */}
           {user && (
             <>
               <Button
                 variant="default"
                 size="sm"
                 onClick={() => navigate('/upload')}
-                className="flex items-center gap-2"
+                className="hidden md:flex items-center gap-2"
               >
                 <Video className="h-4 w-4" />
                 <span className="hidden sm:inline">Upload</span>
@@ -65,7 +65,7 @@ export function AppHeader() {
                 variant="ghost"
                 size="sm"
                 onClick={() => navigate('/lists')}
-                className="flex items-center gap-2"
+                className="hidden md:flex items-center gap-2"
               >
                 <List className="h-4 w-4" />
                 <span className="hidden sm:inline">Lists</span>

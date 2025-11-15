@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from '@/components/AppHeader';
 import { AppFooter } from '@/components/AppFooter';
+import { BottomNav } from '@/components/BottomNav';
 import { useNostrLogin } from '@nostrify/react/login';
 
 export function AppLayout() {
@@ -16,10 +17,11 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {!isLandingPage && <AppHeader />}
-      <div className="flex-1">
+      <div className="flex-1 pb-16 md:pb-0">
         <Outlet />
       </div>
       <AppFooter />
+      {!isLandingPage && <BottomNav />}
     </div>
   );
 }
