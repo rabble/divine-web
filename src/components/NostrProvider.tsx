@@ -70,25 +70,12 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
         // Separate filters by kind for kind-specific relay routing
         const profileFilters: NostrFilter[] = [];
-        const videoFilters: NostrFilter[] = [];
-        const listFilters: NostrFilter[] = [];
         const otherFilters: NostrFilter[] = [];
-
-        // Video kinds from NIP-71
-        const VIDEO_KINDS = [21, 22, 34236];
-        // List kinds from NIP-51
-        const LIST_KINDS = [30000, 30001, 30005]; // Video sets (30005) and other list types
 
         for (const filter of filters) {
           if (filter.kinds?.includes(0)) {
             // Kind 0 (profile metadata) - route to profile relays
             profileFilters.push(filter);
-          } else if (filter.kinds?.some(k => VIDEO_KINDS.includes(k))) {
-            // Video kinds - route to video relays with fallbacks
-            videoFilters.push(filter);
-          } else if (filter.kinds?.some(k => LIST_KINDS.includes(k))) {
-            // List kinds - route to multiple relays for better discovery
-            listFilters.push(filter);
           } else {
             // All other kinds - route to main relay
             otherFilters.push(filter);
@@ -99,51 +86,6 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         if (profileFilters.length > 0) {
           result.set('wss://purplepag.es', profileFilters);
           result.set('wss://relay.nos.social', profileFilters);
-        }
-
-        // Route video queries to multiple relays for redundancy
-        if (videoFilters.length > 0) {
-          // Primary relay first
-          result.set(relayUrl.current, videoFilters);
-
-          // Add fallback relays for video content
-          // This ensures videos still load if primary relay is down
-          const fallbackRelays = [
-            'wss://relay3.openvine.co',
-            'wss://relay.nostr.band',
-            'wss://relay.damus.io',
-            'wss://nos.lol',
-            'wss://relay.primal.net',
-          ];
-
-          for (const fallbackRelay of fallbackRelays) {
-            if (fallbackRelay !== relayUrl.current) {
-              result.set(fallbackRelay, videoFilters);
-            }
-          }
-        }
-
-        // Route list queries to multiple relays for better discovery
-        // Lists can be created on any relay, so we query multiple relays
-        if (listFilters.length > 0) {
-          // Primary relay first
-          result.set(relayUrl.current, listFilters);
-
-          // Add common relays where lists might be stored
-          const listRelays = [
-            'wss://relay3.openvine.co',
-            'wss://relay.nostr.band',
-            'wss://relay.damus.io',
-            'wss://nos.lol',
-            'wss://relay.primal.net',
-            'wss://purplepag.es',
-          ];
-
-          for (const listRelay of listRelays) {
-            if (listRelay !== relayUrl.current) {
-              result.set(listRelay, listFilters);
-            }
-          }
         }
 
         // Route other queries to the selected relay only
