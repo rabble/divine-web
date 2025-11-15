@@ -57,6 +57,7 @@ export function AppHeader() {
           {/* Protected navigation - requires login - hidden on mobile, shown in bottom nav */}
           {user && (
             <>
+              {/* DISABLED: Record button
               <Button
                 variant="default"
                 size="sm"
@@ -66,6 +67,7 @@ export function AppHeader() {
                 <Video className="h-4 w-4" />
                 <span className="hidden sm:inline">Record</span>
               </Button>
+              */}
               <Button
                 variant="ghost"
                 size="sm"
