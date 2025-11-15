@@ -39,18 +39,20 @@ export function AppHeader() {
         </div>
         <div className="flex items-center gap-2">
           {/* Main navigation - hidden on mobile, shown in bottom nav */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className={cn(
-              "hidden md:flex items-center gap-2",
-              isActive('/') && "bg-primary/10 text-primary"
-            )}
-          >
-            <Home className="h-4 w-4" />
-            <span className="hidden lg:inline">Home</span>
-          </Button>
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className={cn(
+                "hidden md:flex items-center gap-2",
+                isActive('/') && "bg-primary/10 text-primary"
+              )}
+            >
+              <Home className="h-4 w-4" />
+              <span className="hidden lg:inline">Home</span>
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
