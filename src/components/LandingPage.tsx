@@ -69,11 +69,6 @@ export function LandingPage() {
               </p>
             </div>
 
-            {/* Mailing List Signup */}
-            <div className="pt-4">
-              <MailerLiteSignup />
-            </div>
-
             {/* Screenshot Carousel */}
             <Link to="/discovery" className="block py-6 relative cursor-pointer">
               <Carousel
@@ -160,6 +155,11 @@ export function LandingPage() {
               <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-white dark:from-background to-transparent pointer-events-none z-10" />
               <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white dark:from-background to-transparent pointer-events-none z-10" />
             </Link>
+
+            {/* Mailing List Signup */}
+            <div className="pt-4">
+              <MailerLiteSignup />
+            </div>
 
             {/* Action Buttons */}
             <div className="pt-4">
