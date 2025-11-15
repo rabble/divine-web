@@ -264,12 +264,10 @@ export function VideoCard({
           </div>
         </div>
         {/* Original badge and timestamp - aligned with author */}
-        {isMigratedVine && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
-            <VineBadge />
-            <span>{timeAgo}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+          {isMigratedVine && <VineBadge />}
+          <span>{timeAgo}</span>
+        </div>
       </div>
 
       {/* Video content */}
@@ -315,7 +313,7 @@ export function VideoCard({
                 {formatViewCount(video.loopCount)}
               </span>
             )}
-            {video.duration && (
+            {video.duration && video.duration > 0 && (
               <span>{formatDuration(video.duration)}</span>
             )}
           </div>
