@@ -508,3 +508,57 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
   // No thumbnail available
   return undefined;
 }
+
+/**
+ * Helper functions for working with ParsedVideoData reposts array
+ */
+
+import type { ParsedVideoData, RepostMetadata } from '@/types/video';
+
+/**
+ * Check if a video has been reposted
+ */
+export function isReposted(video: ParsedVideoData): boolean {
+  return video.reposts && video.reposts.length > 0;
+}
+
+/**
+ * Get the most recent repost timestamp, or createdAt if no reposts
+ */
+export function getLatestRepostTime(video: ParsedVideoData): number {
+  if (!video.reposts || video.reposts.length === 0) {
+    return video.createdAt;
+  }
+  return Math.max(...video.reposts.map(r => r.repostedAt));
+}
+
+/**
+ * Get total number of reposts
+ */
+export function getTotalReposts(video: ParsedVideoData): number {
+  return video.reposts ? video.reposts.length : 0;
+}
+
+/**
+ * Get list of unique reposters (deduplicated by pubkey)
+ */
+export function getUniqueReposters(video: ParsedVideoData): RepostMetadata[] {
+  if (!video.reposts || video.reposts.length === 0) return [];
+
+  const seen = new Set<string>();
+  return video.reposts.filter(repost => {
+    if (seen.has(repost.reposterPubkey)) return false;
+    seen.add(repost.reposterPubkey);
+    return true;
+  });
+}
+
+/**
+ * Add a repost to a video's reposts array
+ */
+export function addRepost(video: ParsedVideoData, repost: RepostMetadata): ParsedVideoData {
+  return {
+    ...video,
+    reposts: [...(video.reposts || []), repost]
+  };
+}

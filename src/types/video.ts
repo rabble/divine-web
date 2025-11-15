@@ -63,9 +63,15 @@ export interface OriginData {
   metadata?: string;     // Optional additional metadata
 }
 
+export interface RepostMetadata {
+  eventId: string;           // Repost event ID
+  reposterPubkey: string;    // Who reposted
+  repostedAt: number;        // When they reposted
+}
+
 export interface ParsedVideoData {
-  id: string;
-  pubkey: string;
+  id: string;                // Original video event ID
+  pubkey: string;            // Original author pubkey
   kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // NIP-71 video kind
   createdAt: number;
   originalVineTimestamp?: number; // Custom published_at timestamp (NIP-31 - can be set by any video)
@@ -78,9 +84,6 @@ export interface ParsedVideoData {
   title?: string;
   duration?: number;
   hashtags: string[];
-  isRepost: boolean;
-  reposterPubkey?: string;
-  repostedAt?: number;
   vineId: string;
   loopCount?: number;
   likeCount?: number;
@@ -89,4 +92,13 @@ export interface ParsedVideoData {
   proofMode?: ProofModeData; // ProofMode verification data
   origin?: OriginData;        // Import source platform info (if imported content)
   isVineMigrated: boolean;    // True only if origin platform is 'vine'
+
+  // NEW: Aggregated repost data (replaces individual isRepost/reposterPubkey/repostedAt)
+  reposts: RepostMetadata[];
+
+  // COMPUTED FIELDS: Use helper functions from videoParser.ts
+  // - isReposted(video): boolean - Has any reposts
+  // - getLatestRepostTime(video): number - Most recent repost timestamp (or createdAt if no reposts)
+  // - getTotalReposts(video): number - Total number of reposts
+  // - getUniqueReposters(video): RepostMetadata[] - Deduplicated list of reposters
 }

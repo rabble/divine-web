@@ -7,7 +7,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 // import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
 import { useAppContext } from '@/hooks/useAppContext';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData, type RepostMetadata } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
@@ -105,14 +105,16 @@ async function getReactionCounts(
 }
 
 /**
- * Parse video events and handle reposts
+ * Parse video events and handle reposts with deduplication
+ * NEW: Aggregates reposts by video ID instead of creating duplicate entries
  */
 async function parseVideoEvents(
   events: NostrEvent[],
   nostr: { query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]> },
   sortChronologically = false
 ): Promise<ParsedVideoData[]> {
-  const parsedVideos: ParsedVideoData[] = [];
+  // Map to store videos by their unique ID (vineId or event ID)
+  const videoMap = new Map<string, ParsedVideoData>();
 
   // Separate videos and reposts
   const videoEvents = events.filter(e => VIDEO_KINDS.includes(e.kind));
@@ -123,7 +125,7 @@ async function parseVideoEvents(
   let validVideos = 0;
   let invalidVideos = 0;
 
-  // Process direct video events
+  // Process direct video events - add to map by vineId
   for (const event of videoEvents) {
     if (!validateVideoEvent(event)) {
       invalidVideos++;
@@ -148,7 +150,16 @@ async function parseVideoEvents(
 
     validVideos++;
 
-    parsedVideos.push({
+    // NEW: Use vineId as the unique key for deduplication
+    const uniqueKey = vineId;
+
+    // If we already have this video, skip (keep the first one)
+    if (videoMap.has(uniqueKey)) {
+      debugLog(`[useVideoEvents] Skipping duplicate video with vineId ${vineId}`);
+      continue;
+    }
+
+    videoMap.set(uniqueKey, {
       id: event.id,
       pubkey: event.pubkey,
       kind: event.kind as 21 | 22 | 34236,
@@ -163,7 +174,6 @@ async function parseVideoEvents(
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
       hashtags: videoEvent.hashtags || [],
-      isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
       likeCount: getOriginalLikeCount(event),
@@ -171,15 +181,18 @@ async function parseVideoEvents(
       commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
-      isVineMigrated: isVineMigrated(event)
+      isVineMigrated: isVineMigrated(event),
+      reposts: [] // Initialize empty reposts array
     });
   }
 
-  debugLog(`[useVideoEvents] Parsed ${validVideos} valid videos, ${invalidVideos} invalid`);
+  debugLog(`[useVideoEvents] Parsed ${validVideos} valid videos (${videoMap.size} unique), ${invalidVideos} invalid`);
 
-  // Process reposts
+  // Process reposts - NEW: Aggregate as metadata instead of creating duplicates
   let repostsFetched = 0;
   let repostsSkipped = 0;
+  let repostsAggregated = 0;
+
   for (const repost of repostEvents) {
     // Extract 'a' tag for addressable event reference
     const aTag = repost.tags.find(tag => tag[0] === 'a');
@@ -196,88 +209,111 @@ async function parseVideoEvents(
       continue;
     }
 
-    // Fetch original video if not in current batch
-    let originalVideo = videoEvents.find(e =>
-      e.pubkey === pubkey && getVineId(e) === dTag
-    );
+    // The unique key is the vineId (dTag)
+    const vineId = dTag;
 
-    if (!originalVideo) {
-      // Fetch from relay
-      try {
-        const signal = AbortSignal.timeout(2000);
-        const events = await nostr.query([{
-          kinds: VIDEO_KINDS,
-          authors: [pubkey],
-          '#d': [dTag],
-          limit: 1
-        }], { signal });
+    // Check if we already have this video in our map
+    let videoData = videoMap.get(vineId);
 
-        originalVideo = events[0];
-        repostsFetched++;
-      } catch {
+    if (!videoData) {
+      // Need to fetch the original video
+      let originalVideo = videoEvents.find(e =>
+        e.pubkey === pubkey && getVineId(e) === vineId
+      );
+
+      if (!originalVideo) {
+        // Fetch from relay
+        try {
+          const signal = AbortSignal.timeout(2000);
+          const events = await nostr.query([{
+            kinds: VIDEO_KINDS,
+            authors: [pubkey],
+            '#d': [vineId],
+            limit: 1
+          }], { signal });
+
+          originalVideo = events[0];
+          repostsFetched++;
+        } catch {
+          repostsSkipped++;
+          continue;
+        }
+      }
+
+      if (!originalVideo || !validateVideoEvent(originalVideo)) {
         repostsSkipped++;
         continue;
       }
+
+      const videoEvent = parseVideoEvent(originalVideo);
+      if (!videoEvent) {
+        repostsSkipped++;
+        continue;
+      }
+
+      const videoUrl = videoEvent.videoMetadata?.url;
+      if (!videoUrl) {
+        debugError(`[useVideoEvents] No video URL in repost metadata for event ${originalVideo.id}:`, videoEvent.videoMetadata);
+        repostsSkipped++;
+        continue;
+      }
+
+      // Create new video entry
+      videoData = {
+        id: originalVideo.id,
+        pubkey: originalVideo.pubkey,
+        kind: originalVideo.kind as 21 | 22 | 34236,
+        createdAt: originalVideo.created_at,
+        originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
+        content: originalVideo.content,
+        videoUrl,
+        fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
+        hlsUrl: videoEvent.videoMetadata?.hlsUrl,
+        thumbnailUrl: getThumbnailUrl(videoEvent),
+        blurhash: videoEvent.videoMetadata?.blurhash,
+        title: videoEvent.title,
+        duration: videoEvent.videoMetadata?.duration,
+        hashtags: videoEvent.hashtags || [],
+        vineId,
+        loopCount: getLoopCount(originalVideo),
+        likeCount: getOriginalLikeCount(originalVideo),
+        repostCount: getOriginalRepostCount(originalVideo),
+        commentCount: getOriginalCommentCount(originalVideo),
+        proofMode: getProofModeData(originalVideo),
+        origin: getOriginPlatform(originalVideo),
+        isVineMigrated: isVineMigrated(originalVideo),
+        reposts: []
+      };
+
+      videoMap.set(vineId, videoData);
     }
 
-    if (!originalVideo || !validateVideoEvent(originalVideo)) {
-      repostsSkipped++;
-      continue;
-    }
-
-    const videoEvent = parseVideoEvent(originalVideo);
-    if (!videoEvent) {
-      repostsSkipped++;
-      continue;
-    }
-
-    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
-    const vineId = getVineId(originalVideo) || originalVideo.id;
-
-    const videoUrl = videoEvent.videoMetadata?.url;
-    if (!videoUrl) {
-      debugError(`[useVideoEvents] No video URL in repost metadata for event ${originalVideo.id}:`, videoEvent.videoMetadata);
-      repostsSkipped++;
-      continue;
-    }
-
-    parsedVideos.push({
-      id: repost.id,
-      pubkey: originalVideo.pubkey,
-      kind: originalVideo.kind as 21 | 22 | 34236,
-      createdAt: originalVideo.created_at,
-      originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
-      content: originalVideo.content,
-      videoUrl,
-      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
-      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
-      thumbnailUrl: getThumbnailUrl(videoEvent),
-      blurhash: videoEvent.videoMetadata?.blurhash,
-      title: videoEvent.title,
-      duration: videoEvent.videoMetadata?.duration,
-      hashtags: videoEvent.hashtags || [],
-      isRepost: true,
+    // Add repost metadata to the video
+    videoData.reposts.push({
+      eventId: repost.id,
       reposterPubkey: repost.pubkey,
-      repostedAt: repost.created_at,
-      vineId,
-      loopCount: getLoopCount(originalVideo),
-      likeCount: getOriginalLikeCount(originalVideo),
-      repostCount: getOriginalRepostCount(originalVideo),
-      commentCount: getOriginalCommentCount(originalVideo),
-      proofMode: getProofModeData(originalVideo),
-      origin: getOriginPlatform(originalVideo),
-      isVineMigrated: isVineMigrated(originalVideo)
+      repostedAt: repost.created_at
     });
+
+    repostsAggregated++;
   }
 
-  debugLog(`[useVideoEvents] Processed reposts: ${repostsFetched} fetched, ${repostsSkipped} skipped`);
+  debugLog(`[useVideoEvents] Processed reposts: ${repostsFetched} fetched, ${repostsAggregated} aggregated, ${repostsSkipped} skipped`);
+
+  // Convert map to array
+  const parsedVideos = Array.from(videoMap.values());
 
   // Sort videos based on mode
   if (sortChronologically) {
     // Sort by time only (most recent first) for chronological feeds
+    // Use latest repost time if video has been reposted
     return parsedVideos.sort((a, b) => {
-      const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
-      const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
+      const timeA = a.reposts.length > 0
+        ? Math.max(...a.reposts.map(r => r.repostedAt), a.createdAt)
+        : a.createdAt;
+      const timeB = b.reposts.length > 0
+        ? Math.max(...b.reposts.map(r => r.repostedAt), b.createdAt)
+        : b.createdAt;
       return timeB - timeA;
     });
   } else {
@@ -287,9 +323,13 @@ async function parseVideoEvents(
       const loopDiff = (b.loopCount || 0) - (a.loopCount || 0);
       if (loopDiff !== 0) return loopDiff;
 
-      // Then by time for ties
-      const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
-      const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
+      // Then by time for ties (use latest repost time if available)
+      const timeA = a.reposts.length > 0
+        ? Math.max(...a.reposts.map(r => r.repostedAt), a.createdAt)
+        : a.createdAt;
+      const timeB = b.reposts.length > 0
+        ? Math.max(...b.reposts.map(r => r.repostedAt), b.createdAt)
+        : b.createdAt;
       return timeB - timeA;
     });
   }
