@@ -140,9 +140,12 @@ export function LandingPage() {
             <div className="pt-4">
               <Link
                 to="/discovery"
-                className="inline-block text-base text-muted-foreground hover:text-primary hover:underline transition-colors"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-white dark:bg-gray-800 text-primary border-2 border-primary rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
               >
-                Try it on the web →
+                Try it on the web
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
               </Link>
             </div>
           </CardContent>
