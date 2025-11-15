@@ -21,9 +21,9 @@ export function LandingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-500 to-emerald-600 dark:from-green-800 dark:to-emerald-900 p-4">
       <div className="max-w-2xl w-full space-y-6">
-        <Card className="w-full">
+        <Card className="w-full shadow-2xl bg-white dark:bg-gray-900">
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
             <div className="space-y-4">
@@ -149,7 +149,7 @@ export function LandingPage() {
         </Card>
 
         {/* Login Section */}
-        <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
+        <Card className="bg-white/80 dark:bg-black/40 backdrop-blur-md border-white/20">
           <CardContent className="pt-8 pb-8 text-center">
             <p className="text-sm text-muted-foreground mb-4">
               Log in with Nostr to continue
@@ -158,7 +158,7 @@ export function LandingPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white/50 dark:bg-black/20 backdrop-blur">
+        <Card className="bg-white/80 dark:bg-black/40 backdrop-blur-md border-white/20">
           <CardContent className="pt-6 pb-6">
             <div className="flex flex-col items-center gap-3">
               {/* Navigation Links - Two rows */}
