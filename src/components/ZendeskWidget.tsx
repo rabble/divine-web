@@ -28,7 +28,7 @@ export function ZendeskWidget({ hideOnMobile = true }: ZendeskWidgetProps) {
 
       document.body.appendChild(script);
     } else if (hideOnMobile) {
-      // Script already loaded, apply mobile hiding
+      // Script already loaded, apply mobile hiding immediately
       applyMobileHiding();
     }
 
@@ -45,25 +45,19 @@ export function ZendeskWidget({ hideOnMobile = true }: ZendeskWidgetProps) {
           } else {
             window.zE('webWidget', 'show');
           }
-
-          // Listen for window resize to handle orientation changes
-          const handleResize = () => {
-            const isMobileNow = window.matchMedia('(max-width: 767px)').matches;
-            if (window.zE) {
-              if (isMobileNow) {
-                window.zE('webWidget', 'hide');
-              } else {
-                window.zE('webWidget', 'show');
-              }
-            }
-          };
-
-          window.addEventListener('resize', handleResize);
         }
       }, 100);
     }
 
-    // No cleanup needed - keep widget available across navigation
+    // Cleanup: Ensure widget visibility is set correctly when component unmounts
+    return () => {
+      if (hideOnMobile) {
+        const isMobile = window.matchMedia('(max-width: 767px)').matches;
+        if (isMobile && window.zE) {
+          window.zE('webWidget', 'hide');
+        }
+      }
+    };
   }, [hideOnMobile]);
 
   return null; // This component doesn't render anything visible

@@ -39,7 +39,13 @@ export function Support() {
       }
     }
 
-    // Don't cleanup - keep widget available
+    // Cleanup: Hide widget on mobile when leaving Support page
+    return () => {
+      const isMobile = window.matchMedia('(max-width: 767px)').matches;
+      if (isMobile && window.zE) {
+        window.zE('webWidget', 'hide');
+      }
+    };
   }, []);
 
   const openZendeskWidget = () => {
