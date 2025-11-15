@@ -73,11 +73,14 @@ export function BottomNav() {
               className={cn(
                 "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
                 !item.isPrimary && isActive && "text-primary bg-primary/10",
-                item.isPrimary && "bg-primary text-primary-foreground hover:bg-primary/90"
+                item.isPrimary && "bg-primary text-primary-foreground hover:bg-primary/90 rounded-2xl mx-2 aspect-square w-14 h-14"
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span className="text-xs">{item.label}</span>
+              <Icon className={cn(
+                "h-5 w-5",
+                item.isPrimary && "h-7 w-7"
+              )} />
+              {!item.isPrimary && <span className="text-xs">{item.label}</span>}
             </Button>
           );
         })}
