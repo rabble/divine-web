@@ -244,7 +244,12 @@ export function ProfileHeader({
         <div className="text-center col-span-2 sm:col-span-1">
           {stats ? (
             <>
-              <div className="text-xs sm:text-sm text-muted-foreground">
+              <div className="text-xs sm:text-sm text-muted-foreground"
+              title={
+                stats.joinedDate
+                  ? stats.joinedDate.toLocaleString()
+                  : undefined
+              }>
                 {formatJoinedDate(stats.joinedDate)}
               </div>
             </>
