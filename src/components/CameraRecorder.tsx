@@ -1,8 +1,9 @@
-// ABOUTME: Camera recording component with Vine-style press-to-record interface
-// ABOUTME: Provides live camera preview and touch/click recording controls
+// ABOUTME: Responsive camera recording component with Vine-style press-to-record interface
+// ABOUTME: Mobile-first design with desktop modal, proper aspect ratios, and touch-friendly controls
 
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Camera, Repeat, X } from 'lucide-react';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
 import { cn } from '@/lib/utils';
@@ -16,6 +17,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isHoldingRecord, setIsHoldingRecord] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   const {
     isInitialized,
@@ -32,6 +34,16 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
     canRecord,
     remainingDuration,
   } = useMediaRecorder();
+
+  // Detect desktop
+  useEffect(() => {
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768);
+    };
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
 
   // Initialize camera on mount
   useEffect(() => {
@@ -79,23 +91,27 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
     return `${seconds}.${tenths}s`;
   };
 
+  // Error state
   if (cameraError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-black text-white p-8">
-        <Camera className="h-16 w-16 mb-4 text-muted-foreground" />
-        <h2 className="text-xl font-semibold mb-2">Camera Access Required</h2>
-        <p className="text-center text-muted-foreground mb-4">{cameraError}</p>
-        <Button onClick={onCancel} variant="outline">
-          Go Back
-        </Button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <div className="text-center p-8">
+          <Camera className="h-16 w-16 mb-4 text-muted-foreground mx-auto" />
+          <h2 className="text-xl font-semibold mb-2 text-white">Camera Access Required</h2>
+          <p className="text-center text-white/80 mb-4">{cameraError}</p>
+          <Button onClick={onCancel} variant="outline">
+            Go Back
+          </Button>
+        </div>
       </div>
     );
   }
 
+  // Loading state
   if (!isInitialized) {
     return (
-      <div className="flex items-center justify-center h-full bg-black">
-        <div className="text-white">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <div className="text-white text-center">
           <Camera className="h-12 w-12 mb-2 animate-pulse mx-auto" />
           <p>Initializing camera...</p>
         </div>
@@ -103,145 +119,199 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
     );
   }
 
-  return (
+  // Main camera interface
+  const cameraContent = (
     <div className="relative w-full h-full bg-black flex flex-col">
-      {/* Camera Preview */}
-      <div className="relative flex-1">
+      {/* Video preview container - takes available space */}
+      <div className="relative flex-1 min-h-0">
+        {/* Video element with proper aspect ratio preservation */}
         <video
           ref={videoRef}
           autoPlay
           playsInline
           muted
-          className="w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-contain"
         />
 
-        {/* Progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-white/20">
+        {/* Progress bar - fixed at top */}
+        <div 
+          className="absolute left-0 right-0 h-1 bg-white/20 z-20"
+          style={{ top: 'var(--sat)' }}
+        >
           <div
             className="h-full bg-red-500 transition-all duration-100"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
 
-        {/* Duration display */}
-        <div className="absolute top-4 left-4 bg-black/60 px-3 py-1 rounded-full">
-          <span className="text-white text-sm font-medium">
+        {/* Duration display - top left with safe area */}
+        <div 
+          className="absolute left-4 bg-black/60 px-3 py-1.5 rounded-full z-10"
+          style={{ top: `calc(1rem + var(--sat))` }}
+        >
+          <span className="text-white text-sm font-medium tabular-nums">
             {formatDuration(currentDuration)} / 6.0s
           </span>
         </div>
 
-        {/* Close button */}
+        {/* Close button - top right with safe area */}
         <Button
           onClick={onCancel}
           variant="ghost"
           size="icon"
-          className="absolute top-4 right-4 text-white hover:bg-white/20"
+          className="absolute right-4 text-white hover:bg-white/20 z-10"
+          style={{ top: `calc(1rem + var(--sat))` }}
         >
           <X className="h-6 w-6" />
         </Button>
 
         {/* Recording indicator */}
         {isRecording && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-red-500 px-3 py-1 rounded-full">
+          <div 
+            className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-red-500 px-4 py-2 rounded-full shadow-lg z-10"
+            style={{ top: `calc(1rem + var(--sat))` }}
+          >
             <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-            <span className="text-white text-sm font-medium">Recording</span>
+            <span className="text-white text-sm font-medium">REC</span>
           </div>
         )}
 
-        {/* Segment indicators */}
+        {/* Segment indicators - bottom left */}
         {segments.length > 0 && (
-          <div className="absolute bottom-4 left-4 flex flex-col gap-1">
+          <div 
+            className="absolute left-4 flex flex-col gap-1.5 z-10"
+            style={{ bottom: 'calc(6.5rem + var(--sab))' }}
+          >
             {segments.map((segment, index) => (
-              <div key={index} className="bg-black/60 px-2 py-1 rounded text-white text-xs">
-                Segment {index + 1}: {formatDuration(segment.duration)}
-              </div>
+              <Badge 
+                key={index} 
+                className="bg-black/80 text-white text-xs border-white/20"
+              >
+                Clip {index + 1}: {formatDuration(segment.duration)}
+              </Badge>
             ))}
           </div>
         )}
       </div>
 
-      {/* Controls */}
-      <div className="p-6 bg-black">
-        <div className="flex items-center justify-center gap-4">
-          {/* Switch camera button */}
-          <Button
-            onClick={switchCamera}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-            disabled={isRecording}
-          >
-            <Repeat className="h-6 w-6" />
-          </Button>
+      {/* Controls - fixed at bottom with safe area */}
+      <div 
+        className="flex-shrink-0 bg-black/90 backdrop-blur-sm"
+        style={{ paddingBottom: `calc(1.5rem + var(--sab))` }}
+      >
+        <div className="px-6 pt-6">
+          <div className="flex items-center justify-center gap-6 mb-4">
+            {/* Switch camera button */}
+            <Button
+              onClick={switchCamera}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "text-white hover:bg-white/20",
+                "w-12 h-12 md:w-10 md:h-10"
+              )}
+              disabled={isRecording}
+            >
+              <Repeat className="h-6 w-6 md:h-5 md:w-5" />
+            </Button>
 
-          {/* Record button (press and hold) */}
-          <button
-            onMouseDown={handleRecordStart}
-            onMouseUp={handleRecordStop}
-            onMouseLeave={handleRecordStop}
-            onTouchStart={(e) => {
-              e.preventDefault();
-              handleRecordStart();
-            }}
-            onTouchEnd={(e) => {
-              e.preventDefault();
-              handleRecordStop();
-            }}
-            disabled={!canRecord}
-            className={cn(
-              "w-20 h-20 rounded-full border-4 border-white transition-all",
-              "flex items-center justify-center",
-              "active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed",
-              isHoldingRecord ? "bg-red-500 scale-110" : "bg-white/20"
-            )}
-          >
-            <div className={cn(
-              "w-12 h-12 rounded-full transition-all",
-              isHoldingRecord ? "bg-red-600" : "bg-red-500"
-            )} />
-          </button>
+            {/* Record button (press and hold) */}
+            <button
+              onMouseDown={handleRecordStart}
+              onMouseUp={handleRecordStop}
+              onMouseLeave={handleRecordStop}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleRecordStart();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                handleRecordStop();
+              }}
+              disabled={!canRecord}
+              className={cn(
+                "rounded-full border-4 border-white transition-all relative",
+                "flex items-center justify-center",
+                "active:scale-90 disabled:opacity-50 disabled:cursor-not-allowed",
+                "w-20 h-20 md:w-16 md:h-16",
+                isHoldingRecord ? "bg-red-500 scale-110 ring-4 ring-red-500/50" : "bg-white/20"
+              )}
+              aria-label={isRecording ? "Release to pause" : "Hold to record"}
+            >
+              {/* Ripple effect when recording */}
+              {isHoldingRecord && (
+                <div className="absolute inset-0 rounded-full bg-white/20 animate-ping" />
+              )}
+              <div className={cn(
+                "rounded-full transition-all relative z-10",
+                "w-12 h-12 md:w-10 md:h-10",
+                isHoldingRecord ? "bg-red-600" : "bg-red-500"
+              )} />
+            </button>
 
-          {/* Finish button */}
-          <Button
-            onClick={handleFinish}
-            variant="ghost"
-            size="icon"
-            className="text-white hover:bg-white/20"
-            disabled={segments.length === 0}
-          >
-            <span className="text-lg">✓</span>
-          </Button>
-        </div>
+            {/* Finish button */}
+            <Button
+              onClick={handleFinish}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                "text-white hover:bg-white/20",
+                "w-12 h-12 md:w-10 md:h-10"
+              )}
+              disabled={segments.length === 0}
+            >
+              <span className="text-2xl">✓</span>
+            </Button>
+          </div>
 
-        {/* Instructions */}
-        <div className="text-center mt-4">
-          <p className="text-white/80 text-sm">
-            {canRecord ? (
-              <>Press and hold the red button to record</>
-            ) : (
-              <>Maximum duration reached</>
-            )}
-          </p>
-          {segments.length > 0 && (
-            <p className="text-white/60 text-xs mt-1">
-              {segments.length} segment{segments.length !== 1 ? 's' : ''} recorded • {formatDuration(remainingDuration)} remaining
+          {/* Instructions */}
+          <div className="text-center space-y-1">
+            <p className="text-white/90 text-sm font-medium">
+              {canRecord ? (
+                <>Hold button to record, release to pause</>
+              ) : (
+                <>6 second maximum reached</>
+              )}
             </p>
+            {segments.length > 0 && canRecord && (
+              <p className="text-white/60 text-xs">
+                {segments.length} clip{segments.length !== 1 ? 's' : ''} • {formatDuration(remainingDuration)} left
+              </p>
+            )}
+          </div>
+
+          {/* Reset button */}
+          {segments.length > 0 && (
+            <Button
+              onClick={reset}
+              variant="outline"
+              size="sm"
+              className="w-full mt-3 border-white/20 text-white hover:bg-white/10"
+              disabled={isRecording}
+            >
+              Start Over
+            </Button>
           )}
         </div>
-
-        {/* Reset button */}
-        {segments.length > 0 && (
-          <Button
-            onClick={reset}
-            variant="outline"
-            size="sm"
-            className="w-full mt-3"
-            disabled={isRecording}
-          >
-            Start Over
-          </Button>
-        )}
       </div>
+    </div>
+  );
+
+  // Desktop: wrap in centered modal
+  if (isDesktop) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="relative w-full max-w-md h-[90vh] rounded-2xl overflow-hidden shadow-2xl bg-black">
+          {cameraContent}
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile: full screen
+  return (
+    <div className="fixed inset-0 z-50">
+      {cameraContent}
     </div>
   );
 }

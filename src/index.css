@@ -35,6 +35,12 @@
 
     --radius: 0.5rem;
 
+    /* Safe area insets for notched devices */
+    --sat: env(safe-area-inset-top, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+
     /* Design tokens for improved styling */
     --radius-small: 0.5rem;
     --radius-medium: 0.75rem;
