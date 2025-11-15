@@ -111,7 +111,10 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
               {/* Video Thumbnail */}
               {video.thumbnailUrl ? (
                 // Check if thumbnail URL is actually a video file (common for videos without explicit thumbnails)
-                video.thumbnailUrl.match(/\.(mp4|webm|mov|m3u8|mpd)($|\?|#)/i) ? (
+                // Also check if it's the same as videoUrl (indicates no separate thumbnail)
+                video.thumbnailUrl === video.videoUrl ||
+                video.thumbnailUrl.match(/\.(mp4|webm|mov|m3u8|mpd|avi|mkv|ogv|ogg)($|\?|#)/i) ||
+                video.thumbnailUrl.includes('/manifest/') ? (
                   <video
                     className="w-full h-full object-cover"
                     src={`${video.thumbnailUrl}#t=0.1`}
@@ -120,6 +123,10 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     preload="metadata"
                     crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
+                    onError={(e) => {
+                      // If video fails to load, hide it
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
                 ) : (
                   <img
@@ -129,6 +136,17 @@ export function VideoGrid({ videos, loading = false, className, navigationContex
                     loading="lazy"
                     crossOrigin="anonymous"
                     data-testid={`video-thumbnail-${video.id}`}
+                    onError={(e) => {
+                      // If image fails to load, try as video instead
+                      const videoEl = document.createElement('video');
+                      videoEl.className = 'w-full h-full object-cover';
+                      videoEl.src = `${video.thumbnailUrl}#t=0.1`;
+                      videoEl.muted = true;
+                      videoEl.playsInline = true;
+                      videoEl.preload = 'metadata';
+                      videoEl.crossOrigin = 'anonymous';
+                      e.currentTarget.replaceWith(videoEl);
+                    }}
                   />
                 )
               ) : video.videoUrl ? (

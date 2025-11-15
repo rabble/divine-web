@@ -28,8 +28,16 @@ export function ThumbnailPlayer({
 }: ThumbnailPlayerProps) {
   const [thumbnailError, setThumbnailError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [useVideoFallback, setUseVideoFallback] = useState(false);
 
   const handleThumbnailError = () => {
+    // If image fails, try video fallback
+    if (!useVideoFallback) {
+      setUseVideoFallback(true);
+      setIsLoading(true);
+      return;
+    }
+
     setThumbnailError(true);
     setIsLoading(false);
     onError?.();
@@ -46,6 +54,11 @@ export function ThumbnailPlayer({
   // Generate thumbnail from video if no thumbnail URL provided
   const effectiveThumbnailUrl = thumbnailUrl || generateThumbnailFromVideo(src);
 
+  // Check if the thumbnail URL is actually a video file or same as source
+  const isVideoThumbnail = effectiveThumbnailUrl === src ||
+    effectiveThumbnailUrl?.match(/\.(mp4|webm|mov|m3u8|mpd|avi|mkv|ogv|ogg)($|\?|#)/i) ||
+    effectiveThumbnailUrl?.includes('/manifest/');
+
   return (
     <div
       className={cn(
@@ -56,17 +69,31 @@ export function ThumbnailPlayer({
       data-testid="thumbnail-container"
       onClick={handleClick}
     >
-      {/* Thumbnail image */}
+      {/* Thumbnail image or video */}
       {!thumbnailError && effectiveThumbnailUrl ? (
-        <img
-          src={effectiveThumbnailUrl}
-          alt="Video thumbnail"
-          className="w-full h-full object-cover"
-          crossOrigin="anonymous"
-          data-testid="video-thumbnail"
-          onLoad={handleThumbnailLoad}
-          onError={handleThumbnailError}
-        />
+        isVideoThumbnail || useVideoFallback ? (
+          <video
+            src={`${effectiveThumbnailUrl}#t=0.1`}
+            className="w-full h-full object-cover"
+            muted
+            playsInline
+            preload="metadata"
+            crossOrigin="anonymous"
+            data-testid="video-thumbnail"
+            onLoadedData={handleThumbnailLoad}
+            onError={handleThumbnailError}
+          />
+        ) : (
+          <img
+            src={effectiveThumbnailUrl}
+            alt="Video thumbnail"
+            className="w-full h-full object-cover"
+            crossOrigin="anonymous"
+            data-testid="video-thumbnail"
+            onLoad={handleThumbnailLoad}
+            onError={handleThumbnailError}
+          />
+        )
       ) : (
         <div
           className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400"
