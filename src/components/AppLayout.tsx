@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from '@/components/AppHeader';
 import { AppFooter } from '@/components/AppFooter';
 import { BottomNav } from '@/components/BottomNav';
+import { DeletionEventsSubscriber } from '@/components/DeletionEventsSubscriber';
 import { useNostrLogin } from '@nostrify/react/login';
 import { useAppContext } from '@/hooks/useAppContext';
 
@@ -18,6 +19,9 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      {/* Subscribe to deletion events globally */}
+      <DeletionEventsSubscriber />
+
       {!isLandingPage && <AppHeader />}
       <div className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
         <Outlet />

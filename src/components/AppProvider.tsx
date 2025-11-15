@@ -18,6 +18,7 @@ interface AppProviderProps {
 const AppConfigSchema: z.ZodType<AppConfig, z.ZodTypeDef, unknown> = z.object({
   theme: z.enum(['dark', 'light', 'system']),
   relayUrl: z.string().url(),
+  showDeletedVideos: z.boolean().optional(),
 });
 
 export function AppProvider(props: AppProviderProps) {
