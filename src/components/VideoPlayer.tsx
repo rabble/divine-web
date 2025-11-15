@@ -281,6 +281,13 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
       if (!isMobile) return;
 
+      // Check if touch started on a button (ignore control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        return; // Don't handle touch gestures if touching a button
+      }
+
       resetControlsTimeout();
 
       const touch = e.touches[0];
