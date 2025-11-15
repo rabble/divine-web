@@ -12,6 +12,7 @@ import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVide
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useOptimisticRepost } from '@/hooks/useOptimisticRepost';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useContentModeration } from '@/hooks/useModeration';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
@@ -51,6 +52,7 @@ export function VideoFeed({
   const { toast } = useToast();
   const { toggleLike } = useOptimisticLike();
   const { toggleRepost } = useOptimisticRepost();
+  const { checkContent } = useContentModeration();
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -60,18 +62,35 @@ export function VideoFeed({
     until: lastTimestamp,
   });
 
+  // Filter videos based on mute list
+  const filteredVideos = useMemo(() => {
+    if (!allVideos || allVideos.length === 0) return [];
+
+    return allVideos.filter(video => {
+      const moderationResult = checkContent({
+        pubkey: video.pubkey,
+        eventId: video.id,
+        hashtags: video.hashtags,
+        text: video.content
+      });
+
+      // Filter out content that should be hidden or blocked
+      return !moderationResult.shouldFilter;
+    });
+  }, [allVideos, checkContent]);
+
   // Collect all unique pubkeys for batched author fetching
   const authorPubkeys = useMemo(() => {
-    if (!allVideos || allVideos.length === 0) return [];
+    if (!filteredVideos || filteredVideos.length === 0) return [];
     const pubkeys = new Set<string>();
-    allVideos.forEach(video => {
+    filteredVideos.forEach(video => {
       pubkeys.add(video.pubkey);
       if (video.reposterPubkey) {
         pubkeys.add(video.reposterPubkey);
       }
     });
     return Array.from(pubkeys);
-  }, [allVideos]);
+  }, [filteredVideos]);
 
   // Prefetch all authors in a single query
   useBatchedAuthors(authorPubkeys);
@@ -96,9 +115,11 @@ export function VideoFeed({
 
   // Log video data when it changes
   useEffect(() => {
-    debugLog(`[VideoFeed] Feed type: ${feedType}, Videos loaded:`, allVideos?.length || 0);
-    if (allVideos && allVideos.length > 0) {
-      debugLog('[VideoFeed] First few videos:', allVideos.slice(0, 3).map(v => ({
+    const filtered = filteredVideos.length;
+    const total = allVideos?.length || 0;
+    debugLog(`[VideoFeed] Feed type: ${feedType}, Videos: ${filtered} shown / ${total} total (${total - filtered} filtered)`);
+    if (filteredVideos && filteredVideos.length > 0) {
+      debugLog('[VideoFeed] First few videos:', filteredVideos.slice(0, 3).map(v => ({
         id: v.id,
         videoUrl: v.videoUrl,
         thumbnailUrl: v.thumbnailUrl,
@@ -107,12 +128,12 @@ export function VideoFeed({
       })));
 
       // Check if any videos are missing URLs
-      const missingUrls = allVideos.filter(v => !v.videoUrl);
+      const missingUrls = filteredVideos.filter(v => !v.videoUrl);
       if (missingUrls.length > 0) {
         debugWarn(`[VideoFeed] ${missingUrls.length} videos missing URLs`);
       }
     }
-  }, [allVideos, feedType]);
+  }, [filteredVideos, allVideos, feedType]);
 
   const { ref: bottomRef, inView } = useInView({
     threshold: 0.1,
@@ -208,8 +229,11 @@ export function VideoFeed({
     );
   }
 
-  // Empty state
-  if (!allVideos || allVideos.length === 0) {
+  // Empty state (check filteredVideos instead of allVideos)
+  if (!filteredVideos || filteredVideos.length === 0) {
+    // Check if we have videos but they're all filtered
+    const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
+
     return (
       <div
         className={className}
@@ -225,7 +249,9 @@ export function VideoFeed({
               </div>
               <div className="space-y-2">
                 <p className="text-lg font-medium text-foreground">
-                  {feedType === 'home'
+                  {allFiltered
+                    ? "All videos filtered"
+                    : feedType === 'home'
                     ? "Your feed is empty"
                     : feedType === 'hashtag'
                     ? `No videos with #${hashtag}`
@@ -236,7 +262,9 @@ export function VideoFeed({
                     : "No videos found"}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {feedType === 'home'
+                  {allFiltered
+                    ? "All videos from this feed match your mute filters. Adjust your moderation settings to see content."
+                    : feedType === 'home'
                     ? "Follow some creators to see their videos here!"
                     : feedType === 'hashtag'
                     ? "Be the first to post with this hashtag!"
@@ -372,7 +400,7 @@ export function VideoFeed({
       data-profile-testid={profileTestId}
     >
       <div className="grid gap-6">
-        {allVideos.map((video, index) => (
+        {filteredVideos.map((video, index) => (
           <VideoCardWithMetrics
             key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
             video={video}
