@@ -21,8 +21,33 @@ export function LandingPage() {
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4">
-      <div className="max-w-2xl w-full space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 relative overflow-hidden">
+      {/* Decorative curved line */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        viewBox="0 0 1000 1000"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M -50,200 Q 250,100 500,300 T 1050,400"
+          stroke="white"
+          strokeWidth="3"
+          fill="none"
+          opacity="0.15"
+          strokeLinecap="round"
+        />
+        <path
+          d="M -50,600 Q 250,500 500,700 T 1050,800"
+          stroke="white"
+          strokeWidth="2"
+          fill="none"
+          opacity="0.1"
+          strokeLinecap="round"
+        />
+      </svg>
+
+      <div className="max-w-2xl w-full space-y-6 relative z-10">
         <Card className="w-full shadow-2xl bg-white dark:bg-gray-900">
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
