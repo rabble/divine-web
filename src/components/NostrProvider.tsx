@@ -106,6 +106,8 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
             'wss://relay3.openvine.co',
             'wss://relay.nostr.band',
             'wss://relay.damus.io',
+            'wss://nos.lol',
+            'wss://relay.primal.net',
           ];
 
           for (const fallbackRelay of fallbackRelays) {
