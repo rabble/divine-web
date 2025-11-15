@@ -54,10 +54,10 @@ export function ProfilePage() {
   const { data: authorData } = useAuthor(pubkey || '');
   const author = pubkey ? enhanceAuthorData(authorData, pubkey) : null;
   const metadata = author?.metadata;
-  
+
   // Fetch profile statistics
   const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '');
-  
+
   // Fetch videos
   const { data: videos, isLoading: videosLoading, error: videosError } = useVideoEvents({
     feedType: 'profile',
@@ -94,7 +94,7 @@ export function ProfilePage() {
 
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {
-    if (!currentUser) return;
+    // Don't check for currentUser here - let the mutations handle it and show login dialog
 
     try {
       if (shouldFollow) {
@@ -138,7 +138,7 @@ export function ProfilePage() {
                 {stats ? `${stats.videosCount} videos` : 'Loading...'} from {displayName}
               </p>
             </div>
-            
+
             <div className="flex items-center gap-2">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'outline'}
@@ -184,7 +184,7 @@ export function ProfilePage() {
               }}
             />
           ) : (
-            <VideoFeed 
+            <VideoFeed
               feedType="profile"
               pubkey={pubkey}
               data-testid="video-feed-profile"

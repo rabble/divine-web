@@ -15,16 +15,16 @@ interface VideoCardWithMetricsProps {
 export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsProps) {
   const { user } = useCurrentUser();
   const { mutate: createEvent } = useNostrPublish();
-  
+
   // Fetch social metrics for this video
   const socialMetrics = useVideoSocialMetrics(video.id, video.pubkey);
-  
+
   // Fetch user's interaction status with this video
   const userInteractions = useVideoUserInteractions(video.id, user?.pubkey);
 
   const handleLike = () => {
-    if (!user) return;
-    
+    // Don't check for user here - let useNostrPublish handle it and show login dialog
+
     // Create a reaction event (kind 7) for this video
     createEvent({
       kind: 7,
@@ -37,8 +37,8 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
   };
 
   const handleRepost = () => {
-    if (!user) return;
-    
+    // Don't check for user here - let useNostrPublish handle it and show login dialog
+
     // Create a repost event (kind 6) for this video
     createEvent({
       kind: 6,
