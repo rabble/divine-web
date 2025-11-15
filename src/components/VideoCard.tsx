@@ -297,7 +297,10 @@ export function VideoCard({
         {/* Original badge and timestamp - aligned with author */}
         <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
           {isMigratedVine && <VineBadge />}
-          <span>{timeAgo}</span>
+          <span
+            title={new Date(timestamp * 1000).toLocaleString()}>
+            {timeAgo}
+          </span>
         </div>
       </div>
 
