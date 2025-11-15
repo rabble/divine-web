@@ -162,40 +162,62 @@ export function LandingPage() {
         </Card>
 
         <Card className="bg-white/80 dark:bg-black/40 backdrop-blur-md border-white/20">
-          <CardContent className="pt-6 pb-6">
-            <div className="flex flex-col items-center gap-3">
-              {/* Navigation Links - Two rows */}
-              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-                <Link to="/about" className="hover:text-foreground transition-colors">
-                  About
-                </Link>
-                <Link to="/faq" className="hover:text-foreground transition-colors">
-                  FAQ
-                </Link>
-                <Link to="/human-created" className="hover:text-foreground transition-colors font-semibold">
-                  Made by Humans
-                </Link>
-                <Link to="/authenticity" className="hover:text-foreground transition-colors">
-                  Our Mission
-                </Link>
-                <Link to="/proofmode" className="hover:text-foreground transition-colors">
-                  ProofMode
-                </Link>
-              </nav>
-              <nav className="flex flex-wrap gap-4 justify-center text-sm text-muted-foreground">
-                <Link to="/open-source" className="hover:text-foreground transition-colors">
-                  Open Source
-                </Link>
-                <Link to="/terms" className="hover:text-foreground transition-colors">
-                  EULA/T&C
-                </Link>
-                <Link to="/privacy" className="hover:text-foreground transition-colors">
-                  Privacy
-                </Link>
-                <Link to="/safety" className="hover:text-foreground transition-colors">
-                  Safety
-                </Link>
-              </nav>
+          <CardContent className="pt-8 pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+              {/* About Divine */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
+                  About Divine
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    About
+                  </Link>
+                  <Link to="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    FAQ
+                  </Link>
+                  <Link to="/authenticity" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Our Mission
+                  </Link>
+                  <Link to="/open-source" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Open Source
+                  </Link>
+                </nav>
+              </div>
+
+              {/* Authenticity */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
+                  Authenticity
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  <Link to="/human-created" className="text-sm text-foreground font-semibold hover:text-primary transition-colors inline-flex items-center gap-1.5">
+                    <span className="text-primary">⭐</span>
+                    Made by Humans
+                  </Link>
+                  <Link to="/proofmode" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    ProofMode
+                  </Link>
+                </nav>
+              </div>
+
+              {/* Legal & Safety */}
+              <div className="space-y-3">
+                <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
+                  Legal & Safety
+                </h3>
+                <nav className="flex flex-col gap-2">
+                  <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Privacy
+                  </Link>
+                  <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    EULA/T&C
+                  </Link>
+                  <Link to="/safety" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Safety
+                  </Link>
+                </nav>
+              </div>
             </div>
           </CardContent>
         </Card>
