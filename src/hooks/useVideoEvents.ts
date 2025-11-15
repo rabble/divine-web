@@ -1,11 +1,13 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
 // ABOUTME: Handles NIP-71 videos (kinds 21, 22, 34236) and Kind 6 reposts with proper parsing
+// ABOUTME: Supports auto-refresh for home and recent feeds matching Flutter app behavior
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 // import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
 import { useAppContext } from '@/hooks/useAppContext';
+import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData, type RepostMetadata } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
@@ -336,7 +338,7 @@ async function parseVideoEvents(
 }
 
 /**
- * Hook to fetch video events
+ * Hook to fetch video events with auto-refresh support
  */
 export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
@@ -344,7 +346,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { config } = useAppContext();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
 
-  return useQuery({
+  const queryResult = useQuery({
     queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
@@ -538,4 +540,34 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     gcTime: 600000, // 10 minutes - keep data longer
     enabled: feedType !== 'home' || !!user?.pubkey, // Only run home feed if user is logged in
   });
+
+  // Auto-refresh logic matching Flutter app behavior
+  useEffect(() => {
+    if (!queryResult.data) return; // Don't start refresh until initial load
+
+    let intervalId: NodeJS.Timeout | null = null;
+
+    // Set up auto-refresh based on feed type
+    if (feedType === 'home') {
+      // Home feed: Refresh every 10 minutes (matching Flutter)
+      intervalId = setInterval(() => {
+        debugLog('[useVideoEvents] Auto-refreshing home feed (10 min interval)');
+        queryResult.refetch();
+      }, 10 * 60 * 1000); // 10 minutes
+    } else if (feedType === 'recent') {
+      // Recent feed: Refresh every 30 seconds (matching Flutter)
+      intervalId = setInterval(() => {
+        debugLog('[useVideoEvents] Auto-refreshing recent feed (30 sec interval)');
+        queryResult.refetch();
+      }, 30 * 1000); // 30 seconds
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [feedType, queryResult.data, queryResult.refetch]);
+
+  return queryResult;
 }

@@ -6,6 +6,7 @@ import { useInView } from 'react-intersection-observer';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
+import { Button } from '@/components/ui/button';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
@@ -46,6 +47,7 @@ export function VideoFeed({
   const [allVideos, setAllVideos] = useState<ParsedVideoData[]>([]);
   const [lastTimestamp, setLastTimestamp] = useState<number | undefined>();
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   // Removed visibleRange state - no longer using virtual scrolling
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
@@ -64,6 +66,18 @@ export function VideoFeed({
     limit,
     until: lastTimestamp,
   });
+
+  // Handle manual refresh
+  const handleRefresh = async () => {
+    debugLog('[VideoFeed] Manual refresh triggered');
+    setIsRefreshing(true);
+    setLastTimestamp(undefined); // Reset pagination
+    try {
+      await refetch();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Filter videos based on mute list and verification status
   const filteredVideos = useMemo(() => {
@@ -411,6 +425,33 @@ export function VideoFeed({
       data-hashtag-testid={hashtagTestId}
       data-profile-testid={profileTestId}
     >
+      {/* Refresh button */}
+      {!isLoading && filteredVideos.length > 0 && (
+        <div className="flex justify-center mb-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="gap-2"
+          >
+            {isRefreshing ? (
+              <>
+                <div className="h-4 w-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                <span>Refreshing...</span>
+              </>
+            ) : (
+              <>
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Refresh</span>
+              </>
+            )}
+          </Button>
+        </div>
+      )}
+
       <div className="grid gap-6">
         {filteredVideos.map((video, index) => (
           <VideoCardWithMetrics
