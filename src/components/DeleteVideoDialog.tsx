@@ -56,9 +56,9 @@ export function DeleteVideoDialog({
             <p>
               Are you sure you want to delete this video?
             </p>
-            
+
             <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
-              <p className="font-semibold">How deletion works (NIP-09):</p>
+              <p className="font-semibold">How deletion works:</p>
               <ul className="list-disc list-inside space-y-1 ml-2">
                 <li>A delete request will be sent to all relays</li>
                 <li>Most relays will stop sharing your video</li>
