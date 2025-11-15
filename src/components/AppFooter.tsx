@@ -2,62 +2,60 @@ import { Link } from 'react-router-dom';
 
 export function AppFooter() {
   return (
-    <footer className="mt-auto border-t border-primary/10 py-12 bg-muted/30">
+    <footer className="mt-auto border-t border-primary/10 py-6 bg-muted/30">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-          {/* About Divine */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
-              About Divine
-            </h3>
-            <nav className="flex flex-col gap-2.5">
-              <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <div className="flex flex-col items-center gap-4 text-center max-w-3xl mx-auto">
+          {/* Featured Authenticity Section */}
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
+            <Link
+              to="/human-created"
+              className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              <span className="text-base">⭐</span>
+              Made by Humans
+            </Link>
+            <span className="text-muted-foreground">•</span>
+            <Link
+              to="/proofmode"
+              className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              <span className="text-base">🔒</span>
+              ProofMode
+            </Link>
+          </div>
+
+          {/* Compact Navigation Links */}
+          <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Link to="/about" className="hover:text-foreground transition-colors">
                 About
               </Link>
-              <Link to="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <span>•</span>
+              <Link to="/faq" className="hover:text-foreground transition-colors">
                 FAQ
               </Link>
-              <Link to="/authenticity" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <span>•</span>
+              <Link to="/authenticity" className="hover:text-foreground transition-colors">
                 Our Mission
               </Link>
-              <Link to="/open-source" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <span>•</span>
+              <Link to="/open-source" className="hover:text-foreground transition-colors">
                 Open Source
               </Link>
-            </nav>
-          </div>
-
-          {/* Authenticity */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
-              Authenticity
-            </h3>
-            <nav className="flex flex-col gap-2.5">
-              <Link to="/human-created" className="text-sm text-foreground font-semibold hover:text-primary transition-colors inline-flex items-center gap-1.5">
-                <span className="text-primary">⭐</span>
-                Made by Humans
-              </Link>
-              <Link to="/proofmode" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                ProofMode
-              </Link>
-            </nav>
-          </div>
-
-          {/* Legal & Safety */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-primary">
-              Legal & Safety
-            </h3>
-            <nav className="flex flex-col gap-2.5">
-              <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Link to="/privacy" className="hover:text-foreground transition-colors">
                 Privacy
               </Link>
-              <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <span>•</span>
+              <Link to="/terms" className="hover:text-foreground transition-colors">
                 EULA/T&C
               </Link>
-              <Link to="/safety" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <span>•</span>
+              <Link to="/safety" className="hover:text-foreground transition-colors">
                 Safety
               </Link>
-            </nav>
+            </div>
           </div>
         </div>
       </div>
