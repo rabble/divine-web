@@ -72,6 +72,7 @@ export function ProfilePage() {
   const { data: followData, isLoading: followLoading } = useFollowRelationship(pubkey || '');
   const { mutateAsync: followUser, isPending: isFollowing } = useFollowUser();
   const { mutateAsync: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
+  const { openLoginDialog } = useLoginDialog();
 
   // Check if this is the current user's own profile
   const isOwnProfile = currentUser?.pubkey === pubkey;
@@ -94,9 +95,6 @@ export function ProfilePage() {
   }
 
   const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
-
-  // Get login dialog opener
-  const { openLoginDialog } = useLoginDialog();
 
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {

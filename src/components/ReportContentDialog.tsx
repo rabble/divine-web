@@ -68,7 +68,7 @@ export function ReportContentDialog({
       setReason(ContentFilterReason.SPAM);
       setDetails('');
       onClose();
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to submit report. Please try again.',

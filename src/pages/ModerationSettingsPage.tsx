@@ -20,7 +20,6 @@ import {
   UserX,
   Hash,
   Type,
-  FileText,
   Plus,
   Trash2,
   Flag,
@@ -32,6 +31,7 @@ import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import { formatDistanceToNow } from 'date-fns';
 import { nip19 } from 'nostr-tools';
+import type { NostrEvent } from '@nostrify/nostrify';
 
 function MutedUserItem({ pubkey, reason, onUnmute }: {
   pubkey: string;
@@ -81,7 +81,7 @@ export default function ModerationSettingsPage() {
   const [muteValue, setMuteValue] = useState('');
   const [muteReason, setMuteReason] = useState('');
   const [showDebug, setShowDebug] = useState(false);
-  const [rawMuteEvent, setRawMuteEvent] = useState<unknown>(null);
+  const [rawMuteEvent, setRawMuteEvent] = useState<NostrEvent | null>(null);
 
   const mutedUsers = muteList.filter(item => item.type === MuteType.USER);
   const mutedHashtags = muteList.filter(item => item.type === MuteType.HASHTAG);
@@ -171,7 +171,7 @@ export default function ModerationSettingsPage() {
       // Reset form
       setMuteValue('');
       setMuteReason('');
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to mute. Please try again.',
@@ -187,7 +187,7 @@ export default function ModerationSettingsPage() {
         title: 'Unmuted',
         description: 'Removed from mute list',
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to unmute. Please try again.',
@@ -292,7 +292,7 @@ export default function ModerationSettingsPage() {
                 <div className="pt-2 border-t border-yellow-600/50">
                   <strong>Raw Nostr event (kind 10001):</strong>
                   <pre className="mt-2 p-2 bg-black/10 rounded text-xs overflow-auto max-h-60">
-                    {JSON.stringify(rawMuteEvent, null, 2)}
+                    {String(JSON.stringify(rawMuteEvent, null, 2))}
                   </pre>
                 </div>
               )}

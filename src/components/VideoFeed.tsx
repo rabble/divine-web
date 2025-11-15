@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { Loader2, Video } from 'lucide-react';
+import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
@@ -55,6 +55,7 @@ export function VideoFeed({
   const { toggleLike } = useOptimisticLike();
   const { toggleRepost } = useOptimisticRepost();
   const { checkContent } = useContentModeration();
+  const { openLoginDialog } = useLoginDialog();
 
   const { data: videos, isLoading, error, refetch } = useVideoEvents({
     feedType,
@@ -293,9 +294,6 @@ export function VideoFeed({
       </div>
     );
   }
-
-  // Get login dialog opener
-  const { openLoginDialog } = useLoginDialog();
 
   const handleOpenComments = (video: ParsedVideoData) => {
     setShowCommentsForVideo(video.id);

@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useToast } from '@/hooks/useToast';
 import { debugLog } from '@/lib/debug';
+import type { VideoSocialMetrics } from '@/hooks/useVideoSocialMetrics';
 
 interface OptimisticLikeParams {
   videoId: string;
@@ -12,6 +13,13 @@ interface OptimisticLikeParams {
   userPubkey: string;
   isCurrentlyLiked: boolean;
   currentLikeEventId: string | null;
+}
+
+interface UserInteractions {
+  hasLiked: boolean;
+  hasReposted: boolean;
+  likeEventId: string | null;
+  repostEventId: string | null;
 }
 
 export function useOptimisticLike() {
@@ -36,11 +44,11 @@ export function useOptimisticLike() {
     try {
       if (isCurrentlyLiked) {
         // Optimistic unlike
-        queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+        queryClient.setQueryData(metricsQueryKey, (old: VideoSocialMetrics | undefined) => ({
           ...old,
           likeCount: Math.max(0, (old?.likeCount || 0) - 1),
         }));
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           hasLiked: false,
           likeEventId: null,
@@ -63,11 +71,11 @@ export function useOptimisticLike() {
         });
       } else {
         // Optimistic like
-        queryClient.setQueryData(metricsQueryKey, (old: any) => ({
+        queryClient.setQueryData(metricsQueryKey, (old: VideoSocialMetrics | undefined) => ({
           ...old,
           likeCount: (old?.likeCount || 0) + 1,
         }));
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           hasLiked: true,
           likeEventId: 'pending', // Temporary ID until real one comes back
@@ -86,7 +94,7 @@ export function useOptimisticLike() {
         });
 
         // Update with real event ID
-        queryClient.setQueryData(interactionsQueryKey, (old: any) => ({
+        queryClient.setQueryData(interactionsQueryKey, (old: UserInteractions | undefined) => ({
           ...old,
           likeEventId: event.id,
         }));
@@ -98,7 +106,7 @@ export function useOptimisticLike() {
       }
     } catch (error) {
       console.error('Failed to toggle like:', error);
-      
+
       // Rollback on error
       queryClient.setQueryData(metricsQueryKey, previousMetrics);
       queryClient.setQueryData(interactionsQueryKey, previousInteractions);

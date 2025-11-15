@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, Plus, ListPlus, MoreVertical, Flag, UserX } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -162,7 +162,7 @@ export function VideoCard({
         title: 'User muted',
         description: `${displayName} has been muted`,
       });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to mute user',
