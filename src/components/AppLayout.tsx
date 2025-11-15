@@ -3,10 +3,12 @@ import { AppHeader } from '@/components/AppHeader';
 import { AppFooter } from '@/components/AppFooter';
 import { BottomNav } from '@/components/BottomNav';
 import { useNostrLogin } from '@nostrify/react/login';
+import { useAppContext } from '@/hooks/useAppContext';
 
 export function AppLayout() {
   const location = useLocation();
   const { logins } = useNostrLogin();
+  const { isRecording } = useAppContext();
 
   // Only consider user logged in if they have active logins, not just a token
   const isLoggedIn = logins.length > 0;
@@ -21,7 +23,7 @@ export function AppLayout() {
         <Outlet />
       </div>
       <AppFooter />
-      {!isLandingPage && <BottomNav />}
+      {!isLandingPage && !isRecording && <BottomNav />}
     </div>
   );
 }

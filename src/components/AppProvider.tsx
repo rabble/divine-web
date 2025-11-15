@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { z } from 'zod';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { AppContext, type AppConfig, type AppContextType, type Theme } from '@/contexts/AppContext';
@@ -41,6 +41,9 @@ export function AppProvider(props: AppProviderProps) {
     }
   );
 
+  // Recording state (not persisted)
+  const [isRecording, setIsRecording] = useState(false);
+
   // Generic config updater with callback pattern
   const updateConfig = (updater: (currentConfig: AppConfig) => AppConfig) => {
     setConfig(updater);
@@ -50,6 +53,8 @@ export function AppProvider(props: AppProviderProps) {
     config,
     updateConfig,
     presetRelays,
+    isRecording,
+    setIsRecording,
   };
 
   // Apply theme effects to document

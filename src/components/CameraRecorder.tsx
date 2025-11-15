@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Camera, Repeat, X } from 'lucide-react';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
+import { useAppContext } from '@/hooks/useAppContext';
 import { cn } from '@/lib/utils';
 
 interface CameraRecorderProps {
@@ -18,6 +19,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
   const [isHoldingRecord, setIsHoldingRecord] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const { setIsRecording } = useAppContext();
 
   const {
     isInitialized,
@@ -34,6 +36,14 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
     canRecord,
     remainingDuration,
   } = useMediaRecorder();
+
+  // Set recording state on mount/unmount to hide BottomNav
+  useEffect(() => {
+    setIsRecording(true);
+    return () => {
+      setIsRecording(false);
+    };
+  }, [setIsRecording]);
 
   // Detect desktop
   useEffect(() => {
@@ -134,7 +144,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
         />
 
         {/* Progress bar - fixed at top */}
-        <div 
+        <div
           className="absolute left-0 right-0 h-1 bg-white/20 z-20"
           style={{ top: 'var(--sat)' }}
         >
@@ -145,7 +155,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
         </div>
 
         {/* Duration display - top left with safe area */}
-        <div 
+        <div
           className="absolute left-4 bg-black/60 px-3 py-1.5 rounded-full z-10"
           style={{ top: `calc(1rem + var(--sat))` }}
         >
@@ -167,7 +177,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
 
         {/* Recording indicator */}
         {isRecording && (
-          <div 
+          <div
             className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-red-500 px-4 py-2 rounded-full shadow-lg z-10"
             style={{ top: `calc(1rem + var(--sat))` }}
           >
@@ -178,13 +188,13 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
 
         {/* Segment indicators - bottom left */}
         {segments.length > 0 && (
-          <div 
+          <div
             className="absolute left-4 flex flex-col gap-1.5 z-10"
             style={{ bottom: 'calc(6.5rem + var(--sab))' }}
           >
             {segments.map((segment, index) => (
-              <Badge 
-                key={index} 
+              <Badge
+                key={index}
                 className="bg-black/80 text-white text-xs border-white/20"
               >
                 Clip {index + 1}: {formatDuration(segment.duration)}
@@ -195,7 +205,7 @@ export function CameraRecorder({ onRecordingComplete, onCancel }: CameraRecorder
       </div>
 
       {/* Controls - fixed at bottom with safe area */}
-      <div 
+      <div
         className="flex-shrink-0 bg-black/90 backdrop-blur-sm"
         style={{ paddingBottom: `calc(1.5rem + var(--sab))` }}
       >
