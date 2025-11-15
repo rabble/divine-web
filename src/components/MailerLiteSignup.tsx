@@ -242,7 +242,7 @@ export function MailerLiteSignup() {
           <div className="ml-form-embedWrapper embedForm">
             <div className="ml-form-embedBody ml-form-embedBodyHorizontal row-form">
               <div className="ml-form-embedContent">
-                <h4>Join the diVine waitlist</h4>
+                <h4>Join the diVine mobile app waitlist</h4>
                 <p>Our beta test is full and we can't let more folks on the apps until Apple and Google do their thing. If you want to be the first to know when that happens, join our mailing list.</p>
               </div>
 
