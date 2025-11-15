@@ -72,7 +72,7 @@ export function useVideoLists(pubkey?: string) {
     queryFn: async (context) => {
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(10000) // Increased timeout to allow more relay queries
+        AbortSignal.timeout(5000)
       ]);
 
       const filter: NostrFilter = {
