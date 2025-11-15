@@ -17,8 +17,8 @@ export function DiscoveryPage() {
         <header className="mb-6">
           <div className="flex items-start justify-between mb-2">
             <div>
-              <h1 className="text-2xl font-bold">Discovery</h1>
-              <p className="text-muted-foreground">Explore videos from archives and new content</p>
+              <h1 className="text-2xl font-bold">Discover</h1>
+              <p className="text-muted-foreground">Explore videos from the network</p>
             </div>
             <VerifiedOnlyToggle
               enabled={verifiedOnly}
@@ -29,17 +29,17 @@ export function DiscoveryPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="w-full">
-            <TabsTrigger value="trending" className="flex-1">
-              <TrendingUp className="h-4 w-4 mr-2" />
+            <TabsTrigger value="trending" className="flex-1 gap-2">
+              <TrendingUp className="h-4 w-4" />
               Trending
             </TabsTrigger>
-            <TabsTrigger value="new-videos" className="flex-1">
-              <Clock className="h-4 w-4 mr-2" />
+            <TabsTrigger value="new-videos" className="flex-1 gap-2">
+              <Clock className="h-4 w-4" />
               New Videos
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="trending" className="space-y-6">
+          <TabsContent value="trending" className="mt-0 space-y-6">
             <VideoFeed
               feedType="trending"
               verifiedOnly={verifiedOnly}
@@ -48,7 +48,7 @@ export function DiscoveryPage() {
             />
           </TabsContent>
 
-          <TabsContent value="new-videos" className="space-y-6">
+          <TabsContent value="new-videos" className="mt-0 space-y-6">
             <VideoFeed
               feedType="recent"
               verifiedOnly={verifiedOnly}
