@@ -19,7 +19,7 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {!isLandingPage && <AppHeader />}
-      <div className="flex-1 pb-16 md:pb-0">
+      <div className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0">
         <Outlet />
       </div>
       <AppFooter />
