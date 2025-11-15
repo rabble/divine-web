@@ -98,34 +98,10 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
           }
         }
 
-        // Route other queries to the selected relay, with fallbacks for video content
+        // Route other queries to the selected relay
         if (otherFilters.length > 0) {
           // Always query the primary relay
           result.set(relayUrl.current, otherFilters);
-
-          // Check if any filters are for video content (kinds 21, 22, 34236) or reposts (kind 6)
-          const hasVideoKinds = otherFilters.some(f =>
-            f.kinds?.some(k => [21, 22, 34236, 6].includes(k))
-          );
-
-          // Add fallback relays for video content to improve resilience
-          // This ensures feed still works if relay.divine.video has issues
-          if (hasVideoKinds) {
-            const videoFallbackRelays = [
-              'wss://relay.damus.io',
-              'wss://relay.nostr.band',
-              'wss://nos.lol',
-            ];
-
-            debugLog(`[NostrProvider] Adding ${videoFallbackRelays.length} fallback relays for video content`);
-
-            for (const relay of videoFallbackRelays) {
-              // Only add if not already included (e.g., if it's the primary relay)
-              if (!result.has(relay)) {
-                result.set(relay, otherFilters);
-              }
-            }
-          }
         }
 
         debugLog('[NostrProvider] Router result:', Array.from(result.entries()));
