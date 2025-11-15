@@ -1,5 +1,5 @@
 // ABOUTME: Auto-looping video player component for 6-second videos
-// ABOUTME: Supports MP4 and GIF formats with preloading and seamless playback
+// ABOUTME: Supports MP4 and GIF formats with preloading, seamless playback, and blurhash placeholders
 
 import { useRef, useEffect, useState, forwardRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
@@ -9,6 +9,7 @@ import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { debugError, verboseLog } from '@/lib/debug';
+import { BlurhashPlaceholder, isValidBlurhash } from '@/components/BlurhashImage';
 import Hls from 'hls.js';
 
 interface VideoPlayerProps {
@@ -17,6 +18,7 @@ interface VideoPlayerProps {
   hlsUrl?: string; // HLS manifest URL for adaptive bitrate streaming
   fallbackUrls?: string[];
   poster?: string;
+  blurhash?: string; // Blurhash for progressive loading placeholder
   className?: string;
   autoPlay?: boolean;
   muted?: boolean;
@@ -55,6 +57,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       hlsUrl,
       fallbackUrls,
       poster,
+      blurhash,
       className,
       autoPlay: _autoPlay = true,
       muted: _muted = true,
@@ -86,7 +89,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [hasError, setHasError] = useState(false);
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [allUrls, setAllUrls] = useState<string[]>([]);
-    
+
     // Mobile-specific state
     const [isFullscreen, setIsFullscreen] = useState(false);
     const [controlsVisible, setControlsVisible] = useState(true);
@@ -94,7 +97,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [lastTapTime, setLastTapTime] = useState(0);
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
     const [controlsTimer, setControlsTimer] = useState<NodeJS.Timeout | null>(null);
-    
+
     const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
     const isActive = activeVideoId === videoId;
 
@@ -109,7 +112,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }, []);
 
     const [layoutClass] = useState(getLayoutClass);
-    
+
     const isMobile = useIsMobile();
 
     // Use intersection observer to detect when video is in viewport
@@ -151,7 +154,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       },
       [videoId, registerVideo, unregisterVideo, inViewRef, ref] // Reordered for clarity, same deps
     );
-    
+
     // Set container ref
     const setContainerRef = useCallback((node: HTMLDivElement | null) => {
       containerRef.current = node;
@@ -241,26 +244,26 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Mobile control functions
     const resetControlsTimeout = useCallback(() => {
       if (!isMobile || !autoHideControls) return;
-      
+
       // Clear existing timer
       if (controlsTimer) {
         clearTimeout(controlsTimer);
       }
-      
+
       // Show controls immediately
       setControlsVisible(true);
-      
+
       // Set new timer to hide controls after 3 seconds
       const newTimer = setTimeout(() => {
         setControlsVisible(false);
       }, 3000);
-      
+
       setControlsTimer(newTimer);
     }, [isMobile, autoHideControls, controlsTimer]);
 
     const toggleFullscreen = useCallback(async () => {
       if (!containerRef.current || !allowFullscreen) return;
-      
+
       try {
         if (!document.fullscreenElement) {
           await containerRef.current.requestFullscreen();
@@ -277,17 +280,17 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Touch gesture handlers
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
       if (!isMobile) return;
-      
+
       resetControlsTimeout();
-      
+
       const touch = e.touches[0];
       const currentTime = Date.now();
-      
+
       // Clear any existing long press timer
       if (longPressTimer) {
         clearTimeout(longPressTimer);
       }
-      
+
       // Set up touch state
       setTouchState({
         startX: touch.clientX,
@@ -296,48 +299,48 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         touches: e.touches.length,
         identifier: touch.identifier,
       });
-      
+
       // Start long press timer
       const timer = setTimeout(() => {
         onLongPress?.();
       }, 500);
       setLongPressTimer(timer);
-      
+
     }, [isMobile, resetControlsTimeout, longPressTimer, onLongPress]);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
-      
+
       const touch = e.touches[0];
       const deltaX = touch.clientX - touchState.startX;
       const deltaY = touch.clientY - touchState.startY;
-      
+
       // Clear long press timer on movement
       if (longPressTimer) {
         clearTimeout(longPressTimer);
         setLongPressTimer(null);
       }
-      
+
       // Handle pinch gesture
       if (e.touches.length === 2 && touchState.touches === 1) {
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
         const distance = Math.sqrt(
-          Math.pow(touch2.clientX - touch1.clientX, 2) + 
+          Math.pow(touch2.clientX - touch1.clientX, 2) +
           Math.pow(touch2.clientY - touch1.clientY, 2)
         );
-        
+
         // Calculate scale direction (simplified)
         const direction = distance > 100 ? 'out' : 'in';
         onPinch?.({ scale: distance / 100, direction });
       }
-      
+
       // Handle volume/brightness gestures (vertical swipes)
       if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 30) {
         const containerWidth = containerRef.current?.clientWidth || 300;
         const isRightSide = touchState.startX > containerWidth / 2;
         const direction = deltaY > 0 ? 'down' : 'up';
-        
+
         if (isRightSide) {
           onVolumeGesture?.({ direction, delta: Math.abs(deltaY) });
         } else {
@@ -396,7 +399,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
     // Track load timing
     const loadStartTime = useRef<number | null>(null);
-    
+
     // Handle video events
     const handleLoadStart = () => {
       loadStartTime.current = performance.now();
@@ -415,7 +418,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         verboseLog(`[VideoPlayer ${videoId}] Video dimensions: ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
         verboseLog(`[VideoPlayer ${videoId}] Video duration: ${videoRef.current.duration}s`);
       }
-      
+
       // Emit first video load metric (only once)
       if (loadDuration > 0 && typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('performance-metric', {
@@ -424,7 +427,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           }
         }));
       }
-      
+
       setIsLoading(false);
       onLoadedData?.();
     };
@@ -472,14 +475,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Handle orientation changes
     useEffect(() => {
       if (!isMobile || !onOrientationChange) return;
-      
+
       const handleOrientationChange = () => {
         const orientation = screen.orientation?.type || 'portrait-primary';
         onOrientationChange(orientation);
       };
-      
+
       window.addEventListener('orientationchange', handleOrientationChange);
-      
+
       return () => {
         window.removeEventListener('orientationchange', handleOrientationChange);
       };
@@ -488,13 +491,13 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Handle fullscreen changes
     useEffect(() => {
       if (!allowFullscreen) return;
-      
+
       const handleFullscreenChange = () => {
         setIsFullscreen(!!document.fullscreenElement);
       };
-      
+
       document.addEventListener('fullscreenchange', handleFullscreenChange);
-      
+
       return () => {
         document.removeEventListener('fullscreenchange', handleFullscreenChange);
       };
@@ -659,7 +662,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }
 
     return (
-      <div 
+      <div
         ref={setContainerRef}
         className={cn(
           'relative overflow-hidden bg-black group',
@@ -670,6 +673,17 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         onTouchMove={isMobile ? handleTouchMove : undefined}
         onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
+        {/* Blurhash placeholder - shows behind video while loading */}
+        {isValidBlurhash(blurhash) && (
+          <BlurhashPlaceholder
+            blurhash={blurhash}
+            className={cn(
+              'transition-opacity duration-300',
+              !isLoading && !hasError ? 'opacity-0' : 'opacity-100'
+            )}
+          />
+        )}
+
         <video
           ref={setRefs}
           // Don't set src directly if using HLS.js - it will handle the source
@@ -683,7 +697,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           preload={inView ? 'auto' : 'none'}
           crossOrigin="anonymous"
           disableRemotePlayback
-          className="w-full h-full object-contain"
+          className={cn(
+            'w-full h-full object-contain relative z-10',
+            'transition-opacity duration-300',
+            isLoading ? 'opacity-0' : 'opacity-100'
+          )}
           onLoadStart={handleLoadStart}
           onLoadedData={handleLoadedData}
           onError={handleError}
@@ -693,13 +711,13 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           onClick={!isMobile ? togglePlay : undefined}
         />
 
-        {/* Loading state */}
+        {/* Loading state - show spinner over blurhash */}
         {isLoading && (
           <div
-            className="absolute inset-0 flex items-center justify-center bg-black/80"
+            className="absolute inset-0 flex items-center justify-center z-20"
             data-testid={isMobile ? "mobile-loading" : undefined}
           >
-            <div className="w-8 h-8 border-2 border-muted-foreground/30 border-t-muted-foreground/60 rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
           </div>
         )}
 
@@ -795,19 +813,19 @@ const styles = `
   .phone-layout {
     @apply max-w-full;
   }
-  
+
   .tablet-layout {
     @apply max-w-2xl;
   }
-  
+
   .desktop-layout {
     @apply max-w-4xl;
   }
-  
+
   .mobile-controls.p-4 {
     padding: 1rem;
   }
-  
+
   .min-h-\\[44px\\] {
     min-height: 44px;
   }

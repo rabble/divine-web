@@ -291,6 +291,7 @@ export function VideoCard({
               hlsUrl={video.hlsUrl}
               fallbackUrls={video.fallbackVideoUrls}
               poster={video.thumbnailUrl}
+              blurhash={video.blurhash}
               className="w-full h-full"
               onLoadStart={() => setVideoError(false)}
               onError={() => setVideoError(true)}

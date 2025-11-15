@@ -74,6 +74,7 @@ export interface ParsedVideoData {
   fallbackVideoUrls?: string[];  // Alternative URLs to try if primary fails
   hlsUrl?: string;  // HLS manifest URL (.m3u8) for adaptive bitrate streaming
   thumbnailUrl?: string;
+  blurhash?: string; // Blurhash for progressive loading placeholder
   title?: string;
   duration?: number;
   hashtags: string[];
