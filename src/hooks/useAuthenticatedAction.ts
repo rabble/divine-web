@@ -3,29 +3,30 @@ import { useCurrentUser } from './useCurrentUser';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
 
 /**
- * Hook that wraps an action to check if user is authenticated first.
- * If not authenticated, opens the login dialog instead of executing the action.
+ * Hook that returns a function to check if user is authenticated.
+ * If not authenticated, opens the login dialog.
  *
- * @param action The action to execute when authenticated
- * @returns A wrapped function that checks auth first
+ * @returns A function that returns true if authenticated, false otherwise (and opens login dialog)
  */
-export function useAuthenticatedAction<T extends (...args: any[]) => any>(
-  action: T
-): T {
+export function useRequireAuth(): () => boolean {
   const { user } = useCurrentUser();
   const { openLoginDialog } = useLoginDialog();
 
-  const wrappedAction = useCallback((...args: Parameters<T>) => {
-    console.log('[useAuthenticatedAction] Checking authentication, user:', user ? 'exists' : 'null');
+  return useCallback(() => {
+    console.log('[useRequireAuth] Checking authentication, user:', user ? 'exists' : 'null');
     if (!user) {
-      console.log('[useAuthenticatedAction] User not authenticated, opening login dialog');
+      console.log('[useRequireAuth] User not authenticated, opening login dialog');
       openLoginDialog();
-      return;
+      return false;
     }
+    console.log('[useRequireAuth] User authenticated');
+    return true;
+  }, [user, openLoginDialog]);
+}
 
-    console.log('[useAuthenticatedAction] User authenticated, executing action');
-    return action(...args);
-  }, [user, action, openLoginDialog]) as T;
-
-  return wrappedAction;
+/**
+ * @deprecated Use useRequireAuth instead
+ */
+export function useAuthenticatedAction() {
+  return useRequireAuth();
 }
