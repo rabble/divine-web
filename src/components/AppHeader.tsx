@@ -69,6 +69,7 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="icon"
+                className="hover:!bg-transparent data-[state=open]:!bg-transparent"
               >
                 <MoreVertical className="h-4 w-4" />
                 <span className="sr-only">More options</span>
