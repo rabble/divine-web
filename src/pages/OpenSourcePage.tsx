@@ -15,12 +15,14 @@ import {
   Heart,
   Zap
 } from 'lucide-react';
+import { ZendeskWidget } from '@/components/ZendeskWidget';
 
 export function OpenSourcePage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">Open Source Project</h1>
-      
+
       <div className="space-y-8">
         {/* Overview */}
         <Card>
@@ -140,9 +142,9 @@ export function OpenSourcePage() {
                 Join our open-source community and help build the future of decentralized video sharing!
               </p>
               <Button asChild>
-                <a 
-                  href="https://github.com/rabble/nostrvine" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/rabble/nostrvine"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2"
                 >
@@ -151,7 +153,7 @@ export function OpenSourcePage() {
                 </a>
               </Button>
             </div>
-            
+
             <div className="text-sm text-muted-foreground">
               Developed by <span className="font-semibold">Rabble Labs</span>
             </div>
@@ -174,7 +176,7 @@ export function OpenSourcePage() {
                   All code is open and auditable
                 </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="font-semibold flex items-center gap-2">
                   <div className="h-2 w-2 bg-primary rounded-full" />
@@ -184,7 +186,7 @@ export function OpenSourcePage() {
                   Built by and for the community
                 </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="font-semibold flex items-center gap-2">
                   <div className="h-2 w-2 bg-primary rounded-full" />
@@ -194,7 +196,7 @@ export function OpenSourcePage() {
                   Pushing boundaries of decentralized social
                 </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="font-semibold flex items-center gap-2">
                   <div className="h-2 w-2 bg-primary rounded-full" />
@@ -204,7 +206,7 @@ export function OpenSourcePage() {
                   No vendor lock-in or corporate control
                 </p>
               </div>
-              
+
               <div className="space-y-1">
                 <h4 className="font-semibold flex items-center gap-2">
                   <div className="h-2 w-2 bg-primary rounded-full" />

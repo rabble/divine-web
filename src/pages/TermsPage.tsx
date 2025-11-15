@@ -4,10 +4,12 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, FileText, UserX, Flag } from 'lucide-react';
+import { ZendeskWidget } from '@/components/ZendeskWidget';
 
 export function TermsPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       <p className="text-muted-foreground mb-8">
         Last Updated: {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}

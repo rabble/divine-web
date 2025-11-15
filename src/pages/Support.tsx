@@ -1,17 +1,33 @@
 // ABOUTME: Support and contact information page for diVine Web
 // ABOUTME: Displays email contact and GitHub issues link for user support
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
 
 export function Support() {
+  const zendeskFormRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Load Zendesk widget script
     const script = document.createElement('script');
     script.id = 'ze-snippet';
     script.src = 'https://static.zdassets.com/ekr/snippet.js?key=52ae352e-c83b-4f62-a06a-6784c80d28b1';
     script.async = true;
+
+    script.onload = () => {
+      // Wait for zE to be available, then open the contact form
+      const checkZE = setInterval(() => {
+        if (window.zE) {
+          clearInterval(checkZE);
+          // Hide the launcher button on support page
+          window.zE('messenger', 'hide');
+          // Open the messenger automatically to show the form
+          window.zE('messenger', 'open');
+        }
+      }, 100);
+    };
+
     document.body.appendChild(script);
 
     // Cleanup function to remove the script when component unmounts
@@ -25,6 +41,10 @@ export function Support() {
       if (zendeskContainer) {
         zendeskContainer.remove();
       }
+      // Reset zE to undefined
+      if (window.zE) {
+        window.zE('messenger', 'close');
+      }
     };
   }, []);
 
@@ -37,6 +57,21 @@ export function Support() {
             Need help? We're here to assist you.
           </p>
         </div>
+
+        {/* Zendesk embedded form container */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Contact Support</CardTitle>
+            <CardDescription>
+              Fill out the form below and we'll get back to you as soon as possible.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div ref={zendeskFormRef} id="zendesk-form-container" className="min-h-[400px]">
+              {/* Zendesk messenger will appear here */}
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
