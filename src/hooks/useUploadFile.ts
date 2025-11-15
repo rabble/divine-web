@@ -14,7 +14,7 @@ export function useUploadFile() {
 
       const uploader = new BlossomUploader({
         servers: [
-          'https://blossom.primal.net/',
+          'https://blossom.divine.video/',
         ],
         signer: user.signer,
       });
