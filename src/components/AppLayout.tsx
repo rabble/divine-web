@@ -10,7 +10,7 @@ export function AppLayout() {
   // Only consider user logged in if they have active logins, not just a token
   const isLoggedIn = logins.length > 0;
 
-  // Hide header on landing page (when logged out on root path)
+  // Hide header and footer on landing page (when logged out on root path)
   const isLandingPage = location.pathname === '/' && !isLoggedIn;
 
   return (
@@ -19,7 +19,7 @@ export function AppLayout() {
       <div className="flex-1">
         <Outlet />
       </div>
-      <AppFooter />
+      {!isLandingPage && <AppFooter />}
     </div>
   );
 }
