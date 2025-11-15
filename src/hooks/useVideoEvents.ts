@@ -5,6 +5,7 @@
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useFollowList } from '@/hooks/useFollowList';
 // import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
 import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
@@ -40,34 +41,6 @@ function validateVideoEvent(event: NostrEvent): boolean {
   }
 
   return true;
-}
-
-/**
- * Fetch user's follow list (Kind 3 event)
- */
-async function fetchFollowList(
-  nostr: { query: (filters: NostrFilter[], options: { signal: AbortSignal }) => Promise<NostrEvent[]> },
-  pubkey: string,
-  signal: AbortSignal
-): Promise<string[]> {
-  try {
-    const followEvents = await nostr.query([{
-      kinds: [3],
-      authors: [pubkey],
-      limit: 1
-    }], { signal });
-
-    if (followEvents.length === 0) return [];
-
-    // Extract followed pubkeys from 'p' tags
-    const follows = followEvents[0].tags
-      .filter(tag => tag[0] === 'p' && tag[1])
-      .map(tag => tag[1]);
-
-    return follows;
-  } catch {
-    return [];
-  }
 }
 
 /**
@@ -346,8 +319,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { config } = useAppContext();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
 
+  // Get follow list for home feed - this is cached and auto-refetches
+  const { data: followList } = useFollowList();
+
   const queryResult = useQuery({
-    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, filter],
+    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, followList, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
       verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
@@ -399,14 +375,15 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       } else if (feedType === 'profile' && pubkey) {
         baseFilter.authors = [pubkey];
       } else if (feedType === 'home' && user?.pubkey) {
-        // Fetch user's follow list and filter by followed authors
-        const follows = await fetchFollowList(nostr, user.pubkey, signal);
-        if (follows.length > 0) {
-          baseFilter.authors = follows;
-        } else {
-          // If no follows, return empty array
+        // Use cached follow list from useFollowList hook
+        debugLog(`[useVideoEvents] Using follow list from cache/hook`);
+        if (!followList || followList.length === 0) {
+          debugLog(`[useVideoEvents] WARNING: User has no follows, returning empty feed`);
           return [];
         }
+        debugLog(`[useVideoEvents] Follow list: ${followList.length} follows`);
+        debugLog(`[useVideoEvents] Following: ${followList.slice(0, 5).join(', ')}${followList.length > 5 ? '...' : ''}`);
+        baseFilter.authors = followList;
       } else if (feedType === 'trending') {
         baseFilter.limit = limit;
       }
