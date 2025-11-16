@@ -70,6 +70,7 @@ export function DiscoveryPage() {
           <TabsContent value="trending" className="mt-0 space-y-6">
             <VideoFeed
               feedType="trending"
+              sortMode="hot"
               verifiedOnly={verifiedOnly}
               data-testid="video-feed-trending"
               className="space-y-6"

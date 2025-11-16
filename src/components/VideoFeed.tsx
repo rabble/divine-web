@@ -20,12 +20,14 @@ import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
 import { isReposted, getLatestRepostTime } from '@/lib/videoParser';
+import type { SortMode } from '@/types/nostr';
 
 interface VideoFeedProps {
   feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
   hashtag?: string;
   pubkey?: string;
   limit?: number;
+  sortMode?: SortMode; // NIP-50 sort mode (hot, top, rising, controversial)
   className?: string;
   verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
   'data-testid'?: string;
@@ -38,6 +40,7 @@ export function VideoFeed({
   hashtag,
   pubkey,
   limit = 20, // Initial batch size
+  sortMode, // Pass through to useVideoEvents
   className,
   verifiedOnly = false,
   'data-testid': testId,
@@ -64,6 +67,7 @@ export function VideoFeed({
     pubkey,
     limit,
     until: lastTimestamp,
+    sortMode, // Pass NIP-50 sort mode
   });
 
   // Filter videos based on mute list and verification status

@@ -15,6 +15,7 @@ import type { NIP50Filter } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
+import type { SortMode } from '@/types/nostr';
 
 interface UseVideoEventsOptions {
   filter?: Partial<NostrFilter>;
@@ -23,6 +24,7 @@ interface UseVideoEventsOptions {
   pubkey?: string;
   limit?: number;
   until?: number; // For pagination - get videos before this timestamp
+  sortMode?: SortMode; // NIP-50 sort mode override
 }
 
 /**
@@ -318,13 +320,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { config } = useAppContext();
-  const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
+  const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until, sortMode } = options;
 
   // Get follow list for home feed - this is cached and auto-refetches
   const { data: followList } = useFollowList();
 
   const queryResult = useQuery({
-    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, followList, filter],
+    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, sortMode, user?.pubkey, followList, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
       verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
@@ -354,10 +356,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       // But NOT for direct ID lookups - those should just fetch the specific event
       const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType) && !isDirectIdLookup;
       if (shouldSortByPopularity) {
-        // Use NIP-50 search parameter with sort mode
-        // 'hot' = recent + high engagement, 'top' = most referenced
-        const sortMode = feedType === 'trending' ? 'hot' : 'top';
-        baseFilter.search = `sort:${sortMode}`;
+        // Use explicit sortMode if provided, otherwise auto-select based on feedType
+        // Explicit sortMode allows UI to control sorting (e.g., hot/top/rising/controversial selector)
+        const effectiveSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+        baseFilter.search = `sort:${effectiveSortMode}`;
+        debugLog(`[useVideoEvents] Using NIP-50 sort:${effectiveSortMode} for ${feedType} feed`);
       }
 
       // Add pagination
