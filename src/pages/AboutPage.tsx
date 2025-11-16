@@ -26,9 +26,9 @@ export function AboutPage() {
               Vine's creative 6-second format, preserving authentic human creativity.
             </p>
             <div className="not-prose space-y-3">
-              <Button asChild size="lg" className="w-full sm:w-auto h-auto py-3">
-                <Link to="/authenticity" className="whitespace-normal text-center">
-                  <Heart className="h-5 w-5 mr-2 flex-shrink-0" />
+              <Button asChild size="lg" className="w-full sm:w-auto h-auto py-3 whitespace-normal">
+                <Link to="/authenticity" className="flex items-center justify-center gap-2 text-center">
+                  <Heart className="h-5 w-5 flex-shrink-0" />
                   <span>Our Mission: Social Media By Humans, For Humans</span>
                 </Link>
               </Button>
