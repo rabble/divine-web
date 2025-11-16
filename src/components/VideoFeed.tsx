@@ -262,14 +262,14 @@ export function VideoFeed({
               {/* Show reclining Divine image for discovery/trending feeds when no videos */}
               {(feedType === 'discovery' || feedType === 'trending') && !allFiltered ? (
                 <>
-                  <div className="mx-auto">
+                  <div className="mx-auto -mx-8 -mt-16">
                     <img
                       src="/divine_reclining.jpg"
                       alt="Divine reclining"
-                      className="w-full max-w-sm mx-auto rounded-lg shadow-lg"
+                      className="w-full rounded-t-lg shadow-lg"
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-6">
                     <p className="text-lg font-medium text-foreground">
                       Divine needs a rest
                     </p>
