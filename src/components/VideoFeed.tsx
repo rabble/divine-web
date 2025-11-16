@@ -1,12 +1,11 @@
-// ABOUTME: Video feed component for displaying scrollable lists of videos
-// ABOUTME: Supports different feed types (discovery, home, trending, hashtag, profile)
+// ABOUTME: Video feed component for displaying scrollable lists of videos with infinite scroll
+// ABOUTME: Uses optimized useInfiniteVideos hook with NIP-50 search and cursor pagination
 
-import { useEffect, useState, useMemo } from 'react';
-import { useInView } from 'react-intersection-observer';
+import { useEffect, useMemo, useState } from 'react';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { AddToListDialog } from '@/components/AddToListDialog';
-import { useVideoEvents } from '@/hooks/useVideoEvents';
+import { useInfiniteVideos } from '@/hooks/useInfiniteVideos';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
@@ -16,10 +15,10 @@ import { useContentModeration } from '@/hooks/useModeration';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/useToast';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
+import { Loader2 } from 'lucide-react';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import type { ParsedVideoData } from '@/types/video';
-// import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
-import { isReposted, getLatestRepostTime } from '@/lib/videoParser';
 import type { SortMode } from '@/types/nostr';
 
 interface VideoFeedProps {
@@ -39,18 +38,14 @@ export function VideoFeed({
   feedType = 'discovery',
   hashtag,
   pubkey,
-  limit = 20, // Initial batch size
-  sortMode, // Pass through to useVideoEvents
+  limit = 20, // Page size for infinite scroll
+  sortMode,
   className,
   verifiedOnly = false,
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
 }: VideoFeedProps) {
-  const [allVideos, setAllVideos] = useState<ParsedVideoData[]>([]);
-  const [lastTimestamp, setLastTimestamp] = useState<number | undefined>();
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  // Removed visibleRange state - no longer using virtual scrolling
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
 
@@ -61,14 +56,28 @@ export function VideoFeed({
   const { checkContent } = useContentModeration();
   const { openLoginDialog } = useLoginDialog();
 
-  const { data: videos, isLoading, error, refetch } = useVideoEvents({
+  // Use new infinite scroll hook with NIP-50 support
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    error,
+    refetch
+  } = useInfiniteVideos({
     feedType,
     hashtag,
     pubkey,
-    limit,
-    until: lastTimestamp,
-    sortMode, // Pass NIP-50 sort mode
+    pageSize: limit,
+    sortMode,
   });
+
+  // Flatten all pages into single array
+  const allVideos = useMemo(() =>
+    data?.pages.flatMap(page => page.videos) ?? [],
+    [data]
+  );
 
   // Filter videos based on mute list and verification status
   const filteredVideos = useMemo(() => {
@@ -116,35 +125,16 @@ export function VideoFeed({
   // Prefetch all authors in a single query
   useBatchedAuthors(authorPubkeys);
 
-  // Update allVideos when new data comes in
-  useEffect(() => {
-    if (videos && videos.length > 0) {
-      if (!lastTimestamp) {
-        // First load
-        setAllVideos(videos);
-      } else {
-        // Append new videos, avoiding duplicates
-        setAllVideos(prev => {
-          const existingIds = new Set(prev.map(v => v.id));
-          const newVideos = videos.filter(v => !existingIds.has(v.id));
-          return [...prev, ...newVideos];
-        });
-      }
-      setIsLoadingMore(false);
-    }
-  }, [videos, lastTimestamp]);
-
   // Log video data when it changes
   useEffect(() => {
     const filtered = filteredVideos.length;
-    const total = allVideos?.length || 0;
+    const total = allVideos.length;
     debugLog(`[VideoFeed] Feed type: ${feedType}, Videos: ${filtered} shown / ${total} total (${total - filtered} filtered)`);
-    if (filteredVideos && filteredVideos.length > 0) {
+    if (filteredVideos.length > 0) {
       debugLog('[VideoFeed] First few videos:', filteredVideos.slice(0, 3).map(v => ({
         id: v.id,
         videoUrl: v.videoUrl,
         thumbnailUrl: v.thumbnailUrl,
-        isRepost: isReposted(v),
         hasUrl: !!v.videoUrl
       })));
 
@@ -155,38 +145,6 @@ export function VideoFeed({
       }
     }
   }, [filteredVideos, allVideos, feedType]);
-
-  const { ref: bottomRef, inView } = useInView({
-    threshold: 0.1,
-    rootMargin: '100px',
-  });
-
-  // Load more videos when approaching bottom
-  useEffect(() => {
-    if (inView && allVideos && allVideos.length > 0 && !isLoading && !isLoadingMore) {
-      const oldestVideo = allVideos[allVideos.length - 1];
-      const oldestTimestamp = getLatestRepostTime(oldestVideo);
-
-      debugLog('Near bottom, loading more videos before timestamp:', oldestTimestamp);
-      setIsLoadingMore(true);
-      setLastTimestamp(oldestTimestamp);
-    }
-  }, [inView, allVideos, isLoading, isLoadingMore]);
-
-  // Removed virtual scrolling completely - now renders all videos for better UX
-  useEffect(() => {
-    // Log when videos are loaded and emit performance metric
-    if (allVideos.length > 0) {
-      debugLog(`[VideoFeed] Videos loaded: ${allVideos.length}`);
-
-      // Emit performance metric
-      window.dispatchEvent(new CustomEvent('performance-metric', {
-        detail: {
-          visibleVideos: allVideos.length,
-        }
-      }));
-    }
-  }, [allVideos.length]);
 
   // Loading state
   if (isLoading && !lastTimestamp) {
@@ -406,8 +364,7 @@ export function VideoFeed({
   }
 
   // Only create VideoCard components for videos in the visible range
-  // Note: We compute visibility inline when mapping to avoid unused variable lint warnings
-
+  // Use infinite scroll component for smooth pagination
   return (
     <div
       className={className}
@@ -415,28 +372,36 @@ export function VideoFeed({
       data-hashtag-testid={hashtagTestId}
       data-profile-testid={profileTestId}
     >
-      <div className="grid gap-6">
-        {filteredVideos.map((video, index) => (
-          <VideoCardWithMetrics
-            key={video.id}
-            video={video}
-            index={index}
-          />
-        ))}
-      </div>
-
-      {/* Load more trigger */}
-      <div ref={bottomRef} className="h-16 flex items-center justify-center">
-        {isLoadingMore && (
-          <div className="flex items-center gap-3">
-            <div className="relative w-8 h-8">
-              <div className="absolute inset-0 border-2 border-primary/20 rounded-full" />
-              <div className="absolute inset-0 border-2 border-transparent border-t-primary rounded-full animate-spin" />
+      <InfiniteScroll
+        dataLength={filteredVideos.length}
+        next={fetchNextPage}
+        hasMore={hasNextPage ?? false}
+        loader={
+          <div className="h-16 flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="text-sm text-muted-foreground">Loading more videos...</span>
             </div>
-            <span className="text-sm text-muted-foreground">Loading more...</span>
           </div>
-        )}
-      </div>
+        }
+        endMessage={
+          filteredVideos.length > 10 ? (
+            <div className="py-8 text-center text-sm text-muted-foreground">
+              <p>You've reached the end</p>
+            </div>
+          ) : null
+        }
+      >
+        <div className="grid gap-6">
+          {filteredVideos.map((video, index) => (
+            <VideoCardWithMetrics
+              key={video.id}
+              video={video}
+              index={index}
+            />
+          ))}
+        </div>
+      </InfiniteScroll>
 
       {/* Add to List Dialog */}
       {showListDialog && (
