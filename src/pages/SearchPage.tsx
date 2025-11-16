@@ -1,45 +1,65 @@
-// ABOUTME: Comprehensive search page with debounced input, filter tabs, and results display
-// ABOUTME: Supports searching videos, users, hashtags with proper loading and empty states
+// ABOUTME: Comprehensive search page with debounced input, filter tabs, infinite scroll, and sort modes
+// ABOUTME: Supports searching videos, users, hashtags with NIP-50 full-text search
 
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import { useSeoMeta } from '@unhead/react';
-import { Search, Hash, Users, Video } from 'lucide-react';
+import { Search, Hash, Users, Video, Flame, TrendingUp, Zap, Scale } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { VideoCard } from '@/components/VideoCard';
-import { useSearchVideos } from '@/hooks/useSearchVideos';
+import { Loader2 } from 'lucide-react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useInfiniteSearchVideos } from '@/hooks/useInfiniteSearchVideos';
 import { useSearchUsers } from '@/hooks/useSearchUsers';
 import { useSearchHashtags } from '@/hooks/useSearchHashtags';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
+import type { SortMode } from '@/types/nostr';
 
 type SearchFilter = 'all' | 'videos' | 'users' | 'hashtags';
+
+const SORT_MODES = [
+  { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
+  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
+  { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
+  { value: 'controversial' as SortMode, label: 'Controversial', icon: Scale },
+];
 
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [sortMode, setSortMode] = useState<SortMode>(
+    (searchParams.get('sort') as SortMode) || 'hot'
+  );
   const [activeFilter, setActiveFilter] = useState<SearchFilter>(
     (searchParams.get('filter') as SearchFilter) || 'all'
   );
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Search hooks
+  // Video search with infinite scroll and NIP-50
   const {
-    data: videoResults = [],
+    data: videoData,
+    fetchNextPage: fetchNextVideos,
+    hasNextPage: hasNextVideos,
+    isFetchingNextPage: isFetchingNextVideos,
     isLoading: isLoadingVideos,
     error: videoError,
-  } = useSearchVideos({
+  } = useInfiniteSearchVideos({
     query: searchQuery,
-    limit: 20,
+    sortMode,
+    pageSize: 20,
   });
+
+  const videoResults = videoData?.pages.flatMap(page => page.videos) ?? [];
 
   const {
     data: userResults = [],
@@ -76,9 +96,10 @@ export function SearchPage() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
+    if (sortMode !== 'hot') params.set('sort', sortMode);
     if (activeFilter !== 'all') params.set('filter', activeFilter);
     setSearchParams(params, { replace: true });
-  }, [searchQuery, activeFilter, setSearchParams]);
+  }, [searchQuery, sortMode, activeFilter, setSearchParams]);
 
   // Handle search input changes
   const handleSearchChange = (value: string) => {
@@ -147,8 +168,8 @@ export function SearchPage() {
     <div className="min-h-screen bg-background">
       {/* Main content */}
       <main className="container py-6">
-        {/* Search bar */}
-        <div className="mb-6 flex-1 max-w-2xl mx-auto relative">
+        {/* Search bar with sort selector */}
+        <div className="mb-6 flex-1 max-w-2xl mx-auto space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
@@ -163,6 +184,28 @@ export function SearchPage() {
               autoFocus
             />
           </div>
+
+          {/* Sort mode selector for video results */}
+          {(activeFilter === 'all' || activeFilter === 'videos') && searchQuery.trim() && (
+            <div className="flex items-center gap-2 justify-end">
+              <span className="text-sm text-muted-foreground">Sort:</span>
+              <Select value={sortMode} onValueChange={(value) => setSortMode(value as SortMode)}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_MODES.map(mode => (
+                    <SelectItem key={mode.value} value={mode.value}>
+                      <div className="flex items-center gap-2">
+                        <mode.icon className="h-4 w-4" />
+                        {mode.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {/* Search suggestions dropdown */}
           {showSuggestions && popularHashtags.length > 0 && (
@@ -249,28 +292,27 @@ export function SearchPage() {
               <NoResultsState />
             ) : (
               <div className="space-y-8">
-                {/* Videos section */}
+                {/* Videos section with infinite scroll */}
                 {videoResults.length > 0 && (
                   <section>
-                    <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                      <Video className="h-5 w-5" />
-                      Videos ({videoResults.length})
-                    </h2>
+                    <div className="flex items-center justify-between mb-4">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Video className="h-5 w-5" />
+                        Videos ({videoResults.length}{hasNextVideos ? '+' : ''})
+                      </h2>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setActiveFilter('videos')}
+                      >
+                        View all
+                      </Button>
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {videoResults.slice(0, 6).map((video) => (
                         <VideoCard key={video.id} video={video} mode="thumbnail" />
                       ))}
                     </div>
-                    {videoResults.length > 6 && (
-                      <div className="text-center mt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() => setActiveFilter('videos')}
-                        >
-                          View all {videoResults.length} videos
-                        </Button>
-                      </div>
-                    )}
                   </section>
                 )}
 
@@ -331,7 +373,7 @@ export function SearchPage() {
             )}
           </TabsContent>
 
-          {/* Videos only tab */}
+          {/* Videos only tab with infinite scroll */}
           <TabsContent value="videos" className="mt-0">
             {!searchQuery.trim() ? (
               <EmptySearchState />
@@ -342,11 +384,29 @@ export function SearchPage() {
             ) : videoResults.length === 0 ? (
               <NoResultsState />
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {videoResults.map((video) => (
-                  <VideoCard key={video.id} video={video} mode="thumbnail" />
-                ))}
-              </div>
+              <InfiniteScroll
+                dataLength={videoResults.length}
+                next={fetchNextVideos}
+                hasMore={hasNextVideos ?? false}
+                loader={
+                  <div className="py-8 text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
+                  </div>
+                }
+                endMessage={
+                  videoResults.length > 10 ? (
+                    <div className="py-8 text-center text-sm text-muted-foreground">
+                      <p>No more results</p>
+                    </div>
+                  ) : null
+                }
+              >
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {videoResults.map((video) => (
+                    <VideoCard key={video.id} video={video} mode="thumbnail" />
+                  ))}
+                </div>
+              </InfiniteScroll>
             )}
           </TabsContent>
 
