@@ -159,28 +159,52 @@ export function MediaResourcesPage() {
             <CardTitle>About andotherstuff</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
-              andotherstuff (AOS) is Jack Dorsey's organization focused on building open-source,
-              decentralized technologies that empower individuals and communities. Through strategic
-              funding and development, AOS supports projects that prioritize user ownership, privacy,
-              and freedom.
-            </p>
-            <p className="text-muted-foreground">
-              AOS believes in a future where technology serves people, not corporations. By funding
-              projects like Divine, AOS is helping build a more open, decentralized internet where
-              users control their data and creative works.
-            </p>
-            <Button asChild variant="outline">
-              <a
-                href="https://andotherstuff.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2"
-              >
-                Visit andotherstuff.org
-                <ExternalLink className="h-4 w-4" />
-              </a>
-            </Button>
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-48 flex-shrink-0">
+                <img
+                  src="/aos-logo.png"
+                  alt="andotherstuff"
+                  className="aspect-square rounded-lg object-cover w-full"
+                />
+              </div>
+              <div className="flex-1 space-y-4">
+                <p className="text-muted-foreground">
+                  andotherstuff (AOS) is Jack Dorsey's organization focused on building open-source,
+                  decentralized technologies that empower individuals and communities. Through strategic
+                  funding and development, AOS supports projects that prioritize user ownership, privacy,
+                  and freedom.
+                </p>
+                <p className="text-muted-foreground">
+                  AOS believes in a future where technology serves people, not corporations. By funding
+                  projects like Divine, AOS is helping build a more open, decentralized internet where
+                  users control their data and creative works.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href="https://andotherstuff.org/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      andotherstuff.org
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href="https://ditto.pub/@AOS@andotherstuff.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      AOS on Nostr
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
