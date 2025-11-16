@@ -58,7 +58,7 @@ export function AppFooter() {
                 Support
               </Link>
               <span>•</span>
-              <Link to="/press" className="hover:text-foreground transition-colors">
+              <Link to="/media-resources" className="hover:text-foreground transition-colors">
                 Press
               </Link>
             </div>
