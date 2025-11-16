@@ -70,10 +70,6 @@ export function DiscoveryPage() {
           </TabsList>
 
           <TabsContent value="hot" className="mt-0 space-y-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <Flame className="h-4 w-4 text-orange-500" />
-              <span>Recent videos with high engagement • Sort: <code className="text-xs bg-muted px-1 rounded">sort:hot</code></span>
-            </div>
             <VideoFeed
               feedType="trending"
               sortMode="hot"
@@ -85,10 +81,6 @@ export function DiscoveryPage() {
           </TabsContent>
 
           <TabsContent value="top" className="mt-0 space-y-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
-              <span>Most popular videos all-time • Sort: <code className="text-xs bg-muted px-1 rounded">sort:top</code></span>
-            </div>
             <VideoFeed
               feedType="trending"
               sortMode="top"
@@ -100,10 +92,6 @@ export function DiscoveryPage() {
           </TabsContent>
 
           <TabsContent value="rising" className="mt-0 space-y-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <Zap className="h-4 w-4 text-yellow-500" />
-              <span>Recently created videos gaining traction • Sort: <code className="text-xs bg-muted px-1 rounded">sort:rising</code></span>
-            </div>
             <VideoFeed
               feedType="trending"
               sortMode="rising"
@@ -115,10 +103,6 @@ export function DiscoveryPage() {
           </TabsContent>
 
           <TabsContent value="new" className="mt-0 space-y-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-              <Clock className="h-4 w-4 text-green-500" />
-              <span>Latest videos in chronological order • No sorting applied</span>
-            </div>
             <VideoFeed
               feedType="recent"
               verifiedOnly={verifiedOnly}
