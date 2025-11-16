@@ -1,24 +1,34 @@
-// ABOUTME: Enhanced hashtag feed page with video count, view toggles, and related hashtags
-// ABOUTME: Filters videos by hashtag parameter from URL and shows hashtag statistics
+// ABOUTME: Enhanced hashtag feed page with sort modes, video count, and related hashtags
+// ABOUTME: Uses NIP-50 search for optimized hashtag filtering and sorting
 
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Grid3X3, List, Hash } from 'lucide-react';
+import { ArrowLeft, Grid3X3, List, Hash, Flame, TrendingUp, Zap, Scale } from 'lucide-react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { parseHashtags, formatHashtag } from '@/lib/hashtag';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import type { SortMode } from '@/types/nostr';
 
 type ViewMode = 'feed' | 'grid';
+
+const SORT_MODES = [
+  { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
+  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
+  { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
+  { value: 'controversial' as SortMode, label: 'Controversial', icon: Scale },
+];
 
 export function HashtagPage() {
   const { tag } = useParams<{ tag: string }>();
   const normalizedTag = (tag || '').toLowerCase();
   const [viewMode, setViewMode] = useState<ViewMode>('feed');
+  const [sortMode, setSortMode] = useState<SortMode>('hot');
 
   console.log('[HashtagPage] Loading hashtag page for tag:', tag);
 
@@ -115,8 +125,8 @@ export function HashtagPage() {
             </div>
           </div>
 
-          {/* View Toggle */}
-          <div className="flex items-center justify-between">
+          {/* View Toggle and Sort Selector */}
+          <div className="flex items-center justify-between gap-4">
             <div
               className="flex items-center bg-muted rounded-lg p-1"
               role="group"
@@ -144,6 +154,26 @@ export function HashtagPage() {
                 <Grid3X3 className="h-4 w-4 mr-1" />
                 Grid
               </Button>
+            </div>
+
+            {/* Sort mode selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Sort:</span>
+              <Select value={sortMode} onValueChange={(value) => setSortMode(value as SortMode)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_MODES.map(mode => (
+                    <SelectItem key={mode.value} value={mode.value}>
+                      <div className="flex items-center gap-2">
+                        <mode.icon className="h-4 w-4" />
+                        {mode.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -188,10 +218,11 @@ export function HashtagPage() {
           </Card>
         )}
 
-        {/* Video Feed */}
+        {/* Video Feed with sort mode */}
         <VideoFeed
           feedType="hashtag"
           hashtag={normalizedTag}
+          sortMode={sortMode}
           data-testid="video-feed-hashtag"
           data-hashtag-testid={`feed-hashtag-${normalizedTag}`}
           className={cn(
