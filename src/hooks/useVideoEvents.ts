@@ -331,7 +331,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
 
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(10000) // Increased timeout for larger queries
+        AbortSignal.timeout(until ? 3000 : 2000) // 2s for initial load, 3s for pagination
       ]);
 
       // Build base filter
@@ -385,10 +385,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         debugLog(`[useVideoEvents] Following: ${followList.slice(0, 5).join(', ')}${followList.length > 5 ? '...' : ''}`);
         baseFilter.authors = followList;
       } else if (feedType === 'trending') {
-        // Request more events than needed so we can client-side sort by engagement
-        // This is especially important when relay.divine.video is down and other relays
-        // don't support the custom 'sort' parameter
-        baseFilter.limit = Math.max(limit * 3, 150);
+        // Start with a small query for fast initial load, then fetch more later
+        baseFilter.limit = until ? Math.max(limit * 3, 150) : 20;
       }
 
       let events: NostrEvent[] = [];
@@ -459,10 +457,9 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       }
 
 
-      // Handle sorting for different feed types
-      if ((feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
-        // Don't filter by time - count ALL reactions, not just recent ones
-        // This is important for sites with low activity or archived content
+      // Skip client-side sorting for initial load - trust relay's sort order for speed
+      // Only do engagement sorting when paginating (has 'until' param)
+      if (until && (feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
         const since = 0; // Count all reactions from the beginning of time
         const videoIds = parsed.map(v => v.id);
         const reactionCounts = await getReactionCounts(nostr, videoIds, since, signal);

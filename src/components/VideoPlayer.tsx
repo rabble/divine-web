@@ -86,6 +86,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
     const [hasError, setHasError] = useState(false);
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [allUrls, setAllUrls] = useState<string[]>([]);
@@ -411,10 +412,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleLoadStart = () => {
       loadStartTime.current = performance.now();
       verboseLog(`[VideoPlayer ${videoId}] Load started at ${loadStartTime.current.toFixed(2)}ms`);
-      setIsLoading(true);
+      // Only show loading state if video hasn't loaded once yet
+      if (!hasLoadedOnce) {
+        setIsLoading(true);
+      }
       setHasError(false);
       onLoadStart?.();
     };
+
 
     const handleLoadedData = () => {
       const loadEndTime = performance.now();
@@ -425,6 +430,10 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         verboseLog(`[VideoPlayer ${videoId}] Video dimensions: ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
         verboseLog(`[VideoPlayer ${videoId}] Video duration: ${videoRef.current.duration}s`);
       }
+
+      // Mark as loaded and hide blurhash permanently
+      setIsLoading(false);
+      setHasLoadedOnce(true);
 
       // Emit first video load metric (only once)
       if (loadDuration > 0 && typeof window !== 'undefined') {
