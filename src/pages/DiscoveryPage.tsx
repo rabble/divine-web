@@ -16,12 +16,12 @@ export function DiscoveryPage() {
   const { user } = useCurrentUser();
   const { config, updateConfig } = useAppContext();
 
-  // Force relay to relay.divine.video for logged-out users
+  // Force relay to OpenVine for logged-out users (while relay.divine.video is down)
   useEffect(() => {
-    if (!user && config.relayUrl !== 'wss://relay.divine.video') {
+    if (!user && config.relayUrl !== 'wss://relay3.openvine.co') {
       updateConfig((current) => ({
         ...current,
-        relayUrl: 'wss://relay.divine.video',
+        relayUrl: 'wss://relay3.openvine.co',
       }));
     }
   }, [user, config.relayUrl, updateConfig]);
