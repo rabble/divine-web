@@ -308,39 +308,6 @@ export function AboutPage() {
         <div className="max-w-2xl mx-auto">
           <MailerLiteSignup />
         </div>
-
-        {/* Links */}
-        <div className="flex flex-wrap gap-4 justify-center pt-8">
-          <Button variant="outline" asChild>
-            <Link to="/authenticity">Our Mission</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/proofmode">ProofMode</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/privacy">Privacy Policy</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dmca">Copyright & DMCA</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/open-source">Open Source</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/support">Support</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <a
-              href="https://github.com/rabble/nostrvine"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-            </a>
-          </Button>
-        </div>
       </div>
     </div>
   );
