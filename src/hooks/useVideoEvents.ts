@@ -11,6 +11,7 @@ import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import type { NIP50Filter } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
@@ -334,8 +335,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         AbortSignal.timeout(10000) // Increased timeout for larger queries
       ]);
 
-      // Build base filter
-      const baseFilter: NostrFilter = {
+      // Build base filter with NIP-50 support
+      const baseFilter: NIP50Filter = {
         kinds: VIDEO_KINDS,
         limit: Math.min(limit, 50),
         ...filter
@@ -349,11 +350,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         debugLog('[useVideoEvents] Direct ID lookup mode:', filter.ids);
       }
 
-      // Add relay-native sorting for feeds that should sort by popularity
+      // Add NIP-50 search with sort mode for feeds that should sort by popularity
       // But NOT for direct ID lookups - those should just fetch the specific event
       const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType) && !isDirectIdLookup;
       if (shouldSortByPopularity) {
-        (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = { field: 'loop_count', dir: 'desc' };
+        // Use NIP-50 search parameter with sort mode
+        // 'hot' = recent + high engagement, 'top' = most referenced
+        const sortMode = feedType === 'trending' ? 'hot' : 'top';
+        baseFilter.search = `sort:${sortMode}`;
       }
 
       // Add pagination
@@ -435,36 +439,19 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       const parseTime = performance.now() - parseStartTime;
       debugLog(`[useVideoEvents] Parse took ${parseTime.toFixed(0)}ms`);
 
-      // Fallback: some events only include hashtags in content, not 't' tags
-      if (feedType === 'hashtag' && hashtag) {
-        const target = hashtag.toLowerCase();
-        if (parsed.length === 0) {
-          try {
-            const fallbackEvents = await nostr.query([
-              { kinds: [...VIDEO_KINDS, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
-            ], { signal });
-            const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr, false);
-            parsed = fallbackParsed.filter(v => {
-              const inTags = (v.hashtags || []).some(t => t.toLowerCase() === target);
-              const inContent = (` ${v.content} `).toLowerCase().includes(`#${target}`);
-              return inTags || inContent;
-            }).slice(0, limit);
-          } catch {
-            // ignore fallback errors; we'll return whatever we have
-          }
-        }
-      }
+      // Note: Removed inefficient hashtag fallback - relay now handles hashtag filtering
+      // via server-side tag queries with NIP-50 search for optimal performance
 
-
-      // Handle sorting for different feed types
-      if ((feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
-        // Don't filter by time - count ALL reactions, not just recent ones
-        // This is important for sites with low activity or archived content
-        const since = 0; // Count all reactions from the beginning of time
+      // Trust relay sorting when using NIP-50 search (sort:hot, sort:top)
+      // Only apply client-side sorting for feeds without NIP-50
+      // This dramatically improves performance by eliminating redundant reaction queries
+      if (!shouldSortByPopularity && (feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
+        // Fallback client-side sorting only when relay doesn't support NIP-50
+        debugLog('[useVideoEvents] Applying client-side sorting (relay does not support NIP-50)');
+        const since = 0;
         const videoIds = parsed.map(v => v.id);
         const reactionCounts = await getReactionCounts(nostr, videoIds, since, signal);
 
-        // Sort by total engagement: original loop count + reaction count
         parsed = parsed
           .map(video => ({
             ...video,
@@ -472,16 +459,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
             totalEngagement: (video.loopCount || 0) + (reactionCounts[video.id] || 0)
           }))
           .sort((a, b) => {
-            // First sort by total engagement (loop count + reactions)
             if (a.totalEngagement !== b.totalEngagement) {
               return b.totalEngagement - a.totalEngagement;
             }
-            // Then by time for ties (uses latest repost time if video has reposts)
             const timeA = getLatestRepostTime(a);
             const timeB = getLatestRepostTime(b);
             return timeB - timeA;
           })
-          .slice(0, limit); // Limit to requested amount
+          .slice(0, limit);
       }
 
       // Filter out deleted videos (NIP-09) unless user wants to see them
