@@ -6,6 +6,7 @@ import { useNostr } from '@nostrify/react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useFollowList } from '@/hooks/useFollowList';
 import { useAppContext } from '@/hooks/useAppContext';
+import { useNIP50Support } from '@/hooks/useRelayCapabilities';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter, SortMode } from '@/types/nostr';
@@ -104,9 +105,17 @@ export function useInfiniteVideos({
   const user = useCurrentUser();
   const { followList } = useFollowList();
   const { config } = useAppContext();
+  const supportsNIP50 = useNIP50Support();
 
   // Auto-determine sort mode if not specified
-  const effectiveSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+  const requestedSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+
+  // Only use sort mode if relay supports NIP-50
+  const effectiveSortMode = supportsNIP50 ? requestedSortMode : undefined;
+
+  if (!supportsNIP50 && requestedSortMode) {
+    debugLog(`[useInfiniteVideos] Relay doesn't support NIP-50, will use client-side sorting fallback`);
+  }
 
   return useInfiniteQuery<VideoPage, Error>({
     queryKey: ['infinite-videos', feedType, hashtag, pubkey, effectiveSortMode, pageSize],
@@ -129,7 +138,10 @@ export function useInfiniteVideos({
         case 'hashtag':
           if (!hashtag) throw new Error('Hashtag required for hashtag feed');
           filter['#t'] = [hashtag.toLowerCase()];
-          filter.search = `sort:${effectiveSortMode}`;
+          // Only add search if relay supports NIP-50
+          if (effectiveSortMode) {
+            filter.search = `sort:${effectiveSortMode}`;
+          }
           break;
 
         case 'profile':
@@ -144,15 +156,24 @@ export function useInfiniteVideos({
             return { videos: [], nextCursor: undefined };
           }
           filter.authors = followList;
-          filter.search = `sort:${effectiveSortMode}`;
+          // Only add search if relay supports NIP-50
+          if (effectiveSortMode) {
+            filter.search = `sort:${effectiveSortMode}`;
+          }
           break;
 
         case 'trending':
-          filter.search = 'sort:hot';
+          // Only add search if relay supports NIP-50
+          if (effectiveSortMode) {
+            filter.search = 'sort:hot';
+          }
           break;
 
         case 'discovery':
-          filter.search = 'sort:top';
+          // Only add search if relay supports NIP-50
+          if (effectiveSortMode) {
+            filter.search = 'sort:top';
+          }
           break;
 
         case 'recent':
@@ -163,11 +184,11 @@ export function useInfiniteVideos({
       debugLog(`[useInfiniteVideos] Fetching ${feedType} feed, cursor: ${cursor || 'none'}`);
 
       // Fetch events
-      const events = await nostr.query([filter], { 
+      const events = await nostr.query([filter], {
         signal: AbortSignal.any([
           signal,
           AbortSignal.timeout(10000)
-        ]) 
+        ])
       });
 
       debugLog(`[useInfiniteVideos] Got ${events.length} events`);

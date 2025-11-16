@@ -3,6 +3,7 @@
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
+import { useNIP50Support } from '@/hooks/useRelayCapabilities';
 import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
@@ -116,6 +117,7 @@ export function useInfiniteSearchVideos({
   pageSize = 20
 }: UseInfiniteSearchVideosOptions) {
   const { nostr } = useNostr();
+  const supportsNIP50 = useNIP50Support();
 
   // Debounce query
   const isTest = process.env.NODE_ENV === 'test';
@@ -150,13 +152,17 @@ export function useInfiniteSearchVideos({
       let filter: NIP50Filter;
 
       if (searchParams.type === 'hashtag') {
-        // Hashtag search with NIP-50 sorting
+        // Hashtag search with NIP-50 sorting (if supported)
         filter = {
           kinds: VIDEO_KINDS,
           '#t': [searchParams.value],
-          search: `sort:${sortMode}`,
           limit: pageSize
         };
+
+        // Only add search if relay supports NIP-50
+        if (supportsNIP50) {
+          filter.search = `sort:${sortMode}`;
+        }
 
         if (cursor) {
           filter.until = cursor;
@@ -164,7 +170,7 @@ export function useInfiniteSearchVideos({
 
         const events = await nostr.query([filter], { signal: abortSignal });
         const videos = parseVideoEvents(events);
-        
+
         return {
           videos,
           nextCursor: videos.length > 0 ? videos[videos.length - 1].createdAt - 1 : undefined
@@ -221,10 +227,9 @@ export function useInfiniteSearchVideos({
         };
       }
 
-      // Content search with NIP-50 full-text
+      // Content search with NIP-50 full-text (if supported)
       filter = {
         kinds: VIDEO_KINDS,
-        search: `sort:${sortMode} ${searchParams.value}`,
         limit: pageSize
       };
 
@@ -232,18 +237,27 @@ export function useInfiniteSearchVideos({
         filter.until = cursor;
       }
 
-      try {
-        const events = await nostr.query([filter], { signal: abortSignal });
-        const videos = parseVideoEvents(events);
+      // Use NIP-50 search if supported, otherwise fallback to client-side
+      if (supportsNIP50) {
+        filter.search = `sort:${sortMode} ${searchParams.value}`;
 
-        return {
-          videos,
-          nextCursor: videos.length > 0 ? videos[videos.length - 1].createdAt - 1 : undefined
-        };
-      } catch (error) {
-        // Fallback for relays without NIP-50
-        debugLog('[useInfiniteSearchVideos] NIP-50 not supported, using fallback');
-        
+        try {
+          const events = await nostr.query([filter], { signal: abortSignal });
+          const videos = parseVideoEvents(events);
+
+          return {
+            videos,
+            nextCursor: videos.length > 0 ? videos[videos.length - 1].createdAt - 1 : undefined
+          };
+        } catch (error) {
+          debugLog('[useInfiniteSearchVideos] NIP-50 query failed:', error);
+          // Fall through to client-side fallback
+        }
+      }
+
+      // Fallback for relays without NIP-50 or if NIP-50 query failed
+      debugLog('[useInfiniteSearchVideos] Using client-side search fallback');
+
         const fallbackFilter = {
           kinds: VIDEO_KINDS,
           limit: pageSize
@@ -254,7 +268,7 @@ export function useInfiniteSearchVideos({
         }
 
         const events = await nostr.query([fallbackFilter], { signal: abortSignal });
-        
+
         // Client-side filtering
         const searchValue = searchParams.value.toLowerCase();
         const filtered = events.filter(event =>
