@@ -36,7 +36,11 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay.divine.video",
+  relayUrl: "wss://relay3.openvine.co", // Primary relay (legacy field)
+  relayUrls: [
+    "wss://relay3.openvine.co",
+    "wss://relay.divine.video",
+  ],
   showDeletedVideos: false, // Hide deleted videos by default
 };
 

@@ -22,32 +22,40 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
   // Use refs so the pool always has the latest data
   const relayUrl = useRef<string>(config.relayUrl);
+  const relayUrls = useRef<string[]>(config.relayUrls || [config.relayUrl]);
 
   // Update refs when config changes and close old relay connections
   useEffect(() => {
-    const oldRelayUrl = relayUrl.current;
+    const oldRelayUrls = relayUrls.current;
     relayUrl.current = config.relayUrl;
+    relayUrls.current = config.relayUrls || [config.relayUrl];
 
-    // If relay URL changed, close old connection and reset queries
-    if (oldRelayUrl !== config.relayUrl && pool.current) {
-      debugLog('[NostrProvider] Relay changed from', oldRelayUrl, 'to', config.relayUrl);
+    // If relay URLs changed, close old connections and reset queries
+    const urlsChanged = JSON.stringify(oldRelayUrls) !== JSON.stringify(relayUrls.current);
+    if (urlsChanged && pool.current) {
+      debugLog('[NostrProvider] Relays changed from', oldRelayUrls, 'to', relayUrls.current);
 
-      // Close the old relay connection
-      const oldRelay = pool.current.relays.get(oldRelayUrl);
-      if (oldRelay) {
-        debugLog('[NostrProvider] Closing old relay connection:', oldRelayUrl);
-        oldRelay.close();
-        // Note: Can't delete from ReadonlyMap, but closing the connection is sufficient
+      // Close old relay connections that are no longer in the list
+      for (const oldUrl of oldRelayUrls) {
+        if (!relayUrls.current.includes(oldUrl)) {
+          const oldRelay = pool.current.relays.get(oldUrl);
+          if (oldRelay) {
+            debugLog('[NostrProvider] Closing old relay connection:', oldUrl);
+            oldRelay.close();
+          }
+        }
       }
 
-      // Pre-warm the new relay connection
-      debugLog('[NostrProvider] Opening new relay connection:', config.relayUrl);
-      pool.current.relay(config.relayUrl);
+      // Pre-warm new relay connections
+      for (const url of relayUrls.current) {
+        debugLog('[NostrProvider] Opening relay connection:', url);
+        pool.current.relay(url);
+      }
 
-      // Reset all queries to fetch fresh data from new relay
+      // Reset all queries to fetch fresh data from new relays
       queryClient.resetQueries();
     }
-  }, [config.relayUrl, queryClient]);
+  }, [config.relayUrl, config.relayUrls, queryClient]);
 
   // Initialize NPool only once
   if (!pool.current) {
@@ -98,10 +106,12 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
           }
         }
 
-        // Route other queries to the selected relay
+        // Route other queries to all configured relays
         if (otherFilters.length > 0) {
-          // Always query the primary relay
-          result.set(relayUrl.current, otherFilters);
+          // Query all configured relays
+          for (const url of relayUrls.current) {
+            result.set(url, otherFilters);
+          }
         }
 
         debugLog('[NostrProvider] Router result:', Array.from(result.entries()));
@@ -146,11 +156,13 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
     cachedPool.current = createCachedNostr(pool.current);
     debugLog('[NostrProvider] Wrapped NPool with caching layer');
 
-    // Pre-establish WebSocket connection synchronously
-    // This ensures the connection starts BEFORE any child components query
-    debugLog('[NostrProvider] Pre-warming connection to:', relayUrl.current);
-    pool.current.relay(relayUrl.current);
-    debugLog('[NostrProvider] Connection initiated');
+    // Pre-establish WebSocket connections synchronously
+    // This ensures the connections start BEFORE any child components query
+    debugLog('[NostrProvider] Pre-warming connections to:', relayUrls.current);
+    for (const url of relayUrls.current) {
+      pool.current.relay(url);
+    }
+    debugLog('[NostrProvider] Connections initiated');
   }
 
   return (
