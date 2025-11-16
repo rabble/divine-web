@@ -5,8 +5,10 @@ export type Theme = "dark" | "light" | "system";
 export interface AppConfig {
   /** Current theme */
   theme: Theme;
-  /** Selected relay URL */
+  /** Selected relay URL (legacy - use relayUrls for multi-relay support) */
   relayUrl: string;
+  /** Array of relay URLs to query (overrides relayUrl if provided) */
+  relayUrls?: string[];
   /** Whether to show deleted videos with indicator (true) or hide them completely (false) */
   showDeletedVideos?: boolean;
 }
