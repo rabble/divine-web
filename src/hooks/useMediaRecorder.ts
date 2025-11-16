@@ -68,12 +68,52 @@ export function useMediaRecorder() {
   // Initialize camera
   const initialize = useCallback(async (useFrontCamera = true) => {
     try {
+      // Debug logging for mobile
+      console.log('Browser info:', {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        vendor: navigator.vendor,
+        isSecureContext: window.isSecureContext,
+        protocol: window.location.protocol,
+        hasNavigator: !!navigator,
+        hasMediaDevices: !!navigator.mediaDevices,
+        hasGetUserMedia: !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia),
+      });
+
+      // Check if we're in a secure context (HTTPS or localhost)
+      if (!window.isSecureContext) {
+        throw new Error('Camera access requires HTTPS. Please use https:// instead of http://');
+      }
+
+      // Check if mediaDevices is supported
+      if (!navigator.mediaDevices) {
+        // Try to polyfill for older browsers
+        if (navigator.getUserMedia || (navigator as any).webkitGetUserMedia || (navigator as any).mozGetUserMedia) {
+          console.log('Using legacy getUserMedia API');
+          // We have the old API, but we'll still throw an error because it's complex to polyfill
+          throw new Error('Your browser uses an outdated camera API. Please update your browser or use Chrome, Safari, or Firefox.');
+        }
+        throw new Error('Camera API not supported. Please use a modern browser and ensure you are using HTTPS.');
+      }
+
+      if (!navigator.mediaDevices.getUserMedia) {
+        throw new Error('getUserMedia not supported. Please update your browser.');
+      }
+
+      console.log('Requesting camera and microphone access...');
+
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: useFrontCamera ? 'user' : 'environment',
           ...getOptimalVideoConstraints(),
         },
         audio: true,
+      });
+
+      console.log('Camera access granted', {
+        videoTracks: stream.getVideoTracks().length,
+        audioTracks: stream.getAudioTracks().length,
+        videoSettings: stream.getVideoTracks()[0]?.getSettings(),
       });
 
       streamRef.current = stream;
@@ -86,11 +126,42 @@ export function useMediaRecorder() {
       return stream;
     } catch (error) {
       console.error('Failed to access camera:', error);
+
+      // Provide specific error messages based on error type
+      let title = 'Camera Access Failed';
+      let description = 'Unable to access camera and microphone.';
+
+      if (error instanceof Error) {
+        // Check for specific error types
+        if (error.message.includes('HTTPS') || error.message.includes('secure context')) {
+          title = 'HTTPS Required';
+          description = error.message;
+        } else if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          title = 'Permission Denied';
+          description = 'Camera access was denied. Please check your browser settings and allow camera/microphone access, then try again.';
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          title = 'No Camera Found';
+          description = 'No camera or microphone was found on this device.';
+        } else if (error.name === 'NotReadableError' || error.name === 'TrackStartError') {
+          title = 'Camera In Use';
+          description = 'Camera is already in use by another application. Please close other apps and try again.';
+        } else if (error.name === 'OverconstrainedError' || error.name === 'ConstraintNotSatisfiedError') {
+          title = 'Camera Constraints Error';
+          description = 'Your camera doesn\'t support the required settings. Try a different device.';
+        } else if (error.name === 'TypeError' || error.message.includes('not supported')) {
+          title = 'Browser Not Supported';
+          description = error.message || 'Your browser doesn\'t support camera access. Please use a modern browser like Chrome, Firefox, or Safari.';
+        } else {
+          description = error.message || 'An unknown error occurred while accessing the camera.';
+        }
+      }
+
       toast({
-        title: 'Camera Access Denied',
-        description: 'Please allow camera and microphone access to record videos.',
+        title,
+        description,
         variant: 'destructive',
       });
+
       throw error;
     }
   }, [toast, getOptimalVideoConstraints]);

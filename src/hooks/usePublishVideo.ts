@@ -67,6 +67,8 @@ export function usePublishVideo() {
 
   return useMutation({
     mutationFn: async (options: PublishVideoOptions) => {
+      console.log('[usePublishVideo] Starting video publish...', options);
+
       const {
         content,
         videoUrl,
@@ -78,6 +80,14 @@ export function usePublishVideo() {
         vineId = generateVineId(),
         kind = ADDRESSABLE_SHORT_VIDEO_KIND // Default to kind 34236 (addressable short video) per NIP-71 PR #2072
       } = options;
+
+      console.log('[usePublishVideo] Building NIP-71 event...', {
+        kind,
+        vineId,
+        title,
+        videoUrl,
+        duration,
+      });
 
       // Build tags according to NIP-71 (PR #2072)
       const tags: string[][] = [
@@ -115,6 +125,10 @@ export function usePublishVideo() {
       // Add client tag for attribution
       tags.push(['client', 'divine-web']);
 
+      console.log('[usePublishVideo] Tags prepared, publishing event...', {
+        tagCount: tags.length,
+      });
+
       // Publish the event
       const event = await publishEvent({
         kind,
@@ -122,8 +136,19 @@ export function usePublishVideo() {
         tags
       });
 
+      console.log('[usePublishVideo] Video event published!', {
+        eventId: event.id,
+        kind: event.kind,
+      });
+
       return event;
-    }
+    },
+    onError: (error) => {
+      console.error('[usePublishVideo] Failed to publish video:', error);
+    },
+    onSuccess: (data) => {
+      console.log('[usePublishVideo] Video published successfully:', data);
+    },
   });
 }
 

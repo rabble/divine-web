@@ -42,8 +42,6 @@ import PostPage from "./pages/PostPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {
-  // Auto-connect Keycast bunker if user has a session
-  KeycastAutoConnect();
   const { logins } = useNostrLogin();
 
   // Check if user is logged in
@@ -51,6 +49,7 @@ export function AppRouter() {
 
   return (
     <BrowserRouter>
+      <KeycastAutoConnect />
       <ScrollToTop />
       <AnalyticsPageTracker />
       <AnalyticsUserTracker />

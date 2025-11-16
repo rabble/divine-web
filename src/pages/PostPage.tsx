@@ -15,7 +15,7 @@ import { useVideoUpload } from '@/hooks/useVideoUpload';
 import { usePublishVideo } from '@/hooks/usePublishVideo';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
-import useMediaRecorder from '@wmik/use-media-recorder';
+import { useMediaRecorder } from '@/hooks/useMediaRecorder';
 
 type PostStep = 'choose' | 'record' | 'upload' | 'metadata';
 
@@ -30,6 +30,7 @@ export function PostPage() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
+  const cameraVideoRef = useRef<HTMLVideoElement>(null);
 
   const [step, setStep] = useState<PostStep>('choose');
   const [videoSegments, setVideoSegments] = useState<VideoSegment[]>([]);
@@ -38,7 +39,6 @@ export function PostPage() {
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
-  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
 
   const { uploadVideo, uploadProgress, isUploading } = useVideoUpload();
   const { mutateAsync: publishVideo, isPending: isPublishing } = usePublishVideo();
@@ -47,34 +47,19 @@ export function PostPage() {
 
   // Media recorder for camera
   const {
-    status: recordStatus,
-    mediaBlob,
-    startRecording,
-    stopRecording,
-    pauseRecording,
-    resumeRecording,
-    getMediaStream,
-    liveStream,
-    clearMediaStream,
-    clearMediaBlob,
-  } = useMediaRecorder({
-    mediaStreamConstraints: {
-      audio: true,
-      video: {
-        width: { ideal: 1080 },
-        height: { ideal: 1080 },
-        aspectRatio: 1,
-        facingMode: 'user'
-      }
-    },
-    mediaRecorderOptions: {
-      mimeType: 'video/webm;codecs=vp9',
-    },
-    onStop: (blob) => {
-      // Add the recorded segment
-      setRecordedChunks(prev => [...prev, blob]);
-    }
-  });
+    isRecording,
+    isInitialized,
+    segments,
+    cameraStream,
+    initialize,
+    switchCamera,
+    startSegment,
+    stopSegment,
+    reset,
+    canRecord,
+    currentDuration,
+    progress,
+  } = useMediaRecorder();
 
   // Detect desktop
   useEffect(() => {
@@ -94,6 +79,14 @@ export function PostPage() {
       videoPreviewRef.current.play().catch(console.error);
     }
   }, [videoSegments]);
+
+  // Set up camera stream for recording
+  useEffect(() => {
+    if (cameraVideoRef.current && cameraStream) {
+      console.log('Attaching camera stream to video element');
+      cameraVideoRef.current.srcObject = cameraStream;
+    }
+  }, [cameraStream]);
 
   // Require login
   if (!user) {
@@ -189,14 +182,34 @@ export function PostPage() {
     }
 
     try {
-      // Step 1: Upload video to Blossom
-      const uploadResult = await uploadVideo({
-        segments: videoSegments,
-        filename: `post-${Date.now()}.${videoSegments[0].blob.type.includes('gif') ? 'gif' : 'mp4'}`,
+      // Step 1: Convert to MP4 and upload to Blossom
+      // Note: Videos are automatically converted to MP4 format for maximum compatibility
+      console.log('[PostPage] Starting video upload and conversion...');
+      console.log('[PostPage] Current recording segments:', {
+        segmentCount: videoSegments.length,
+        totalSize: `${(videoSegments.reduce((sum, s) => sum + s.blob.size, 0) / 1024 / 1024).toFixed(2)}MB`,
+        segmentDetails: videoSegments.map((s, i) => ({
+          index: i,
+          type: s.blob.type,
+          size: `${(s.blob.size / 1024 / 1024).toFixed(2)}MB`,
+        })),
       });
 
+      const uploadResult = await uploadVideo({
+        segments: videoSegments,
+        filename: `post-${Date.now()}.mp4`,
+      });
+      console.log('[PostPage] Video uploaded successfully:', uploadResult.url);
+
       // Step 2: Publish to Nostr (using kind 34236 - addressable short video)
-      await publishVideo({
+      console.log('[PostPage] Publishing to Nostr...', {
+        title,
+        videoUrl: uploadResult.url,
+        duration: uploadResult.duration / 1000,
+        hashtags,
+      });
+
+      const publishResult = await publishVideo({
         content: description,
         videoUrl: uploadResult.url,
         title,
@@ -204,6 +217,8 @@ export function PostPage() {
         hashtags,
         kind: 34236, // Use kind 34236 for addressable short videos (NIP-71)
       });
+
+      console.log('[PostPage] Published successfully!', publishResult);
 
       toast({
         title: 'Success!',
@@ -216,11 +231,24 @@ export function PostPage() {
       });
       navigate('/');
     } catch (error) {
-      console.error('Failed to publish post:', error);
+      console.error('[PostPage] Failed to publish post:', error);
+      console.error('[PostPage] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+
+      // Show detailed error to user
+      const errorMessage = error instanceof Error ? error.message : 'Failed to publish your post';
       toast({
         title: 'Publishing Failed',
-        description: error instanceof Error ? error.message : 'Failed to publish your post',
+        description: errorMessage,
         variant: 'destructive',
+      });
+
+      // Also log to console for debugging
+      console.error('[PostPage] Full error details:', {
+        error,
+        errorType: error?.constructor?.name,
+        errorMessage,
+        videoSegments: videoSegments.length,
+        title,
       });
     }
   };
@@ -230,18 +258,12 @@ export function PostPage() {
     videoSegments.forEach(segment => {
       URL.revokeObjectURL(segment.blobUrl);
     });
-    recordedChunks.forEach(chunk => {
-      const url = URL.createObjectURL(chunk);
-      URL.revokeObjectURL(url);
-    });
     setVideoSegments([]);
-    setRecordedChunks([]);
     setTitle('');
     setDescription('');
     setHashtags([]);
     setHashtagInput('');
-    clearMediaStream();
-    clearMediaBlob();
+    reset();
     setStep('choose');
     navigate(-1);
   };
@@ -299,46 +321,51 @@ export function PostPage() {
 
   // Camera recording step
   if (step === 'record') {
-    const isRecording = recordStatus === 'recording';
-    const isPaused = recordStatus === 'paused';
-    const hasRecorded = recordedChunks.length > 0 || mediaBlob;
+    const hasRecorded = segments.length > 0;
 
     const handleStartCamera = async () => {
       try {
-        await getMediaStream();
+        // Show a brief loading toast
+        toast({
+          title: 'Requesting Camera Access',
+          description: 'Please allow camera and microphone access in your browser...',
+        });
+
+        await initialize();
+
+        // Success toast
+        toast({
+          title: 'Camera Ready',
+          description: 'You can now start recording!',
+        });
       } catch (error) {
         console.error('Failed to access camera:', error);
-        toast({
-          title: 'Camera Access Denied',
-          description: 'Please allow camera access to record videos',
-          variant: 'destructive',
-        });
+        // Error toast is already shown by the hook
       }
     };
 
     const handleRecordClick = () => {
-      if (!isRecording && !isPaused) {
-        startRecording();
-      } else if (isRecording) {
-        pauseRecording();
-      } else if (isPaused) {
-        resumeRecording();
+      if (isRecording) {
+        // Pause recording (stop current segment)
+        stopSegment();
+      } else {
+        // Start or resume recording
+        startSegment();
       }
     };
 
-    const handleStopRecording = () => {
-      stopRecording();
-    };
-
     const handleDeleteChunk = (index: number) => {
-      setRecordedChunks(prev => prev.filter((_, i) => i !== index));
+      // Note: The custom hook doesn't support deleting individual segments
+      // We'd need to reset and re-record. For now, show a message.
+      toast({
+        title: 'Cannot Delete Segment',
+        description: 'Please use "Start Over" to reset all recordings',
+        variant: 'destructive',
+      });
     };
 
     const handleFinishRecording = () => {
-      // Combine all chunks into segments
-      const allChunks = mediaBlob ? [...recordedChunks, mediaBlob] : recordedChunks;
-
-      if (allChunks.length === 0) {
+      if (segments.length === 0) {
         toast({
           title: 'No Recording',
           description: 'Please record at least one segment',
@@ -347,29 +374,16 @@ export function PostPage() {
         return;
       }
 
-      // Convert chunks to segments
-      const segments = allChunks.map(blob => ({
-        blob,
-        blobUrl: URL.createObjectURL(blob)
-      }));
-
+      // Use segments directly - they already have blob and blobUrl
       setVideoSegments(segments);
       setStep('metadata');
 
-      // Cleanup
-      clearMediaStream();
-      clearMediaBlob();
+      // Cleanup will happen in the hook
     };
 
     const handleCancelRecording = () => {
-      // Cleanup
-      recordedChunks.forEach(chunk => {
-        const url = URL.createObjectURL(chunk);
-        URL.revokeObjectURL(url);
-      });
-      setRecordedChunks([]);
-      clearMediaStream();
-      clearMediaBlob();
+      // Cleanup via hook
+      reset();
       setStep('choose');
     };
 
@@ -379,19 +393,18 @@ export function PostPage() {
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">Record Video</h1>
             <p className="text-sm text-muted-foreground">
-              Tap to record, tap again to pause, stop when done
+              {!cameraStream
+                ? 'Click "Start Camera" and allow browser access to begin'
+                : 'Tap to record, tap again to pause, stop when done'
+              }
             </p>
           </div>
 
           {/* Camera viewfinder */}
           <div className="relative mx-auto aspect-square max-w-md bg-black rounded-lg overflow-hidden">
-            {liveStream ? (
+            {cameraStream ? (
               <video
-                ref={(video) => {
-                  if (video && liveStream) {
-                    video.srcObject = liveStream;
-                  }
-                }}
+                ref={cameraVideoRef}
                 autoPlay
                 muted
                 playsInline
@@ -413,7 +426,7 @@ export function PostPage() {
             )}
 
             {/* Paused indicator */}
-            {isPaused && (
+            {!isRecording && hasRecorded && (
               <div className="absolute top-4 left-4 flex items-center gap-2 bg-yellow-600 text-white px-3 py-1.5 rounded-full">
                 <Square className="h-3 w-3" />
                 <span className="text-sm font-medium">Paused</span>
@@ -423,7 +436,7 @@ export function PostPage() {
 
           {/* Recording controls */}
           <div className="flex flex-col items-center gap-4">
-            {!liveStream ? (
+            {!cameraStream ? (
               <Button
                 onClick={handleStartCamera}
                 size="lg"
@@ -444,51 +457,40 @@ export function PostPage() {
                       "h-20 w-20 rounded-full p-0",
                       isRecording && "animate-pulse"
                     )}
+                    disabled={!canRecord && !isRecording}
                   >
-                    {!isRecording && !isPaused ? (
+                    {!isRecording ? (
                       <Circle className="h-10 w-10 fill-current" />
-                    ) : isPaused ? (
-                      <Play className="h-10 w-10" />
                     ) : (
                       <Square className="h-8 w-8" />
                     )}
                   </Button>
-
-                  {(isRecording || isPaused) && (
-                    <Button
-                      onClick={handleStopRecording}
-                      size="lg"
-                      variant="outline"
-                      className="h-16 w-16 rounded-full p-0"
-                    >
-                      <Square className="h-6 w-6 fill-current" />
-                    </Button>
-                  )}
                 </div>
 
                 {/* Segments indicator */}
-                {recordedChunks.length > 0 && (
+                {segments.length > 0 && (
                   <div className="space-y-2 w-full max-w-xs">
                     <p className="text-sm text-muted-foreground text-center">
-                      {recordedChunks.length} segment{recordedChunks.length > 1 ? 's' : ''} recorded
+                      {segments.length} segment{segments.length > 1 ? 's' : ''} recorded
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center">
-                      {recordedChunks.map((_, index) => (
+                      {segments.map((segment, index) => (
                         <div key={index} className="relative">
                           <Badge variant="secondary">
                             Segment {index + 1}
                           </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteChunk(index)}
-                            className="absolute -top-2 -right-2 h-5 w-5 p-0 rounded-full bg-destructive hover:bg-destructive/90"
-                          >
-                            <X className="h-3 w-3 text-white" />
-                          </Button>
                         </div>
                       ))}
                     </div>
+                    <Button
+                      onClick={reset}
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      disabled={isRecording}
+                    >
+                      Start Over
+                    </Button>
                   </div>
                 )}
 
@@ -635,16 +637,44 @@ export function PostPage() {
 
             {/* Upload Progress */}
             {isProcessing && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {isUploading ? 'Uploading...' : 'Publishing...'}
-                  </span>
-                  <span className="font-medium">
-                    {Math.round(uploadProgress * 100)}%
-                  </span>
+              <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-sm">
+                      {uploadProgress === 0
+                        ? 'Preparing...'
+                        : uploadProgress < 0.5
+                          ? 'Converting to MP4'
+                          : uploadProgress < 1
+                            ? 'Uploading to Blossom'
+                            : 'Publishing to Nostr'}
+                    </span>
+                    <span className="font-medium text-sm">
+                      {uploadProgress < 0.5
+                        ? `${Math.round((uploadProgress / 0.5) * 100)}%`
+                        : uploadProgress < 1
+                          ? `${Math.round(((uploadProgress - 0.5) / 0.5) * 100)}%`
+                          : '100%'}
+                    </span>
+                  </div>
+                  <Progress
+                    value={uploadProgress < 0.5
+                      ? (uploadProgress / 0.5) * 100
+                      : uploadProgress < 1
+                        ? ((uploadProgress - 0.5) / 0.5) * 100
+                        : 100
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {uploadProgress === 0
+                      ? 'Getting ready...'
+                      : uploadProgress < 0.5
+                        ? 'Converting video for maximum compatibility across all platforms'
+                        : uploadProgress < 1
+                          ? 'Uploading to decentralized storage'
+                          : 'Publishing event to Nostr network'}
+                  </p>
                 </div>
-                <Progress value={uploadProgress * 100} />
               </div>
             )}
 

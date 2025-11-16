@@ -1,10 +1,11 @@
 // ABOUTME: Hook for combining video segments and uploading to Blossom servers
-// ABOUTME: Handles multi-segment video compilation and upload progress tracking
+// ABOUTME: Handles multi-segment video compilation, MP4 conversion, and upload progress tracking
 
 import { useState, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useToast } from '@/hooks/useToast';
+import { combineAndConvertToMP4, convertToMP4 } from '@/lib/videoConverter';
 
 interface VideoSegment {
   blob: Blob;
@@ -22,52 +23,86 @@ export function useVideoUpload() {
   const { mutateAsync: uploadFile } = useUploadFile();
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  // Combine video segments into a single video
-  const combineSegments = useCallback(async (segments: VideoSegment[]): Promise<CombineResult> => {
+  // Combine video segments and convert to MP4
+  const combineSegments = useCallback(async (
+    segments: VideoSegment[],
+    onConversionProgress?: (progress: number) => void
+  ): Promise<CombineResult> => {
     if (segments.length === 0) {
       throw new Error('No segments to combine');
     }
 
-    // If only one segment, return it directly
-    if (segments.length === 1) {
-      const blob = segments[0].blob;
-      const blobUrl = segments[0].blobUrl;
-      
-      // Get duration from blob using video element
-      const duration = await getVideoDuration(blob);
-      
-      return {
-        blob,
-        blobUrl,
-        duration,
-      };
-    }
+    console.log('[useVideoUpload] Starting video conversion to MP4...', {
+      segmentCount: segments.length,
+      totalSize: `${(segments.reduce((sum, s) => sum + s.blob.size, 0) / 1024 / 1024).toFixed(2)}MB`,
+    });
 
-    // For multiple segments, we need to combine them
-    // For now, we'll use a simple approach: create a new video from all blobs
-    // In production, you'd want to use FFmpeg.wasm for proper video concatenation
-    
     try {
-      // Check if FFmpeg.wasm is available (optional enhancement)
-      // For MVP, we'll just use the first segment and warn the user
-      toast({
-        title: 'Multi-segment Recording',
-        description: 'Multiple segments detected. Using first segment only. Full segment merging coming soon!',
-        variant: 'default',
+      // Extract blobs from segments
+      const blobs = segments.map(s => s.blob);
+
+      // Convert to MP4 using FFmpeg.wasm
+      // This will either combine multiple segments or convert a single segment
+      console.log('[useVideoUpload] Calling combineAndConvertToMP4...');
+      const result = await combineAndConvertToMP4(blobs, onConversionProgress);
+      console.log('[useVideoUpload] Conversion complete, getting duration...');
+
+      // Get duration from converted blob
+      const duration = await getVideoDuration(result.blob);
+
+      console.log('[useVideoUpload] Video ready!', {
+        duration: `${(duration / 1000).toFixed(1)}s`,
+        mp4Size: `${(result.blob.size / 1024 / 1024).toFixed(2)}MB`,
       });
 
-      const blob = segments[0].blob;
-      const blobUrl = segments[0].blobUrl;
-      const duration = await getVideoDuration(blob);
+      toast({
+        title: 'Video Converted to MP4',
+        description: `Optimized for maximum compatibility (${result.sizeReduction > 0 ? `${result.sizeReduction.toFixed(1)}% smaller` : 'same size'})`,
+      });
 
       return {
-        blob,
-        blobUrl,
+        blob: result.blob,
+        blobUrl: result.blobUrl,
         duration,
       };
     } catch (error) {
-      console.error('Failed to combine segments:', error);
-      throw new Error('Failed to combine video segments');
+      console.error('[useVideoUpload] Conversion failed, using original video:', error);
+
+      // Fallback: Use original video without conversion
+      toast({
+        title: 'Video Conversion Skipped',
+        description: 'Using original video format. Conversion failed but upload will continue.',
+        variant: 'default',
+      });
+
+      // If single segment, use it directly
+      if (segments.length === 1) {
+        const blob = segments[0].blob;
+        const duration = await getVideoDuration(blob);
+
+        console.log('[useVideoUpload] Using original single segment:', {
+          type: blob.type,
+          size: `${(blob.size / 1024 / 1024).toFixed(2)}MB`,
+          duration: `${(duration / 1000).toFixed(1)}s`,
+        });
+
+        return {
+          blob,
+          blobUrl: segments[0].blobUrl,
+          duration,
+        };
+      } else {
+        // Multiple segments without conversion - just use first one
+        console.warn('[useVideoUpload] Multiple segments but conversion failed, using first segment only');
+        const blob = segments[0].blob;
+        const duration = await getVideoDuration(blob);
+
+        return {
+          blob,
+          blobUrl: segments[0].blobUrl,
+          duration,
+        };
+      }
     }
   }, [toast]);
 
@@ -135,16 +170,48 @@ export function useVideoUpload() {
     setUploadProgress(0);
 
     try {
-      // Step 1: Combine segments (25% of progress)
-      setUploadProgress(0.1);
-      const combined = await combineSegments(params.segments);
-      setUploadProgress(0.25);
-
-      // Step 2: Upload video (75% of progress)
-      const result = await uploadVideoMutation.mutateAsync({
-        blob: combined.blob,
+      console.log('[useVideoUpload] uploadVideo called with:', {
+        segmentCount: params.segments.length,
         filename: params.filename,
       });
+
+      // Step 1: Combine and convert to MP4 (50% of progress)
+      setUploadProgress(0.05);
+      console.log('[useVideoUpload] Starting segment combination...');
+
+      const combined = await combineSegments(params.segments, (conversionProgress) => {
+        // Map conversion progress to 5-50% of total progress
+        const newProgress = 0.05 + (conversionProgress * 0.45);
+        console.log('[useVideoUpload] Conversion progress update:', {
+          conversionProgress,
+          totalProgress: newProgress,
+          percentage: `${Math.round(newProgress * 100)}%`,
+        });
+        setUploadProgress(newProgress);
+      });
+
+      console.log('[useVideoUpload] Segments combined successfully');
+      setUploadProgress(0.5);
+
+      // Step 2: Upload video (50% of progress)
+      console.log('[useVideoUpload] Starting upload to Blossom...');
+
+      // Determine filename based on blob type
+      let filename = params.filename;
+      if (!filename) {
+        const extension = combined.blob.type.includes('mp4') ? 'mp4' :
+                         combined.blob.type.includes('webm') ? 'webm' : 'mp4';
+        filename = `video-${Date.now()}.${extension}`;
+      }
+
+      console.log('[useVideoUpload] Uploading as:', filename);
+
+      const result = await uploadVideoMutation.mutateAsync({
+        blob: combined.blob,
+        filename,
+      });
+
+      console.log('[useVideoUpload] Upload successful!', result.url);
       setUploadProgress(1);
 
       // Clean up blob URLs
@@ -160,6 +227,12 @@ export function useVideoUpload() {
         duration: combined.duration,
       };
     } catch (error) {
+      console.error('[useVideoUpload] uploadVideo failed:', error);
+      console.error('[useVideoUpload] Error details:', {
+        errorType: error?.constructor?.name,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
       setUploadProgress(0);
       throw error;
     }

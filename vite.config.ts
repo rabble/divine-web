@@ -8,6 +8,11 @@ export default defineConfig(() => ({
   server: {
     host: "::",
     port: 8080,
+    headers: {
+      // Required for SharedArrayBuffer (FFmpeg.wasm needs this)
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
     proxy: {
       // Proxy CDN requests to avoid CORS issues in development
       '/cdn-proxy': {
@@ -32,6 +37,13 @@ export default defineConfig(() => ({
   plugins: [
     react(),
   ],
+  optimizeDeps: {
+    // Exclude FFmpeg.wasm from dependency optimization
+    exclude: ['@ffmpeg/ffmpeg', '@ffmpeg/util'],
+  },
+  worker: {
+    format: 'es',
+  },
   test: {
     globals: true,
     environment: 'jsdom',
