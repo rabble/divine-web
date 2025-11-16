@@ -95,9 +95,11 @@ export function MediaResourcesPage() {
           <CardContent className="space-y-4">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-48 flex-shrink-0">
-                <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
-                  <span className="text-muted-foreground text-sm">Photo placeholder</span>
-                </div>
+                <img
+                  src="/rabble-headshot.jpeg"
+                  alt="Rabble"
+                  className="aspect-square rounded-lg object-cover w-full"
+                />
               </div>
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
