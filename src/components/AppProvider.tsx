@@ -37,7 +37,12 @@ export function AppProvider(props: AppProviderProps) {
       serialize: JSON.stringify,
       deserialize: (value: string) => {
         const parsed = JSON.parse(value);
-        return AppConfigSchema.parse(parsed);
+        const validated = AppConfigSchema.parse(parsed);
+        // Always use relayUrls from defaultConfig, don't persist in localStorage
+        return {
+          ...validated,
+          relayUrls: defaultConfig.relayUrls,
+        };
       }
     }
   );

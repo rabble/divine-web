@@ -332,9 +332,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
       verboseLog(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
 
+      // Use longer timeout for hashtag queries since they need to search through tags
+      const timeoutMs = feedType === 'hashtag' ? 5000 : (until ? 3000 : 2000);
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(10000) // Increased timeout for larger queries
+        AbortSignal.timeout(timeoutMs) // 5s for hashtags, 2s for initial load, 3s for pagination
       ]);
 
       // Build base filter with NIP-50 support
@@ -392,7 +394,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         debugLog(`[useVideoEvents] Following: ${followList.slice(0, 5).join(', ')}${followList.length > 5 ? '...' : ''}`);
         baseFilter.authors = followList;
       } else if (feedType === 'trending') {
-        baseFilter.limit = limit;
+        // Start with a small query for fast initial load, then fetch more later
+        baseFilter.limit = until ? Math.max(limit * 3, 150) : 20;
       }
 
       let events: NostrEvent[] = [];

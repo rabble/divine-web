@@ -2,7 +2,7 @@
 // ABOUTME: Shows video player, metadata, author info, and social interactions
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2 } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
@@ -97,6 +97,7 @@ export function VideoCard({
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const muteUser = useMuteItem();
+  const navigate = useNavigate();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
   const deletionInfo = useDeletionInfo(video.id);
@@ -111,13 +112,19 @@ export function VideoCard({
   const metadata: NostrMetadata = author.metadata;
   const reposterMetadata: NostrMetadata | undefined = reposter?.metadata;
 
-  const displayName = metadata.display_name || metadata.name || genUserName(video.pubkey);
-  const profileImage = getSafeProfileImage(metadata.picture);
   const npub = nip19.npubEncode(video.pubkey);
+  // Show "Loading profile..." while loading, otherwise show truncated npub if no profile exists
+  const displayName = authorData.isLoading
+    ? "Loading profile..."
+    : (metadata.display_name || metadata.name || `${npub.slice(0, 12)}...`);
+  const profileImage = getSafeProfileImage(metadata.picture);
   // Just use npub for now, we'll deal with NIP-05 later
   const profileUrl = `/${npub}`;
 
-  const reposterName = reposterMetadata?.name || (reposterPubkey ? genUserName(reposterPubkey) : '');
+  const reposterNpub = reposterPubkey ? nip19.npubEncode(reposterPubkey) : '';
+  const reposterName = reposterData.isLoading
+    ? "Loading profile..."
+    : (reposterMetadata?.name || (reposterPubkey ? `${reposterNpub.slice(0, 12)}...` : ''));
 
   // NEW: Get all unique reposters for display
   const allReposters = video.reposts || [];
@@ -161,8 +168,13 @@ export function VideoCard({
   };
 
   const handleThumbnailClick = () => {
-    setIsPlaying(true);
-    onPlay?.();
+    // In thumbnail mode (grid view), navigate to video page instead of playing inline
+    if (mode === 'thumbnail') {
+      navigate(`/video/${video.id}`);
+    } else {
+      setIsPlaying(true);
+      onPlay?.();
+    }
   };
 
   const handleVideoEnd = () => {

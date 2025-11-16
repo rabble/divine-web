@@ -33,6 +33,7 @@ interface VideoFeedProps {
   viewMode?: ViewMode; // Display mode: feed (full cards) or grid (thumbnails)
   className?: string;
   verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
+  mode?: 'auto-play' | 'thumbnail'; // Display mode for video cards
   'data-testid'?: string;
   'data-hashtag-testid'?: string;
   'data-profile-testid'?: string;
@@ -47,6 +48,7 @@ export function VideoFeed({
   viewMode = 'feed',
   className,
   verifiedOnly = false,
+  mode = 'auto-play',
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
@@ -225,36 +227,62 @@ export function VideoFeed({
       >
         <Card className="border-dashed border-2 border-primary/20 bg-primary/5">
           <CardContent className="py-16 px-8 text-center">
-            <div className="max-w-sm mx-auto space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <Video className="h-8 w-8 text-primary/60" />
-              </div>
-              <div className="space-y-2">
-                <p className="text-lg font-medium text-foreground">
-                  {allFiltered
-                    ? "All videos filtered"
-                    : feedType === 'home'
-                    ? "Your feed is empty"
-                    : feedType === 'hashtag'
-                    ? `No videos with #${hashtag}`
-                    : feedType === 'profile'
-                    ? "No videos yet"
-                    : feedType === 'recent'
-                    ? "No recent videos"
-                    : "No videos found"}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {allFiltered
-                    ? "All videos from this feed match your mute filters. Adjust your moderation settings to see content."
-                    : feedType === 'home'
-                    ? "Follow some creators to see their videos here!"
-                    : feedType === 'hashtag'
-                    ? "Be the first to post with this hashtag!"
-                    : feedType === 'profile'
-                    ? "Check back later for new content"
-                    : "Check back soon for new videos"}
-                </p>
-              </div>
+            <div className="max-w-md mx-auto space-y-6">
+              {/* Show reclining Divine image for discovery/trending feeds when no videos */}
+              {(feedType === 'discovery' || feedType === 'trending') && !allFiltered ? (
+                <>
+                  <div className="mx-auto -mx-8 -mt-16">
+                    <img
+                      src="/divine_reclining.jpg"
+                      alt="Divine reclining"
+                      className="w-full rounded-t-lg shadow-lg"
+                    />
+                  </div>
+                  <div className="space-y-2 mt-6">
+                    <p className="text-lg font-medium text-foreground">
+                      Divine needs a rest
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Check back soon for new videos
+                    </p>
+                    <p className="text-xs text-muted-foreground/60 italic mt-4">
+                      Photo by Marcus Leatherdale
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                    <Video className="h-8 w-8 text-primary/60" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-lg font-medium text-foreground">
+                      {allFiltered
+                        ? "All videos filtered"
+                        : feedType === 'home'
+                        ? "Your feed is empty"
+                        : feedType === 'hashtag'
+                        ? `No videos with #${hashtag}`
+                        : feedType === 'profile'
+                        ? "No videos yet"
+                        : feedType === 'recent'
+                        ? "No recent videos"
+                        : "No videos found"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {allFiltered
+                        ? "All videos from this feed match your mute filters. Adjust your moderation settings to see content."
+                        : feedType === 'home'
+                        ? "Follow some creators to see their videos here!"
+                        : feedType === 'hashtag'
+                        ? "Be the first to post with this hashtag!"
+                        : feedType === 'profile'
+                        ? "Check back later for new content"
+                        : "Check back soon for new videos"}
+                    </p>
+                  </div>
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -346,6 +374,7 @@ export function VideoFeed({
       <VideoCard
         key={video.id}
         video={video}
+        mode={mode}
         onLike={handleVideoLike}
         onRepost={handleVideoRepost}
         onOpenComments={() => handleOpenComments(video)}

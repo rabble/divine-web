@@ -62,9 +62,9 @@ export function ProfileHeader({
   isLoading: _isLoading = false,
   className,
 }: ProfileHeaderProps) {
-  // Metadata is now guaranteed to have values from generateProfile.ts
-  const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
-  const userName = metadata?.name || genUserName(pubkey);
+  // Show loading text if metadata hasn't loaded yet
+  const displayName = metadata?.display_name || metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
+  const userName = metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
   const profileImage = getSafeProfileImage(metadata?.picture) || `https://api.dicebear.com/7.x/identicon/svg?seed=${pubkey}`;
   const about = metadata?.about;
   const nip05 = metadata?.nip05;
