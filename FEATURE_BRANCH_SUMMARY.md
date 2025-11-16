@@ -19,8 +19,21 @@ A complete post creation flow allowing users to upload and publish videos to Nos
 - `src/AppRouter.tsx` - Added `/post` route (login required)
 
 **Features:**
+
+*Camera Recording:*
+- Square viewfinder with 1:1 aspect ratio (1080x1080)
+- Red record button with pause/resume functionality
+- Multiple segment support (create cuts by pausing/resuming)
+- Visual status indicators (Recording/Paused)
+- Segment counter with delete functionality
+- Live camera preview
+- WebM/VP9 codec for efficient recording
+
+*File Upload:*
 - File picker for MP4, WebM, and GIF files (max 50MB)
 - Video preview with playback controls
+
+*Publishing:*
 - Metadata form (title, description, hashtags)
 - Progress tracking for upload and publish
 - Mobile-first responsive design
@@ -48,10 +61,15 @@ Comprehensive documentation of the implementation.
 **New Files:**
 - `POST_FEATURE_SUMMARY.md` - Post creation feature documentation
 - `NIP71_IMPLEMENTATION.md` - Complete NIP-71 implementation guide
+- `CAMERA_RECORDING_GUIDE.md` - Camera recording technical documentation
 
 **Content:**
 - Event structure and tag requirements
 - Addressable event benefits
+- Camera recording implementation details
+- Browser compatibility information
+- Permission handling guide
+- Performance optimization tips
 - Implementation examples
 - Testing checklist
 - Migration guide
@@ -119,12 +137,25 @@ Comprehensive documentation of the implementation.
 ## How to Use
 
 ### For Users
+
+**Option 1: Record with Camera**
 1. Click "Post" button in bottom navigation (mobile) or navigate to `/post`
-2. Select a video file (MP4, WebM, or GIF, max 50MB)
-3. Add title (required), description (optional), and hashtags (optional)
-4. Click "Publish" to upload and publish to Nostr
-5. Wait for upload and publishing to complete
-6. Automatically redirected to home feed
+2. Choose "Record with Camera"
+3. Allow camera and microphone access
+4. Click "Start Camera" to activate camera
+5. Click red record button to start recording
+6. Click again to pause (create cuts), click stop to finish segment
+7. Delete unwanted segments if needed
+8. Click "Next" when done recording
+9. Add title (required), description (optional), and hashtags (optional)
+10. Click "Publish" to upload and publish to Nostr
+
+**Option 2: Upload Video File**
+1. Click "Post" button in bottom navigation (mobile) or navigate to `/post`
+2. Choose "Upload Video File"
+3. Select a video file (MP4, WebM, or GIF, max 50MB)
+4. Add title (required), description (optional), and hashtags (optional)
+5. Click "Publish" to upload and publish to Nostr
 
 ### For Developers
 
@@ -181,15 +212,20 @@ await publishVideo({
 
 Potential improvements for future development:
 
+- [x] ✅ Direct camera recording (Implemented!)
+- [x] ✅ Multiple segment support (Implemented!)
+- [ ] Automatic segment merging with FFmpeg.wasm
+- [ ] Front/rear camera switching on mobile
 - [ ] Video trimming and editing tools
 - [ ] Thumbnail selection/generation
 - [ ] Draft saving functionality
 - [ ] Post scheduling
 - [ ] Video filters and effects
-- [ ] Direct camera/screen recording
+- [ ] Screen recording
 - [ ] Batch upload support
 - [ ] Video compression options
-- [ ] Multiple segment merging (FFmpeg.wasm)
+- [ ] Audio level meter
+- [ ] Countdown timer before recording
 
 ## References
 
