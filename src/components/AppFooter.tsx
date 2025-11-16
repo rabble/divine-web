@@ -8,11 +8,16 @@ export function AppFooter() {
         <div className="max-w-5xl mx-auto">
           {/* Main Footer Content - Side by side on desktop */}
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
-            {/* Left side - Email signup and featured links */}
+            {/* Left side - Email signup */}
             <div className="flex flex-col gap-4 lg:max-w-md">
               <div className="text-sm font-medium">Stay Updated</div>
               <MailerLiteSignupFooter />
-              <div className="flex flex-wrap items-center gap-3 text-sm">
+            </div>
+
+            {/* Right side - Navigation Links */}
+            <div className="flex flex-col gap-3 text-xs text-muted-foreground lg:text-right">
+              {/* Featured Links */}
+              <div className="flex flex-wrap items-center lg:justify-end gap-3 text-sm">
                 <Link
                   to="/human-created"
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
@@ -27,10 +32,8 @@ export function AppFooter() {
                   ProofMode
                 </Link>
               </div>
-            </div>
 
-            {/* Right side - Navigation Links */}
-            <div className="flex flex-col gap-2 text-xs text-muted-foreground lg:text-right">
+              {/* Navigation Links */}
               <div className="flex flex-wrap items-center lg:justify-end gap-2">
                 <Link to="/about" className="hover:text-foreground transition-colors">
                   About
