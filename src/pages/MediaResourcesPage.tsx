@@ -29,13 +29,21 @@ export function MediaResourcesPage() {
               For media inquiries, interviews, and press releases
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <Button asChild size="lg">
-              <Link to="/support" className="inline-flex items-center gap-2">
+              <Link to="/press" className="inline-flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Contact Press Team
               </Link>
             </Button>
+            <div className="pt-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/news" className="inline-flex items-center gap-2">
+                  <FileText className="h-3 w-3" />
+                  In the News
+                </Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -46,13 +54,13 @@ export function MediaResourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine is a decentralized short-form video platform built on the Nostr protocol, 
-              inspired by Vine's creative 6-second format. In an era of AI-generated content, 
+              Divine is a decentralized short-form video platform built on the Nostr protocol,
+              inspired by Vine's creative 6-second format. In an era of AI-generated content,
               Divine preserves authentic human creativity and gives creators true ownership of their content.
             </p>
             <p className="text-muted-foreground">
-              Funded by Jack Dorsey through andotherstuff, Divine brings back the spontaneous 
-              creativity that made Vine special—but this time, built on open-source technology 
+              Funded by Jack Dorsey through andotherstuff, Divine brings back the spontaneous
+              creativity that made Vine special—but this time, built on open-source technology
               that makes it impossible for any corporation to shut down.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -101,21 +109,21 @@ export function MediaResourcesPage() {
               </div>
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
-                  Rabble is a veteran technologist and activist building decentralized social media 
-                  technologies and fighting for digital rights. Creator of Divine and host of the 
-                  Revolution.Social podcast, Rabble has been at the forefront of open-source and 
+                  Rabble is a veteran technologist and activist building decentralized social media
+                  technologies and fighting for digital rights. Creator of Divine and host of the
+                  Revolution.Social podcast, Rabble has been at the forefront of open-source and
                   decentralized technology for over two decades.
                 </p>
                 <p className="text-muted-foreground">
-                  His work focuses on empowering users through decentralization, protecting digital 
-                  rights, and building tools that put creators first. With Divine, he's bringing back 
+                  His work focuses on empowering users through decentralization, protecting digital
+                  rights, and building tools that put creators first. With Divine, he's bringing back
                   the creative spontaneity of Vine while ensuring no corporation can ever shut it down again.
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm">
-                    <a 
-                      href="https://rabblelabs.com" 
-                      target="_blank" 
+                    <a
+                      href="https://rabblelabs.com"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2"
                     >
@@ -124,9 +132,9 @@ export function MediaResourcesPage() {
                     </a>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <a 
-                      href="https://revolution.social" 
-                      target="_blank" 
+                    <a
+                      href="https://revolution.social"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2"
                     >
@@ -135,9 +143,9 @@ export function MediaResourcesPage() {
                     </a>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <a 
-                      href="https://github.com/rabble" 
-                      target="_blank" 
+                    <a
+                      href="https://github.com/rabble"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2"
                     >
@@ -158,20 +166,20 @@ export function MediaResourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              andotherstuff (AOS) is Jack Dorsey's organization focused on building open-source, 
-              decentralized technologies that empower individuals and communities. Through strategic 
-              funding and development, AOS supports projects that prioritize user ownership, privacy, 
+              andotherstuff (AOS) is Jack Dorsey's organization focused on building open-source,
+              decentralized technologies that empower individuals and communities. Through strategic
+              funding and development, AOS supports projects that prioritize user ownership, privacy,
               and freedom.
             </p>
             <p className="text-muted-foreground">
-              AOS believes in a future where technology serves people, not corporations. By funding 
-              projects like Divine, AOS is helping build a more open, decentralized internet where 
+              AOS believes in a future where technology serves people, not corporations. By funding
+              projects like Divine, AOS is helping build a more open, decentralized internet where
               users control their data and creative works.
             </p>
             <Button asChild variant="outline">
-              <a 
-                href="https://andotherstuff.org/" 
-                target="_blank" 
+              <a
+                href="https://andotherstuff.org/"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2"
               >
@@ -202,9 +210,9 @@ export function MediaResourcesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" className="justify-start h-auto py-4">
-                <a 
-                  href="https://rights.social" 
-                  target="_blank" 
+                <a
+                  href="https://rights.social"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
                 >
@@ -328,7 +336,7 @@ export function MediaResourcesPage() {
             Our press team is here to help with interviews, additional materials, or any questions.
           </p>
           <Button asChild size="lg">
-            <Link to="/support">
+            <Link to="/press">
               <Mail className="h-4 w-4 mr-2" />
               Contact Press Team
             </Link>
