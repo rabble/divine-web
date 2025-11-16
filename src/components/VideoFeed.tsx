@@ -440,15 +440,13 @@ export function VideoFeed({
       data-hashtag-testid={hashtagTestId}
       data-profile-testid={profileTestId}
     >
-      <div className="grid gap-6">
-        {filteredVideos.map((video, index) => (
-          <VideoCardWithMetrics
-            key={video.id}
-            video={video}
-            index={index}
-          />
-        ))}
-      </div>
+      {filteredVideos.map((video, index) => (
+        <VideoCardWithMetrics
+          key={video.id}
+          video={video}
+          index={index}
+        />
+      ))}
 
       {/* Load more trigger */}
       <div ref={bottomRef} className="h-16 flex items-center justify-center">
