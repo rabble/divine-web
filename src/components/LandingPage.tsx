@@ -65,15 +65,11 @@ export function LandingPage() {
               <p className="text-xl md:text-2xl font-semibold text-foreground">
                 Short-form looping videos. Authentic moments. Human creativity.
               </p>
-              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-                Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.{" "}
-                <a
-                  href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
-                  className="text-primary hover:underline"
-                >
-                  Learn more
-                </a>
-              </p>
+            </div>
+
+            {/* Mailing List Signup */}
+            <div className="pt-4">
+              <MailerLiteSignup />
             </div>
 
             {/* Action Button */}
@@ -176,10 +172,16 @@ export function LandingPage() {
               <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white dark:from-background to-transparent pointer-events-none z-10" />
             </Link>
 
-            {/* Mailing List Signup */}
-            <div className="pt-4">
-              <MailerLiteSignup />
-            </div>
+            {/* Description */}
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+              Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.{" "}
+              <a
+                href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                className="text-primary hover:underline"
+              >
+                Learn more
+              </a>
+            </p>
           </CardContent>
         </Card>
         </div>
