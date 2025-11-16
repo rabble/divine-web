@@ -43,7 +43,8 @@ export function PostPage() {
   const { uploadVideo, uploadProgress, isUploading } = useVideoUpload();
   const { mutateAsync: publishVideo, isPending: isPublishing } = usePublishVideo();
 
-  const isProcessing = isUploading || isPublishing;
+  // Show progress when uploading, publishing, OR when there's any upload progress (including conversion)
+  const isProcessing = isUploading || isPublishing || uploadProgress > 0;
 
   // Media recorder for camera
   const {
