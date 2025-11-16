@@ -28,6 +28,7 @@ interface VideoFeedProps {
   limit?: number;
   className?: string;
   verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
+  mode?: 'auto-play' | 'thumbnail'; // Display mode for video cards
   'data-testid'?: string;
   'data-hashtag-testid'?: string;
   'data-profile-testid'?: string;
@@ -40,6 +41,7 @@ export function VideoFeed({
   limit = 20, // Initial batch size
   className,
   verifiedOnly = false,
+  mode = 'auto-play',
   'data-testid': testId,
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
@@ -405,6 +407,7 @@ export function VideoFeed({
       <VideoCard
         key={video.id}
         video={video}
+        mode={mode}
         onLike={handleVideoLike}
         onRepost={handleVideoRepost}
         onOpenComments={() => handleOpenComments(video)}

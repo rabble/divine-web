@@ -192,6 +192,7 @@ export function HashtagPage() {
         <VideoFeed
           feedType="hashtag"
           hashtag={normalizedTag}
+          mode={viewMode === 'grid' ? 'thumbnail' : 'auto-play'}
           data-testid="video-feed-hashtag"
           data-hashtag-testid={`feed-hashtag-${normalizedTag}`}
           className={cn(
