@@ -111,13 +111,13 @@ export function VideoCard({
   const metadata: NostrMetadata = author.metadata;
   const reposterMetadata: NostrMetadata | undefined = reposter?.metadata;
 
-  const displayName = metadata.display_name || metadata.name || genUserName(video.pubkey);
+  const displayName = metadata.display_name || metadata.name || (authorData.isLoading ? "Loading profile..." : genUserName(video.pubkey));
   const profileImage = getSafeProfileImage(metadata.picture);
   const npub = nip19.npubEncode(video.pubkey);
   // Just use npub for now, we'll deal with NIP-05 later
   const profileUrl = `/${npub}`;
 
-  const reposterName = reposterMetadata?.name || (reposterPubkey ? genUserName(reposterPubkey) : '');
+  const reposterName = reposterMetadata?.name || (reposterPubkey ? (reposterData.isLoading ? "Loading profile..." : genUserName(reposterPubkey)) : '');
 
   // NEW: Get all unique reposters for display
   const allReposters = video.reposts || [];
