@@ -361,11 +361,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         baseFilter.until = until;
       }
 
-      // For 'recent' feed, only get videos from the last 30 days
-      // This excludes old migrated Vine videos with ancient created_at timestamps
+      // For 'recent' feed, remove the since filter to get all videos
+      // The relay will sort by created_at naturally
+      // Note: Removed 30-day restriction to show all recent videos
       if (feedType === 'recent' && !until) {
-        const thirtyDaysAgo = Math.floor(Date.now() / 1000) - (30 * 24 * 60 * 60);
-        baseFilter.since = thirtyDaysAgo;
+        // Don't add since filter - just get recent videos sorted by time
       }
 
       // Handle different feed types
