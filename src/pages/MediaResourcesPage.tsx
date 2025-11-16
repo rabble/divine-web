@@ -410,30 +410,6 @@ export function MediaResourcesPage() {
                     <div className="text-sm font-medium mt-2">White on Black</div>
                   </div>
 
-                  {/* White on Transparent */}
-                  <div className="border rounded-lg p-4">
-                    <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded flex items-center justify-center mb-3 border">
-                      <img
-                        src="/brand-assets/White_on_transparent.png"
-                        alt="Divine logo - White on transparent"
-                        className="max-w-[80%] max-h-[80%] object-contain"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <a
-                        href="/brand-assets/White_on_transparent.png"
-                        download
-                        className="flex-1"
-                      >
-                        <Button variant="outline" size="sm" className="w-full">
-                          <Download className="h-3 w-3 mr-1" />
-                          PNG
-                        </Button>
-                      </a>
-                    </div>
-                    <div className="text-sm font-medium mt-2">White on Transparent</div>
-                  </div>
-
                   {/* Green on Ivory */}
                   <div className="border rounded-lg p-4">
                     <div className="aspect-video rounded flex items-center justify-center mb-3 border" style={{ backgroundColor: '#F5F5DC' }}>
