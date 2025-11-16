@@ -293,31 +293,215 @@ export function MediaResourcesPage() {
               </div>
             </div>
 
-            {/* Logos */}
+            {/* Brand Assets */}
             <div>
-              <h3 className="font-semibold mb-3">Brand Assets</h3>
+              <h3 className="font-semibold mb-3">Brand Assets & Logos</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Download Divine logos and brand assets for media use
+                Download Divine logos and brand assets for media use. Available in PNG and SVG formats.
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="justify-start h-auto py-4">
-                  <div className="text-left">
-                    <div className="font-semibold text-sm">Logo (PNG)</div>
-                    <div className="text-xs text-muted-foreground">Transparent background</div>
+
+              {/* Icon Logos */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium mb-3">Icon Logos</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <a
+                    href="/brand-assets/divine_icon_transparent.png"
+                    download
+                    className="group border rounded-lg p-4 hover:border-primary transition-colors"
+                  >
+                    <div className="aspect-square bg-muted rounded flex items-center justify-center mb-2">
+                      <img
+                        src="/brand-assets/divine_icon_transparent.png"
+                        alt="Divine icon transparent"
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <div className="text-sm font-medium">Icon - Transparent</div>
+                    <div className="text-xs text-muted-foreground">PNG</div>
+                  </a>
+
+                  <a
+                    href="/brand-assets/app_icon.png"
+                    download
+                    className="group border rounded-lg p-4 hover:border-primary transition-colors"
+                  >
+                    <div className="aspect-square bg-muted rounded flex items-center justify-center mb-2">
+                      <img
+                        src="/brand-assets/app_icon.png"
+                        alt="Divine app icon"
+                        className="w-20 h-20 object-contain"
+                      />
+                    </div>
+                    <div className="text-sm font-medium">App Icon</div>
+                    <div className="text-xs text-muted-foreground">PNG</div>
+                  </a>
+                </div>
+              </div>
+
+              {/* Wordmark Logos */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Wordmark Logos</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Black on White */}
+                  <div className="border rounded-lg p-4">
+                    <div className="aspect-video bg-white rounded flex items-center justify-center mb-3 border">
+                      <img
+                        src="/brand-assets/Black_on_white.png"
+                        alt="Divine logo - Black on white"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href="/brand-assets/Black_on_white.png"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          PNG
+                        </Button>
+                      </a>
+                      <a
+                        href="/brand-assets/Black_on_white.svg"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          SVG
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="text-sm font-medium mt-2">Black on White</div>
                   </div>
-                </Button>
-                <Button variant="outline" className="justify-start h-auto py-4">
-                  <div className="text-left">
-                    <div className="font-semibold text-sm">Logo (SVG)</div>
-                    <div className="text-xs text-muted-foreground">Vector format</div>
+
+                  {/* White on Black */}
+                  <div className="border rounded-lg p-4">
+                    <div className="aspect-video bg-black rounded flex items-center justify-center mb-3 border">
+                      <img
+                        src="/brand-assets/White_on_black.png"
+                        alt="Divine logo - White on black"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href="/brand-assets/White_on_black.png"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          PNG
+                        </Button>
+                      </a>
+                      <a
+                        href="/brand-assets/White_on_black.svg"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          SVG
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="text-sm font-medium mt-2">White on Black</div>
                   </div>
-                </Button>
-                <Button variant="outline" className="justify-start h-auto py-4">
-                  <div className="text-left">
-                    <div className="font-semibold text-sm">Brand Guidelines</div>
-                    <div className="text-xs text-muted-foreground">PDF document</div>
+
+                  {/* White on Transparent */}
+                  <div className="border rounded-lg p-4">
+                    <div className="aspect-video bg-gradient-to-br from-gray-800 to-gray-900 rounded flex items-center justify-center mb-3 border">
+                      <img
+                        src="/brand-assets/White_on_transparent.png"
+                        alt="Divine logo - White on transparent"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href="/brand-assets/White_on_transparent.png"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          PNG
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="text-sm font-medium mt-2">White on Transparent</div>
                   </div>
-                </Button>
+
+                  {/* Green on Ivory */}
+                  <div className="border rounded-lg p-4">
+                    <div className="aspect-video rounded flex items-center justify-center mb-3 border" style={{ backgroundColor: '#F5F5DC' }}>
+                      <img
+                        src="/brand-assets/Green_on_ivory.png"
+                        alt="Divine logo - Green on ivory"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href="/brand-assets/Green_on_ivory.png"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          PNG
+                        </Button>
+                      </a>
+                      <a
+                        href="/brand-assets/Green_on_ivory.svg"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          SVG
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="text-sm font-medium mt-2">Green on Ivory</div>
+                  </div>
+
+                  {/* Ivory on Green */}
+                  <div className="border rounded-lg p-4">
+                    <div className="aspect-video rounded flex items-center justify-center mb-3 border" style={{ backgroundColor: '#2D5016' }}>
+                      <img
+                        src="/brand-assets/Ivory_on_Green.png"
+                        alt="Divine logo - Ivory on green"
+                        className="max-w-[80%] max-h-[80%] object-contain"
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <a
+                        href="/brand-assets/Ivory_on_Green.png"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          PNG
+                        </Button>
+                      </a>
+                      <a
+                        href="/brand-assets/Ivory_on_Green.svg"
+                        download
+                        className="flex-1"
+                      >
+                        <Button variant="outline" size="sm" className="w-full">
+                          <Download className="h-3 w-3 mr-1" />
+                          SVG
+                        </Button>
+                      </a>
+                    </div>
+                    <div className="text-sm font-medium mt-2">Ivory on Green</div>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
