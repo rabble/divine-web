@@ -127,6 +127,17 @@ export function MediaResourcesPage() {
                   </Button>
                   <Button asChild variant="outline" size="sm">
                     <a
+                      href="https://ditto.pub/@rabble@nos.social"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      Rabble on Nostr
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a
                       href="https://revolution.social"
                       target="_blank"
                       rel="noopener noreferrer"
