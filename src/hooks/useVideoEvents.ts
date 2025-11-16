@@ -385,7 +385,10 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         debugLog(`[useVideoEvents] Following: ${followList.slice(0, 5).join(', ')}${followList.length > 5 ? '...' : ''}`);
         baseFilter.authors = followList;
       } else if (feedType === 'trending') {
-        baseFilter.limit = limit;
+        // Request more events than needed so we can client-side sort by engagement
+        // This is especially important when relay.divine.video is down and other relays
+        // don't support the custom 'sort' parameter
+        baseFilter.limit = Math.max(limit * 3, 150);
       }
 
       let events: NostrEvent[] = [];
