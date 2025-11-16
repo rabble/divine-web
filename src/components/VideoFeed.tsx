@@ -146,8 +146,8 @@ export function VideoFeed({
     }
   }, [filteredVideos, allVideos, feedType]);
 
-  // Loading state
-  if (isLoading && !lastTimestamp) {
+  // Loading state (initial load only)
+  if (isLoading && !data) {
     return (
       <div
         className={className}
