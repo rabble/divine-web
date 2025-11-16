@@ -4,12 +4,28 @@ OpenVine-compatible Nostr client for short-form looping videos. Built with React
 
 ## Features
 
-- **6-second looping videos** (Kind 34236 - NIP-71)
+- **6-second looping videos** (Kind 34236 - NIP-71 Addressable Short Videos)
+- **Addressable events** with `d` tag for updatable content (metadata corrections, URL migration)
 - **MP4 and GIF support** with auto-loop playback
 - **Blurhash placeholders** for smooth progressive loading
 - **Social features**: Likes, reposts, follows, hashtag discovery
 - **Feed types**: Home (following), Discovery, Trending, Hashtag, Profile
 - **Primary relay**: wss://relay.divine.video
+
+## NIP-71 Video Events
+
+This app implements [NIP-71](https://github.com/nostr-protocol/nips/pull/2072) for video events:
+
+- **Kind 34236**: Addressable short videos (vertical, 6-second loops) - **Primary kind used**
+- **Kind 34235**: Addressable normal videos (horizontal)
+- **Kind 22**: Regular short videos (non-addressable)
+- **Kind 21**: Regular normal videos (non-addressable)
+
+Addressable events (kinds 34235, 34236) support:
+- Metadata corrections without republishing
+- URL migration when hosting changes
+- Preservation of imported content IDs from legacy platforms
+- Content updates while maintaining the same reference
 
 ## Custom Relay Extension
 

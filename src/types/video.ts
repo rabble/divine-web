@@ -3,13 +3,17 @@
 
 import type { NostrEvent } from '@nostrify/nostrify';
 
-// NIP-71 Video Event Kinds
-export const HORIZONTAL_VIDEO_KIND = 21; // NIP-71 Normal (horizontal) videos
-export const SHORT_VIDEO_KIND = 22; // NIP-71 Short (vertical) videos
-export const LEGACY_VIDEO_KIND = 34236; // Legacy kind for backward compatibility
+// NIP-71 Video Event Kinds (per PR #2072)
+export const HORIZONTAL_VIDEO_KIND = 21; // NIP-71 Normal (horizontal) videos - regular event
+export const SHORT_VIDEO_KIND = 22; // NIP-71 Short (vertical) videos - regular event
+export const ADDRESSABLE_NORMAL_VIDEO_KIND = 34235; // NIP-71 Addressable normal videos (requires d tag)
+export const ADDRESSABLE_SHORT_VIDEO_KIND = 34236; // NIP-71 Addressable short videos (requires d tag)
+
+// Legacy alias for backward compatibility
+export const LEGACY_VIDEO_KIND = ADDRESSABLE_SHORT_VIDEO_KIND;
 
 // Array of all supported video kinds
-export const VIDEO_KINDS = [HORIZONTAL_VIDEO_KIND, SHORT_VIDEO_KIND, LEGACY_VIDEO_KIND];
+export const VIDEO_KINDS = [HORIZONTAL_VIDEO_KIND, SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND];
 
 export const REPOST_KIND = 6;
 
@@ -30,7 +34,7 @@ export interface VideoMetadata {
 }
 
 export interface VideoEvent extends NostrEvent {
-  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND;
+  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND;
   videoMetadata?: VideoMetadata;
   title?: string;
   hashtags?: string[];
@@ -72,7 +76,7 @@ export interface RepostMetadata {
 export interface ParsedVideoData {
   id: string;                // Original video event ID
   pubkey: string;            // Original author pubkey
-  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // NIP-71 video kind
+  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND; // NIP-71 video kind
   createdAt: number;
   originalVineTimestamp?: number; // Custom published_at timestamp (NIP-31 - can be set by any video)
   content: string;

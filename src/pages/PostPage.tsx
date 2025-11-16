@@ -162,13 +162,14 @@ export function PostPage() {
         filename: `post-${Date.now()}.${videoSegments[0].blob.type.includes('gif') ? 'gif' : 'mp4'}`,
       });
 
-      // Step 2: Publish to Nostr
+      // Step 2: Publish to Nostr (using kind 34236 - addressable short video)
       await publishVideo({
         content: description,
         videoUrl: uploadResult.url,
         title,
         duration: uploadResult.duration / 1000, // Convert ms to seconds
         hashtags,
+        kind: 34236, // Use kind 34236 for addressable short videos (NIP-71)
       });
 
       toast({

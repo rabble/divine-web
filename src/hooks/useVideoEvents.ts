@@ -25,17 +25,17 @@ interface UseVideoEventsOptions {
 }
 
 /**
- * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
+ * Validates that a NIP-71 video event (kinds 21, 22, 34235, or 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
-  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
-  // Kinds 21 and 22 are regular events and don't require d tag
-  if (event.kind === 34236) {
+  // Addressable events (kinds 34235, 34236) MUST have d tag per NIP-33 and NIP-71 PR #2072
+  // Regular events (kinds 21, 22) don't require d tag
+  if (event.kind === 34235 || event.kind === 34236) {
     const vineId = getVineId(event);
     if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+      debugLog(`[validateVideoEvent] Kind ${event.kind} addressable event missing required d tag:`, event.id);
       return false;
     }
   }

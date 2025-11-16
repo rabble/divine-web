@@ -1,7 +1,7 @@
 # Post Creation Feature
 
 ## Overview
-This feature adds the ability for logged-in users to create and publish video posts to the Nostr network. Posts are created using the same event structure as the Discovery feed (Kind 22 - NIP-71 short-form videos).
+This feature adds the ability for logged-in users to create and publish video posts to the Nostr network. Posts are created using the same event structure as the Discovery feed (Kind 34236 - NIP-71 addressable short-form videos).
 
 ## Implementation Details
 
@@ -30,21 +30,21 @@ This feature adds the ability for logged-in users to create and publish video po
 
 ### 3. Upload & Publishing
 - **Blossom Server**: `https://blossom.divine.video/`
-- **Event Kind**: 22 (SHORT_VIDEO_KIND) - same as Discovery feed
+- **Event Kind**: 34236 (ADDRESSABLE_SHORT_VIDEO_KIND) - Addressable short videos per NIP-71 PR #2072
 - **Progress Tracking**: Visual progress bar for upload and publish
 - **Error Handling**: User-friendly error messages with toast notifications
 
-### 4. Event Structure
-Posts create Nostr events with the following structure:
+### 4. Event Structure (NIP-71 PR #2072)
+Posts create addressable Nostr events with the following structure:
 ```typescript
 {
-  kind: 22,
+  kind: 34236, // Addressable short video event
   content: description,
   tags: [
-    ['d', vineId],                    // Addressable identifier
-    ['title', title],                 // Video title
-    ['published_at', timestamp],      // Publication timestamp
-    ['imeta', ...videoMetadata],      // Video file metadata
+    ['d', vineId],                    // Required: Unique identifier for addressable events
+    ['title', title],                 // Required: Video title
+    ['published_at', timestamp],      // Required: Publication timestamp
+    ['imeta', ...videoMetadata],      // Required: Video file metadata (url, mime type, dimensions, etc.)
     ['duration', seconds],            // Video duration
     ['t', hashtag1],                  // Hashtag 1
     ['t', hashtag2],                  // Hashtag 2
@@ -53,6 +53,12 @@ Posts create Nostr events with the following structure:
   ]
 }
 ```
+
+**Addressable Event Benefits:**
+- Events can be updated while maintaining the same reference
+- Metadata corrections without republishing entire video
+- URL migration when hosting changes
+- Preservation of original content IDs from legacy platforms
 
 ### 5. Navigation
 - **Bottom Nav**: New "Post" button with Plus icon (mobile only)

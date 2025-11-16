@@ -3,7 +3,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
+import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
 import type { VideoMetadata } from '@/types/video';
 
 interface PublishVideoOptions {
@@ -15,7 +15,7 @@ interface PublishVideoOptions {
   dimensions?: string;
   hashtags?: string[];
   vineId?: string; // Optional, will generate if not provided
-  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // Kind 22 (short/vertical), 21 (horizontal), or 34236 (legacy) - defaults to 22
+  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND; // Kind 22 (short), 21 (horizontal), 34236 (addressable short), or 34235 (addressable normal) - defaults to 34236
 }
 
 /**
@@ -76,12 +76,12 @@ export function usePublishVideo() {
         dimensions = '480x480',
         hashtags = [],
         vineId = generateVineId(),
-        kind = SHORT_VIDEO_KIND // Default to short vertical videos (kind 22)
+        kind = ADDRESSABLE_SHORT_VIDEO_KIND // Default to kind 34236 (addressable short video) per NIP-71 PR #2072
       } = options;
 
-      // Build tags according to NIP-71
+      // Build tags according to NIP-71 (PR #2072)
       const tags: string[][] = [
-        ['d', vineId], // Required for addressability
+        ['d', vineId], // Required for addressable events (kinds 34235, 34236)
         ['title', title || 'Untitled'], // Required by NIP-71
         ['published_at', String(Math.floor(Date.now() / 1000))] // Required by NIP-71
       ];
@@ -137,11 +137,11 @@ export function useRepostVideo() {
     mutationFn: async ({
       originalPubkey,
       vineId,
-      kind = SHORT_VIDEO_KIND
+      kind = ADDRESSABLE_SHORT_VIDEO_KIND
     }: {
       originalPubkey: string;
       vineId: string;
-      kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND;
+      kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND;
     }) => {
       const tags: string[][] = [
         ['a', `${kind}:${originalPubkey}:${vineId}`],
