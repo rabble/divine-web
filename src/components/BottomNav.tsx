@@ -1,4 +1,4 @@
-import { Home, Compass, Search, User } from 'lucide-react';
+import { Home, Compass, Search, User, Plus } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -49,6 +49,22 @@ export function BottomNav() {
           <Compass className="h-5 w-5" />
           <span className="text-xs">Discover</span>
         </Button>
+
+        {/* Post - Only show if logged in */}
+        {user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/post')}
+            className={cn(
+              "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
+              isActive('/post') && "text-primary bg-primary/10"
+            )}
+          >
+            <Plus className="h-5 w-5" />
+            <span className="text-xs">Post</span>
+          </Button>
+        )}
 
         {/* Search */}
         <Button

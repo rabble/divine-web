@@ -38,6 +38,7 @@ import { PressReleasePage } from "./pages/PressReleasePage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 // import { UploadPage } from "./pages/UploadPage"; // DISABLED: Upload route is commented out
+import PostPage from "./pages/PostPage";
 import { KeycastAutoConnect } from "@/components/KeycastAutoConnect";
 
 export function AppRouter() {
@@ -89,6 +90,7 @@ export function AppRouter() {
               <Route path="/home" element={<HomePage />} />
               <Route path="/lists" element={<ListsPage />} />
               <Route path="/list/:pubkey/:listId" element={<ListDetailPage />} />
+              <Route path="/post" element={<PostPage />} />
               {/* DISABLED: Upload route - not supported on web at this time
               <Route path="/upload" element={<UploadPage />} />
               */}
