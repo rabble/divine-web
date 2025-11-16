@@ -36,7 +36,7 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay.divine.video", // Primary relay (legacy field)
+  relayUrl: "wss://relay.divine.video", // Primary relay with NIP-50 support
   relayUrls: [
     "wss://relay.divine.video",
   ],
@@ -45,7 +45,6 @@ const defaultConfig: AppConfig = {
 
 const presetRelays = [
   { url: 'wss://relay.divine.video', name: 'Divine' },
-  { url: 'wss://relay3.openvine.co', name: 'OpenVine' },
   { url: 'wss://divine.diy', name: 'divine.diy' },
   { url: 'wss://relay.ditto.pub', name: 'Ditto' },
   { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },

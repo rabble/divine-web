@@ -1,5 +1,6 @@
 // ABOUTME: Hook for fetching profile statistics including video count, views, followers, and joined date
 // ABOUTME: Aggregates data from video events, social interactions, and contact lists
+// ABOUTME: Optimized to use batched queries for improved performance
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
@@ -17,44 +18,44 @@ export function useProfileStats(pubkey: string) {
     queryKey: ['profile-stats', pubkey],
     queryFn: async (context) => {
       if (!pubkey) throw new Error('No pubkey provided');
-      
+
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(5000)]);
 
       try {
-        // Batch query for all profile-related data
-        const [videoEvents, followerEvents, userContactList] = await Promise.all([
+        // Optimized: Single batched query for all profile data
+        // Combine multiple filters into one WebSocket request
+        const allEvents = await nostr.query([
           // 1. User's videos (kind 34236 - NIP-71)
-          nostr.query([{
-            kinds: VIDEO_KINDS, // Video events
+          {
+            kinds: VIDEO_KINDS,
             authors: [pubkey],
-            limit: 500, // Get all videos to count accurately
-          }], { signal }),
-
+            limit: 500,
+          },
           // 2. People who follow this user (kind 3 contact lists mentioning this pubkey)
-          nostr.query([{
-            kinds: [3], // Contact lists
-            '#p': [pubkey], // Tag referencing this user
-            limit: 500, // Get followers
-          }], { signal }),
-
+          {
+            kinds: [3],
+            '#p': [pubkey],
+            limit: 500,
+          },
           // 3. User's own contact list (people they follow)
-          nostr.query([{
-            kinds: [3], // Contact lists
+          {
+            kinds: [3],
             authors: [pubkey],
-            limit: 1, // Only need the latest
-          }], { signal }),
+            limit: 1,
+          }
+        ], { signal });
 
-          // 4. Social interactions for view calculation (reactions/reposts on user's videos)
-          // We'll do this in a second step after getting video IDs
-          Promise.resolve([]) as Promise<never[]>
-        ]);
+        // Separate events by type
+        const videoEvents = allEvents.filter(e => VIDEO_KINDS.includes(e.kind));
+        const followerEvents = allEvents.filter(e => e.kind === 3 && e.tags.some(t => t[0] === 'p' && t[1] === pubkey));
+        const userContactList = allEvents.filter(e => e.kind === 3 && e.pubkey === pubkey);
 
         // Calculate video count
         const videosCount = videoEvents.length;
 
         // Get video IDs for social metrics calculation
         const videoIds = videoEvents.map(event => event.id);
-        
+
         // Fetch social interactions for all videos
         let totalViews = 0;
         if (videoIds.length > 0) {
@@ -81,7 +82,7 @@ export function useProfileStats(pubkey: string) {
         // Calculate following count (people this user follows)
         const latestContactList = userContactList
           .sort((a, b) => b.created_at - a.created_at)[0];
-        
+
         const followingCount = latestContactList
           ? latestContactList.tags.filter(tag => tag[0] === 'p').length
           : 0;

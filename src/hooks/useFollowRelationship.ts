@@ -45,25 +45,28 @@ export function useFollowRelationship(targetPubkey: string) {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(3000)]);
 
       try {
-        // Get current user's contact list and target user's contact list
-        const [currentUserContactList, targetUserContactList] = await Promise.all([
-          nostr.query([{
+        // Optimized: Single batched query for both contact lists
+        const allContactLists = await nostr.query([
+          {
             kinds: [3],
             authors: [user.pubkey],
             limit: 1,
-          }], { signal }),
-
-          nostr.query([{
+          },
+          {
             kinds: [3],
             authors: [targetPubkey],
             limit: 1,
-          }], { signal }),
-        ]);
+          }
+        ], { signal });
 
-        const currentContactListEvent = currentUserContactList
+        // Separate and find latest for each user
+        const currentUserLists = allContactLists.filter(e => e.pubkey === user.pubkey);
+        const targetUserLists = allContactLists.filter(e => e.pubkey === targetPubkey);
+
+        const currentContactListEvent = currentUserLists
           .sort((a, b) => b.created_at - a.created_at)[0] || null;
 
-        const targetContactListEvent = targetUserContactList
+        const targetContactListEvent = targetUserLists
           .sort((a, b) => b.created_at - a.created_at)[0] || null;
 
         // Check if current user follows target
@@ -79,7 +82,7 @@ export function useFollowRelationship(targetPubkey: string) {
               .filter(tag => tag[0] === 'p')
               .map(tag => tag[1])
           );
-          
+
           const targetFollowing = new Set(
             targetContactListEvent.tags
               .filter(tag => tag[0] === 'p')
@@ -123,7 +126,7 @@ export function useFollowUser() {
 
       // Get current contact list tags or start with empty array
       const currentTags = currentContactList?.tags || [];
-      
+
       // Check if already following (shouldn't happen but good safety check)
       const alreadyFollowing = currentTags.some(tag => tag[0] === 'p' && tag[1] === targetPubkey);
       if (alreadyFollowing) {
@@ -176,7 +179,7 @@ export function useUnfollowUser() {
       if (!currentContactList) throw new Error('No contact list to update');
 
       // Remove the target user from tags
-      const updatedTags = currentContactList.tags.filter(tag => 
+      const updatedTags = currentContactList.tags.filter(tag =>
         !(tag[0] === 'p' && tag[1] === targetPubkey)
       );
 
