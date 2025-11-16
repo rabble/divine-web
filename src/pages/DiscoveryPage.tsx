@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
+import { RelaySelector } from '@/components/RelaySelector';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock } from 'lucide-react';
 
@@ -15,7 +16,7 @@ export function DiscoveryPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-2xl mx-auto">
         <header className="mb-6">
-          <div className="flex items-start justify-between mb-2">
+          <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold">Discover</h1>
               <p className="text-muted-foreground">Explore videos from the network</p>
@@ -24,6 +25,10 @@ export function DiscoveryPage() {
               enabled={verifiedOnly}
               onToggle={setVerifiedOnly}
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Relay:</span>
+            <RelaySelector className="flex-1" />
           </div>
         </header>
 
