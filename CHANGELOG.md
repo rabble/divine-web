@@ -5,6 +5,23 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Grid view for hashtag pages** - Hashtag feeds now support grid/list view toggle with responsive multi-column layout
+- **"Divine needs a rest" empty state** - Beautiful empty state with full-width reclining Divine photo by Marcus Leatherdale when no videos are found
+
+### Changed
+- **Faster video loading** - Optimized initial video feed loading from 12 seconds to ~2 seconds by reducing query size and timeouts
+- **Removed client-side deletion filtering** - Relays now handle NIP-09 deletion events instead of the client
+- **Multi-relay support removed** - Simplified to use only relay.divine.video for better performance and reliability
+- **Improved profile display** - Show truncated npub (e.g. "npub1abc123...") instead of random generated names when users lack profile metadata
+- **Better loading states** - Display "Loading profile..." while fetching user metadata instead of showing placeholder names
+- **Increased hashtag query timeout** - Extended to 5 seconds for better reliability when relay is under load
+
+### Fixed
+- **Blurhash flashing** - Video thumbnails no longer flash back to blurhash after initial load
+- **Grid layout rendering** - Fixed nested grid wrapper that prevented proper multi-column display on hashtag pages
+- **Thumbnail navigation** - Clicking videos in grid view now navigates to video page instead of playing inline
+
+### Added
 - **MailerLite signup on About page** - Added email signup form to About page for users to receive updates about app store releases
 - **Divine 404 page** - Campy, glamorous 404 error page featuring Divine with gradient background, playful messaging ("This Page is Divine...ly Missing!"), and fun call-to-action button
 - **News page** - Added /news page with press releases and media coverage about Divine
