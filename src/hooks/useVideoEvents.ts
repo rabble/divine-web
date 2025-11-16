@@ -329,9 +329,11 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
       verboseLog(`[useVideoEvents] Options:`, { feedType, hashtag, pubkey, limit, until });
 
+      // Use longer timeout for hashtag queries since they need to search through tags
+      const timeoutMs = feedType === 'hashtag' ? 5000 : (until ? 3000 : 2000);
       const signal = AbortSignal.any([
         context.signal,
-        AbortSignal.timeout(until ? 3000 : 2000) // 2s for initial load, 3s for pagination
+        AbortSignal.timeout(timeoutMs) // 5s for hashtags, 2s for initial load, 3s for pagination
       ]);
 
       // Build base filter
