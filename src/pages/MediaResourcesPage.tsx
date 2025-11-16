@@ -14,7 +14,7 @@ export function MediaResourcesPage() {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Media Resources</h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Everything you need to know about Divine, the short-form video platform preserving authentic human creativity.
+            Everything you need to know about diVine, the short-form video platform preserving authentic human creativity.
           </p>
         </div>
 
@@ -39,19 +39,19 @@ export function MediaResourcesPage() {
           </CardContent>
         </Card>
 
-        {/* About Divine */}
+        {/* About diVine */}
         <Card>
           <CardHeader>
-            <CardTitle>About Divine</CardTitle>
+            <CardTitle>About diVine</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              Divine is a decentralized short-form video platform built on the Nostr protocol,
+              diVine is a decentralized short-form video platform built on the Nostr protocol,
               inspired by Vine's creative 6-second format. In an era of AI-generated content,
-              Divine preserves authentic human creativity and gives creators true ownership of their content.
+              diVine preserves authentic human creativity and gives creators true ownership of their content.
             </p>
             <p className="text-muted-foreground">
-              Funded by Jack Dorsey through andotherstuff, Divine brings back the spontaneous
+              Funded by Jack Dorsey through andotherstuff, diVine brings back the spontaneous
               creativity that made Vine special—but this time, built on open-source technology
               that makes it impossible for any corporation to shut down.
             </p>
@@ -79,7 +79,7 @@ export function MediaResourcesPage() {
             <div className="pt-4">
               <Button asChild variant="outline">
                 <Link to="/about" className="inline-flex items-center gap-2">
-                  Learn More About Divine
+                  Learn More About diVine
                   <ExternalLink className="h-4 w-4" />
                 </Link>
               </Button>
@@ -104,13 +104,13 @@ export function MediaResourcesPage() {
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
                   Rabble is a veteran technologist and activist building decentralized social media
-                  technologies and fighting for digital rights. Creator of Divine and host of the
+                  technologies and fighting for digital rights. Creator of diVine and host of the
                   Revolution.Social podcast, Rabble has been at the forefront of open-source and
                   decentralized technology for over two decades.
                 </p>
                 <p className="text-muted-foreground">
                   His work focuses on empowering users through decentralization, protecting digital
-                  rights, and building tools that put creators first. With Divine, he's bringing back
+                  rights, and building tools that put creators first. With diVine, he's bringing back
                   the creative spontaneity of Vine while ensuring no corporation can ever shut it down again.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -187,7 +187,7 @@ export function MediaResourcesPage() {
                 </p>
                 <p className="text-muted-foreground">
                   AOS believes in a future where technology serves people, not corporations. By funding
-                  projects like Divine, AOS is helping build a more open, decentralized internet where
+                  projects like diVine, AOS is helping build a more open, decentralized internet where
                   users control their data and creative works.
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -234,7 +234,7 @@ export function MediaResourcesPage() {
                   <FileText className="h-4 w-4" />
                   <div className="text-left">
                     <div className="font-semibold">Frequently Asked Questions</div>
-                    <div className="text-xs text-muted-foreground">Common questions about Divine</div>
+                    <div className="text-xs text-muted-foreground">Common questions about diVine</div>
                   </div>
                 </Link>
               </Button>
@@ -332,7 +332,7 @@ export function MediaResourcesPage() {
             <div>
               <h3 className="font-semibold mb-3">Brand Assets & Logos</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Download Divine logos and brand assets for media use. Available in PNG and SVG formats.
+                Download diVine logos and brand assets for media use. Available in PNG and SVG formats.
               </p>
 
               {/* Icon Logos */}

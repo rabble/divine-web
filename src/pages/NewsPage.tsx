@@ -34,9 +34,9 @@ export function NewsPage() {
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Divine News & Press</h1>
+          <h1 className="text-4xl font-bold mb-2">diVine News & Press</h1>
           <p className="text-muted-foreground mb-4">
-            Press releases, media coverage, and announcements about Divine
+            Press releases, media coverage, and announcements about diVine
           </p>
           <div className="flex gap-3">
             <Button asChild variant="outline">
@@ -104,7 +104,7 @@ export function NewsPage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                With a grant funded by Jack Dorsey, Rabble has created Divine - an open source revival of Vine videos and its six-second video creation capabilities.
+                With a grant funded by Jack Dorsey, Rabble has created diVine - an open source revival of Vine videos and its six-second video creation capabilities.
               </p>
               <Link
                 to="/news/vine-revisited"
@@ -142,7 +142,7 @@ export function NewsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Jack Dorsey has introduced Divine, an open-source revival of the short-form video platform Vine.
+                    Jack Dorsey has introduced diVine, an open-source revival of the short-form video platform Vine.
                   </p>
                   <a
                     href="https://www.yahoo.com/news/article/what-to-know-about-jack-dorseys-new-vine-revival-divine-215918687.html"
@@ -167,7 +167,7 @@ export function NewsPage() {
                           rel="noopener noreferrer"
                           className="hover:text-primary transition-colors"
                         >
-                          Vine reboot Divine Jack Dorsey andotherstuff
+                          Vine reboot diVine Jack Dorsey andotherstuff
                         </a>
                       </CardTitle>
                       <CardDescription>
@@ -179,7 +179,7 @@ export function NewsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Jack Dorsey's andotherstuff is bringing back Vine as Divine, an open-source platform for short-form video.
+                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video.
                   </p>
                   <a
                     href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
@@ -204,7 +204,7 @@ export function NewsPage() {
                           rel="noopener noreferrer"
                           className="hover:text-primary transition-colors"
                         >
-                          Divine: Everything We Know About Vine's Reboot
+                          diVine: Everything We Know About Vine's Reboot
                         </a>
                       </CardTitle>
                       <CardDescription>
@@ -216,7 +216,7 @@ export function NewsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Everything you need to know about Divine, the spiritual successor to Vine backed by Jack Dorsey.
+                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey.
                   </p>
                   <a
                     href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
@@ -241,7 +241,7 @@ export function NewsPage() {
                           rel="noopener noreferrer"
                           className="hover:text-primary transition-colors"
                         >
-                          Jack Dorsey funds Divine, a Vine reboot that includes Vine's video archive
+                          Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
                         </a>
                       </CardTitle>
                       <CardDescription>
@@ -253,7 +253,7 @@ export function NewsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4">
-                    Jack Dorsey, the co-founder of Twitter, is backing Divine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017.
+                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017.
                   </p>
                   <a
                     href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
