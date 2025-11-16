@@ -419,7 +419,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         }
 
         // Only query reposts if we don't have enough videos and NOT doing a direct ID lookup
-        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup) {
+        // Skip repost queries when using NIP-50 sorting (relay handles it efficiently)
+        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup && !shouldSortByPopularity) {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
@@ -427,6 +428,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           events = [...events, ...repostEvents];
         } else if (isDirectIdLookup) {
           debugLog('[useVideoEvents] Skipping repost query for direct ID lookup');
+        } else if (shouldSortByPopularity) {
+          debugLog('[useVideoEvents] Skipping repost query (using NIP-50 sorting)');
         }
       } catch (err) {
         debugError('[useVideoEvents] Query error:', err);
@@ -501,8 +504,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
 
       return parsed;
     },
-    staleTime: 60000, // 1 minute - increase to reduce re-queries
-    gcTime: 600000, // 10 minutes - keep data longer
+    staleTime: 300000, // 5 minutes - reduce re-queries for better performance
+    gcTime: 900000, // 15 minutes - keep data longer in cache
     enabled: feedType !== 'home' || !!user?.pubkey, // Only run home feed if user is logged in
   });
 
