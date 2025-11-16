@@ -141,17 +141,30 @@ export function OpenSourcePage() {
               <p className="text-muted-foreground mb-4">
                 Join our open-source community and help build the future of decentralized video sharing!
               </p>
-              <Button asChild>
-                <a
-                  href="https://github.com/rabble/nostrvine"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
-                  <Github className="h-4 w-4" />
-                  View on GitHub
-                </a>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button asChild>
+                  <a
+                    href="https://github.com/rabble/divine-web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Github className="h-4 w-4" />
+                    Web App
+                  </a>
+                </Button>
+                <Button asChild variant="outline">
+                  <a
+                    href="https://github.com/rabble/nostrvine"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Github className="h-4 w-4" />
+                    Flutter App
+                  </a>
+                </Button>
+              </div>
             </div>
 
             <div className="text-sm text-muted-foreground">
