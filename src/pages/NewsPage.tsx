@@ -43,7 +43,7 @@ export function NewsPage() {
           {/* Seen In Section */}
           <div>
             <h2 className="text-xl font-semibold mb-4 text-center">As seen in</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
               {NEWS_OUTLETS.map((outlet) => (
                 <a
                   key={outlet.name}
@@ -56,7 +56,11 @@ export function NewsPage() {
                   <img
                     src={outlet.logo}
                     alt={outlet.name}
-                    className="h-12 w-auto object-contain"
+                    className={
+                      outlet.name === 'Newsweek' || outlet.name === 'TechCrunch'
+                        ? 'h-20 w-auto object-contain'
+                        : 'h-16 w-auto object-contain'
+                    }
                   />
                 </a>
               ))}
