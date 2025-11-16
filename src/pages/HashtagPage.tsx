@@ -195,8 +195,7 @@ export function HashtagPage() {
           data-testid="video-feed-hashtag"
           data-hashtag-testid={`feed-hashtag-${normalizedTag}`}
           className={cn(
-            "space-y-6",
-            viewMode === 'grid' && "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 space-y-0"
+            viewMode === 'feed' ? "space-y-6" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           )}
         />
       </div>
