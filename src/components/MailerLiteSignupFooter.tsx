@@ -40,7 +40,7 @@ export function MailerLiteSignupFooter() {
 
   if (isSuccess) {
     return (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-sm text-foreground">
         ✓ Thanks for subscribing!
       </div>
     );
@@ -57,8 +57,8 @@ export function MailerLiteSignupFooter() {
         disabled={isSubmitting}
         className="flex-1 h-9 text-sm"
       />
-      <Button 
-        type="submit" 
+      <Button
+        type="submit"
         disabled={isSubmitting}
         size="sm"
         className="h-9 px-4"

@@ -10,7 +10,7 @@ export function AppFooter() {
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
             {/* Left side - Email signup */}
             <div className="flex flex-col gap-4 lg:max-w-md">
-              <div className="text-sm font-medium">Stay Updated</div>
+              <div className="text-sm font-medium text-foreground">Stay Updated</div>
               <MailerLiteSignupFooter />
             </div>
 
