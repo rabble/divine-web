@@ -12,7 +12,7 @@ import type { NIP50Filter, SortMode } from '@/types/nostr';
 interface UseSearchVideosOptions {
   query: string;
   searchType?: 'content' | 'author' | 'auto';
-  sortMode?: SortMode;
+  sortMode?: SortMode | 'relevance';
   limit?: number;
 }
 
@@ -104,7 +104,7 @@ function parseSearchQuery(query: string, searchType: 'content' | 'author' | 'aut
  */
 export function useSearchVideos(options: UseSearchVideosOptions) {
   const { nostr } = useNostr();
-  const { query, searchType = 'auto', sortMode = 'hot', limit = 50 } = options;
+  const { query, searchType = 'auto', sortMode = 'relevance', limit = 50 } = options;
 
   // Debounce the query - disable in test environment
   const isTest = process.env.NODE_ENV === 'test';
@@ -136,13 +136,18 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
       const searchParams = parseSearchQuery(actualQuery, searchType);
 
       if (searchParams.type === 'hashtag') {
-        // Search by hashtag with NIP-50 sorting
+        // Search by hashtag with optional NIP-50 sorting
         const filter: NIP50Filter = {
           kinds: VIDEO_KINDS,
           '#t': [searchParams.value],
-          search: `sort:${sortMode}`,
           limit,
         };
+
+        // Only add sort directive if not using relevance
+        if (sortMode !== 'relevance') {
+          filter.search = `sort:${sortMode}`;
+        }
+
         const events = await nostr.query([filter], { signal });
 
         return parseVideoResults(events);
@@ -188,17 +193,24 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
         return parseVideoResults(videoEvents);
       }
 
-      // Content search - use NIP-50 full-text search with sort mode
+      // Content search - use NIP-50 full-text search
       const filter: NIP50Filter = {
         kinds: VIDEO_KINDS,
-        search: `sort:${sortMode} ${searchParams.value}`,
         limit,
       };
+
+      // For relevance, use just the search term (NIP-50 default)
+      // For other modes, prepend sort directive
+      if (sortMode === 'relevance') {
+        filter.search = searchParams.value;
+      } else {
+        filter.search = `sort:${sortMode} ${searchParams.value}`;
+      }
 
       let events: NostrEvent[];
 
       try {
-        // Use NIP-50 search with combined sort and content query
+        // Use NIP-50 search
         events = await nostr.query([filter], { signal });
       } catch {
         // Fallback: get recent videos and filter client-side if relay doesn't support NIP-50

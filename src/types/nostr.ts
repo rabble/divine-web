@@ -21,7 +21,8 @@ export interface NIP50Filter extends NostrFilter {
 
 /**
  * Supported sort modes for NIP-50 queries
- * 
+ *
+ * - relevance: Default NIP-50 search ranking by content relevance (no sort directive)
  * - hot: Recent events with high engagement (recency + popularity)
  * - top: Most referenced events (all-time or within time range)
  * - rising: Recently created events gaining engagement quickly

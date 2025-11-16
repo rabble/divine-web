@@ -14,7 +14,7 @@ import { debugLog } from '@/lib/debug';
 interface UseInfiniteSearchVideosOptions {
   query: string;
   searchType?: 'content' | 'author' | 'auto';
-  sortMode?: SortMode;
+  sortMode?: SortMode | 'relevance';
   pageSize?: number;
 }
 
@@ -113,7 +113,7 @@ function parseSearchQuery(query: string, searchType: 'content' | 'author' | 'aut
 export function useInfiniteSearchVideos({
   query,
   searchType = 'auto',
-  sortMode = 'hot',
+  sortMode = 'relevance',
   pageSize = 20
 }: UseInfiniteSearchVideosOptions) {
   const { nostr } = useNostr();
@@ -159,8 +159,8 @@ export function useInfiniteSearchVideos({
           limit: pageSize
         };
 
-        // Only add search if relay supports NIP-50
-        if (supportsNIP50) {
+        // Add sort mode for NIP-50 relays (only if not relevance)
+        if (supportsNIP50 && sortMode !== 'relevance') {
           filter.search = `sort:${sortMode}`;
         }
 
@@ -239,7 +239,13 @@ export function useInfiniteSearchVideos({
 
       // Use NIP-50 search if supported, otherwise fallback to client-side
       if (supportsNIP50) {
-        filter.search = `sort:${sortMode} ${searchParams.value}`;
+        // For relevance (default), just use the search term
+        // For other sort modes, prepend the sort directive
+        if (sortMode === 'relevance') {
+          filter.search = searchParams.value;
+        } else {
+          filter.search = `sort:${sortMode} ${searchParams.value}`;
+        }
 
         try {
           const events = await nostr.query([filter], { signal: abortSignal });

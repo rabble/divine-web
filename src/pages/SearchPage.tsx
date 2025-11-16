@@ -27,6 +27,7 @@ import type { SortMode } from '@/types/nostr';
 type SearchFilter = 'all' | 'videos' | 'users' | 'hashtags';
 
 const SORT_MODES = [
+  { value: 'relevance' as const, label: 'Relevance', icon: Search },
   { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
   { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
   { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
@@ -36,8 +37,8 @@ const SORT_MODES = [
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [sortMode, setSortMode] = useState<SortMode>(
-    (searchParams.get('sort') as SortMode) || 'hot'
+  const [sortMode, setSortMode] = useState<SortMode | 'relevance'>(
+    (searchParams.get('sort') as SortMode | 'relevance') || 'relevance'
   );
   const [activeFilter, setActiveFilter] = useState<SearchFilter>(
     (searchParams.get('filter') as SearchFilter) || 'all'
@@ -96,7 +97,7 @@ export function SearchPage() {
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
-    if (sortMode !== 'hot') params.set('sort', sortMode);
+    if (sortMode !== 'relevance') params.set('sort', sortMode);
     if (activeFilter !== 'all') params.set('filter', activeFilter);
     setSearchParams(params, { replace: true });
   }, [searchQuery, sortMode, activeFilter, setSearchParams]);
