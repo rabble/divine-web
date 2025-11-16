@@ -151,11 +151,15 @@ export function useInfiniteVideos({
           break;
 
         case 'home':
-          if (!user?.pubkey) throw new Error('User must be logged in for home feed');
+          if (!user?.pubkey) {
+            debugLog('[useInfiniteVideos] No user logged in for home feed');
+            return { videos: [], nextCursor: undefined };
+          }
           if (!followList || followList.length === 0) {
             debugLog('[useInfiniteVideos] User has no follows, returning empty feed');
             return { videos: [], nextCursor: undefined };
           }
+          debugLog(`[useInfiniteVideos] Home feed: user ${user.pubkey} following ${followList.length} accounts`);
           filter.authors = followList;
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
@@ -166,6 +170,7 @@ export function useInfiniteVideos({
         case 'trending':
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
+            debugLog(`[useInfiniteVideos] Trending feed with sort mode: ${effectiveSortMode}`);
             filter.search = `sort:${effectiveSortMode}`;
           }
           break;
@@ -182,7 +187,7 @@ export function useInfiniteVideos({
           break;
       }
 
-      debugLog(`[useInfiniteVideos] Fetching ${feedType} feed, cursor: ${cursor || 'none'}`);
+      debugLog(`[useInfiniteVideos] Fetching ${feedType} feed, cursor: ${cursor || 'none'}, filter:`, filter);
 
       // Fetch events with performance tracking
       const queryStart = performance.now();
@@ -203,7 +208,7 @@ export function useInfiniteVideos({
         filters: JSON.stringify(filter)
       });
 
-      debugLog(`[useInfiniteVideos] Got ${events.length} events in ${queryTime.toFixed(0)}ms`);
+      debugLog(`[useInfiniteVideos] Got ${events.length} events for ${feedType} in ${queryTime.toFixed(0)}ms`);
 
       // Parse and filter
       let videos = parseVideoEvents(events);
