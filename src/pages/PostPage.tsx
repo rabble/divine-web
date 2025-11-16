@@ -9,14 +9,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { X, Hash, Loader2, Upload, Video } from 'lucide-react';
+import { X, Hash, Loader2, Upload, Video, Camera, Circle, Square, Play, Trash2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoUpload } from '@/hooks/useVideoUpload';
 import { usePublishVideo } from '@/hooks/usePublishVideo';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
+import useMediaRecorder from '@wmik/use-media-recorder';
 
-type PostStep = 'upload' | 'metadata';
+type PostStep = 'choose' | 'record' | 'upload' | 'metadata';
 
 interface VideoSegment {
   blob: Blob;
@@ -30,18 +31,50 @@ export function PostPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
 
-  const [step, setStep] = useState<PostStep>('upload');
+  const [step, setStep] = useState<PostStep>('choose');
   const [videoSegments, setVideoSegments] = useState<VideoSegment[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
 
   const { uploadVideo, uploadProgress, isUploading } = useVideoUpload();
   const { mutateAsync: publishVideo, isPending: isPublishing } = usePublishVideo();
 
   const isProcessing = isUploading || isPublishing;
+
+  // Media recorder for camera
+  const {
+    status: recordStatus,
+    mediaBlob,
+    startRecording,
+    stopRecording,
+    pauseRecording,
+    resumeRecording,
+    getMediaStream,
+    liveStream,
+    clearMediaStream,
+    clearMediaBlob,
+  } = useMediaRecorder({
+    mediaStreamConstraints: {
+      audio: true,
+      video: {
+        width: { ideal: 1080 },
+        height: { ideal: 1080 },
+        aspectRatio: 1,
+        facingMode: 'user'
+      }
+    },
+    mediaRecorderOptions: {
+      mimeType: 'video/webm;codecs=vp9',
+    },
+    onStop: (blob) => {
+      // Add the recorded segment
+      setRecordedChunks(prev => [...prev, blob]);
+    }
+  });
 
   // Detect desktop
   useEffect(() => {
@@ -197,26 +230,42 @@ export function PostPage() {
     videoSegments.forEach(segment => {
       URL.revokeObjectURL(segment.blobUrl);
     });
+    recordedChunks.forEach(chunk => {
+      const url = URL.createObjectURL(chunk);
+      URL.revokeObjectURL(url);
+    });
     setVideoSegments([]);
+    setRecordedChunks([]);
     setTitle('');
     setDescription('');
     setHashtags([]);
     setHashtagInput('');
-    setStep('upload');
+    clearMediaStream();
+    clearMediaBlob();
+    setStep('choose');
     navigate(-1);
   };
 
-  // Upload step
-  if (step === 'upload') {
+  // Choose recording method
+  if (step === 'choose') {
     return (
       <div className="container max-w-lg mx-auto py-12 px-4">
         <div className="text-center space-y-6">
           <h1 className="text-3xl font-bold">Create a Post</h1>
           <p className="text-muted-foreground">
-            Upload a video to share with the network
+            Record or upload a video to share with the network
           </p>
 
           <div className="space-y-3 pt-4">
+            <Button
+              onClick={() => setStep('record')}
+              className="w-full h-16 text-lg"
+              size="lg"
+            >
+              <Camera className="mr-2 h-5 w-5" />
+              Record with Camera
+            </Button>
+
             <input
               ref={fileInputRef}
               type="file"
@@ -226,11 +275,12 @@ export function PostPage() {
             />
             <Button
               onClick={() => fileInputRef.current?.click()}
+              variant="outline"
               className="w-full h-16 text-lg"
               size="lg"
             >
               <Upload className="mr-2 h-5 w-5" />
-              Select Video File
+              Upload Video File
             </Button>
           </div>
 
@@ -241,6 +291,226 @@ export function PostPage() {
             >
               Cancel
             </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Camera recording step
+  if (step === 'record') {
+    const isRecording = recordStatus === 'recording';
+    const isPaused = recordStatus === 'paused';
+    const hasRecorded = recordedChunks.length > 0 || mediaBlob;
+
+    const handleStartCamera = async () => {
+      try {
+        await getMediaStream();
+      } catch (error) {
+        console.error('Failed to access camera:', error);
+        toast({
+          title: 'Camera Access Denied',
+          description: 'Please allow camera access to record videos',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    const handleRecordClick = () => {
+      if (!isRecording && !isPaused) {
+        startRecording();
+      } else if (isRecording) {
+        pauseRecording();
+      } else if (isPaused) {
+        resumeRecording();
+      }
+    };
+
+    const handleStopRecording = () => {
+      stopRecording();
+    };
+
+    const handleDeleteChunk = (index: number) => {
+      setRecordedChunks(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleFinishRecording = () => {
+      // Combine all chunks into segments
+      const allChunks = mediaBlob ? [...recordedChunks, mediaBlob] : recordedChunks;
+
+      if (allChunks.length === 0) {
+        toast({
+          title: 'No Recording',
+          description: 'Please record at least one segment',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Convert chunks to segments
+      const segments = allChunks.map(blob => ({
+        blob,
+        blobUrl: URL.createObjectURL(blob)
+      }));
+
+      setVideoSegments(segments);
+      setStep('metadata');
+
+      // Cleanup
+      clearMediaStream();
+      clearMediaBlob();
+    };
+
+    const handleCancelRecording = () => {
+      // Cleanup
+      recordedChunks.forEach(chunk => {
+        const url = URL.createObjectURL(chunk);
+        URL.revokeObjectURL(url);
+      });
+      setRecordedChunks([]);
+      clearMediaStream();
+      clearMediaBlob();
+      setStep('choose');
+    };
+
+    return (
+      <div className="container mx-auto px-4 py-6 max-w-2xl">
+        <div className="space-y-6">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-2">Record Video</h1>
+            <p className="text-sm text-muted-foreground">
+              Tap to record, tap again to pause, stop when done
+            </p>
+          </div>
+
+          {/* Camera viewfinder */}
+          <div className="relative mx-auto aspect-square max-w-md bg-black rounded-lg overflow-hidden">
+            {liveStream ? (
+              <video
+                ref={(video) => {
+                  if (video && liveStream) {
+                    video.srcObject = liveStream;
+                  }
+                }}
+                autoPlay
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center text-white">
+                <Video className="h-16 w-16 mb-4 opacity-50" />
+                <p className="text-sm opacity-70">Camera not started</p>
+              </div>
+            )}
+
+            {/* Recording indicator */}
+            {isRecording && (
+              <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-3 py-1.5 rounded-full">
+                <Circle className="h-3 w-3 fill-current animate-pulse" />
+                <span className="text-sm font-medium">Recording</span>
+              </div>
+            )}
+
+            {/* Paused indicator */}
+            {isPaused && (
+              <div className="absolute top-4 left-4 flex items-center gap-2 bg-yellow-600 text-white px-3 py-1.5 rounded-full">
+                <Square className="h-3 w-3" />
+                <span className="text-sm font-medium">Paused</span>
+              </div>
+            )}
+          </div>
+
+          {/* Recording controls */}
+          <div className="flex flex-col items-center gap-4">
+            {!liveStream ? (
+              <Button
+                onClick={handleStartCamera}
+                size="lg"
+                className="w-full max-w-xs"
+              >
+                <Camera className="mr-2 h-5 w-5" />
+                Start Camera
+              </Button>
+            ) : (
+              <>
+                {/* Main record button */}
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    onClick={handleRecordClick}
+                    size="lg"
+                    variant={isRecording ? 'destructive' : 'default'}
+                    className={cn(
+                      "h-20 w-20 rounded-full p-0",
+                      isRecording && "animate-pulse"
+                    )}
+                  >
+                    {!isRecording && !isPaused ? (
+                      <Circle className="h-10 w-10 fill-current" />
+                    ) : isPaused ? (
+                      <Play className="h-10 w-10" />
+                    ) : (
+                      <Square className="h-8 w-8" />
+                    )}
+                  </Button>
+
+                  {(isRecording || isPaused) && (
+                    <Button
+                      onClick={handleStopRecording}
+                      size="lg"
+                      variant="outline"
+                      className="h-16 w-16 rounded-full p-0"
+                    >
+                      <Square className="h-6 w-6 fill-current" />
+                    </Button>
+                  )}
+                </div>
+
+                {/* Segments indicator */}
+                {recordedChunks.length > 0 && (
+                  <div className="space-y-2 w-full max-w-xs">
+                    <p className="text-sm text-muted-foreground text-center">
+                      {recordedChunks.length} segment{recordedChunks.length > 1 ? 's' : ''} recorded
+                    </p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {recordedChunks.map((_, index) => (
+                        <div key={index} className="relative">
+                          <Badge variant="secondary">
+                            Segment {index + 1}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteChunk(index)}
+                            className="absolute -top-2 -right-2 h-5 w-5 p-0 rounded-full bg-destructive hover:bg-destructive/90"
+                          >
+                            <X className="h-3 w-3 text-white" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action buttons */}
+                <div className="flex gap-3 w-full max-w-xs">
+                  <Button
+                    onClick={handleCancelRecording}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleFinishRecording}
+                    disabled={!hasRecorded}
+                    className="flex-1"
+                  >
+                    Next
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
