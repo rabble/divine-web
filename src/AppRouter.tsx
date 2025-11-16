@@ -36,6 +36,7 @@ import { TermsPage } from "./pages/TermsPage";
 import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
 import { PressPage } from "./pages/PressPage";
+import { MediaResourcesPage } from "./pages/MediaResourcesPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 // import { UploadPage } from "./pages/UploadPage"; // DISABLED: Upload route is commented out
@@ -72,6 +73,7 @@ export function AppRouter() {
           <Route path="/news" element={<NewsPage />} />
           <Route path="/news/vine-revisited" element={<PressReleasePage />} />
           <Route path="/press" element={<PressPage />} />
+          <Route path="/media-resources" element={<MediaResourcesPage />} />
 
           {/* Public browsing routes - accessible without login */}
           <Route path="/discovery" element={<DiscoveryPage />} />

@@ -1,0 +1,342 @@
+// ABOUTME: Media Resources page for press and media inquiries
+// ABOUTME: Contains press contact, company info, team bios, and media assets
+
+import { Link } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, Mail, Download, FileText, Image, Video } from 'lucide-react';
+
+export function MediaResourcesPage() {
+  return (
+    <div className="container mx-auto px-4 py-8 max-w-5xl">
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold">Media Resources</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Everything you need to know about Divine, the short-form video platform preserving authentic human creativity.
+          </p>
+        </div>
+
+        {/* Press Contact */}
+        <Card className="border-2 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              Press Contact
+            </CardTitle>
+            <CardDescription>
+              For media inquiries, interviews, and press releases
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild size="lg">
+              <Link to="/support" className="inline-flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Contact Press Team
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* About Divine */}
+        <Card>
+          <CardHeader>
+            <CardTitle>About Divine</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Divine is a decentralized short-form video platform built on the Nostr protocol, 
+              inspired by Vine's creative 6-second format. In an era of AI-generated content, 
+              Divine preserves authentic human creativity and gives creators true ownership of their content.
+            </p>
+            <p className="text-muted-foreground">
+              Funded by Jack Dorsey through andotherstuff, Divine brings back the spontaneous 
+              creativity that made Vine special—but this time, built on open-source technology 
+              that makes it impossible for any corporation to shut down.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <div className="space-y-2">
+                <h4 className="font-semibold">Key Features</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• 6-second looping videos</li>
+                  <li>• Decentralized Nostr protocol</li>
+                  <li>• ProofMode authenticity verification</li>
+                  <li>• Creator ownership & portability</li>
+                  <li>• Open source & community-driven</li>
+                </ul>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-semibold">Quick Facts</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Launched: November 2025</li>
+                  <li>• Backed by: Jack Dorsey / andotherstuff</li>
+                  <li>• Platform: Web, iOS, Android</li>
+                  <li>• License: Open Source (AGPL-3.0)</li>
+                </ul>
+              </div>
+            </div>
+            <div className="pt-4">
+              <Button asChild variant="outline">
+                <Link to="/about" className="inline-flex items-center gap-2">
+                  Learn More About Divine
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* About Rabble */}
+        <Card>
+          <CardHeader>
+            <CardTitle>About Rabble (Founder & CEO)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-col md:flex-row gap-6">
+              <div className="md:w-48 flex-shrink-0">
+                <div className="aspect-square bg-muted rounded-lg flex items-center justify-center">
+                  <span className="text-muted-foreground text-sm">Photo placeholder</span>
+                </div>
+              </div>
+              <div className="flex-1 space-y-4">
+                <p className="text-muted-foreground">
+                  Rabble is a veteran technologist and activist building decentralized social media 
+                  technologies and fighting for digital rights. Creator of Divine and host of the 
+                  Revolution.Social podcast, Rabble has been at the forefront of open-source and 
+                  decentralized technology for over two decades.
+                </p>
+                <p className="text-muted-foreground">
+                  His work focuses on empowering users through decentralization, protecting digital 
+                  rights, and building tools that put creators first. With Divine, he's bringing back 
+                  the creative spontaneity of Vine while ensuring no corporation can ever shut it down again.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <a 
+                      href="https://rabblelabs.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      RabbleLabs.com
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a 
+                      href="https://revolution.social" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      Revolution.Social Podcast
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                  <Button asChild variant="outline" size="sm">
+                    <a 
+                      href="https://github.com/rabble" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2"
+                    >
+                      GitHub
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* About andotherstuff */}
+        <Card>
+          <CardHeader>
+            <CardTitle>About andotherstuff</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              andotherstuff (AOS) is Jack Dorsey's organization focused on building open-source, 
+              decentralized technologies that empower individuals and communities. Through strategic 
+              funding and development, AOS supports projects that prioritize user ownership, privacy, 
+              and freedom.
+            </p>
+            <p className="text-muted-foreground">
+              AOS believes in a future where technology serves people, not corporations. By funding 
+              projects like Divine, AOS is helping build a more open, decentralized internet where 
+              users control their data and creative works.
+            </p>
+            <Button asChild variant="outline">
+              <a 
+                href="https://andotherstuff.org/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2"
+              >
+                Visit andotherstuff.org
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Additional Resources */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Additional Resources
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button asChild variant="outline" className="justify-start h-auto py-4">
+                <Link to="/faq" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="font-semibold">Frequently Asked Questions</div>
+                    <div className="text-xs text-muted-foreground">Common questions about Divine</div>
+                  </div>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-start h-auto py-4">
+                <a 
+                  href="https://rights.social" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="font-semibold">Digital Bill of Rights</div>
+                    <div className="text-xs text-muted-foreground">Our commitment to user rights</div>
+                  </div>
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="justify-start h-auto py-4">
+                <Link to="/authenticity" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="font-semibold">Authenticity Mission</div>
+                    <div className="text-xs text-muted-foreground">Human-first social media</div>
+                  </div>
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="justify-start h-auto py-4">
+                <Link to="/open-source" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  <div className="text-left">
+                    <div className="font-semibold">Open Source</div>
+                    <div className="text-xs text-muted-foreground">Code, licenses, and contributions</div>
+                  </div>
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Screenshots & Media */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Image className="h-5 w-5" />
+              Screenshots & Media Assets
+            </CardTitle>
+            <CardDescription>
+              High-resolution screenshots and demo videos for media use
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Screenshots */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Image className="h-4 w-4" />
+                App Screenshots
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="aspect-[9/16] bg-muted rounded-lg flex items-center justify-center border">
+                      <span className="text-sm text-muted-foreground">Screenshot {i}</span>
+                    </div>
+                    <Button size="sm" variant="outline" className="w-full">
+                      <Download className="h-3 w-3 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Demo Videos */}
+            <div>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <Video className="h-4 w-4" />
+                Demo Videos
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2].map((i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center border">
+                      <span className="text-sm text-muted-foreground">Demo Video {i}</span>
+                    </div>
+                    <Button size="sm" variant="outline" className="w-full">
+                      <Download className="h-3 w-3 mr-2" />
+                      Download
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Logos */}
+            <div>
+              <h3 className="font-semibold mb-3">Brand Assets</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Download Divine logos and brand assets for media use
+              </p>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <Button variant="outline" className="justify-start h-auto py-4">
+                  <div className="text-left">
+                    <div className="font-semibold text-sm">Logo (PNG)</div>
+                    <div className="text-xs text-muted-foreground">Transparent background</div>
+                  </div>
+                </Button>
+                <Button variant="outline" className="justify-start h-auto py-4">
+                  <div className="text-left">
+                    <div className="font-semibold text-sm">Logo (SVG)</div>
+                    <div className="text-xs text-muted-foreground">Vector format</div>
+                  </div>
+                </Button>
+                <Button variant="outline" className="justify-start h-auto py-4">
+                  <div className="text-left">
+                    <div className="font-semibold text-sm">Brand Guidelines</div>
+                    <div className="text-xs text-muted-foreground">PDF document</div>
+                  </div>
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer CTA */}
+        <div className="bg-muted/50 rounded-lg border p-6 text-center">
+          <h3 className="font-semibold mb-2">Need More Information?</h3>
+          <p className="text-muted-foreground mb-4">
+            Our press team is here to help with interviews, additional materials, or any questions.
+          </p>
+          <Button asChild size="lg">
+            <Link to="/support">
+              <Mail className="h-4 w-4 mr-2" />
+              Contact Press Team
+            </Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default MediaResourcesPage;

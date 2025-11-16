@@ -3,7 +3,8 @@
 
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ExternalLink, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ExternalLink, FileText, Mail } from 'lucide-react';
 
 const NEWS_OUTLETS = [
   {
@@ -34,9 +35,23 @@ export function NewsPage() {
       <div className="space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-2">Divine News & Press</h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mb-4">
             Press releases, media coverage, and announcements about Divine
           </p>
+          <div className="flex gap-3">
+            <Button asChild variant="outline">
+              <Link to="/media-resources" className="inline-flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Media Resources
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to="/support" className="inline-flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                Press Contact
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-8">
