@@ -14,7 +14,17 @@ This feature adds the ability for logged-in users to create and publish video po
 
 ## Features
 
-### 1. File Upload
+### 1. Video Recording & Upload
+
+**Camera Recording:**
+- **Square viewfinder**: 1:1 aspect ratio (1080x1080)
+- **Record button**: Red circular button with pause/resume
+- **Multiple segments**: Support for cuts (stop and resume recording)
+- **Status indicators**: Visual feedback for Recording/Paused states
+- **Segment management**: View and delete individual segments
+- **Quality**: 1080x1080 resolution with WebM/VP9 codec
+
+**File Upload:**
 - **Supported formats**: MP4, WebM, GIF
 - **File size limit**: 50MB maximum
 - **File picker**: Native file input with validation
@@ -95,13 +105,44 @@ Posts create addressable Nostr events with the following structure:
 
 ## Usage
 
+### Option 1: Record with Camera
+
 1. **Navigate to Post page**:
    - Click "Post" button in bottom navigation (mobile)
    - Navigate to `/post` route (desktop)
 
-2. **Select video file**:
-   - Click "Select Video File" button
-   - Choose MP4, WebM, or GIF file (max 50MB)
+2. **Choose "Record with Camera"**:
+   - Click "Record with Camera" button
+   - Allow camera and microphone access
+
+3. **Record video**:
+   - Click "Start Camera" to activate camera
+   - Click red record button to start recording
+   - Click record button again to pause (create a cut)
+   - Click play button to resume recording
+   - Click stop button (square) to finish current segment
+   - Delete unwanted segments if needed
+   - Click "Next" when done recording
+
+4. **Add metadata**:
+   - Enter title (required)
+   - Add description (optional)
+   - Add hashtags (optional)
+
+5. **Publish**:
+   - Click "Publish" button
+   - Wait for upload and publishing to complete
+   - Automatically redirected to home feed
+
+### Option 2: Upload Video File
+
+1. **Navigate to Post page**:
+   - Click "Post" button in bottom navigation (mobile)
+   - Navigate to `/post` route (desktop)
+
+2. **Choose "Upload Video File"**:
+   - Click "Upload Video File" button
+   - Select MP4, WebM, or GIF file (max 50MB)
 
 3. **Add metadata**:
    - Enter title (required)
@@ -114,11 +155,16 @@ Posts create addressable Nostr events with the following structure:
    - Automatically redirected to home feed
 
 ## Future Enhancements
-- Multiple segment support (currently uses first segment only)
+- ✅ ~~Multiple segment support~~ (Implemented!)
+- ✅ ~~Direct camera recording~~ (Implemented!)
+- Automatic segment merging with FFmpeg.wasm
 - Video trimming and editing
 - Thumbnail selection
 - Draft saving
 - Post scheduling
 - Video filters and effects
-- Direct recording (camera/screen capture)
+- Front/rear camera switching
+- Screen recording
 - Batch upload support
+- Audio level meter
+- Countdown timer before recording
