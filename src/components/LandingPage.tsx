@@ -65,28 +65,11 @@ export function LandingPage() {
               <p className="text-xl md:text-2xl font-semibold text-foreground">
                 Short-form looping videos. Authentic moments. Human creativity.
               </p>
-              <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-                Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.{" "}
-                <a
-                  href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
-                  className="text-primary hover:underline"
-                >
-                  Learn more
-                </a>
-              </p>
             </div>
 
-            {/* Action Button */}
+            {/* Mailing List Signup */}
             <div className="pt-4">
-              <Link
-                to="/discovery"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-white dark:bg-gray-800 text-primary border-2 border-primary rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
-              >
-                Try it on the web
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </Link>
+              <MailerLiteSignup />
             </div>
 
             {/* Screenshot Carousel */}
@@ -176,9 +159,28 @@ export function LandingPage() {
               <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-white dark:from-background to-transparent pointer-events-none z-10" />
             </Link>
 
-            {/* Mailing List Signup */}
-            <div id="signup" className="pt-4 scroll-mt-20">
-              <MailerLiteSignup />
+            {/* Description */}
+            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
+              Experience the raw, unfiltered creativity of real people sharing genuine moments in 6-second loops. Built on decentralized technology, owned by no one, controlled by everyone.{" "}
+              <a
+                href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                className="text-primary hover:underline"
+              >
+                Learn more
+              </a>
+            </p>
+
+            {/* Action Button */}
+            <div className="pt-4">
+              <Link
+                to="/discovery"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold bg-white dark:bg-gray-800 text-primary border-2 border-primary rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 active:scale-95"
+              >
+                Try it on the web
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
             </div>
           </CardContent>
         </Card>
