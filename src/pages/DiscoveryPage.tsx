@@ -4,7 +4,6 @@
 import { useState, useEffect } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
-import { RelaySelector } from '@/components/RelaySelector';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAppContext } from '@/hooks/useAppContext';
 import { HashtagExplorer } from '@/components/HashtagExplorer';
@@ -54,41 +53,25 @@ export function DiscoveryPage() {
             )}
           </div>
 
-          {/* Sort selector and relay for trending tab */}
+          {/* Sort selector for trending tab */}
           {activeTab === 'trending' && (
-            <div className="flex items-center gap-4 justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Sort:</span>
-                <Select value={sortMode} onValueChange={(value) => setSortMode(value as SortMode)}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SORT_MODES.map(mode => (
-                      <SelectItem key={mode.value} value={mode.value}>
-                        <div className="flex items-center gap-2">
-                          <mode.icon className="h-4 w-4" />
-                          {mode.label}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {user && (
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Relay:</span>
-                  <RelaySelector className="w-[200px]" />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Relay selector for non-trending tabs */}
-          {user && activeTab !== 'trending' && activeTab !== 'hashtags' && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Relay:</span>
-              <RelaySelector className="flex-1" />
+              <span className="text-sm text-muted-foreground">Sort:</span>
+              <Select value={sortMode} onValueChange={(value) => setSortMode(value as SortMode)}>
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_MODES.map(mode => (
+                    <SelectItem key={mode.value} value={mode.value}>
+                      <div className="flex items-center gap-2">
+                        <mode.icon className="h-4 w-4" />
+                        {mode.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
         </header>

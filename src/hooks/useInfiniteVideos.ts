@@ -104,7 +104,7 @@ export function useInfiniteVideos({
 }: UseInfiniteVideosOptions) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
-  const { data: followList } = useFollowList();
+  const { data: followList, isLoading: isLoadingFollows } = useFollowList();
   const { config } = useAppContext();
   const supportsNIP50 = useNIP50Support();
 
@@ -155,11 +155,16 @@ export function useInfiniteVideos({
             debugLog('[useInfiniteVideos] No user logged in for home feed');
             return { videos: [], nextCursor: undefined };
           }
+          if (isLoadingFollows) {
+            debugLog('[useInfiniteVideos] Still loading follow list, waiting...');
+            return { videos: [], nextCursor: undefined };
+          }
           if (!followList || followList.length === 0) {
             debugLog('[useInfiniteVideos] User has no follows, returning empty feed');
             return { videos: [], nextCursor: undefined };
           }
           debugLog(`[useInfiniteVideos] Home feed: user ${user.pubkey} following ${followList.length} accounts`);
+          debugLog(`[useInfiniteVideos] First 5 follows:`, followList.slice(0, 5));
           filter.authors = followList;
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
@@ -178,12 +183,18 @@ export function useInfiniteVideos({
         case 'discovery':
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
-            filter.search = 'sort:top';
+            // Use the requested sort mode, defaulting to 'top' for discovery
+            const discoverySort = sortMode || 'top';
+            debugLog(`[useInfiniteVideos] Discovery feed with sort mode: ${discoverySort}`);
+            filter.search = `sort:${discoverySort}`;
           }
           break;
 
         case 'recent':
-          // No search parameter - chronological by created_at
+          // Explicitly request chronological order (no sort parameter)
+          // NIP-50 relays should return events in reverse chronological order by default
+          // when no search/sort is specified
+          debugLog('[useInfiniteVideos] Recent feed - requesting chronological order (no sort)');
           break;
       }
 
@@ -210,6 +221,17 @@ export function useInfiniteVideos({
 
       debugLog(`[useInfiniteVideos] Got ${events.length} events for ${feedType} in ${queryTime.toFixed(0)}ms`);
 
+      // Log the first few events to see what we're getting
+      if (events.length > 0) {
+        debugLog(`[useInfiniteVideos] First 3 events timestamps:`,
+          events.slice(0, 3).map(e => ({
+            created_at: e.created_at,
+            date: new Date(e.created_at * 1000).toISOString(),
+            id: e.id.substring(0, 8)
+          }))
+        );
+      }
+
       // Parse and filter
       let videos = parseVideoEvents(events);
 
@@ -235,7 +257,7 @@ export function useInfiniteVideos({
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: undefined,
-    enabled: enabled && !!nostr && (feedType !== 'home' || !!user?.pubkey),
+    enabled: enabled && !!nostr && (feedType !== 'home' || (!!user?.pubkey && !isLoadingFollows)),
     staleTime: 60000, // 1 minute
     gcTime: 600000, // 10 minutes
   });

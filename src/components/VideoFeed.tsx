@@ -4,6 +4,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
+import { VideoGrid } from '@/components/VideoGrid';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useInfiniteVideos } from '@/hooks/useInfiniteVideos';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
@@ -21,12 +22,15 @@ import type { ParsedVideoData } from '@/types/video';
 import { debugLog, debugWarn } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
 
+type ViewMode = 'feed' | 'grid';
+
 interface VideoFeedProps {
   feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
   hashtag?: string;
   pubkey?: string;
   limit?: number;
   sortMode?: SortMode; // NIP-50 sort mode (hot, top, rising, controversial)
+  viewMode?: ViewMode; // Display mode: feed (full cards) or grid (thumbnails)
   className?: string;
   verifiedOnly?: boolean; // Filter to show only ProofMode verified videos
   'data-testid'?: string;
@@ -40,6 +44,7 @@ export function VideoFeed({
   pubkey,
   limit = 20, // Page size for infinite scroll
   sortMode,
+  viewMode = 'feed',
   className,
   verifiedOnly = false,
   'data-testid': testId,
@@ -365,6 +370,60 @@ export function VideoFeed({
 
   // Only create VideoCard components for videos in the visible range
   // Use infinite scroll component for smooth pagination
+  // Grid mode uses VideoGrid component for thumbnail display
+  if (viewMode === 'grid') {
+    return (
+      <div
+        className={className}
+        data-testid={testId}
+        data-hashtag-testid={hashtagTestId}
+        data-profile-testid={profileTestId}
+      >
+        <InfiniteScroll
+          dataLength={filteredVideos.length}
+          next={fetchNextPage}
+          hasMore={hasNextPage ?? false}
+          loader={
+            <div className="h-16 flex items-center justify-center col-span-full">
+              <div className="flex items-center gap-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Loading more videos...</span>
+              </div>
+            </div>
+          }
+          endMessage={
+            filteredVideos.length > 10 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground col-span-full">
+                <p>You've reached the end</p>
+              </div>
+            ) : null
+          }
+        >
+          <VideoGrid
+            videos={filteredVideos}
+            loading={false}
+            navigationContext={{
+              source: feedType,
+              hashtag,
+              pubkey,
+            }}
+          />
+        </InfiniteScroll>
+
+        {/* Add to List Dialog */}
+        {showListDialog && (
+          <AddToListDialog
+            videoId={showListDialog.videoId}
+            videoPubkey={showListDialog.videoPubkey}
+            open={true}
+            onClose={() => setShowListDialog(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // Feed mode uses full VideoCard components
   return (
     <div
       className={className}
