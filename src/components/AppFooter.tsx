@@ -59,6 +59,10 @@ export function AppFooter() {
                 <Link to="/open-source" className="hover:text-foreground transition-colors">
                   Open Source
                 </Link>
+                <span>•</span>
+                <Link to="/media-resources" className="hover:text-foreground transition-colors">
+                  Press
+                </Link>
               </div>
               <div className="flex flex-wrap items-center lg:justify-end gap-2">
                 <Link to="/privacy" className="hover:text-foreground transition-colors">
@@ -75,10 +79,6 @@ export function AppFooter() {
                 <span>•</span>
                 <Link to="/support" className="hover:text-foreground transition-colors">
                   Support
-                </Link>
-                <span>•</span>
-                <Link to="/media-resources" className="hover:text-foreground transition-colors">
-                  Press
                 </Link>
               </div>
             </div>
