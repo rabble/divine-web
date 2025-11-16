@@ -1,4 +1,4 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones } from 'lucide-react';
+import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -122,6 +122,14 @@ export function AppHeader() {
               >
                 <Headphones className="mr-2 h-4 w-4" />
                 <span>Support</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => navigate('/media-resources')}
+                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Media Resources</span>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

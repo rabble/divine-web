@@ -29,21 +29,13 @@ export function MediaResourcesPage() {
               For media inquiries, interviews, and press releases
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent>
             <Button asChild size="lg">
               <Link to="/press" className="inline-flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Contact Press Team
               </Link>
             </Button>
-            <div className="pt-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/news" className="inline-flex items-center gap-2">
-                  <FileText className="h-3 w-3" />
-                  In the News
-                </Link>
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
@@ -224,11 +216,11 @@ export function MediaResourcesPage() {
                 </a>
               </Button>
               <Button asChild variant="outline" className="justify-start h-auto py-4">
-                <Link to="/authenticity" className="flex items-center gap-2">
+                <Link to="/news" className="flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   <div className="text-left">
-                    <div className="font-semibold">Authenticity Mission</div>
-                    <div className="text-xs text-muted-foreground">Human-first social media</div>
+                    <div className="font-semibold">In the News</div>
+                    <div className="text-xs text-muted-foreground">Media coverage and press releases</div>
                   </div>
                 </Link>
               </Button>
