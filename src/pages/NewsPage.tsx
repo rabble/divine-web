@@ -7,6 +7,11 @@ import { ExternalLink, FileText } from 'lucide-react';
 
 const NEWS_OUTLETS = [
   {
+    name: 'TechCrunch',
+    logo: '/logos/techcrunch.png',
+    url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
+  },
+  {
     name: 'Yahoo',
     logo: '/logos/yahoo.png',
     url: 'https://www.yahoo.com/news/article/what-to-know-about-jack-dorseys-new-vine-revival-divine-215918687.html',
@@ -20,11 +25,6 @@ const NEWS_OUTLETS = [
     name: 'Newsweek',
     logo: '/logos/newsweek.png',
     url: 'https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434',
-  },
-  {
-    name: 'TechCrunch',
-    logo: '/logos/techcrunch.png',
-    url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
   },
 ];
 
