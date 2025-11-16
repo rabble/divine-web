@@ -15,6 +15,7 @@ import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
 import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
 import { ProofModeBadge } from '@/components/ProofModeBadge';
+import { OriginalContentBadge } from '@/components/OriginalContentBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
@@ -81,8 +82,13 @@ export function VideoCard({
   videoIndex: _videoIndex,
 }: VideoCardProps) {
   const authorData = useAuthor(video.pubkey);
-  const reposterData = useAuthor(video.reposterPubkey || '');
-  const shouldShowReposter = video.isRepost && video.reposterPubkey;
+
+  // NEW: Get reposter data from reposts array
+  const hasReposts = video.reposts && video.reposts.length > 0;
+  const latestRepost = hasReposts ? video.reposts[video.reposts.length - 1] : null;
+  const reposterPubkey = latestRepost?.reposterPubkey;
+  const reposterData = useAuthor(reposterPubkey || '');
+  const shouldShowReposter = hasReposts && reposterPubkey;
   const [videoError, setVideoError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
@@ -98,8 +104,8 @@ export function VideoCard({
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
-  const reposter = shouldShowReposter && video.reposterPubkey
-    ? enhanceAuthorData(reposterData.data, video.reposterPubkey)
+  const reposter = shouldShowReposter && reposterPubkey
+    ? enhanceAuthorData(reposterData.data, reposterPubkey)
     : null;
 
   const metadata: NostrMetadata = author.metadata;
@@ -111,7 +117,12 @@ export function VideoCard({
   // Just use npub for now, we'll deal with NIP-05 later
   const profileUrl = `/${npub}`;
 
-  const reposterName = reposterMetadata?.name || (video.reposterPubkey ? genUserName(video.reposterPubkey) : '');
+  const reposterName = reposterMetadata?.name || (reposterPubkey ? genUserName(reposterPubkey) : '');
+
+  // NEW: Get all unique reposters for display
+  const allReposters = video.reposts || [];
+  const uniqueReposterPubkeys = [...new Set(allReposters.map(r => r.reposterPubkey))];
+  const repostCountDisplay = uniqueReposterPubkeys.length;
 
   // Format time - use original Vine timestamp if available, otherwise use created_at
   const timestamp = video.originalVineTimestamp || video.createdAt;
@@ -263,11 +274,17 @@ export function VideoCard({
       )}
 
     <Card className={cn('overflow-hidden', className)}>
-      {/* Repost indicator */}
-      {video.isRepost && (
+      {/* Repost indicator - NEW: Show repost count */}
+      {hasReposts && (
         <div className="flex items-center gap-2 px-4 pt-3 text-sm text-muted-foreground">
           <Repeat2 className="h-4 w-4" />
-          <span>{reposterName} reposted</span>
+          <span>
+            {repostCountDisplay === 1 ? (
+              <>{reposterName} reposted</>
+            ) : (
+              <>{reposterName} and {repostCountDisplay - 1} {repostCountDisplay === 2 ? 'other' : 'others'} reposted</>
+            )}
+          </span>
         </div>
       )}
 
@@ -280,17 +297,21 @@ export function VideoCard({
           </Avatar>
         </Link>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <Link to={profileUrl} className="font-semibold hover:underline truncate">
-              {displayName}
-            </Link>
-            {/* ProofMode badge */}
+          <Link to={profileUrl} className="font-semibold hover:underline truncate">
+            {displayName}
+          </Link>
+          {/* Badge row - matches Flutter's ProofModeBadgeRow */}
+          <div className="flex items-center gap-2 mt-1">
             {video.proofMode && video.proofMode.level !== 'unverified' && (
               <ProofModeBadge
                 level={video.proofMode.level}
                 proofData={video.proofMode}
                 showDetails={true}
               />
+            )}
+            {/* Show Original Content badge if: not reposted, not vintage Vine, and no ProofMode */}
+            {!hasReposts && !isMigratedVine && !video.proofMode && (
+              <OriginalContentBadge size="small" />
             )}
           </div>
         </div>

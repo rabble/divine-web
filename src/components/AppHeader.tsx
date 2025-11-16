@@ -1,8 +1,9 @@
-import { Hash, List, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +15,10 @@ import {
 
 export function AppHeader() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useCurrentUser();
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-sm">
@@ -22,8 +26,8 @@ export function AppHeader() {
         <div className="flex items-center gap-4">
           <button
             className="flex items-center gap-2 text-2xl font-logo text-primary"
-            onClick={() => navigate('/discovery')}
-            aria-label="Go to discovery"
+            onClick={() => navigate('/')}
+            aria-label="Go to home"
           >
             <img
               src="/divine_icon_transparent.png"
@@ -34,51 +38,45 @@ export function AppHeader() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {/* Public navigation - available to all users - hidden on mobile, shown in bottom nav */}
+          {/* Main navigation - hidden on mobile, shown in bottom nav */}
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className={cn(
+                "hidden md:flex items-center gap-2",
+                isActive('/') && "bg-primary/10 text-primary"
+              )}
+            >
+              <Home className="h-4 w-4" />
+              <span className="hidden lg:inline">Home</span>
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => navigate('/hashtags')}
-            className="hidden md:flex items-center gap-2"
+            onClick={() => navigate('/discovery')}
+            className={cn(
+              "hidden md:flex items-center gap-2",
+              isActive('/discovery') && "bg-primary/10 text-primary"
+            )}
           >
-            <Hash className="h-4 w-4" />
-            <span className="hidden sm:inline">Hashtags</span>
+            <Compass className="h-4 w-4" />
+            <span className="hidden lg:inline">Discover</span>
           </Button>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigate('/search')}
-            className="hidden md:flex items-center gap-2"
+            className={cn(
+              "hidden md:flex items-center gap-2",
+              isActive('/search') && "bg-primary/10 text-primary"
+            )}
           >
             <Search className="h-4 w-4" />
-            <span className="hidden sm:inline">Search</span>
+            <span className="hidden lg:inline">Search</span>
           </Button>
-
-          {/* Protected navigation - requires login - hidden on mobile, shown in bottom nav */}
-          {user && (
-            <>
-              {/* DISABLED: Record button
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => navigate('/upload')}
-                className="hidden md:flex items-center gap-2"
-              >
-                <Video className="h-4 w-4" />
-                <span className="hidden sm:inline">Record</span>
-              </Button>
-              */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate('/lists')}
-                className="hidden md:flex items-center gap-2"
-              >
-                <List className="h-4 w-4" />
-                <span className="hidden sm:inline">Lists</span>
-              </Button>
-            </>
-          )}
           {/* More menu with info links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

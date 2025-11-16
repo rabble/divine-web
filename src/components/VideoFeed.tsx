@@ -377,7 +377,7 @@ export function VideoFeed({
 
     return (
       <VideoCard
-        key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+        key={video.id}
         video={video}
         onLike={handleVideoLike}
         onRepost={handleVideoRepost}
@@ -414,7 +414,7 @@ export function VideoFeed({
       <div className="grid gap-6">
         {filteredVideos.map((video, index) => (
           <VideoCardWithMetrics
-            key={`${video.id}-${video.isRepost ? 'repost' : 'original'}`}
+            key={video.id}
             video={video}
             index={index}
           />

@@ -433,14 +433,14 @@ export function getOriginalCommentCount(event: NostrEvent): number | undefined {
 
 /**
  * Extract ProofMode verification data from event tags
- * Tags follow Flutter app format:
- * - proof-verification-level: verified_mobile | verified_web | basic_proof | unverified
- * - proof-manifest: JSON string with session data and frame hashes
- * - proof-device-attestation: Device attestation token
- * - proof-pgp-fingerprint: PGP public key fingerprint
+ * Tags follow Flutter app format (matching video_event_publisher.dart):
+ * - verification: verified_mobile | verified_web | basic_proof | unverified
+ * - proofmode: JSON string with native proof data
+ * - device_attestation: Device attestation token
+ * - pgp_fingerprint: PGP public key fingerprint
  */
 export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
-  const levelTag = event.tags.find(tag => tag[0] === 'proof-verification-level');
+  const levelTag = event.tags.find(tag => tag[0] === 'verification');
 
   // If no verification level tag found, return undefined
   if (!levelTag?.[1]) {
@@ -456,9 +456,9 @@ export function getProofModeData(event: NostrEvent): ProofModeData | undefined {
   }
 
   // Extract other proof data
-  const manifestTag = event.tags.find(tag => tag[0] === 'proof-manifest');
-  const attestationTag = event.tags.find(tag => tag[0] === 'proof-device-attestation');
-  const fingerprintTag = event.tags.find(tag => tag[0] === 'proof-pgp-fingerprint');
+  const manifestTag = event.tags.find(tag => tag[0] === 'proofmode');
+  const attestationTag = event.tags.find(tag => tag[0] === 'device_attestation');
+  const fingerprintTag = event.tags.find(tag => tag[0] === 'pgp_fingerprint');
 
   // Parse manifest JSON if present
   let manifestData: Record<string, unknown> | undefined;
@@ -507,4 +507,58 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
 
   // No thumbnail available
   return undefined;
+}
+
+/**
+ * Helper functions for working with ParsedVideoData reposts array
+ */
+
+import type { ParsedVideoData, RepostMetadata } from '@/types/video';
+
+/**
+ * Check if a video has been reposted
+ */
+export function isReposted(video: ParsedVideoData): boolean {
+  return video.reposts && video.reposts.length > 0;
+}
+
+/**
+ * Get the most recent repost timestamp, or createdAt if no reposts
+ */
+export function getLatestRepostTime(video: ParsedVideoData): number {
+  if (!video.reposts || video.reposts.length === 0) {
+    return video.createdAt;
+  }
+  return Math.max(...video.reposts.map(r => r.repostedAt));
+}
+
+/**
+ * Get total number of reposts
+ */
+export function getTotalReposts(video: ParsedVideoData): number {
+  return video.reposts ? video.reposts.length : 0;
+}
+
+/**
+ * Get list of unique reposters (deduplicated by pubkey)
+ */
+export function getUniqueReposters(video: ParsedVideoData): RepostMetadata[] {
+  if (!video.reposts || video.reposts.length === 0) return [];
+
+  const seen = new Set<string>();
+  return video.reposts.filter(repost => {
+    if (seen.has(repost.reposterPubkey)) return false;
+    seen.add(repost.reposterPubkey);
+    return true;
+  });
+}
+
+/**
+ * Add a repost to a video's reposts array
+ */
+export function addRepost(video: ParsedVideoData, repost: RepostMetadata): ParsedVideoData {
+  return {
+    ...video,
+    reposts: [...(video.reposts || []), repost]
+  };
 }

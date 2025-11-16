@@ -69,27 +69,38 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         const result = new Map<string, NostrFilter[]>();
 
         // Separate filters by kind for kind-specific relay routing
-        const profileFilters: NostrFilter[] = [];
+        const profileRelayFilters: NostrFilter[] = []; // Kind 0 (profiles) and Kind 3 (contact lists)
         const otherFilters: NostrFilter[] = [];
 
         for (const filter of filters) {
-          if (filter.kinds?.includes(0)) {
-            // Kind 0 (profile metadata) - route to profile relays
-            profileFilters.push(filter);
+          if (filter.kinds?.includes(0) || filter.kinds?.includes(3)) {
+            // Kind 0 (profile metadata) and Kind 3 (contact lists) - route to profile relays
+            profileRelayFilters.push(filter);
           } else {
             // All other kinds - route to main relay
             otherFilters.push(filter);
           }
         }
 
-        // Route kind 0 queries to profile-specific relays
-        if (profileFilters.length > 0) {
-          result.set('wss://purplepag.es', profileFilters);
-          result.set('wss://relay.nos.social', profileFilters);
+        // Route kind 0 and kind 3 queries to profile-specific relays for better availability
+        if (profileRelayFilters.length > 0) {
+          const profileRelays = [
+            'wss://purplepag.es',
+            'wss://relay.nos.social',
+            'wss://relay.damus.io',
+            'wss://relay.ditto.pub',
+          ];
+
+          debugLog(`[NostrProvider] Routing ${profileRelayFilters.length} profile/contact filters to ${profileRelays.length} relays`);
+
+          for (const relay of profileRelays) {
+            result.set(relay, profileRelayFilters);
+          }
         }
 
-        // Route other queries to the selected relay only
+        // Route other queries to the selected relay
         if (otherFilters.length > 0) {
+          // Always query the primary relay
           result.set(relayUrl.current, otherFilters);
         }
 
@@ -100,7 +111,16 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         // Publish to the selected relay
         const allRelays = new Set<string>([relayUrl.current]);
 
-        // For list events (kind 30005), publish to multiple relays for better discoverability
+        // For contact lists (kind 3), publish to multiple relays for better availability
+        if (event.kind === 3) {
+          // Add common relays where contact lists should be stored
+          allRelays.add('wss://purplepag.es');
+          allRelays.add('wss://relay.nos.social');
+          allRelays.add('wss://relay.damus.io');
+          allRelays.add('wss://relay.ditto.pub');
+        }
+
+        // For list events (kind 30000, 30001, 30005), publish to multiple relays for better discoverability
         const LIST_KINDS = [30000, 30001, 30005];
         if (LIST_KINDS.includes(event.kind)) {
           // Add common relays where lists should be stored
