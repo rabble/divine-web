@@ -13,6 +13,7 @@ import type { NIP50Filter, SortMode } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog } from '@/lib/debug';
+import { performanceMonitor } from '@/lib/performanceMonitoring';
 
 interface UseInfiniteVideosOptions {
   feedType: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
@@ -102,8 +103,8 @@ export function useInfiniteVideos({
   enabled = true
 }: UseInfiniteVideosOptions) {
   const { nostr } = useNostr();
-  const user = useCurrentUser();
-  const { followList } = useFollowList();
+  const { user } = useCurrentUser();
+  const { data: followList } = useFollowList();
   const { config } = useAppContext();
   const supportsNIP50 = useNIP50Support();
 
@@ -165,7 +166,7 @@ export function useInfiniteVideos({
         case 'trending':
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
-            filter.search = 'sort:hot';
+            filter.search = `sort:${effectiveSortMode}`;
           }
           break;
 
@@ -183,15 +184,26 @@ export function useInfiniteVideos({
 
       debugLog(`[useInfiniteVideos] Fetching ${feedType} feed, cursor: ${cursor || 'none'}`);
 
-      // Fetch events
+      // Fetch events with performance tracking
+      const queryStart = performance.now();
       const events = await nostr.query([filter], {
         signal: AbortSignal.any([
           signal,
           AbortSignal.timeout(10000)
         ])
       });
+      const queryTime = performance.now() - queryStart;
 
-      debugLog(`[useInfiniteVideos] Got ${events.length} events`);
+      // Record query performance
+      performanceMonitor.recordQuery({
+        relayUrl: config.relayUrl,
+        queryType: `infinite-${feedType}`,
+        duration: queryTime,
+        eventCount: events.length,
+        filters: JSON.stringify(filter)
+      });
+
+      debugLog(`[useInfiniteVideos] Got ${events.length} events in ${queryTime.toFixed(0)}ms`);
 
       // Parse and filter
       let videos = parseVideoEvents(events);

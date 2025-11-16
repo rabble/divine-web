@@ -258,30 +258,29 @@ export function useInfiniteSearchVideos({
       // Fallback for relays without NIP-50 or if NIP-50 query failed
       debugLog('[useInfiniteSearchVideos] Using client-side search fallback');
 
-        const fallbackFilter = {
-          kinds: VIDEO_KINDS,
-          limit: pageSize
-        };
+      const fallbackFilter = {
+        kinds: VIDEO_KINDS,
+        limit: pageSize
+      };
 
-        if (cursor) {
-          (fallbackFilter as typeof fallbackFilter & { until: number }).until = cursor;
-        }
-
-        const events = await nostr.query([fallbackFilter], { signal: abortSignal });
-
-        // Client-side filtering
-        const searchValue = searchParams.value.toLowerCase();
-        const filtered = events.filter(event =>
-          event.content.toLowerCase().includes(searchValue)
-        );
-
-        const videos = parseVideoEvents(filtered);
-
-        return {
-          videos,
-          nextCursor: videos.length > 0 ? videos[videos.length - 1].createdAt - 1 : undefined
-        };
+      if (cursor) {
+        (fallbackFilter as typeof fallbackFilter & { until: number }).until = cursor;
       }
+
+      const events = await nostr.query([fallbackFilter], { signal: abortSignal });
+
+      // Client-side filtering
+      const searchValue = searchParams.value.toLowerCase();
+      const filtered = events.filter(event =>
+        event.content.toLowerCase().includes(searchValue)
+      );
+
+      const videos = parseVideoEvents(filtered);
+
+      return {
+        videos,
+        nextCursor: videos.length > 0 ? videos[videos.length - 1].createdAt - 1 : undefined
+      };
     },
     getNextPageParam: (lastPage) => lastPage.nextCursor,
     initialPageParam: undefined,
