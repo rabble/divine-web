@@ -77,7 +77,7 @@ export function NewsPage() {
                     </Link>
                   </CardTitle>
                   <CardDescription>
-                    November 13, 2024 • Press Release
+                    November 13, 2025 • Press Release
                   </CardDescription>
                 </div>
                 <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -115,7 +115,7 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>
-                        November 2024 • Yahoo News
+                        November 2025 • Yahoo News
                       </CardDescription>
                     </div>
                     <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -152,7 +152,7 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>
-                        November 2024 • Business Insider
+                        November 2025 • Business Insider
                       </CardDescription>
                     </div>
                     <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -189,7 +189,7 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>
-                        November 2024 • Newsweek
+                        November 2025 • Newsweek
                       </CardDescription>
                     </div>
                     <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
@@ -226,7 +226,7 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>
-                        November 12, 2024 • TechCrunch
+                        November 12, 2025 • TechCrunch
                       </CardDescription>
                     </div>
                     <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
