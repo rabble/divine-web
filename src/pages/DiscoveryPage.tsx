@@ -1,11 +1,12 @@
-// ABOUTME: Discovery feed page showing all public videos with tabs for Trending and New Videos
+// ABOUTME: Discovery feed page showing all public videos with tabs for Trending, New Videos, and Hashtags
 // ABOUTME: Default view shows trending videos sorted by engagement
 
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
+import { HashtagExplorer } from '@/components/HashtagExplorer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Clock } from 'lucide-react';
+import { TrendingUp, Clock, Hash } from 'lucide-react';
 
 export function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState('trending');
@@ -13,17 +14,19 @@ export function DiscoveryPage() {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="max-w-2xl mx-auto">
+      <div className={activeTab === 'hashtags' ? 'max-w-6xl mx-auto' : 'max-w-2xl mx-auto'}>
         <header className="mb-6">
           <div className="flex items-start justify-between mb-2">
             <div>
               <h1 className="text-2xl font-bold">Discover</h1>
               <p className="text-muted-foreground">Explore videos from the network</p>
             </div>
-            <VerifiedOnlyToggle
-              enabled={verifiedOnly}
-              onToggle={setVerifiedOnly}
-            />
+            {activeTab !== 'hashtags' && (
+              <VerifiedOnlyToggle
+                enabled={verifiedOnly}
+                onToggle={setVerifiedOnly}
+              />
+            )}
           </div>
         </header>
 
@@ -36,6 +39,10 @@ export function DiscoveryPage() {
             <TabsTrigger value="new-videos" className="flex-1 gap-2">
               <Clock className="h-4 w-4" />
               New Videos
+            </TabsTrigger>
+            <TabsTrigger value="hashtags" className="flex-1 gap-2">
+              <Hash className="h-4 w-4" />
+              Hashtags
             </TabsTrigger>
           </TabsList>
 
@@ -55,6 +62,10 @@ export function DiscoveryPage() {
               data-testid="video-feed-new-videos"
               className="space-y-6"
             />
+          </TabsContent>
+
+          <TabsContent value="hashtags" className="mt-0 space-y-6">
+            <HashtagExplorer />
           </TabsContent>
         </Tabs>
       </div>

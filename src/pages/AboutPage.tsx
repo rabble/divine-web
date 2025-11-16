@@ -26,10 +26,10 @@ export function AboutPage() {
               Vine's creative 6-second format, preserving authentic human creativity.
             </p>
             <div className="not-prose space-y-3">
-              <Button asChild size="lg" className="w-full sm:w-auto">
-                <Link to="/authenticity">
-                  <Heart className="h-5 w-5 mr-2" />
-                  Our Mission: Social Media By Humans, For Humans
+              <Button asChild size="lg" className="w-full sm:w-auto h-auto py-3 whitespace-normal">
+                <Link to="/authenticity" className="flex items-center justify-center gap-2 text-center">
+                  <Heart className="h-5 w-5 flex-shrink-0" />
+                  <span>Our Mission: Social Media By Humans, For Humans</span>
                 </Link>
               </Button>
               <div className="bg-muted/50 p-4 rounded-lg border">
@@ -307,39 +307,6 @@ export function AboutPage() {
         {/* Mailing List Signup */}
         <div className="max-w-2xl mx-auto">
           <MailerLiteSignup />
-        </div>
-
-        {/* Links */}
-        <div className="flex flex-wrap gap-4 justify-center pt-8">
-          <Button variant="outline" asChild>
-            <Link to="/authenticity">Our Mission</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/proofmode">ProofMode</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/privacy">Privacy Policy</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dmca">Copyright & DMCA</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/open-source">Open Source</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/support">Support</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <a
-              href="https://github.com/rabble/nostrvine"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              <Github className="h-4 w-4" />
-              GitHub
-            </a>
-          </Button>
         </div>
       </div>
     </div>
