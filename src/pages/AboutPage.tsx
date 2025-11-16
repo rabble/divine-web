@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Github, Heart, Archive, Shield } from 'lucide-react';
+import { ExternalLink, Heart, Archive, Shield } from 'lucide-react';
 import { MailerLiteSignup } from '@/components/MailerLiteSignup';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
 

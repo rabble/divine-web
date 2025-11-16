@@ -56,7 +56,6 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
       hashtags: videoEvent.hashtags || [],
-      isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
       likeCount: getOriginalLikeCount(event),
@@ -64,7 +63,8 @@ function parseVideoResults(events: NostrEvent[]): ParsedVideoData[] {
       commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
-      isVineMigrated: isVineMigrated(event)
+      isVineMigrated: isVineMigrated(event),
+      reposts: [] // Search results don't include repost data
     });
   }
 

@@ -19,6 +19,7 @@ import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import type { ParsedVideoData } from '@/types/video';
 // import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 import { debugLog, debugWarn } from '@/lib/debug';
+import { isReposted, getLatestRepostTime } from '@/lib/videoParser';
 
 interface VideoFeedProps {
   feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
@@ -100,8 +101,9 @@ export function VideoFeed({
     const pubkeys = new Set<string>();
     filteredVideos.forEach(video => {
       pubkeys.add(video.pubkey);
-      if (video.reposterPubkey) {
-        pubkeys.add(video.reposterPubkey);
+      // Add all reposters' pubkeys
+      if (video.reposts) {
+        video.reposts.forEach(repost => pubkeys.add(repost.reposterPubkey));
       }
     });
     return Array.from(pubkeys);
@@ -138,7 +140,7 @@ export function VideoFeed({
         id: v.id,
         videoUrl: v.videoUrl,
         thumbnailUrl: v.thumbnailUrl,
-        isRepost: v.isRepost,
+        isRepost: isReposted(v),
         hasUrl: !!v.videoUrl
       })));
 
@@ -159,9 +161,7 @@ export function VideoFeed({
   useEffect(() => {
     if (inView && allVideos && allVideos.length > 0 && !isLoading && !isLoadingMore) {
       const oldestVideo = allVideos[allVideos.length - 1];
-      const oldestTimestamp = oldestVideo.isRepost && oldestVideo.repostedAt
-        ? oldestVideo.repostedAt
-        : oldestVideo.createdAt;
+      const oldestTimestamp = getLatestRepostTime(oldestVideo);
 
       debugLog('Near bottom, loading more videos before timestamp:', oldestTimestamp);
       setIsLoadingMore(true);

@@ -158,7 +158,6 @@ async function fetchListVideos(
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
       hashtags: videoEvent.hashtags || [],
-      isRepost: false,
       vineId,
       loopCount: getLoopCount(event),
       likeCount: getOriginalLikeCount(event),
@@ -166,7 +165,8 @@ async function fetchListVideos(
       commentCount: getOriginalCommentCount(event),
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
-      isVineMigrated: isVineMigrated(event)
+      isVineMigrated: isVineMigrated(event),
+      reposts: [] // List videos don't include repost data
     });
   });
 

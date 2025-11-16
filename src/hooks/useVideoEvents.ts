@@ -10,8 +10,8 @@ import { useFollowList } from '@/hooks/useFollowList';
 import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData, type RepostMetadata } from '@/types/video';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
+import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 
@@ -476,9 +476,9 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
             if (a.totalEngagement !== b.totalEngagement) {
               return b.totalEngagement - a.totalEngagement;
             }
-            // Then by time for ties
-            const timeA = a.isRepost && a.repostedAt ? a.repostedAt : a.createdAt;
-            const timeB = b.isRepost && b.repostedAt ? b.repostedAt : b.createdAt;
+            // Then by time for ties (uses latest repost time if video has reposts)
+            const timeA = getLatestRepostTime(a);
+            const timeB = getLatestRepostTime(b);
             return timeB - timeA;
           })
           .slice(0, limit); // Limit to requested amount
