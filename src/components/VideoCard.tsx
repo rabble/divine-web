@@ -2,7 +2,7 @@
 // ABOUTME: Shows video player, metadata, author info, and social interactions
 
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2 } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
@@ -97,6 +97,7 @@ export function VideoCard({
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const muteUser = useMuteItem();
+  const navigate = useNavigate();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
   const deletionInfo = useDeletionInfo(video.id);
@@ -161,8 +162,13 @@ export function VideoCard({
   };
 
   const handleThumbnailClick = () => {
-    setIsPlaying(true);
-    onPlay?.();
+    // In thumbnail mode (grid view), navigate to video page instead of playing inline
+    if (mode === 'thumbnail') {
+      navigate(`/video/${video.id}`);
+    } else {
+      setIsPlaying(true);
+      onPlay?.();
+    }
   };
 
   const handleVideoEnd = () => {
