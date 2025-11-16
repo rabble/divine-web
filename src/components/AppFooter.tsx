@@ -31,6 +31,15 @@ export function AppFooter() {
                 >
                   ProofMode
                 </Link>
+                <span className="text-muted-foreground">•</span>
+                <a
+                  href="https://opencollective.com/aos-collective/contribute/divine-keepers-95646"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  Donate
+                </a>
               </div>
 
               {/* Navigation Links */}
