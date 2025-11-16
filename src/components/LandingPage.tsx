@@ -177,7 +177,7 @@ export function LandingPage() {
             </Link>
 
             {/* Mailing List Signup */}
-            <div id="signup" className="pt-4 scroll-mt-20">
+            <div className="pt-4">
               <MailerLiteSignup />
             </div>
           </CardContent>
