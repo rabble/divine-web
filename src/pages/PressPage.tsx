@@ -165,17 +165,24 @@ export function PressPage() {
           For general information about diVine, please visit our{' '}
           <a href="/about" className="text-primary hover:underline">
             About page
-          </a>{' '}
-          and{' '}
-          <a href="/news" className="text-primary hover:underline">
-            News section
+          </a>
+          {' '}and{' '}
+          <a href="/media-resources" className="text-primary hover:underline">
+            Media Resources
+          </a>
+          .
+        </p>
+        <p className="text-muted-foreground mb-4">
+          Looking for our press releases?{' '}
+          <a href="/news/vine-revisited" className="text-primary hover:underline">
+            Read our launch announcement
           </a>
           .
         </p>
         <p className="text-muted-foreground">
-          Looking for our press releases?{' '}
-          <a href="/news/vine-revisited" className="text-primary hover:underline">
-            Read our launch announcement
+          See where we've been featured:{' '}
+          <a href="/news" className="text-primary hover:underline">
+            In the News
           </a>
           .
         </p>
