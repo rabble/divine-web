@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom';
+import { MailerLiteSignup } from './MailerLiteSignup';
 
 export function AppFooter() {
   return (
     <footer className="mt-auto border-t border-primary/10 py-6 pb-[calc(1.5rem+4rem+env(safe-area-inset-bottom))] md:pb-6 bg-muted/30">
       <div className="container">
-        <div className="flex flex-col items-center gap-4 text-center max-w-3xl mx-auto">
+        <div className="flex flex-col items-center gap-6 text-center max-w-3xl mx-auto">
+          {/* Email Signup */}
+          <div className="w-full max-w-2xl">
+            <MailerLiteSignup />
+          </div>
+
           {/* Featured Authenticity Section */}
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm">
             <Link
