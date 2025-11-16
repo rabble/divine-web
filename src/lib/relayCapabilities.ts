@@ -24,15 +24,18 @@ async function testNIP50Support(relayUrl: string): Promise<boolean> {
     // We'll use the Nostr client to test this
     // For now, assume relay.divine.video and similar support it
     // This is a placeholder - full implementation would actually query the relay
-    
-    // Known relays with NIP-50 support
+
+    // Known relays with NIP-50 support (including OpenVine relays)
     const knownNIP50Relays = [
-      'wss://relay.divine.video',
-      'wss://relay.nostr.band',
-      'wss://relay.nostr.wine',
+      'relay.divine.video',
+      'relay.nostr.band',
+      'relay.nostr.wine',
+      'relay.openvine.co',
+      'relay2.openvine.co',
+      'relay3.openvine.co',
     ];
-    
-    return knownNIP50Relays.some(known => relayUrl.includes(known.replace('wss://', '')));
+
+    return knownNIP50Relays.some(known => relayUrl.includes(known));
   } catch {
     return false;
   }
@@ -106,17 +109,20 @@ export function clearCapabilitiesCache(relayUrl?: string) {
  */
 export function shouldUseNIP50(relayUrl: string): boolean {
   const capabilities = getRelayCapabilities(relayUrl);
-  
+
   // If we don't have cached capabilities yet, optimistically assume support for known relays
   if (!capabilities) {
     const knownNIP50Relays = [
       'relay.divine.video',
       'relay.nostr.band',
       'relay.nostr.wine',
+      'relay.openvine.co',
+      'relay2.openvine.co',
+      'relay3.openvine.co',
     ];
     return knownNIP50Relays.some(known => relayUrl.includes(known));
   }
-  
+
   return capabilities.supportsNIP50;
 }
 
@@ -129,7 +135,7 @@ export function getEffectiveSortMode(
   requestedMode: SortMode
 ): SortMode | undefined {
   const capabilities = getRelayCapabilities(relayUrl);
-  
+
   if (!capabilities || !capabilities.supportsNIP50) {
     // Optimistically try for known relays
     if (shouldUseNIP50(relayUrl)) {
@@ -137,11 +143,11 @@ export function getEffectiveSortMode(
     }
     return undefined;
   }
-  
+
   if (capabilities.supportedSortModes.includes(requestedMode)) {
     return requestedMode;
   }
-  
+
   // Fallback to 'hot' if requested mode not supported
   return capabilities.supportedSortModes.includes('hot') ? 'hot' : undefined;
 }

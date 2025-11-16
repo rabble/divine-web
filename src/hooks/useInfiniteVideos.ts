@@ -175,8 +175,10 @@ export function useInfiniteVideos({
         case 'trending':
           // Only add search if relay supports NIP-50
           if (effectiveSortMode) {
-            debugLog(`[useInfiniteVideos] Trending feed with sort mode: ${effectiveSortMode}`);
+            debugLog(`[useInfiniteVideos] 🔥 Trending feed with sort mode: ${effectiveSortMode}`);
             filter.search = `sort:${effectiveSortMode}`;
+          } else {
+            debugLog('[useInfiniteVideos] ⚠️ Trending feed WITHOUT sort mode (relay may not support NIP-50)');
           }
           break;
 
@@ -185,8 +187,10 @@ export function useInfiniteVideos({
           if (effectiveSortMode) {
             // Use the requested sort mode, defaulting to 'top' for discovery
             const discoverySort = sortMode || 'top';
-            debugLog(`[useInfiniteVideos] Discovery feed with sort mode: ${discoverySort}`);
+            debugLog(`[useInfiniteVideos] 🔍 Discovery feed with sort mode: ${discoverySort}`);
             filter.search = `sort:${discoverySort}`;
+          } else {
+            debugLog('[useInfiniteVideos] ⚠️ Discovery feed WITHOUT sort mode (relay may not support NIP-50)');
           }
           break;
 
@@ -194,11 +198,11 @@ export function useInfiniteVideos({
           // Explicitly request chronological order (no sort parameter)
           // NIP-50 relays should return events in reverse chronological order by default
           // when no search/sort is specified
-          debugLog('[useInfiniteVideos] Recent feed - requesting chronological order (no sort)');
+          debugLog('[useInfiniteVideos] 🕐 Recent feed - requesting chronological order (no sort)');
           break;
       }
 
-      debugLog(`[useInfiniteVideos] Fetching ${feedType} feed, cursor: ${cursor || 'none'}, filter:`, filter);
+      debugLog(`[useInfiniteVideos] 📡 Fetching ${feedType} feed, cursor: ${cursor || 'none'}, sort: ${effectiveSortMode || 'none'}, filter:`, filter);
 
       // Fetch events with performance tracking
       const queryStart = performance.now();
