@@ -309,8 +309,8 @@ export function VideoCard({
                 showDetails={true}
               />
             )}
-            {/* Show Original Content badge if: not reposted, not vintage Vine, and ProofMode verified */}
-            {!hasReposts && !isMigratedVine && video.proofMode && video.proofMode.level !== 'unverified' && (
+            {/* Show Original Content badge if video is from before 2018 (original Vine era) */}
+            {date.getFullYear() < 2018 && (
               <OriginalContentBadge size="small" />
             )}
           </div>
