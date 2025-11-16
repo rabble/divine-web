@@ -19,7 +19,7 @@ export function PressPage() {
     const formData = new FormData(form);
 
     try {
-      const response = await fetch('https://formspree.io/f/xwpannzl', {
+      const response = await fetch('https://formspree.io/f/xzzykawd', {
         method: 'POST',
         body: formData,
         headers: {
