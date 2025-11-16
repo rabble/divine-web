@@ -39,14 +39,12 @@ const defaultConfig: AppConfig = {
   relayUrl: "wss://relay.divine.video", // Primary relay with NIP-50 support
   relayUrls: [
     "wss://relay.divine.video",
-    "wss://relay3.openvine.co",
   ],
   showDeletedVideos: false, // Hide deleted videos by default
 };
 
 const presetRelays = [
   { url: 'wss://relay.divine.video', name: 'Divine' },
-  { url: 'wss://relay3.openvine.co', name: 'OpenVine' },
   { url: 'wss://divine.diy', name: 'divine.diy' },
   { url: 'wss://relay.ditto.pub', name: 'Ditto' },
   { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },
