@@ -1,16 +1,30 @@
 // ABOUTME: Discovery feed page showing all public videos with tabs for Trending and New Videos
 // ABOUTME: Default view shows trending videos sorted by engagement
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
 import { RelaySelector } from '@/components/RelaySelector';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useAppContext } from '@/hooks/useAppContext';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock } from 'lucide-react';
 
 export function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState('trending');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  const { user } = useCurrentUser();
+  const { config, updateConfig } = useAppContext();
+
+  // Force relay to relay.divine.video for logged-out users
+  useEffect(() => {
+    if (!user && config.relayUrl !== 'wss://relay.divine.video') {
+      updateConfig((current) => ({
+        ...current,
+        relayUrl: 'wss://relay.divine.video',
+      }));
+    }
+  }, [user, config.relayUrl, updateConfig]);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -26,10 +40,12 @@ export function DiscoveryPage() {
               onToggle={setVerifiedOnly}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">Relay:</span>
-            <RelaySelector className="flex-1" />
-          </div>
+          {user && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Relay:</span>
+              <RelaySelector className="flex-1" />
+            </div>
+          )}
         </header>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
