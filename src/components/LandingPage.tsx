@@ -2,7 +2,7 @@
 // ABOUTME: Displays the diVine Video brand message
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Carousel,
   CarouselContent,
@@ -13,19 +13,8 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { MailerLiteSignup } from "@/components/MailerLiteSignup";
-import { MoreVertical, Heart, Headphones, ShieldCheck, Users, ShieldAlert, Code2, Github, Scale, Shield, Info, HelpCircle, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export function LandingPage() {
-  const navigate = useNavigate();
   const plugin = useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
@@ -61,136 +50,12 @@ export function LandingPage() {
               >
                 Press
               </Link>
-
-              {/* More menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                    <span className="sr-only">More options</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  {/* About diVine Section */}
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About diVine</DropdownMenuLabel>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/about')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Info className="mr-2 h-4 w-4" />
-                    <span>About</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/authenticity')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Heart className="mr-2 h-4 w-4" />
-                    <span>Our Mission</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/faq')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <HelpCircle className="mr-2 h-4 w-4" />
-                    <span>FAQ</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/support')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Headphones className="mr-2 h-4 w-4" />
-                    <span>Support</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/media-resources')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <FileText className="mr-2 h-4 w-4" />
-                    <span>Media Resources</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {/* Trust & Safety Section */}
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/proofmode')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    <span>ProofMode</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/human-created')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Videos by Humans</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/safety')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <ShieldAlert className="mr-2 h-4 w-4" />
-                    <span>Safety Standards</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {/* Technical Section */}
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Technical</DropdownMenuLabel>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/open-source')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Code2 className="mr-2 h-4 w-4" />
-                    <span>Open Source</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuSeparator />
-
-                  {/* Legal Section */}
-                  <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Legal</DropdownMenuLabel>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/terms')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Scale className="mr-2 h-4 w-4" />
-                    <span>Terms & Conditions</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/privacy')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Shield className="mr-2 h-4 w-4" />
-                    <span>Privacy Policy</span>
-                  </DropdownMenuItem>
-
-                  <DropdownMenuItem
-                    onClick={() => navigate('/dmca')}
-                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                  >
-                    <Scale className="mr-2 h-4 w-4" />
-                    <span>Copyright & DMCA</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
+              <Link
+                to="/support"
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Support
+              </Link>
               <Link
                 to="/discovery"
                 className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
