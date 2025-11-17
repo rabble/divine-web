@@ -22,7 +22,7 @@ export function AppFooter() {
                   to="/human-created"
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
-                  Made by Humans
+                  Videos by Humans
                 </Link>
                 <span className="text-muted-foreground">•</span>
                 <Link
