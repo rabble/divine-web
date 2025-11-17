@@ -1,11 +1,12 @@
 // ABOUTME: Hook for fetching profile statistics including video count, views, followers, and joined date
 // ABOUTME: Aggregates data from video events, social interactions, and contact lists
-// ABOUTME: Optimized to use batched queries for improved performance
+// ABOUTME: Queries multiple relays with higher limits for accurate follower counts
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import type { ProfileStats } from '@/components/ProfileHeader';
 import { VIDEO_KINDS } from '@/types/video';
+import { debugLog } from '@/lib/debug';
 
 /**
  * Fetch comprehensive profile statistics for a user
@@ -19,7 +20,7 @@ export function useProfileStats(pubkey: string) {
     queryFn: async (context) => {
       if (!pubkey) throw new Error('No pubkey provided');
 
-      const signal = AbortSignal.any([context.signal, AbortSignal.timeout(5000)]);
+      const signal = AbortSignal.any([context.signal, AbortSignal.timeout(10000)]);
 
       try {
         // Optimized: Single batched query for all profile data
@@ -31,13 +32,7 @@ export function useProfileStats(pubkey: string) {
             authors: [pubkey],
             limit: 500,
           },
-          // 2. People who follow this user (kind 3 contact lists mentioning this pubkey)
-          {
-            kinds: [3],
-            '#p': [pubkey],
-            limit: 500,
-          },
-          // 3. User's own contact list (people they follow)
+          // 2. User's own contact list (people they follow)
           {
             kinds: [3],
             authors: [pubkey],
@@ -47,7 +42,6 @@ export function useProfileStats(pubkey: string) {
 
         // Separate events by type
         const videoEvents = allEvents.filter(e => VIDEO_KINDS.includes(e.kind));
-        const followerEvents = allEvents.filter(e => e.kind === 3 && e.tags.some(t => t[0] === 'p' && t[1] === pubkey));
         const userContactList = allEvents.filter(e => e.kind === 3 && e.pubkey === pubkey);
 
         // Calculate video count
@@ -75,9 +69,21 @@ export function useProfileStats(pubkey: string) {
           }).length;
         }
 
+        // Query follower count with much higher limit across multiple relays
+        // The reqRouter will automatically send this to profile relays
+        debugLog(`[useProfileStats] Querying followers for ${pubkey}`);
+
+        const followerEvents = await nostr.query([{
+          kinds: [3],
+          '#p': [pubkey],
+          limit: 10000, // Increased from 500 to capture more followers
+        }], { signal });
+
         // Calculate follower count (unique pubkeys following this user)
         const followerPubkeys = new Set(followerEvents.map(event => event.pubkey));
         const followersCount = followerPubkeys.size;
+
+        debugLog(`[useProfileStats] Found ${followerEvents.length} follower events, ${followersCount} unique followers`);
 
         // Calculate following count (people this user follows)
         const latestContactList = userContactList
