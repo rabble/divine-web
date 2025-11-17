@@ -133,10 +133,20 @@ export function ReportContentDialog({
             />
           </div>
 
-          <div className="bg-muted p-3 rounded-md text-sm">
+          <div className="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-md text-sm space-y-2">
+            <p className="font-semibold text-yellow-700 dark:text-yellow-400">
+              ⚠️ Reports are PUBLIC information
+            </p>
             <p className="text-muted-foreground">
-              Reports are published as NIP-56 events and may be reviewed by community moderators.
-              Your report will be anonymous and linked to your Nostr identity.
+              Reports are published as NIP-56 events on the Nostr network and will be linked to your username.
+              Do not include sensitive or private information in reports.
+            </p>
+            <p className="text-muted-foreground">
+              If you have a sensitive issue to share privately, please use our{' '}
+              <a href="/support" className="text-primary hover:underline font-medium">
+                support helpdesk
+              </a>
+              .
             </p>
           </div>
 
