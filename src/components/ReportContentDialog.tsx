@@ -96,7 +96,7 @@ export function ReportContentDialog({
         onClose();
       }
     }}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{getDialogTitle()}</DialogTitle>
           <DialogDescription>
@@ -104,7 +104,7 @@ export function ReportContentDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 pb-2">
           <div className="space-y-3">
             <Label>Why are you reporting this {contentType}?</Label>
             <RadioGroup value={reason} onValueChange={(value) => setReason(value as ContentFilterReason)}>
