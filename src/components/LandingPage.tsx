@@ -13,7 +13,7 @@ import {
 import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { MailerLiteSignup } from "@/components/MailerLiteSignup";
-import { MoreVertical, Heart, Headphones, ShieldCheck, Users, ShieldAlert, Code2, Github, Scale, Shield } from 'lucide-react';
+import { MoreVertical, Heart, Headphones, ShieldCheck, Users, ShieldAlert, Code2, Github, Scale, Shield, Info, HelpCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -84,6 +84,14 @@ export function LandingPage() {
                   <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About diVine</DropdownMenuLabel>
 
                   <DropdownMenuItem
+                    onClick={() => navigate('/about')}
+                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
+                  >
+                    <Info className="mr-2 h-4 w-4" />
+                    <span>About</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
                     onClick={() => navigate('/authenticity')}
                     className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
                   >
@@ -92,11 +100,27 @@ export function LandingPage() {
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
+                    onClick={() => navigate('/faq')}
+                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
+                  >
+                    <HelpCircle className="mr-2 h-4 w-4" />
+                    <span>FAQ</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
                     onClick={() => navigate('/support')}
                     className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
                   >
                     <Headphones className="mr-2 h-4 w-4" />
                     <span>Support</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => navigate('/media-resources')}
+                    className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    <span>Media Resources</span>
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
