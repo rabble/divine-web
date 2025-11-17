@@ -124,45 +124,12 @@ export function MediaResourcesPage() {
                 <div className="flex flex-wrap gap-2">
                   <Button asChild variant="outline" size="sm">
                     <a
-                      href="https://rabblelabs.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2"
-                    >
-                      RabbleLabs.com
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
-                  <Button asChild variant="outline" size="sm">
-                    <a
-                      href="https://ditto.pub/@rabble@nos.social"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2"
-                    >
-                      Rabble on Nostr
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
-                  <Button asChild variant="outline" size="sm">
-                    <a
                       href="https://revolution.social"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2"
                     >
                       Revolution.Social Podcast
-                      <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </Button>
-                  <Button asChild variant="outline" size="sm">
-                    <a
-                      href="https://github.com/rabble"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2"
-                    >
-                      GitHub
                       <ExternalLink className="h-3 w-3" />
                     </a>
                   </Button>
@@ -204,24 +171,6 @@ export function MediaResourcesPage() {
                     <div className="text-xs text-muted-foreground">Our commitment to user rights</div>
                   </div>
                 </a>
-              </Button>
-              <Button asChild variant="outline" className="justify-start h-auto py-4">
-                <Link to="/news" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <div className="text-left">
-                    <div className="font-semibold">In the News</div>
-                    <div className="text-xs text-muted-foreground">Media coverage and press releases</div>
-                  </div>
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="justify-start h-auto py-4">
-                <Link to="/open-source" className="flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  <div className="text-left">
-                    <div className="font-semibold">Open Source</div>
-                    <div className="text-xs text-muted-foreground">Code, licenses, and contributions</div>
-                  </div>
-                </Link>
               </Button>
             </div>
           </CardContent>
