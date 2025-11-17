@@ -51,9 +51,8 @@ export function MediaResourcesPage() {
               diVine preserves authentic human creativity and gives creators true ownership of their content.
             </p>
             <p className="text-muted-foreground">
-              Funded by Jack Dorsey through andotherstuff, diVine brings back the spontaneous
-              creativity that made Vine special—but this time, built on open-source technology
-              that makes it impossible for any corporation to shut down.
+              diVine brings back the spontaneous creativity that made Vine special—but this time,
+              built on open-source technology that makes it impossible for any corporation to shut down.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
               <div className="space-y-2">
@@ -70,7 +69,6 @@ export function MediaResourcesPage() {
                 <h4 className="font-semibold">Quick Facts</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Launched: November 2025</li>
-                  <li>• Backed by: Jack Dorsey / andotherstuff</li>
                   <li>• Platform: Web, iOS, Android</li>
                   <li>• License: Open Source (AGPL-3.0)</li>
                 </ul>
