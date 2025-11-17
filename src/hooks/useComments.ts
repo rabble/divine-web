@@ -16,12 +16,34 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
     // Don't refetch when component mounts if data is already cached and fresh
     refetchOnMount: 'stale',
     queryFn: async (c) => {
+      if (root instanceof URL) {
+        return {
+          allComments: [],
+          topLevelComments: [],
+          getDescendants: () => [],
+          getDirectReplies: () => [],
+        };
+      }
+
+      // For kind 34236 addressable events, build the 'a' tag coordinate
+      const dTag = root.tags.find(tag => tag[0] === 'd')?.[1];
+      const aTag = dTag ? `${root.kind}:${root.pubkey}:${dTag}` : null;
+
+      if (!aTag) {
+        console.error('[useComments] No d tag found for addressable event:', root.id);
+        return {
+          allComments: [],
+          topLevelComments: [],
+          getDescendants: () => [],
+          getDirectReplies: () => [],
+        };
+      }
+
       // Query for Kind 1111 (NIP-22 comments)
-      // Comments always reference the root event by its ID using the 'e' tag,
-      // even for addressable events like Kind 34236
+      // Comments reference addressable events using 'a' tag with format "kind:pubkey:d-identifier"
       const filter: NostrFilter = {
         kinds: [1111],
-        '#e': root instanceof URL ? [] : [root.id]
+        '#a': [aTag]
       };
 
       if (typeof limit === 'number') {
@@ -34,12 +56,6 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
       const events = await nostr.query([filter], { signal });
       console.log('[useComments] Found', events.length, 'comment events');
 
-      // Helper function to get tag value
-      const getTagValue = (event: NostrEvent, tagName: string): string | undefined => {
-        const tag = event.tags.find(([name]) => name === tagName);
-        return tag?.[1];
-      };
-
       // Helper function to get tag marker (4th element)
       const getTagMarker = (event: NostrEvent, tagName: string, value: string): string | undefined => {
         const tag = event.tags.find(([name, val]) => name === tagName && val === value);
@@ -47,18 +63,17 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
       };
 
       // Filter top-level comments
-      // Top-level comments have an 'e' tag with marker 'root' pointing to the video
-      // AND no 'e' tag with marker 'reply' (which would make it a threaded reply)
-      const rootId = root instanceof URL ? '' : root.id;
+      // Top-level comments have an 'a' tag with marker 'root' pointing to the video
+      // AND no 'e' tag with marker 'reply' (which would make it a threaded reply to another comment)
       const topLevelComments = events.filter(comment => {
-        const hasRootMarker = getTagMarker(comment, 'e', rootId) === 'root';
-        // Check if there's ANY 'e' tag with marker 'reply' (regardless of which event it's replying to)
+        const hasRootMarker = getTagMarker(comment, 'a', aTag) === 'root';
+        // Check if there's ANY 'e' tag with marker 'reply' (regardless of which comment it's replying to)
         const hasReplyMarker = comment.tags.some(tag => tag[0] === 'e' && tag[3] === 'reply');
         // Only top-level if it has root marker but NO reply marker
         return hasRootMarker && !hasReplyMarker;
       });
 
-      console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments (with marker=root)');
+      console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments (with a tag marker=root)');
 
       // Helper function to get all descendants of a comment
       const getDescendants = (parentId: string): NostrEvent[] => {

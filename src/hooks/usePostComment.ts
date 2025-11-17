@@ -27,14 +27,18 @@ export function usePostComment() {
     mutationFn: async ({ root, reply, content }: PostCommentParams) => {
       const tags: string[][] = [];
 
-      // Android app uses Kind 1 (text notes) with e/p tags
-      // Root event - always tag the video being commented on
+      // Root event - always tag the video being commented on using 'a' tag for addressable events
       if (!(root instanceof URL)) {
-        tags.push(['e', root.id, '', 'root']);
+        // Build 'a' tag for addressable event: "kind:pubkey:d-identifier"
+        const dTag = root.tags.find(tag => tag[0] === 'd')?.[1];
+        if (dTag) {
+          tags.push(['a', `${root.kind}:${root.pubkey}:${dTag}`, '', 'root']);
+          tags.push(['k', root.kind.toString()]);
+        }
         tags.push(['p', root.pubkey]);
       }
 
-      // If replying to a comment, add reply tags
+      // If replying to a comment, add reply tags using 'e' tag
       if (reply && !(reply instanceof URL)) {
         tags.push(['e', reply.id, '', 'reply']);
         tags.push(['p', reply.pubkey]);
@@ -79,7 +83,12 @@ export function usePostComment() {
         // Build the same tags that will be used in the actual comment
         const commentTags: string[][] = [];
         if (!(root instanceof URL)) {
-          commentTags.push(['e', root.id, '', 'root']);
+          // Build 'a' tag for addressable event
+          const dTag = root.tags.find(tag => tag[0] === 'd')?.[1];
+          if (dTag) {
+            commentTags.push(['a', `${root.kind}:${root.pubkey}:${dTag}`, '', 'root']);
+            commentTags.push(['k', root.kind.toString()]);
+          }
           commentTags.push(['p', root.pubkey]);
         }
         if (reply && !(reply instanceof URL)) {
