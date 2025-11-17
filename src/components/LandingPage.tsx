@@ -236,11 +236,11 @@ export function LandingPage() {
           <CardContent className="pt-8 pb-8 px-8 text-center space-y-6">
             {/* Elevator Pitch */}
             <div className="space-y-4">
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex flex-col items-center justify-center gap-3">
                 <img
                   src="/divine_icon_transparent.png"
                   alt="diVine logo"
-                  className="w-12 h-12 md:w-16 md:h-16"
+                  className="w-16 h-16 md:w-20 md:h-20"
                 />
                 <h1 className="text-4xl md:text-5xl font-logo text-primary">
                   diVine
