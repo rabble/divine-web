@@ -211,6 +211,66 @@ export function OpenSourcePage() {
           </CardContent>
         </Card>
 
+        {/* Open Source Principles */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Key Open Source Principles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full" />
+                  Transparency
+                </h4>
+                <p className="text-sm text-muted-foreground pl-4">
+                  All code is open and auditable
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full" />
+                  Community-driven
+                </h4>
+                <p className="text-sm text-muted-foreground pl-4">
+                  Built by and for the community
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full" />
+                  Innovation
+                </h4>
+                <p className="text-sm text-muted-foreground pl-4">
+                  Pushing boundaries of decentralized social
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full" />
+                  Platform freedom
+                </h4>
+                <p className="text-sm text-muted-foreground pl-4">
+                  No vendor lock-in or corporate control
+                </p>
+              </div>
+
+              <div className="space-y-1">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <div className="h-2 w-2 bg-primary rounded-full" />
+                  User privacy
+                </h4>
+                <p className="text-sm text-muted-foreground pl-4">
+                  Your data, your control
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Community & Contribution */}
         <Card>
           <CardHeader>
@@ -312,66 +372,6 @@ export function OpenSourcePage() {
               >
                 AGPL-3.0
               </a>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Open Source Principles */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Key Open Source Principles</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Transparency
-                </h4>
-                <p className="text-sm text-muted-foreground pl-4">
-                  All code is open and auditable
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Community-driven
-                </h4>
-                <p className="text-sm text-muted-foreground pl-4">
-                  Built by and for the community
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Innovation
-                </h4>
-                <p className="text-sm text-muted-foreground pl-4">
-                  Pushing boundaries of decentralized social
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  Platform freedom
-                </h4>
-                <p className="text-sm text-muted-foreground pl-4">
-                  No vendor lock-in or corporate control
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <div className="h-2 w-2 bg-primary rounded-full" />
-                  User privacy
-                </h4>
-                <p className="text-sm text-muted-foreground pl-4">
-                  Your data, your control
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>
