@@ -296,6 +296,36 @@ export function MediaResourcesPage() {
                 Download diVine logos and brand assets for media use. Available in PNG and SVG formats.
               </p>
 
+              {/* Cover Image */}
+              <div className="mb-6">
+                <h4 className="text-sm font-medium mb-3">Cover Image</h4>
+                <div className="max-w-2xl">
+                  <a
+                    href="/og.png"
+                    download="divine-cover-image.png"
+                    className="group border rounded-lg p-4 hover:border-primary transition-colors block"
+                  >
+                    <div className="aspect-video bg-muted rounded flex items-center justify-center mb-3">
+                      <img
+                        src="/og.png"
+                        alt="diVine cover image"
+                        className="w-full h-full object-cover rounded"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <div className="text-sm font-medium">Social Media Cover Image</div>
+                        <div className="text-xs text-muted-foreground">1920 × 1080 PNG</div>
+                      </div>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-3 w-3 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
               {/* Icon Logos */}
               <div className="mb-6">
                 <h4 className="text-sm font-medium mb-3">Icon Logos</h4>
