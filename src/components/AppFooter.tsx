@@ -20,6 +20,15 @@ export function AppFooter() {
             >
               ProofMode
             </Link>
+            <span className="text-muted-foreground">•</span>
+            <a
+              href="https://opencollective.com/aos-collective/contribute/divine-keepers-95646/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              Donate
+            </a>
           </div>
 
           {/* Compact Navigation Links */}
@@ -56,6 +65,10 @@ export function AppFooter() {
               <span>•</span>
               <Link to="/support" className="hover:text-foreground transition-colors">
                 Support
+              </Link>
+              <span>•</span>
+              <Link to="/press" className="hover:text-foreground transition-colors">
+                Press
               </Link>
             </div>
           </div>

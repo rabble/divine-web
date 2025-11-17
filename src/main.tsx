@@ -3,10 +3,6 @@ import { createRoot } from 'react-dom/client';
 // Import polyfills first
 import './lib/polyfills.ts';
 
-// Apply Nostr monkeypatch for relay-native sorting BEFORE any Nostr operations
-import { patchNostrifyForCustomParams } from './lib/nostrifyPatch';
-patchNostrifyForCustomParams();
-
 // Initialize Firebase Analytics
 import { initializeAnalytics } from './lib/analytics';
 initializeAnalytics();

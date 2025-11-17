@@ -93,10 +93,11 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         // Route kind 0 and kind 3 queries to profile-specific relays for better availability
         if (profileRelayFilters.length > 0) {
           const profileRelays = [
+            'wss://relay.divine.video',
             'wss://purplepag.es',
-            'wss://relay.nos.social',
             'wss://relay.damus.io',
             'wss://relay.ditto.pub',
+            'wss://relay.primal.net',
           ];
 
           debugLog(`[NostrProvider] Routing ${profileRelayFilters.length} profile/contact filters to ${profileRelays.length} relays`);
@@ -124,8 +125,9 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         // For contact lists (kind 3), publish to multiple relays for better availability
         if (event.kind === 3) {
           // Add common relays where contact lists should be stored
+          allRelays.add('wss://relay.divine.video');
           allRelays.add('wss://purplepag.es');
-          allRelays.add('wss://relay.nos.social');
+          allRelays.add('wss://relay.primal.net');
           allRelays.add('wss://relay.damus.io');
           allRelays.add('wss://relay.ditto.pub');
         }
@@ -134,9 +136,11 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         const LIST_KINDS = [30000, 30001, 30005];
         if (LIST_KINDS.includes(event.kind)) {
           // Add common relays where lists should be stored
-          allRelays.add('wss://relay.nostr.band');
+          allRelays.add('wss://relay.divine.video');
+          allRelays.add('wss://purplepag.es');
           allRelays.add('wss://relay.damus.io');
-          allRelays.add('wss://nos.lol');
+          allRelays.add('wss://relay.primal.net');
+          allRelays.add('wss://relay.ditto.pub');
         }
 
         // Also publish to the preset relays, capped to 5

@@ -27,38 +27,47 @@ Addressable events (kinds 34235, 34236) support:
 - Preservation of imported content IDs from legacy platforms
 - Content updates while maintaining the same reference
 
-## Custom Relay Extension
+## Relay Architecture
 
-**relay.divine.video implements a custom `sort` extension** to enable server-side sorting by loop count.
+**relay.divine.video** is a high-performance OpenSearch-backed relay with NIP-50 search extensions.
 
-### Sort Parameter
+### NIP-50 Search Support
 
-This is NOT part of the standard Nostr protocol. The sort parameter allows queries like:
+The relay implements [NIP-50](https://github.com/nostr-protocol/nips/blob/master/50.md) full-text search with advanced sorting:
 
 ```typescript
 {
   kinds: [34236],
-  limit: 50,
-  sort: {
-    field: 'loop_count',
-    dir: 'desc'
-  }
+  search: "sort:hot",  // Recent + high engagement
+  limit: 50
 }
 ```
 
-**How it works:**
-1. Relay returns top 50 videos by loop count (server-side)
-2. Client re-ranks by `loopCount + reactionCount` (client-side)
+**Supported sort modes:**
+- `sort:hot` - Recent events with high engagement (trending)
+- `sort:top` - Most referenced events (popular all-time)
+- `sort:rising` - Recently created events gaining engagement
+- `sort:controversial` - Events with mixed reactions
 
-This two-tier ranking system ensures highly-looped videos surface, not just recent ones.
+**Combined search and sort:**
+```typescript
+{
+  kinds: [34236],
+  search: "sort:hot bitcoin",  // Hot bitcoin videos
+  limit: 50
+}
+```
 
-**Feed types using sort:**
-- Trending
-- Discovery
-- Home (following feed)
-- Hashtag
+**Feed types using NIP-50:**
+- Trending (sort:hot)
+- Discovery (sort:top)
+- Home following feed (sort:top)
+- Hashtag feeds (sort:hot)
+- Full-text search (with relevance scoring)
 
-**Standard Nostr relays** will ignore the `sort` parameter and return chronological results.
+**Fallback:** Standard Nostr relays without NIP-50 will return chronological results.
+
+For detailed relay documentation, see [docs/relay-architecture.md](docs/relay-architecture.md).
 
 ## Development
 
