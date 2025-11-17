@@ -1,7 +1,7 @@
 // ABOUTME: Video feed component for displaying scrollable lists of videos with infinite scroll
 // ABOUTME: Uses optimized useInfiniteVideos hook with NIP-50 search and cursor pagination
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { VideoGrid } from '@/components/VideoGrid';
@@ -23,6 +23,11 @@ import { debugLog, debugWarn } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
 
 type ViewMode = 'feed' | 'grid';
+
+enum ScrollSnapDirection {
+  PREVIOUS,
+  NEXT
+}
 
 interface VideoFeedProps {
   feedType?: 'discovery' | 'home' | 'trending' | 'hashtag' | 'profile' | 'recent';
@@ -55,6 +60,8 @@ export function VideoFeed({
 }: VideoFeedProps) {
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
+
+  const videoCardsListRef = useRef<HTMLDivElement | null>(null);
 
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -152,6 +159,47 @@ export function VideoFeed({
       }
     }
   }, [filteredVideos, allVideos, feedType]);
+
+  // Register 'wheel' event for scroll snapping.
+  useEffect(() => {
+    const snapScroll = (direction: ScrollSnapDirection) => {
+      if (!videoCardsListRef.current) return;
+
+      const y = window.scrollY;
+      const viewportHeight = window.innerHeight;
+
+      const cards = [...videoCardsListRef.current.children].filter(
+        (v) => v instanceof HTMLElement
+      ) as HTMLElement[];
+
+      let target: HTMLElement | undefined;
+      if (direction === ScrollSnapDirection.NEXT) {
+        target = cards.find((el) => el.offsetTop > y + 1);
+      } else if (direction === ScrollSnapDirection.PREVIOUS) {
+        target = [...cards].reverse().find((el) => el.offsetTop < y - 1);
+      }
+
+      if (!target) return;
+
+      // Make the target centered in the viewport.
+      const scrollPosition =
+        (target.offsetTop - (viewportHeight / 2)) + (target.offsetHeight / 2);
+
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth',
+      });
+    };
+
+    const handleWheel = (e: WheelEvent) => {
+      if (e.deltaY > 0) snapScroll(ScrollSnapDirection.NEXT);
+      else if (e.deltaY < 0) snapScroll(ScrollSnapDirection.PREVIOUS);
+    };
+
+    window.addEventListener('wheel', handleWheel);
+
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [videoCardsListRef.current]);
 
   // Loading state (initial load only)
   if (isLoading && !data) {
@@ -480,7 +528,7 @@ export function VideoFeed({
           ) : null
         }
       >
-        <div className="grid gap-6">
+        <div className="grid gap-6" ref={videoCardsListRef}>
           {filteredVideos.map((video, index) => (
             <VideoCardWithMetrics
               key={video.id}
