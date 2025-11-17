@@ -242,7 +242,7 @@ export function LandingPage() {
                   alt="diVine logo"
                   className="w-16 h-16 md:w-20 md:h-20"
                 />
-                <h1 className="text-4xl md:text-5xl font-logo text-primary">
+                <h1 className="text-5xl md:text-6xl font-logo text-primary">
                   diVine
                 </h1>
               </div>
