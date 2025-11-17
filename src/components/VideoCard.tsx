@@ -27,7 +27,6 @@ import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
 import { useDeletionInfo } from '@/hooks/useDeletionEvents';
 import { useAppContext } from '@/hooks/useAppContext';
-import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
 import type { ParsedVideoData } from '@/types/video';
