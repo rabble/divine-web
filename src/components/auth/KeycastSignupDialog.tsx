@@ -28,6 +28,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/useToast';
 import { useLoginActions } from '@/hooks/useLoginActions';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useQueryClient } from '@tanstack/react-query';
+import { debugLog } from '@/lib/debug';
 import { useUploadFile } from '@/hooks/useUploadFile';
 import { useKeycastSession } from '@/hooks/useKeycastSession';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -67,6 +69,7 @@ export function KeycastSignupDialog({
   const { mutateAsync: publishEvent, isPending: isPublishing } =
     useNostrPublish();
   const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
+  const queryClient = useQueryClient();
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   // Reset state when dialog opens
@@ -246,10 +249,22 @@ export function KeycastSignupDialog({
         if (profileData.picture) metadata.picture = profileData.picture;
       }
 
-      await publishEvent({
+      const profileEvent = await publishEvent({
         kind: 0,
         content: JSON.stringify(metadata),
       });
+
+      debugLog('[KeycastSignupDialog] Profile published:', profileEvent);
+      debugLog('[KeycastSignupDialog] Profile metadata:', metadata);
+
+      // Invalidate safety check cache so new profile is recognized immediately
+      // Wait a bit for the event to propagate through relays
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['follow-list-safety-check'],
+        });
+        debugLog('[KeycastSignupDialog] Invalidated safety check cache after profile publication');
+      }, 1000);
 
       if (
         !skipProfile &&

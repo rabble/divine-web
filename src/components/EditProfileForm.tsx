@@ -117,6 +117,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
       // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['logins'] });
       queryClient.invalidateQueries({ queryKey: ['author', user.pubkey] });
+      queryClient.invalidateQueries({ queryKey: ['follow-list-safety-check'] });
 
       toast({
         title: 'Success',
