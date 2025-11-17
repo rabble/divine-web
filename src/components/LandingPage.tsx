@@ -37,13 +37,8 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2">
-              <img
-                src="/divine_icon_transparent.png"
-                alt="diVine"
-                className="w-8 h-8"
-              />
-              <span className="text-xl font-logo text-primary">diVine</span>
+            <Link to="/" className="text-xl font-logo text-primary">
+              diVine
             </Link>
 
             {/* Navigation Links */}
