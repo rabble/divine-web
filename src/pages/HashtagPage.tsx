@@ -4,6 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Grid3X3, List, Hash } from 'lucide-react';
+import { useSeoMeta } from '@unhead/react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { parseHashtags, formatHashtag } from '@/lib/hashtag';
@@ -64,6 +65,25 @@ export function HashtagPage() {
       .slice(0, 5);
   }, [normalizedTag, allVideos]);
 
+  // Dynamic SEO meta tags for social sharing
+  const videoCount = videos?.length || 0;
+  const description = videoCount > 0
+    ? `Browse ${videoCount} video${videoCount !== 1 ? 's' : ''} tagged with #${tag} on diVine`
+    : `Explore videos tagged with #${tag} on diVine`;
+
+  useSeoMeta({
+    title: `#${tag} - diVine`,
+    description: description,
+    ogTitle: `#${tag} - diVine`,
+    ogDescription: description,
+    ogImage: '/og.png',
+    ogType: 'website',
+    twitterCard: 'summary_large_image',
+    twitterTitle: `#${tag} - diVine`,
+    twitterDescription: description,
+    twitterImage: '/og.png',
+  });
+
   if (!normalizedTag || normalizedTag.trim() === '') {
     return (
       <div className="container mx-auto px-4 py-6">
@@ -80,8 +100,6 @@ export function HashtagPage() {
       </div>
     );
   }
-
-  const videoCount = videos?.length || 0;
 
   return (
     <div className="container mx-auto px-4 py-6">
