@@ -114,13 +114,21 @@ export function ProfilePage() {
       return;
     }
 
+    debugLog('[ProfilePage] ========================================');
+    debugLog('[ProfilePage] Follow toggle clicked');
+    debugLog('[ProfilePage] Should follow?', shouldFollow);
+    debugLog('[ProfilePage] Safety check data:', safetyCheck);
+    debugLog('[ProfilePage] ========================================');
+
     // Check if we need to show safety warning
     if (shouldFollow && safetyCheck?.needsWarning) {
-      debugLog('[ProfilePage] Safety check triggered - showing warning dialog');
+      debugLog('[ProfilePage] ⚠️  Safety check triggered - showing warning dialog');
       setPendingFollowAction(true);
       setSafetyDialogOpen(true);
       return;
     }
+
+    debugLog('[ProfilePage] ✅ No safety warning needed, proceeding with follow');
 
     // Proceed with follow/unfollow action
     await executeFollowAction(shouldFollow);
