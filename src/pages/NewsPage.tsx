@@ -8,11 +8,6 @@ import { ExternalLink, FileText, Mail } from 'lucide-react';
 
 const NEWS_OUTLETS = [
   {
-    name: 'CNN',
-    logo: '/logos/cnn.png',
-    url: 'https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn',
-  },
-  {
     name: 'TechCrunch',
     logo: '/logos/techcrunch.png',
     url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
@@ -63,7 +58,7 @@ export function NewsPage() {
           {/* Seen In Section */}
           <div>
             <h2 className="text-xl font-semibold mb-4 text-center">As seen in</h2>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
               {NEWS_OUTLETS.map((outlet) => (
                 <a
                   key={outlet.name}
