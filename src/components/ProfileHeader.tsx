@@ -5,9 +5,11 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserPlus, UserCheck, CheckCircle, Pencil } from 'lucide-react';
+import { UserPlus, UserCheck, CheckCircle, Pencil, Copy } from 'lucide-react';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
+import { toast } from '@/hooks/useToast';
+import { nip19 } from 'nostr-tools';
 import type { NostrMetadata } from '@nostrify/nostrify';
 
 export interface ProfileStats {
@@ -74,6 +76,23 @@ export function ProfileHeader({
     onFollowToggle(!isFollowing);
   };
 
+  const handleCopyNpub = async () => {
+    try {
+      const npub = nip19.npubEncode(pubkey);
+      await navigator.clipboard.writeText(npub);
+      toast({
+        title: "Copied!",
+        description: "npub copied to clipboard",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy npub to clipboard",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div
       className={`space-y-4 ${className || ''}`}
@@ -95,9 +114,21 @@ export function ProfileHeader({
         <div className="flex-1 min-w-0 text-center sm:text-left">
           <div className="space-y-2">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold truncate">
-                {displayName}
-              </h1>
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <h1 className="text-2xl sm:text-3xl font-bold truncate">
+                  {displayName}
+                </h1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={handleCopyNpub}
+                  title="Copy npub"
+                  data-testid="copy-npub-button"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
               {nip05 ? (
                 <div className="flex items-center gap-1 justify-center sm:justify-start">
                   <CheckCircle className="h-4 w-4 text-primary" />
