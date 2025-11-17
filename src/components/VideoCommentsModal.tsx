@@ -45,7 +45,7 @@ export function VideoCommentsModal({
       id: video.id,
       pubkey: video.pubkey,
       created_at: video.createdAt,
-      kind: video.kind, // NIP-71 video kind (21, 22, or 34236)
+      kind: video.kind, // Video kind (34236)
       content: video.content,
       tags,
       sig: '', // Signature would be provided by actual event

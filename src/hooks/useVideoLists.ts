@@ -17,7 +17,7 @@ export interface VideoList {
   image?: string;
   pubkey: string;
   createdAt: number;
-  videoCoordinates: string[]; // Array of "34236:pubkey:d-tag" coordinates (NIP-71)
+  videoCoordinates: string[]; // Array of "34236:pubkey:d-tag" coordinates
   public: boolean;
   tags?: string[]; // Categorization tags
   isCollaborative?: boolean; // Allow others to add videos

@@ -3,18 +3,13 @@
 
 import type { NostrEvent } from '@nostrify/nostrify';
 
-// NIP-71 Video Event Kinds
-export const HORIZONTAL_VIDEO_KIND = 21; // NIP-71 Normal (horizontal) videos
-export const SHORT_VIDEO_KIND = 22; // NIP-71 Short (vertical) videos
-export const LEGACY_VIDEO_KIND = 34236; // Legacy kind for backward compatibility
+// Video Event Kind
+export const VIDEO_KIND = 34236; // Addressable/replaceable video events (NIP-33)
 
-// Array of all supported video kinds
-export const VIDEO_KINDS = [HORIZONTAL_VIDEO_KIND, SHORT_VIDEO_KIND, LEGACY_VIDEO_KIND];
+// Array of all supported video kinds (only 34236)
+export const VIDEO_KINDS = [VIDEO_KIND];
 
 export const REPOST_KIND = 6;
-
-// Deprecated: Use VIDEO_KINDS array instead
-export const VIDEO_KIND = SHORT_VIDEO_KIND;
 
 export interface VideoMetadata {
   url: string;
@@ -30,7 +25,7 @@ export interface VideoMetadata {
 }
 
 export interface VideoEvent extends NostrEvent {
-  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND;
+  kind: typeof VIDEO_KIND;
   videoMetadata?: VideoMetadata;
   title?: string;
   hashtags?: string[];

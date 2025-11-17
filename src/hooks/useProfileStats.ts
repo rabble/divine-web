@@ -26,7 +26,7 @@ export function useProfileStats(pubkey: string) {
         // Optimized: Single batched query for all profile data
         // Combine multiple filters into one WebSocket request
         const allEvents = await nostr.query([
-          // 1. User's videos (kind 34236 - NIP-71)
+          // 1. User's videos (kind 34236)
           {
             kinds: VIDEO_KINDS,
             authors: [pubkey],

@@ -30,17 +30,16 @@ interface VideoPage {
 }
 
 /**
- * Validates that a NIP-71 video event has required fields
+ * Validates that a video event (kind 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-      return false;
-    }
+  // Must have d tag for addressability
+  const vineId = getVineId(event);
+  if (!vineId) {
+    debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+    return false;
   }
 
   return true;
