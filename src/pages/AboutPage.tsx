@@ -35,15 +35,22 @@ export function AboutPage() {
                 <p className="text-sm text-muted-foreground mb-2">
                   <strong>In the News:</strong>
                 </p>
-                <a
-                  href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline inline-flex items-center gap-1"
-                >
-                  TechCrunch: Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                <div className="space-y-2">
+                  <a
+                    href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >
+                    TechCrunch: Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                  <div>
+                    <Link to="/news" className="text-primary hover:underline text-sm">
+                      View all press coverage →
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
