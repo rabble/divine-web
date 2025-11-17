@@ -16,34 +16,20 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
     // Don't refetch when component mounts if data is already cached
     refetchOnMount: false,
     queryFn: async (c) => {
-      // Query for both Kind 1 (regular notes) and Kind 1111 (NIP-22 comments)
-      // This ensures compatibility with both the Android app (uses Kind 1) and NIP-22 clients
-      const filter: NostrFilter = { kinds: [1, 1111] };
-
-      // Build the filter based on root type
-      // Comments use lowercase tags (e, a, i) to reference their root
-      if (root instanceof URL) {
-        filter['#i'] = [root.toString()];
-      } else if (NKinds.addressable(root.kind)) {
-        const d = root.tags.find(([name]) => name === 'd')?.[1] ?? '';
-        const aTag = `${root.kind}:${root.pubkey}:${d}`;
-        filter['#a'] = [aTag];
-        console.log('[useComments] Querying addressable event comments:', { kind: root.kind, aTag, filter });
-      } else if (NKinds.replaceable(root.kind)) {
-        const aTag = `${root.kind}:${root.pubkey}:`;
-        filter['#a'] = [aTag];
-        console.log('[useComments] Querying replaceable event comments:', { kind: root.kind, aTag, filter });
-      } else {
-        filter['#e'] = [root.id];
-        console.log('[useComments] Querying regular event comments:', { eventId: root.id, filter });
-      }
+      // Query for Kind 1 (text notes) - this is what the Android app uses
+      // Comments always reference the root event by its ID using the 'e' tag,
+      // even for addressable events like Kind 34236
+      const filter: NostrFilter = {
+        kinds: [1],
+        '#e': root instanceof URL ? [] : [root.id]
+      };
 
       if (typeof limit === 'number') {
         filter.limit = limit;
       }
 
-      // Query for all kind 1111 comments that reference this event
-      const signal = AbortSignal.any([c.signal, AbortSignal.timeout(10000)]); // Increased timeout
+      // Query for comments that reference this event
+      const signal = AbortSignal.any([c.signal, AbortSignal.timeout(10000)]);
       console.log('[useComments] Fetching comments with filter:', filter);
       const events = await nostr.query([filter], { signal });
       console.log('[useComments] Found', events.length, 'comment events');
@@ -54,35 +40,29 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
         return tag?.[1];
       };
 
-      // Filter top-level comments (those with lowercase tag matching the root)
+      // Helper function to get tag marker (4th element)
+      const getTagMarker = (event: NostrEvent, tagName: string, value: string): string | undefined => {
+        const tag = event.tags.find(([name, val]) => name === tagName && val === value);
+        return tag?.[3];
+      };
+
+      // Filter top-level comments
+      // Top-level comments have an 'e' tag with marker 'root' pointing to the video
+      // Replies have an 'e' tag with marker 'reply' pointing to another comment
+      const rootId = root instanceof URL ? '' : root.id;
       const topLevelComments = events.filter(comment => {
-        let isTopLevel = false;
-        if (root instanceof URL) {
-          isTopLevel = getTagValue(comment, 'i') === root.toString();
-        } else if (NKinds.addressable(root.kind)) {
-          const d = getTagValue(root, 'd') ?? '';
-          const expectedATag = `${root.kind}:${root.pubkey}:${d}`;
-          const commentATag = getTagValue(comment, 'a');
-          isTopLevel = commentATag === expectedATag;
-          if (!isTopLevel) {
-            console.log('[useComments] Comment a-tag mismatch:', { commentId: comment.id, commentATag, expectedATag });
-          }
-        } else if (NKinds.replaceable(root.kind)) {
-          const expectedATag = `${root.kind}:${root.pubkey}:`;
-          isTopLevel = getTagValue(comment, 'a') === expectedATag;
-        } else {
-          isTopLevel = getTagValue(comment, 'e') === root.id;
-        }
-        return isTopLevel;
+        const marker = getTagMarker(comment, 'e', rootId);
+        return marker === 'root';
       });
 
-      console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments');
+      console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments (with marker=root)');
 
       // Helper function to get all descendants of a comment
       const getDescendants = (parentId: string): NostrEvent[] => {
+        // Find comments with an 'e' tag with marker 'reply' pointing to this comment
         const directReplies = events.filter(comment => {
-          const eTag = getTagValue(comment, 'e');
-          return eTag === parentId;
+          const marker = getTagMarker(comment, 'e', parentId);
+          return marker === 'reply';
         });
 
         const allDescendants = [...directReplies];
@@ -114,8 +94,8 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
         },
         getDirectReplies: (commentId: string) => {
           const directReplies = events.filter(comment => {
-            const eTag = getTagValue(comment, 'e');
-            return eTag === commentId;
+            const marker = getTagMarker(comment, 'e', commentId);
+            return marker === 'reply';
           });
           // Sort direct replies by creation time (oldest first for threaded display)
           return directReplies.sort((a, b) => a.created_at - b.created_at);
