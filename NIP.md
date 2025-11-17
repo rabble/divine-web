@@ -54,7 +54,7 @@ Implementations should use liberal URL parsing following Postel's Law, checking 
 The `imeta` tag structure follows NIP-92 with these properties:
 
 ```
-["imeta", 
+["imeta",
   "url", "video_url",           // Primary video URL
   "m", "video/mp4",             // MIME type
   "dim", "480x480",             // Dimensions
@@ -100,3 +100,22 @@ Reposts of Kind 34236 videos use standard Kind 6 events:
 ## Compatibility
 
 This implementation follows NIP-71 for maximum interoperability with other Nostr video clients while maintaining compatibility with existing video content.
+
+## Event Kinds Used
+
+This application creates and queries the following Nostr event kinds:
+
+| Kind  | Name | Purpose |
+|-------|------|---------|
+| 0     | Metadata | User profile information (name, about, picture, NIP-05) |
+| 1     | Text Note | Comments on videos (legacy, being phased out in favor of kind 1111) |
+| 3     | Contacts | Follow list |
+| 5     | Deletion | Event deletion (NIP-09) |
+| 6     | Repost | Video reposts |
+| 7     | Reaction | Likes/reactions to videos |
+| 1111  | Comment | NIP-22 comments on videos |
+| 1984  | Report | Content/user reporting |
+| 9735  | Zap Receipt | Lightning payment receipts |
+| 10001 | Mute List | User and pubkey mutes |
+| 30005 | Video Set | User-curated video playlists and collections |
+| 34236 | Addressable Short Video | NIP-71 short-form looping videos (primary content type) |
