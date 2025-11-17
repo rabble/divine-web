@@ -54,7 +54,7 @@ export function OpenSourcePage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
-                  <strong>Web:</strong> You're already here! <Link to="/" className="text-primary hover:underline">Start exploring</Link>
+                  <strong>Web:</strong> You're already here! <Link to="/discovery" className="text-primary hover:underline">Start exploring</Link>
                 </p>
               </div>
             </div>
