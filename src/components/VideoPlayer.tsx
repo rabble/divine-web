@@ -256,7 +256,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       }, 500);
       setLongPressTimer(timer);
 
-    }, [isMobile, resetControlsTimeout, longPressTimer, onLongPress]);
+    }, [isMobile, longPressTimer, onLongPress]);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
