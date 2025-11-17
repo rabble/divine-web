@@ -191,7 +191,7 @@ export function PWAInstallPrompt() {
             Install diVine Web
           </h3>
           <p className="text-sm text-gray-600 mb-3">
-            Install our app for a better experience with offline support
+            Install our app for a better experience
           </p>
 
           <div className="flex gap-2">

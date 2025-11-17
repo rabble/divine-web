@@ -47,47 +47,11 @@ VitePWA({
         enabled: false
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,jpg,jpeg,webp}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.(nostr\.build|cdn\.nostr\.build|nostrcheck\.me|nostrage\.com|cdn\.jb55\.com|api\.openvine\.co|cdn\.divine\.video)\/.*/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'nostr-media',
-              expiration: {
-                maxEntries: 500,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-            },
-          },
-          {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'images',
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-              },
-            },
-          },
-          {
-            urlPattern: /\.(?:mp4|webm|mov)$/,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'videos',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-              },
-              cacheableResponse: {
-                statuses: [0, 200, 206]
-              }
-            },
-          },
-        ],
+        // Disable all caching - network only
         skipWaiting: true,
         clientsClaim: true,
+        navigateFallback: null,
+        runtimeCaching: []
       },
       includeAssets: [
         'app_icon.png',
