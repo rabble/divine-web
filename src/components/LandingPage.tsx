@@ -21,7 +21,52 @@ export function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 relative overflow-hidden">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm border-b border-gray-200 dark:border-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src="/divine_icon_transparent.png"
+                alt="diVine"
+                className="w-8 h-8"
+              />
+              <span className="text-xl font-logo text-primary">diVine</span>
+            </Link>
+
+            {/* Navigation Links */}
+            <div className="flex items-center gap-6">
+              <Link
+                to="/about"
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                About
+              </Link>
+              <Link
+                to="/faq"
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                FAQ
+              </Link>
+              <Link
+                to="/media-resources"
+                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+              >
+                Press
+              </Link>
+              <Link
+                to="/discovery"
+                className="px-4 py-2 text-sm font-semibold bg-primary text-white rounded-full hover:bg-primary/90 transition-colors"
+              >
+                Try it
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 p-4 pt-20 relative overflow-hidden">
         {/* Decorative curved line */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
