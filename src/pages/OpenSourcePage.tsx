@@ -115,56 +115,6 @@ export function OpenSourcePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Web App Repository */}
-            <div className="border rounded-lg p-4 space-y-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-semibold text-lg flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-blue-500" />
-                    Web Application
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    React-based web client for diVine
-                  </p>
-                </div>
-                <Button asChild size="sm">
-                  <a
-                    href="https://github.com/rabble/divine-web"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    <Github className="h-4 w-4" />
-                    View Repo
-                  </a>
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm">
-                  <strong>Tech Stack:</strong>
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline">React 18</Badge>
-                  <Badge variant="outline">TypeScript</Badge>
-                  <Badge variant="outline">Vite</Badge>
-                  <Badge variant="outline">TailwindCSS</Badge>
-                  <Badge variant="outline">Nostrify</Badge>
-                  <Badge variant="outline">shadcn/ui</Badge>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm">
-                  <strong>Features:</strong>
-                </p>
-                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Progressive Web App (PWA) support</li>
-                  <li>Real-time Nostr event streaming</li>
-                  <li>Responsive design for all screen sizes</li>
-                  <li>Advanced search and discovery feeds</li>
-                </ul>
-              </div>
-            </div>
-
             {/* Flutter App Repository */}
             <div className="border rounded-lg p-4 space-y-3">
               <div className="flex items-start justify-between">
@@ -177,7 +127,7 @@ export function OpenSourcePage() {
                     Native iOS, Android, and macOS apps
                   </p>
                 </div>
-                <Button asChild size="sm" variant="outline">
+                <Button asChild size="sm">
                   <a
                     href="https://github.com/rabble/nostrvine"
                     target="_blank"
@@ -209,6 +159,57 @@ export function OpenSourcePage() {
                   <li>Optimized video playback and caching</li>
                   <li>Native camera integration</li>
                   <li>Offline support and background sync</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Web App Repository */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-blue-500" />
+                    Web Application
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    React-based web client for diVine
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="outline">
+                  <a
+                    href="https://github.com/rabble/divine-web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Github className="h-4 w-4" />
+                    View Repo
+                  </a>
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Tech Stack:</strong>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">React 18</Badge>
+                  <Badge variant="outline">TypeScript</Badge>
+                  <Badge variant="outline">Vite</Badge>
+                  <Badge variant="outline">TailwindCSS</Badge>
+                  <Badge variant="outline">Nostrify</Badge>
+                  <Badge variant="outline">shadcn/ui</Badge>
+                  <Badge variant="outline">MKStack</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Features:</strong>
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Progressive Web App (PWA) support</li>
+                  <li>Real-time Nostr event streaming</li>
+                  <li>Responsive design for all screen sizes</li>
+                  <li>Advanced search and discovery feeds</li>
                 </ul>
               </div>
             </div>
