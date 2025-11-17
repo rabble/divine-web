@@ -493,18 +493,18 @@ export default function ModerationSettingsPage() {
       </Card>
 
       <Tabs defaultValue="mute-list" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="mute-list">
-            <UserX className="h-4 w-4 mr-2" />
-            Mute List
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="mute-list" className="gap-2">
+            <UserX className="h-4 w-4" />
+            <span className="hidden sm:inline">Mute List</span>
           </TabsTrigger>
-          <TabsTrigger value="deletion">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Deleted Content
+          <TabsTrigger value="deletion" className="gap-2">
+            <Trash2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Deleted Content</span>
           </TabsTrigger>
-          <TabsTrigger value="reports">
-            <Flag className="h-4 w-4 mr-2" />
-            My Reports
+          <TabsTrigger value="reports" className="gap-2">
+            <Flag className="h-4 w-4" />
+            <span className="hidden sm:inline">My Reports</span>
           </TabsTrigger>
         </TabsList>
 
