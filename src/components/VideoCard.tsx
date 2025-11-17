@@ -372,6 +372,41 @@ export function VideoCard({
               <p>Failed to load video</p>
             </div>
           )}
+
+          {/* Mute/Unmute button overlay - bottom right corner */}
+          {isPlaying && !videoError && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "absolute bottom-3 right-3 z-30",
+                "bg-black/50 hover:bg-black/70 text-white",
+                "backdrop-blur-sm rounded-full",
+                "w-10 h-10 p-0 flex items-center justify-center",
+                "transition-all duration-200"
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setGlobalMuted(!globalMuted);
+              }}
+              onTouchStart={(e) => {
+                // Prevent touch from bubbling to video player
+                e.stopPropagation();
+              }}
+              onTouchEnd={(e) => {
+                // Prevent touch from bubbling to video player
+                e.stopPropagation();
+              }}
+              aria-label={globalMuted ? "Unmute" : "Mute"}
+            >
+              {globalMuted ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
+          )}
         </div>
 
         {/* Video metadata */}
@@ -500,27 +535,6 @@ export function VideoCard({
             aria-label="Share"
           >
             <Share className="h-4 w-4" />
-          </Button>
-
-          {/* Mute/Unmute button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              isMobile && "px-2"
-            )}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              setGlobalMuted(!globalMuted);
-            }}
-            aria-label={globalMuted ? "Unmute" : "Mute"}
-          >
-            {globalMuted ? (
-              <VolumeX className="h-4 w-4" />
-            ) : (
-              <Volume2 className="h-4 w-4" />
-            )}
           </Button>
 
           {/* Add to list button - icon only on mobile */}
