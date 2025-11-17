@@ -94,6 +94,7 @@ export function VideoCard({
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -582,6 +583,10 @@ export function VideoCard({
                 <Flag className="h-4 w-4 mr-2" />
                 Report video
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowReportUserDialog(true)}>
+                <Flag className="h-4 w-4 mr-2" />
+                Report user
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleMuteUser} className="text-destructive focus:text-destructive">
                 <UserX className="h-4 w-4 mr-2" />
@@ -601,6 +606,15 @@ export function VideoCard({
         eventId={video.id}
         pubkey={video.pubkey}
         contentType="video"
+      />
+    )}
+
+    {showReportUserDialog && (
+      <ReportContentDialog
+        open={showReportUserDialog}
+        onClose={() => setShowReportUserDialog(false)}
+        pubkey={video.pubkey}
+        contentType="user"
       />
     )}
 
