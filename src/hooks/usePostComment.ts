@@ -40,17 +40,23 @@ export function usePostComment() {
         tags.push(['p', reply.pubkey]);
       }
 
+      console.log('[usePostComment] Publishing comment with tags:', tags);
+
       const event = await publishEvent({
         kind: 1, // Use Kind 1 (text note) like the Android app
         content,
         tags,
       });
 
+      console.log('[usePostComment] Comment published successfully:', event.id);
+
       return event;
     },
     onMutate: async ({ root, content, reply }) => {
       const videoId = root instanceof URL ? root.toString() : root.id;
       const metricsQueryKey = ['video-social-metrics', videoId];
+
+      console.log('[usePostComment] onMutate: Starting optimistic update for video:', videoId);
 
       // Cancel all comment queries for this video (regardless of limit)
       await queryClient.cancelQueries({
@@ -99,25 +105,32 @@ export function usePostComment() {
             }
           },
           (old: CommentsQueryData | undefined) => {
+            console.log('[usePostComment] Updating cache with optimistic comment. Current cache:', old);
+
             // useComments returns an object with { allComments, topLevelComments, getDescendants, getDirectReplies }
             // We need to preserve this structure
             if (old && typeof old === 'object' && 'topLevelComments' in old) {
               // If this is a reply, add to allComments but not topLevelComments
               if (reply) {
-                return {
+                const updated = {
                   ...old,
                   allComments: [optimisticComment, ...old.allComments],
                 };
+                console.log('[usePostComment] Added reply to cache. New cache:', updated);
+                return updated;
               }
               // If this is a top-level comment, add to both
-              return {
+              const updated = {
                 ...old,
                 allComments: [optimisticComment, ...old.allComments],
                 topLevelComments: [optimisticComment, ...old.topLevelComments],
               };
+              console.log('[usePostComment] Added top-level comment to cache. New cache:', updated);
+              return updated;
             }
             // If the cache structure is unexpected, don't update it
             // This prevents corrupting the cache
+            console.log('[usePostComment] Cache structure unexpected, not updating');
             return old;
           }
         );
@@ -138,19 +151,27 @@ export function usePostComment() {
         });
       }
     },
-    onSettled: (_, __, { root }) => {
-      // Refetch to sync with server
+    onSuccess: async (newComment, { root }) => {
+      // After successfully publishing, refetch comments to sync with server
       const videoId = root instanceof URL ? root.toString() : root.id;
 
-      // Invalidate all comment queries for this video (regardless of limit parameter)
-      // and force a refetch by using refetchType: 'active'
-      queryClient.invalidateQueries({
+      console.log('[usePostComment] Successfully published comment, refetching comments for video:', videoId);
+
+      // Invalidate and refetch all comment queries for this video
+      await queryClient.invalidateQueries({
         predicate: (query) => {
           return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
         },
-        refetchType: 'active'
       });
 
+      // Force refetch by resetting the queries
+      await queryClient.refetchQueries({
+        predicate: (query) => {
+          return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+        },
+      });
+
+      // Also update metrics
       queryClient.invalidateQueries({
         queryKey: ['video-social-metrics', videoId]
       });
