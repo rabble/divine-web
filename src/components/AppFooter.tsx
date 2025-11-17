@@ -15,9 +15,9 @@ export function AppFooter() {
             </div>
 
             {/* Right side - Navigation Links */}
-            <div className="flex flex-col gap-3 text-xs text-muted-foreground lg:text-right">
+            <div className="flex flex-col gap-3 text-xs text-muted-foreground">
               {/* Featured Links */}
-              <div className="flex flex-wrap items-center lg:justify-end gap-3 text-sm">
+              <div className="flex flex-wrap items-center gap-3 text-sm">
                 <Link
                   to="/human-created"
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
@@ -34,7 +34,7 @@ export function AppFooter() {
               </div>
 
               {/* Navigation Links */}
-              <div className="flex flex-wrap items-center lg:justify-end gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Link to="/about" className="hover:text-foreground transition-colors">
                   About
                 </Link>
@@ -55,7 +55,7 @@ export function AppFooter() {
                   Support
                 </Link>
               </div>
-              <div className="flex flex-wrap items-center lg:justify-end gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Link to="/privacy" className="hover:text-foreground transition-colors">
                   Privacy
                 </Link>
