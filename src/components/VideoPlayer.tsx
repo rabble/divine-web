@@ -319,6 +319,13 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
 
+      // Check if touch is on a button (ignore control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        return; // Don't handle touch gestures if touching a button
+      }
+
       const touch = e.touches[0];
       const deltaX = touch.clientX - touchState.startX;
       const deltaY = touch.clientY - touchState.startY;
@@ -360,6 +367,19 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
 
+      // Check if touch target is a button FIRST (ignore taps on control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        // Clear any state and timers, but don't process any gestures
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          setLongPressTimer(null);
+        }
+        setTouchState(null);
+        return; // Don't handle tap/swipe gestures if touching a button
+      }
+
       // Clear long press timer
       if (longPressTimer) {
         clearTimeout(longPressTimer);
@@ -370,14 +390,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       const duration = currentTime - touchState.startTime;
       const deltaX = (e.changedTouches[0]?.clientX || touchState.startX) - touchState.startX;
       const deltaY = (e.changedTouches[0]?.clientY || touchState.startY) - touchState.startY;
-
-      // Check if touch target is a button (ignore taps on control buttons)
-      const target = e.target as HTMLElement;
-      const isButton = target.closest('button');
-      if (isButton) {
-        setTouchState(null);
-        return; // Don't handle tap/swipe gestures if touching a button
-      }
 
       // Handle tap gesture
       if (duration < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
@@ -751,13 +763,19 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
         {/* Controls overlay - only mute and fullscreen buttons */}
         {showControls && !isLoading && !hasError && (
-          <>
+          <div
+            className="absolute inset-0 pointer-events-none z-30"
+            onClick={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+          >
             {/* Mute button */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute bottom-4 right-4 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
+                "absolute bottom-4 right-4 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all pointer-events-auto",
                 isMobile
                   ? (controlsVisible ? "opacity-100 w-14 h-14" : "opacity-100 w-14 h-14")
                   : "opacity-0 group-hover:opacity-100 w-10 h-10"
@@ -765,8 +783,20 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
-                toggleMute(e);
+                // Only handle click on desktop (not mobile)
+                if (!isMobile) {
+                  toggleMute(e);
+                }
               }}
+              onTouchEnd={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                // Only handle touch on mobile (not desktop)
+                if (isMobile) {
+                  toggleMute(e);
+                }
+              }}
+              // Prevent any touch events from propagating
               onTouchStart={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -775,10 +805,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                 e.stopPropagation();
                 e.preventDefault();
               }}
-              onTouchEnd={(e) => {
+              onPointerDown={(e) => {
+                // Stop pointer events from propagating (covers both mouse and touch)
                 e.stopPropagation();
-                e.preventDefault();
-                toggleMute(e);
               }}
             >
               {globalMuted ? (
@@ -794,7 +823,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "absolute bottom-4 left-4 w-14 h-14 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
+                  "absolute bottom-4 left-4 w-14 h-14 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all pointer-events-auto",
                   controlsVisible ? "opacity-100" : "opacity-100"
                 )}
                 onClick={(e) => {
@@ -824,7 +853,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                 )}
               </Button>
             )}
-          </>
+          </div>
         )}
       </div>
     );
