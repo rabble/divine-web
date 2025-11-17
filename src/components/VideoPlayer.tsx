@@ -690,172 +690,100 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }
 
     return (
-      <div
-        ref={setContainerRef}
-        className={cn(
-          'relative overflow-hidden bg-black group',
-          layoutClass,
-          className
-        )}
-        onTouchStart={isMobile ? handleTouchStart : undefined}
-        onTouchMove={isMobile ? handleTouchMove : undefined}
-        onTouchEnd={isMobile ? handleTouchEnd : undefined}
-      >
-        {/* Blurhash placeholder - shows behind video while loading */}
-        {isValidBlurhash(blurhash) && (
-          <BlurhashPlaceholder
-            blurhash={blurhash}
-            className={cn(
-              'transition-opacity duration-300',
-              !isLoading && !hasError ? 'opacity-0' : 'opacity-100'
-            )}
-          />
-        )}
-
-        <video
-          ref={setRefs}
-          // Don't set src directly if using HLS.js - it will handle the source
-          // HLS.js is used when hlsUrl is provided and Hls.isSupported()
-          poster={poster}
-          muted={globalMuted}
-          autoPlay={false} // Never autoplay, we control playback programmatically
-          loop
-          playsInline
-          // Preload metadata for videos in view for faster playback
-          preload={inView ? 'auto' : 'none'}
-          crossOrigin="anonymous"
-          disableRemotePlayback
+      <>
+        <div
+          ref={setContainerRef}
           className={cn(
-            'w-full h-full object-contain relative z-10',
-            'transition-opacity duration-300',
-            isLoading ? 'opacity-0' : 'opacity-100'
+            'relative overflow-hidden bg-black group',
+            layoutClass,
+            className
           )}
-          onLoadStart={handleLoadStart}
-          onLoadedData={handleLoadedData}
-          onError={handleError}
-          onEnded={handleEnded}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onClick={!isMobile ? togglePlay : undefined}
-        />
-
-        {/* Loading state - show spinner over blurhash */}
-        {isLoading && (
-          <div
-            className="absolute inset-0 flex items-center justify-center z-20"
-            data-testid={isMobile ? "mobile-loading" : undefined}
-          >
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
-          </div>
-        )}
-
-        {/* Error state */}
-        {hasError && (
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <div>Failed to load video</div>
-              {isMobile && (
-                <div className="text-sm mt-2">Tap to retry</div>
+          onTouchStart={isMobile ? handleTouchStart : undefined}
+          onTouchMove={isMobile ? handleTouchMove : undefined}
+          onTouchEnd={isMobile ? handleTouchEnd : undefined}
+        >
+          {/* Blurhash placeholder - shows behind video while loading */}
+          {isValidBlurhash(blurhash) && (
+            <BlurhashPlaceholder
+              blurhash={blurhash}
+              className={cn(
+                'transition-opacity duration-300',
+                !isLoading && !hasError ? 'opacity-0' : 'opacity-100'
               )}
-            </div>
-          </div>
-        )}
+            />
+          )}
 
-        {/* Controls overlay - only mute and fullscreen buttons */}
+          <video
+            ref={setRefs}
+            // Don't set src directly if using HLS.js - it will handle the source
+            // HLS.js is used when hlsUrl is provided and Hls.isSupported()
+            poster={poster}
+            muted={globalMuted}
+            autoPlay={false} // Never autoplay, we control playback programmatically
+            loop
+            playsInline
+            // Preload metadata for videos in view for faster playback
+            preload={inView ? 'auto' : 'none'}
+            crossOrigin="anonymous"
+            disableRemotePlayback
+            className={cn(
+              'w-full h-full object-contain relative z-10',
+              'transition-opacity duration-300',
+              isLoading ? 'opacity-0' : 'opacity-100'
+            )}
+            onLoadStart={handleLoadStart}
+            onLoadedData={handleLoadedData}
+            onError={handleError}
+            onEnded={handleEnded}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onClick={!isMobile ? togglePlay : undefined}
+          />
+
+          {/* Loading state - show spinner over blurhash */}
+          {isLoading && (
+            <div
+              className="absolute inset-0 flex items-center justify-center z-20"
+              data-testid={isMobile ? "mobile-loading" : undefined}
+            >
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
+            </div>
+          )}
+
+          {/* Error state */}
+          {hasError && (
+            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <div>Failed to load video</div>
+                {isMobile && (
+                  <div className="text-sm mt-2">Tap to retry</div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mute button - OUTSIDE the video container */}
         {showControls && !isLoading && !hasError && (
-          <div
-            className="absolute inset-0 pointer-events-none z-30"
-            onClick={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchMove={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-          >
-            {/* Mute button */}
+          <div className="flex justify-end mt-2 px-2">
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute bottom-4 right-4 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all pointer-events-auto",
-                isMobile
-                  ? (controlsVisible ? "opacity-100 w-14 h-14" : "opacity-100 w-14 h-14")
-                  : "opacity-0 group-hover:opacity-100 w-10 h-10"
+                "rounded-full bg-black/60 hover:bg-black/80 text-white",
+                isMobile ? "w-12 h-12" : "w-10 h-10"
               )}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                // Only handle click on desktop (not mobile)
-                if (!isMobile) {
-                  toggleMute(e);
-                }
-              }}
-              onTouchEnd={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                // Only handle touch on mobile (not desktop)
-                if (isMobile) {
-                  toggleMute(e);
-                }
-              }}
-              // Prevent any touch events from propagating
-              onTouchStart={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              onTouchMove={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              onPointerDown={(e) => {
-                // Stop pointer events from propagating (covers both mouse and touch)
-                e.stopPropagation();
-              }}
+              onClick={() => toggleMute()}
             >
               {globalMuted ? (
-                <VolumeX className="h-6 w-6" />
+                <VolumeX className="h-5 w-5" />
               ) : (
-                <Volume2 className="h-6 w-6" />
+                <Volume2 className="h-5 w-5" />
               )}
             </Button>
-
-            {/* Fullscreen button - mobile only */}
-            {isMobile && allowFullscreen && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "absolute bottom-4 left-4 w-14 h-14 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all pointer-events-auto",
-                  controlsVisible ? "opacity-100" : "opacity-100"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleFullscreen();
-                }}
-                onTouchStart={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                onTouchMove={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleFullscreen();
-                }}
-                aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-              >
-                {isFullscreen ? (
-                  <Minimize className="h-6 w-6" />
-                ) : (
-                  <Maximize className="h-6 w-6" />
-                )}
-              </Button>
-            )}
           </div>
         )}
-      </div>
+      </>
     );
   }
 );
