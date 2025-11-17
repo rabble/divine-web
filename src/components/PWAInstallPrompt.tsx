@@ -16,15 +16,30 @@ export function PWAInstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Check if mobile device
+    const checkMobile = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      const isMobileDevice = /iphone|ipad|ipod|android|mobile/.test(userAgent);
+      const isSmallScreen = window.innerWidth < 768; // md breakpoint
+      setIsMobile(isMobileDevice || isSmallScreen);
+    };
+
+    checkMobile();
+
+    // Re-check on resize
+    const handleResize = () => checkMobile();
+    window.addEventListener('resize', handleResize);
+
     // Check if running as installed PWA
     const checkStandalone = () => {
-      const isStandaloneMode = 
+      const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
         (window.navigator as any).standalone ||
         document.referrer.includes('android-app://');
-      
+
       setIsStandalone(isStandaloneMode);
     };
 
@@ -43,7 +58,7 @@ export function PWAInstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-      
+
       // Don't show immediately - wait a bit for better UX
       setTimeout(() => {
         // Check if user hasn't dismissed this before
@@ -58,6 +73,7 @@ export function PWAInstallPrompt() {
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -87,8 +103,8 @@ export function PWAInstallPrompt() {
     localStorage.setItem('pwa-install-dismissed', 'true');
   };
 
-  // Don't show if already installed
-  if (isStandalone) {
+  // Don't show if already installed or on desktop
+  if (isStandalone || !isMobile) {
     return null;
   }
 
@@ -96,7 +112,7 @@ export function PWAInstallPrompt() {
   if (isIOS && !isStandalone) {
     // Only show on iOS Safari, not in other browsers
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-    
+
     if (!isSafari || !showPrompt) {
       return null;
     }
@@ -110,12 +126,12 @@ export function PWAInstallPrompt() {
         >
           <X className="h-4 w-4 text-gray-600" />
         </button>
-        
+
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <Download className="h-5 w-5 text-white" />
           </div>
-          
+
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-gray-900 text-sm mb-1">
               Install diVine Web
@@ -147,12 +163,12 @@ export function PWAInstallPrompt() {
       >
         <X className="h-4 w-4 text-gray-600" />
       </button>
-      
+
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
           <Download className="h-5 w-5 text-white" />
         </div>
-        
+
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 mb-1">
             Install diVine Web
@@ -160,7 +176,7 @@ export function PWAInstallPrompt() {
           <p className="text-sm text-gray-600 mb-3">
             Install our app for a better experience with offline support
           </p>
-          
+
           <div className="flex gap-2">
             <Button
               onClick={handleInstallClick}
