@@ -25,6 +25,7 @@ export function VideoCommentsModal({
 }: VideoCommentsModalProps) {
   // Memoize the video event to prevent unnecessary re-renders and query refetches
   // This ensures the same object reference is used across renders
+  // Use only stable primitive values as dependencies, not arrays
   const videoEvent: NostrEvent = useMemo(() => {
     const tags: string[][] = [
       ['url', video.videoUrl],
@@ -49,7 +50,7 @@ export function VideoCommentsModal({
       tags,
       sig: '', // Signature would be provided by actual event
     };
-  }, [video.id, video.pubkey, video.createdAt, video.kind, video.content, video.videoUrl, video.title, video.hashtags, video.thumbnailUrl, video.duration, video.vineId]);
+  }, [video.id]); // Only depend on video.id which is stable and unique
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

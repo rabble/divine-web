@@ -13,8 +13,8 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
     gcTime: 10 * 60 * 1000,
     // Don't refetch when window regains focus
     refetchOnWindowFocus: false,
-    // Don't refetch when component mounts if data is already cached
-    refetchOnMount: false,
+    // Don't refetch when component mounts if data is already cached and fresh
+    refetchOnMount: 'stale',
     queryFn: async (c) => {
       // Query for Kind 1 (text notes) - this is what the Android app uses
       // Comments always reference the root event by its ID using the 'e' tag,

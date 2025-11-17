@@ -70,13 +70,24 @@ export function usePostComment() {
 
       // Optimistically add comment to all matching comment queries
       if (user) {
+        // Build the same tags that will be used in the actual comment
+        const commentTags: string[][] = [];
+        if (!(root instanceof URL)) {
+          commentTags.push(['e', root.id, '', 'root']);
+          commentTags.push(['p', root.pubkey]);
+        }
+        if (reply && !(reply instanceof URL)) {
+          commentTags.push(['e', reply.id, '', 'reply']);
+          commentTags.push(['p', reply.pubkey]);
+        }
+
         const optimisticComment: NostrEvent = {
           id: `temp-${Date.now()}`,
           pubkey: user.pubkey,
           created_at: Math.floor(Date.now() / 1000),
           kind: 1, // Kind 1 (text note) to match Android app
           content,
-          tags: [],
+          tags: commentTags,
           sig: '',
         };
 
@@ -130,9 +141,16 @@ export function usePostComment() {
     onSettled: (_, __, { root }) => {
       // Refetch to sync with server
       const videoId = root instanceof URL ? root.toString() : root.id;
+
+      // Invalidate all comment queries for this video (regardless of limit parameter)
+      // and force a refetch by using refetchType: 'active'
       queryClient.invalidateQueries({
-        queryKey: ['comments', videoId]
+        predicate: (query) => {
+          return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+        },
+        refetchType: 'active'
       });
+
       queryClient.invalidateQueries({
         queryKey: ['video-social-metrics', videoId]
       });
