@@ -197,19 +197,19 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
         verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, wasPlaying: ${wasPlaying}`);
 
-        // Change muted state
+        // Change muted state without triggering pause
         video.muted = globalMuted;
 
-        // If video was playing and we're unmuting, ensure it continues playing
-        if (wasPlaying && !globalMuted) {
+        // If video was playing and became paused after mute state change, resume it
+        if (wasPlaying && isActive) {
           // Small delay to let the browser process the mute change
-          setTimeout(() => {
-            if (video.paused && isActive) {
+          requestAnimationFrame(() => {
+            if (video.paused) {
               video.play().catch(error => {
-                verboseLog(`[VideoPlayer ${videoId}] Failed to resume after unmute:`, error);
+                verboseLog(`[VideoPlayer ${videoId}] Failed to resume after mute change:`, error);
               });
             }
-          }, 10);
+          });
         }
       }
     }, [globalMuted, videoId, isActive]);

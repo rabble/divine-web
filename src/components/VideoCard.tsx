@@ -509,7 +509,11 @@ export function VideoCard({
             className={cn(
               isMobile && "px-2"
             )}
-            onClick={() => setGlobalMuted(!globalMuted)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setGlobalMuted(!globalMuted);
+            }}
             aria-label={globalMuted ? "Unmute" : "Mute"}
           >
             {globalMuted ? (
