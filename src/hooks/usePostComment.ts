@@ -152,24 +152,46 @@ export function usePostComment() {
       }
     },
     onSuccess: async (newComment, { root }) => {
-      // After successfully publishing, refetch comments to sync with server
+      // After successfully publishing, manually add the real comment to the cache
       const videoId = root instanceof URL ? root.toString() : root.id;
 
-      console.log('[usePostComment] Successfully published comment, refetching comments for video:', videoId);
+      console.log('[usePostComment] Successfully published comment, updating cache with real event:', newComment.id);
 
-      // Invalidate and refetch all comment queries for this video
-      await queryClient.invalidateQueries({
-        predicate: (query) => {
-          return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+      // Update all comment queries with the real published event
+      queryClient.setQueriesData(
+        {
+          predicate: (query) => {
+            return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
+          }
         },
-      });
+        (old: CommentsQueryData | undefined) => {
+          if (old && typeof old === 'object' && 'topLevelComments' in old) {
+            console.log('[usePostComment] Replacing optimistic comment with real event');
 
-      // Force refetch by resetting the queries
-      await queryClient.refetchQueries({
-        predicate: (query) => {
-          return query.queryKey[0] === 'comments' && query.queryKey[1] === videoId;
-        },
-      });
+            // Remove optimistic comment(s) (they start with 'temp-')
+            const allCommentsWithoutTemp = old.allComments.filter(c => !c.id.startsWith('temp-'));
+            const topLevelWithoutTemp = old.topLevelComments.filter(c => !c.id.startsWith('temp-'));
+
+            // Check if this is a top-level comment or a reply based on tags
+            const isReply = newComment.tags.some(tag => tag[0] === 'e' && tag[3] === 'reply');
+
+            if (isReply) {
+              return {
+                ...old,
+                allComments: [newComment, ...allCommentsWithoutTemp],
+                topLevelComments: topLevelWithoutTemp,
+              };
+            } else {
+              return {
+                ...old,
+                allComments: [newComment, ...allCommentsWithoutTemp],
+                topLevelComments: [newComment, ...topLevelWithoutTemp],
+              };
+            }
+          }
+          return old;
+        }
+      );
 
       // Also update metrics
       queryClient.invalidateQueries({
