@@ -78,7 +78,7 @@ export function PWAInstallPrompt() {
     };
   }, []);
 
-  // Show prompt after user has been on a non-landing page for 3 seconds
+  // Show prompt after user has been on a non-landing page for 10 seconds
   useEffect(() => {
     if (!hasLeftLanding) return;
     if (location.pathname === '/') return; // Don't show on landing page even after returning
@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
       if (!dismissed && (deferredPrompt || isIOS)) {
         setShowPrompt(true);
       }
-    }, 3000); // Show after 3 seconds on non-landing page
+    }, 10000); // Show after 10 seconds on non-landing page
 
     return () => clearTimeout(timer);
   }, [hasLeftLanding, location.pathname, deferredPrompt, isIOS]);
