@@ -2,7 +2,7 @@
 // ABOUTME: Answers common questions about the platform, Nostr, and how to use Divine
 
 import { Link } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -62,19 +62,17 @@ function FAQQuestion({
 }
 
 export function FAQPage() {
+  const [openItem, setOpenItem] = useState<string>('');
+
   useEffect(() => {
     // Handle hash navigation on page load
     if (window.location.hash) {
       const hash = window.location.hash.substring(1);
+      setOpenItem(hash);
       setTimeout(() => {
         const element = document.getElementById(hash);
         if (element) {
           element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Click the accordion trigger to open it
-          const trigger = element.querySelector('button[data-state]');
-          if (trigger) {
-            (trigger as HTMLElement).click();
-          }
         }
       }, 100);
     }
@@ -103,7 +101,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="what-is" question="What is Divine?">
                 <div className="text-muted-foreground space-y-2">
                   <p>
@@ -329,7 +327,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="create-account" question="How do I create an account?">
                 <div className="text-muted-foreground space-y-2">
                   <p>
@@ -449,7 +447,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="post-video" question="How do I post a video?">
                 <div className="text-muted-foreground space-y-2">
                   <p>
@@ -546,7 +544,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="privacy" question="Is my content private?">
                 <div className="text-muted-foreground space-y-2">
                   <p>
@@ -763,7 +761,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="ai-detection" question="How do you prove it's not AI?">
                 <div className="text-muted-foreground space-y-2">
                   <p>
@@ -940,7 +938,7 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
               <FAQQuestion value="open-source" question="Is Divine open source?">
                 <div className="text-muted-foreground">
                   <p>
