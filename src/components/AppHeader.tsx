@@ -96,14 +96,6 @@ export function AppHeader() {
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => navigate('/authenticity')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                <span>Our Mission</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
                 onClick={() => navigate('/faq')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
@@ -126,50 +118,6 @@ export function AppHeader() {
                 <FileText className="mr-2 h-4 w-4" />
                 <span>Media Resources</span>
               </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              {/* Trust & Safety Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
-
-              {user && (
-                <DropdownMenuItem
-                  onClick={() => navigate('/settings/moderation')}
-                  className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                >
-                  <ShieldAlert className="mr-2 h-4 w-4" />
-                  <span>Moderation Settings</span>
-                </DropdownMenuItem>
-              )}
-
-              <DropdownMenuItem
-                onClick={() => navigate('/proofmode')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                <span>ProofMode</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/human-created')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Users className="mr-2 h-4 w-4" />
-                <span>Made by Humans</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/safety')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <ShieldAlert className="mr-2 h-4 w-4" />
-                <span>Safety Standards</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              {/* Technical Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Technical</DropdownMenuLabel>
 
               <DropdownMenuItem
                 onClick={() => navigate('/open-source')}
