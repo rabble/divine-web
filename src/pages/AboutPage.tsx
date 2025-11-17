@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Heart, Archive, Shield } from 'lucide-react';
-import { MailerLiteSignup } from '@/components/MailerLiteSignup';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
 
 export function AboutPage() {
@@ -308,11 +307,6 @@ export function AboutPage() {
             </p>
           </CardContent>
         </Card>
-
-        {/* Mailing List Signup */}
-        <div className="max-w-2xl mx-auto">
-          <MailerLiteSignup />
-        </div>
       </div>
     </div>
   );
