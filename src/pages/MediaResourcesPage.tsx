@@ -92,25 +92,15 @@ export function MediaResourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="md:w-48 flex-shrink-0 space-y-2">
+              <div className="md:w-48 flex-shrink-0">
                 <img
                   src="/rabble-headshot.jpg"
                   alt="Rabble"
-                  className="aspect-square rounded-lg object-cover w-full"
+                  className="aspect-square rounded-lg object-cover w-full mb-2"
                 />
                 <p className="text-xs text-muted-foreground text-center">
                   Photo credit: Web Summit
                 </p>
-                <a
-                  href="/rabble-headshot.jpg"
-                  download="rabble-headshot.jpg"
-                  className="block"
-                >
-                  <Button variant="outline" size="sm" className="w-full">
-                    <Download className="h-3 w-3 mr-2" />
-                    Download Photo
-                  </Button>
-                </a>
               </div>
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
@@ -125,6 +115,16 @@ export function MediaResourcesPage() {
                   the creative spontaneity of Vine while ensuring no corporation can ever shut it down again.
                 </p>
                 <div className="flex flex-wrap gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <a
+                      href="/rabble-headshot.jpg"
+                      download="rabble-headshot.jpg"
+                      className="inline-flex items-center gap-2"
+                    >
+                      <Download className="h-3 w-3" />
+                      Download Photo
+                    </a>
+                  </Button>
                   <Button asChild variant="outline" size="sm">
                     <a
                       href="https://revolution.social"
