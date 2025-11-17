@@ -46,7 +46,7 @@ export function OpenSourcePage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-green-500" />
-                  <strong>Android:</strong> <span className="text-muted-foreground">Beta is full (same as iOS) - Stay tuned for updates</span>
+                  <strong>Android:</strong> <span className="text-muted-foreground">Beta is full - Stay tuned for updates</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-gray-500" />
