@@ -8,6 +8,11 @@ import { ExternalLink, FileText, Mail } from 'lucide-react';
 
 const NEWS_OUTLETS = [
   {
+    name: 'CNN',
+    logo: '/logos/cnn.png',
+    url: 'https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn',
+  },
+  {
     name: 'TechCrunch',
     logo: '/logos/techcrunch.png',
     url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
@@ -58,7 +63,7 @@ export function NewsPage() {
           {/* Seen In Section */}
           <div>
             <h2 className="text-xl font-semibold mb-4 text-center">As seen in</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 items-center justify-items-center">
               {NEWS_OUTLETS.map((outlet) => (
                 <a
                   key={outlet.name}
@@ -119,6 +124,43 @@ export function NewsPage() {
           <div>
             <h2 className="text-2xl font-bold mb-4">Media Coverage</h2>
             <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
+                          href="https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Divine: Jack Dorsey's Vine revival
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 14, 2025 • CNN
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Jack Dorsey's latest venture brings back the beloved short-form video platform Vine as diVine.
+                  </p>
+                  <a
+                    href="https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Watch on CNN
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <div className="flex items-start justify-between">
