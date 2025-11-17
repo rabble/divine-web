@@ -17,7 +17,7 @@ interface CommentsQueryData {
   getDirectReplies: (commentId: string) => NostrEvent[];
 }
 
-/** Post a NIP-22 (kind 1111) comment on an event. */
+/** Post a Kind 1 (text note) comment on an event - compatible with Android app. */
 export function usePostComment() {
   const { mutateAsync: publishEvent } = useNostrPublish();
   const queryClient = useQueryClient();
@@ -27,65 +27,21 @@ export function usePostComment() {
     mutationFn: async ({ root, reply, content }: PostCommentParams) => {
       const tags: string[][] = [];
 
-      // d-tag identifiers
-      const dRoot = root instanceof URL ? '' : root.tags.find(([name]) => name === 'd')?.[1] ?? '';
-      const dReply = reply instanceof URL ? '' : reply?.tags.find(([name]) => name === 'd')?.[1] ?? '';
-
-      // Root event tags
-      if (root instanceof URL) {
-        tags.push(['I', root.toString()]);
-      } else if (NKinds.addressable(root.kind)) {
-        tags.push(['A', `${root.kind}:${root.pubkey}:${dRoot}`]);
-      } else if (NKinds.replaceable(root.kind)) {
-        tags.push(['A', `${root.kind}:${root.pubkey}:`]);
-      } else {
-        tags.push(['E', root.id]);
-      }
-      if (root instanceof URL) {
-        tags.push(['K', root.hostname]);
-      } else {
-        tags.push(['K', root.kind.toString()]);
-        tags.push(['P', root.pubkey]);
+      // Android app uses Kind 1 (text notes) with e/p tags
+      // Root event - always tag the video being commented on
+      if (!(root instanceof URL)) {
+        tags.push(['e', root.id, '', 'root']);
+        tags.push(['p', root.pubkey]);
       }
 
-      // Reply event tags
-      if (reply) {
-        if (reply instanceof URL) {
-          tags.push(['i', reply.toString()]);
-        } else if (NKinds.addressable(reply.kind)) {
-          tags.push(['a', `${reply.kind}:${reply.pubkey}:${dReply}`]);
-        } else if (NKinds.replaceable(reply.kind)) {
-          tags.push(['a', `${reply.kind}:${reply.pubkey}:`]);
-        } else {
-          tags.push(['e', reply.id]);
-        }
-        if (reply instanceof URL) {
-          tags.push(['k', reply.hostname]);
-        } else {
-          tags.push(['k', reply.kind.toString()]);
-          tags.push(['p', reply.pubkey]);
-        }
-      } else {
-        // If this is a top-level comment, use the root event's tags
-        if (root instanceof URL) {
-          tags.push(['i', root.toString()]);
-        } else if (NKinds.addressable(root.kind)) {
-          tags.push(['a', `${root.kind}:${root.pubkey}:${dRoot}`]);
-        } else if (NKinds.replaceable(root.kind)) {
-          tags.push(['a', `${root.kind}:${root.pubkey}:`]);
-        } else {
-          tags.push(['e', root.id]);
-        }
-        if (root instanceof URL) {
-          tags.push(['k', root.hostname]);
-        } else {
-          tags.push(['k', root.kind.toString()]);
-          tags.push(['p', root.pubkey]);
-        }
+      // If replying to a comment, add reply tags
+      if (reply && !(reply instanceof URL)) {
+        tags.push(['e', reply.id, '', 'reply']);
+        tags.push(['p', reply.pubkey]);
       }
 
       const event = await publishEvent({
-        kind: 1111,
+        kind: 1, // Use Kind 1 (text note) like the Android app
         content,
         tags,
       });
@@ -118,7 +74,7 @@ export function usePostComment() {
           id: `temp-${Date.now()}`,
           pubkey: user.pubkey,
           created_at: Math.floor(Date.now() / 1000),
-          kind: 1111,
+          kind: 1, // Kind 1 (text note) to match Android app
           content,
           tags: [],
           sig: '',

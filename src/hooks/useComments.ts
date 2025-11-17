@@ -16,7 +16,9 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
     // Don't refetch when component mounts if data is already cached
     refetchOnMount: false,
     queryFn: async (c) => {
-      const filter: NostrFilter = { kinds: [1111] };
+      // Query for both Kind 1 (regular notes) and Kind 1111 (NIP-22 comments)
+      // This ensures compatibility with both the Android app (uses Kind 1) and NIP-22 clients
+      const filter: NostrFilter = { kinds: [1, 1111] };
 
       // Build the filter based on root type
       // Comments use lowercase tags (e, a, i) to reference their root
