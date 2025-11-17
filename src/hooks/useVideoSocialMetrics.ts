@@ -28,7 +28,7 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
         // Using a single query with multiple kinds for efficiency
         const events = await nostr.query([
           {
-            kinds: [1, 6, 7, 1111, 9735], // comments, reposts, reactions, NIP-22 comments, zap receipts
+            kinds: [6, 7, 1111, 9735], // reposts, reactions, NIP-22 comments, zap receipts
             '#e': [videoId], // events that reference this video
             limit: 500, // generous limit to capture all interactions
           }
@@ -53,7 +53,6 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
               repostCount++;
               break;
 
-            case 1: // Text note comments
             case 1111: // NIP-22 comments
               commentCount++;
               break;
