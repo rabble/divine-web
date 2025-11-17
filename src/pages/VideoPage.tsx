@@ -113,12 +113,23 @@ export function VideoPage() {
     }
 
     debugLog('Like video:', video.id);
+
+    if (!video.vineId) {
+      toast({
+        title: 'Error',
+        description: 'Cannot like this video: missing video identifier',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       await publishEvent({
         kind: 7, // Reaction event
         content: '+', // Positive reaction
         tags: [
-          ['e', video.id], // Reference to the video event
+          ['a', `34236:${video.pubkey}:${video.vineId}`], // Reference to addressable video
+          ['k', '34236'],
           ['p', video.pubkey], // Reference to the video author
         ],
       });
@@ -259,8 +270,8 @@ export function VideoPage() {
 
   // Helper component to provide social metrics data for the video
   function VideoCardWithMetrics({ video }: { video: ParsedVideoData }) {
-    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
-    const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
+    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey, video.vineId);
+    const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey, video.pubkey, video.vineId);
 
     const handleVideoLike = async () => {
       if (userInteractions?.hasLiked) {

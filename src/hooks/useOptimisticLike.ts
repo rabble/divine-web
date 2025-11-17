@@ -10,6 +10,7 @@ import type { VideoSocialMetrics } from '@/hooks/useVideoSocialMetrics';
 interface OptimisticLikeParams {
   videoId: string;
   videoPubkey: string;
+  vineId?: string;
   userPubkey: string;
   isCurrentlyLiked: boolean;
   currentLikeEventId: string | null;
@@ -30,12 +31,25 @@ export function useOptimisticLike() {
   const toggleLike = async ({
     videoId,
     videoPubkey,
+    vineId,
     userPubkey,
     isCurrentlyLiked,
     currentLikeEventId,
   }: OptimisticLikeParams) => {
     const metricsQueryKey = ['video-social-metrics', videoId];
     const interactionsQueryKey = ['video-user-interactions', videoId, userPubkey];
+
+    // Build 'a' tag for addressable video event
+    const aTag = vineId ? `34236:${videoPubkey}:${vineId}` : null;
+
+    if (!aTag) {
+      toast({
+        title: 'Error',
+        description: 'Cannot like video: missing video identifier',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Store previous state for rollback
     const previousMetrics = queryClient.getQueryData(metricsQueryKey);
@@ -83,12 +97,13 @@ export function useOptimisticLike() {
 
         debugLog('Optimistically liking video:', videoId);
 
-        // Actually publish the like event
+        // Actually publish the like event using 'a' tag
         const event = await publishEvent({
           kind: 7, // Reaction event
           content: '+',
           tags: [
-            ['e', videoId],
+            ['a', aTag],
+            ['k', '34236'],
             ['p', videoPubkey],
           ],
         });

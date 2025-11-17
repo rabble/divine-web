@@ -44,10 +44,10 @@ export function VideoCardWithMetrics({
   const { openLoginDialog } = useLoginDialog();
 
   // Fetch social metrics for this video
-  const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
+  const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey, video.vineId);
 
   // Fetch user's interaction status with this video
-  const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
+  const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey, video.pubkey, video.vineId);
 
   const handleVideoLike = async () => {
     // Check authentication first, show login dialog if not authenticated
@@ -60,6 +60,7 @@ export function VideoCardWithMetrics({
     await toggleLike({
       videoId: video.id,
       videoPubkey: video.pubkey,
+      vineId: video.vineId,
       userPubkey: user.pubkey,
       isCurrentlyLiked: userInteractions?.hasLiked || false,
       currentLikeEventId: userInteractions?.likeEventId || null,

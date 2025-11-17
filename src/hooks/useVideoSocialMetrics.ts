@@ -15,7 +15,7 @@ export interface VideoSocialMetrics {
  * Fetch social interaction metrics for a video event
  * Uses batched queries to efficiently fetch likes, reposts, and views
  */
-export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
+export function useVideoSocialMetrics(videoId: string, videoPubkey?: string, vineId?: string) {
   const { nostr } = useNostr();
 
   return useQuery({
@@ -24,12 +24,25 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(3000)]);
 
       try {
+        // Build 'a' tag for addressable video events
+        const aTag = vineId && videoPubkey ? `34236:${videoPubkey}:${vineId}` : null;
+
+        if (!aTag) {
+          console.warn('[useVideoSocialMetrics] Missing vineId or videoPubkey, cannot query metrics');
+          return {
+            likeCount: 0,
+            repostCount: 0,
+            viewCount: 0,
+            commentCount: 0,
+          };
+        }
+
         // Batch query for all social interactions related to this video
         // Using a single query with multiple kinds for efficiency
         const events = await nostr.query([
           {
             kinds: [6, 7, 1111, 9735], // reposts, reactions, NIP-22 comments, zap receipts
-            '#e': [videoId], // events that reference this video
+            '#a': [aTag], // events that reference this video via 'a' tag
             limit: 500, // generous limit to capture all interactions
           }
         ], { signal });
@@ -97,13 +110,21 @@ export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
 /**
  * Check if the current user has liked a specific video and get the event IDs for deletion
  */
-export function useVideoUserInteractions(videoId: string, userPubkey?: string) {
+export function useVideoUserInteractions(videoId: string, userPubkey?: string, videoPubkey?: string, vineId?: string) {
   const { nostr } = useNostr();
 
   return useQuery({
     queryKey: ['video-user-interactions', videoId, userPubkey],
     queryFn: async (context) => {
       if (!userPubkey) {
+        return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
+      }
+
+      // Build 'a' tag for addressable video events
+      const aTag = vineId && videoPubkey ? `34236:${videoPubkey}:${vineId}` : null;
+
+      if (!aTag) {
+        console.warn('[useVideoUserInteractions] Missing vineId or videoPubkey, cannot query interactions');
         return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
       }
 
@@ -115,7 +136,7 @@ export function useVideoUserInteractions(videoId: string, userPubkey?: string) {
           {
             kinds: [6, 7], // reposts, reactions
             authors: [userPubkey],
-            '#e': [videoId],
+            '#a': [aTag], // Reference video via 'a' tag
             limit: 10,
           }
         ], { signal });
