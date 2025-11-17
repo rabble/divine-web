@@ -1,5 +1,5 @@
 // ABOUTME: Hook for searching NIP-71 video events (kinds 21, 22, 34236) with content, hashtag, and author filters
-// ABOUTME: Supports debounced queries, case-insensitive search, and multiple search modes
+// ABOUTME: Supports debounced queries, case-insensitive search, NIP-50 full-text search, and multiple search modes
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
@@ -7,10 +7,12 @@ import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
+import type { NIP50Filter, SortMode } from '@/types/nostr';
 
 interface UseSearchVideosOptions {
   query: string;
   searchType?: 'content' | 'author' | 'auto';
+  sortMode?: SortMode | 'relevance';
   limit?: number;
 }
 
@@ -98,10 +100,11 @@ function parseSearchQuery(query: string, searchType: 'content' | 'author' | 'aut
 
 /**
  * Search videos by content, hashtags, or author
+ * Uses NIP-50 full-text search with optional sort modes
  */
 export function useSearchVideos(options: UseSearchVideosOptions) {
   const { nostr } = useNostr();
-  const { query, searchType = 'auto', limit = 50 } = options;
+  const { query, searchType = 'auto', sortMode = 'relevance', limit = 50 } = options;
 
   // Debounce the query - disable in test environment
   const isTest = process.env.NODE_ENV === 'test';
@@ -116,7 +119,7 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
   }, [query, debounceDelay]);
 
   return useQuery({
-    queryKey: ['search-videos', query, searchType, limit],
+    queryKey: ['search-videos', query, searchType, sortMode, limit],
     queryFn: async (context) => {
       // Wait for debounced query
       const actualQuery = await debouncedQuery;
@@ -133,12 +136,19 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
       const searchParams = parseSearchQuery(actualQuery, searchType);
 
       if (searchParams.type === 'hashtag') {
-        // Search by hashtag
-        const events = await nostr.query([{
+        // Search by hashtag with optional NIP-50 sorting
+        const filter: NIP50Filter = {
           kinds: VIDEO_KINDS,
           '#t': [searchParams.value],
           limit,
-        }], { signal });
+        };
+
+        // Only add sort directive if not using relevance
+        if (sortMode !== 'relevance') {
+          filter.search = `sort:${sortMode}`;
+        }
+
+        const events = await nostr.query([filter], { signal });
 
         return parseVideoResults(events);
       }
@@ -183,21 +193,31 @@ export function useSearchVideos(options: UseSearchVideosOptions) {
         return parseVideoResults(videoEvents);
       }
 
-      // Content search - use search filter if available, fallback to client-side filtering
+      // Content search - use NIP-50 full-text search
+      const filter: NIP50Filter = {
+        kinds: VIDEO_KINDS,
+        limit,
+      };
+
+      // For relevance, use just the search term (NIP-50 default)
+      // For other modes, prepend sort directive
+      if (sortMode === 'relevance') {
+        filter.search = searchParams.value;
+      } else {
+        filter.search = `sort:${sortMode} ${searchParams.value}`;
+      }
+
       let events: NostrEvent[];
 
       try {
-        // Try relay-level search first
-        events = await nostr.query([{
-          kinds: VIDEO_KINDS,
-          search: searchParams.value,
-          limit,
-        }], { signal });
+        // Use NIP-50 search
+        events = await nostr.query([filter], { signal });
       } catch {
-        // Fallback: get recent videos and filter client-side
+        // Fallback: get recent videos and filter client-side if relay doesn't support NIP-50
+        console.warn('NIP-50 search not supported, falling back to client-side filtering');
         events = await nostr.query([{
           kinds: VIDEO_KINDS,
-          limit: Math.min(limit * 5, 500), // Get more to filter from
+          limit: Math.min(limit * 5, 500),
         }], { signal });
 
         // Client-side filtering

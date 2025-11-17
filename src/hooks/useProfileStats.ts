@@ -1,10 +1,12 @@
 // ABOUTME: Hook for fetching profile statistics including video count, views, followers, and joined date
 // ABOUTME: Aggregates data from video events, social interactions, and contact lists
+// ABOUTME: Queries multiple relays with higher limits for accurate follower counts
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import type { ProfileStats } from '@/components/ProfileHeader';
 import { VIDEO_KINDS } from '@/types/video';
+import { debugLog } from '@/lib/debug';
 
 /**
  * Fetch comprehensive profile statistics for a user
@@ -17,44 +19,37 @@ export function useProfileStats(pubkey: string) {
     queryKey: ['profile-stats', pubkey],
     queryFn: async (context) => {
       if (!pubkey) throw new Error('No pubkey provided');
-      
-      const signal = AbortSignal.any([context.signal, AbortSignal.timeout(5000)]);
+
+      const signal = AbortSignal.any([context.signal, AbortSignal.timeout(10000)]);
 
       try {
-        // Batch query for all profile-related data
-        const [videoEvents, followerEvents, userContactList] = await Promise.all([
+        // Optimized: Single batched query for all profile data
+        // Combine multiple filters into one WebSocket request
+        const allEvents = await nostr.query([
           // 1. User's videos (kind 34236 - NIP-71)
-          nostr.query([{
-            kinds: VIDEO_KINDS, // Video events
+          {
+            kinds: VIDEO_KINDS,
             authors: [pubkey],
-            limit: 500, // Get all videos to count accurately
-          }], { signal }),
-
-          // 2. People who follow this user (kind 3 contact lists mentioning this pubkey)
-          nostr.query([{
-            kinds: [3], // Contact lists
-            '#p': [pubkey], // Tag referencing this user
-            limit: 500, // Get followers
-          }], { signal }),
-
-          // 3. User's own contact list (people they follow)
-          nostr.query([{
-            kinds: [3], // Contact lists
+            limit: 500,
+          },
+          // 2. User's own contact list (people they follow)
+          {
+            kinds: [3],
             authors: [pubkey],
-            limit: 1, // Only need the latest
-          }], { signal }),
+            limit: 1,
+          }
+        ], { signal });
 
-          // 4. Social interactions for view calculation (reactions/reposts on user's videos)
-          // We'll do this in a second step after getting video IDs
-          Promise.resolve([]) as Promise<never[]>
-        ]);
+        // Separate events by type
+        const videoEvents = allEvents.filter(e => VIDEO_KINDS.includes(e.kind));
+        const userContactList = allEvents.filter(e => e.kind === 3 && e.pubkey === pubkey);
 
         // Calculate video count
         const videosCount = videoEvents.length;
 
         // Get video IDs for social metrics calculation
         const videoIds = videoEvents.map(event => event.id);
-        
+
         // Fetch social interactions for all videos
         let totalViews = 0;
         if (videoIds.length > 0) {
@@ -74,14 +69,26 @@ export function useProfileStats(pubkey: string) {
           }).length;
         }
 
+        // Query follower count with much higher limit across multiple relays
+        // The reqRouter will automatically send this to profile relays
+        debugLog(`[useProfileStats] Querying followers for ${pubkey}`);
+
+        const followerEvents = await nostr.query([{
+          kinds: [3],
+          '#p': [pubkey],
+          limit: 10000, // Increased from 500 to capture more followers
+        }], { signal });
+
         // Calculate follower count (unique pubkeys following this user)
         const followerPubkeys = new Set(followerEvents.map(event => event.pubkey));
         const followersCount = followerPubkeys.size;
 
+        debugLog(`[useProfileStats] Found ${followerEvents.length} follower events, ${followersCount} unique followers`);
+
         // Calculate following count (people this user follows)
         const latestContactList = userContactList
           .sort((a, b) => b.created_at - a.created_at)[0];
-        
+
         const followingCount = latestContactList
           ? latestContactList.tags.filter(tag => tag[0] === 'p').length
           : 0;

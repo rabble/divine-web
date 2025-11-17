@@ -11,9 +11,11 @@ import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import type { NIP50Filter } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
 import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
+import type { SortMode } from '@/types/nostr';
 
 interface UseVideoEventsOptions {
   filter?: Partial<NostrFilter>;
@@ -22,6 +24,7 @@ interface UseVideoEventsOptions {
   pubkey?: string;
   limit?: number;
   until?: number; // For pagination - get videos before this timestamp
+  sortMode?: SortMode; // NIP-50 sort mode override
 }
 
 /**
@@ -317,13 +320,13 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
   const { config } = useAppContext();
-  const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until } = options;
+  const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until, sortMode } = options;
 
   // Get follow list for home feed - this is cached and auto-refetches
   const { data: followList } = useFollowList();
 
   const queryResult = useQuery({
-    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, user?.pubkey, followList, filter],
+    queryKey: ['video-events', feedType, hashtag, pubkey, limit, until, sortMode, user?.pubkey, followList, filter],
     queryFn: async (context) => {
       const startTime = performance.now();
       verboseLog(`[useVideoEvents] ========== Starting query for ${feedType} feed ==========`);
@@ -336,8 +339,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         AbortSignal.timeout(timeoutMs) // 5s for hashtags, 2s for initial load, 3s for pagination
       ]);
 
-      // Build base filter
-      const baseFilter: NostrFilter = {
+      // Build base filter with NIP-50 support
+      const baseFilter: NIP50Filter = {
         kinds: VIDEO_KINDS,
         limit: Math.min(limit, 50),
         ...filter
@@ -351,11 +354,15 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         debugLog('[useVideoEvents] Direct ID lookup mode:', filter.ids);
       }
 
-      // Add relay-native sorting for feeds that should sort by popularity
+      // Add NIP-50 search with sort mode for feeds that should sort by popularity
       // But NOT for direct ID lookups - those should just fetch the specific event
       const shouldSortByPopularity = ['trending', 'hashtag', 'home', 'discovery'].includes(feedType) && !isDirectIdLookup;
       if (shouldSortByPopularity) {
-        (baseFilter as NostrFilter & { sort?: { field: string; dir: string } }).sort = { field: 'loop_count', dir: 'desc' };
+        // Use explicit sortMode if provided, otherwise auto-select based on feedType
+        // Explicit sortMode allows UI to control sorting (e.g., hot/top/rising/controversial selector)
+        const effectiveSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+        baseFilter.search = `sort:${effectiveSortMode}`;
+        debugLog(`[useVideoEvents] Using NIP-50 sort:${effectiveSortMode} for ${feedType} feed`);
       }
 
       // Add pagination
@@ -415,7 +422,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
         }
 
         // Only query reposts if we don't have enough videos and NOT doing a direct ID lookup
-        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup) {
+        // Skip repost queries when using NIP-50 sorting (relay handles it efficiently)
+        if (events.length < limit && feedType !== 'profile' && !isDirectIdLookup && !shouldSortByPopularity) {
           const repostFilter = { ...baseFilter, kinds: [REPOST_KIND], limit: 15 }; // Optimized for performance
           const repostStartTime = performance.now();
           repostEvents = await nostr.query([repostFilter], { signal });
@@ -423,6 +431,8 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           events = [...events, ...repostEvents];
         } else if (isDirectIdLookup) {
           debugLog('[useVideoEvents] Skipping repost query for direct ID lookup');
+        } else if (shouldSortByPopularity) {
+          debugLog('[useVideoEvents] Skipping repost query (using NIP-50 sorting)');
         }
       } catch (err) {
         debugError('[useVideoEvents] Query error:', err);
@@ -438,35 +448,19 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       const parseTime = performance.now() - parseStartTime;
       debugLog(`[useVideoEvents] Parse took ${parseTime.toFixed(0)}ms`);
 
-      // Fallback: some events only include hashtags in content, not 't' tags
-      if (feedType === 'hashtag' && hashtag) {
-        const target = hashtag.toLowerCase();
-        if (parsed.length === 0) {
-          try {
-            const fallbackEvents = await nostr.query([
-              { kinds: [...VIDEO_KINDS, REPOST_KIND], limit: Math.min(limit * 3, 100) }  // Optimized for performance
-            ], { signal });
-            const fallbackParsed = await parseVideoEvents(fallbackEvents, nostr, false);
-            parsed = fallbackParsed.filter(v => {
-              const inTags = (v.hashtags || []).some(t => t.toLowerCase() === target);
-              const inContent = (` ${v.content} `).toLowerCase().includes(`#${target}`);
-              return inTags || inContent;
-            }).slice(0, limit);
-          } catch {
-            // ignore fallback errors; we'll return whatever we have
-          }
-        }
-      }
+      // Note: Removed inefficient hashtag fallback - relay now handles hashtag filtering
+      // via server-side tag queries with NIP-50 search for optimal performance
 
-
-      // Skip client-side sorting for initial load - trust relay's sort order for speed
-      // Only do engagement sorting when paginating (has 'until' param)
-      if (until && (feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
-        const since = 0; // Count all reactions from the beginning of time
+      // Trust relay sorting when using NIP-50 search (sort:hot, sort:top)
+      // Only apply client-side sorting for feeds without NIP-50
+      // This dramatically improves performance by eliminating redundant reaction queries
+      if (!shouldSortByPopularity && (feedType === 'trending' || feedType === 'hashtag' || feedType === 'home') && parsed.length > 0) {
+        // Fallback client-side sorting only when relay doesn't support NIP-50
+        debugLog('[useVideoEvents] Applying client-side sorting (relay does not support NIP-50)');
+        const since = 0;
         const videoIds = parsed.map(v => v.id);
         const reactionCounts = await getReactionCounts(nostr, videoIds, since, signal);
 
-        // Sort by total engagement: original loop count + reaction count
         parsed = parsed
           .map(video => ({
             ...video,
@@ -474,16 +468,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
             totalEngagement: (video.loopCount || 0) + (reactionCounts[video.id] || 0)
           }))
           .sort((a, b) => {
-            // First sort by total engagement (loop count + reactions)
             if (a.totalEngagement !== b.totalEngagement) {
               return b.totalEngagement - a.totalEngagement;
             }
-            // Then by time for ties (uses latest repost time if video has reposts)
             const timeA = getLatestRepostTime(a);
             const timeB = getLatestRepostTime(b);
             return timeB - timeA;
           })
-          .slice(0, limit); // Limit to requested amount
+          .slice(0, limit);
       }
 
       // Filter out deleted videos (NIP-09) unless user wants to see them
@@ -515,9 +507,9 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
 
       return parsed;
     },
-    staleTime: 60000, // 1 minute - increase to reduce re-queries
-    gcTime: 600000, // 10 minutes - keep data longer
-    enabled: feedType !== 'home' || !!user?.pubkey, // Only run home feed if user is logged in
+    staleTime: 300000, // 5 minutes - reduce re-queries for better performance
+    gcTime: 900000, // 15 minutes - keep data longer in cache
+    enabled: (feedType !== 'home' || !!user?.pubkey) && (feedType !== 'profile' || !!pubkey), // Only run home feed if user is logged in, and profile feed if pubkey is provided
   });
 
   // Auto-refresh logic matching Flutter app behavior

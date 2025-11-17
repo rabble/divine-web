@@ -1,64 +1,95 @@
 // ABOUTME: Enhanced VideoCard component that fetches and displays social metrics
-// ABOUTME: Wrapper around VideoCard that provides real-time likes, reposts, and view counts
+// ABOUTME: Wrapper around VideoCard with optimistic updates for likes and reposts
 
 import { VideoCard } from './VideoCard';
 import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { useOptimisticLike } from '@/hooks/useOptimisticLike';
+import { useOptimisticRepost } from '@/hooks/useOptimisticRepost';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
+import { useToast } from '@/hooks/useToast';
+import { debugLog } from '@/lib/debug';
 import type { ParsedVideoData } from '@/types/video';
+import type { VideoNavigationContext } from '@/hooks/useVideoNavigation';
 
 interface VideoCardWithMetricsProps {
   video: ParsedVideoData;
+  index?: number;
   className?: string;
+  mode?: 'thumbnail' | 'auto-play';
+  onOpenComments?: (video: ParsedVideoData) => void;
+  onCloseComments?: () => void;
+  onPlay?: () => void;
+  onLoadedData?: () => void;
+  showComments?: boolean;
+  navigationContext?: VideoNavigationContext;
 }
 
-export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsProps) {
+export function VideoCardWithMetrics({
+  video,
+  index,
+  className,
+  mode = 'auto-play',
+  onOpenComments,
+  onCloseComments,
+  onPlay,
+  onLoadedData,
+  showComments = false,
+  navigationContext,
+}: VideoCardWithMetricsProps) {
   const { user } = useCurrentUser();
-  const { mutate: createEvent } = useNostrPublish();
-
-  // Fetch social metrics for this video
-  const socialMetrics = useVideoSocialMetrics(video.id, video.pubkey);
-
-  // Fetch user's interaction status with this video
-  const userInteractions = useVideoUserInteractions(video.id, user?.pubkey);
-
-  // Get login dialog opener
+  const { toast } = useToast();
+  const { toggleLike } = useOptimisticLike();
+  const { toggleRepost } = useOptimisticRepost();
   const { openLoginDialog } = useLoginDialog();
 
-  const handleLike = () => {
+  // Fetch social metrics for this video
+  const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
+
+  // Fetch user's interaction status with this video
+  const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
+
+  const handleVideoLike = async () => {
+    // Check authentication first, show login dialog if not authenticated
     if (!user) {
       openLoginDialog();
       return;
     }
 
-    console.log('[VideoCardWithMetrics] Like action authenticated, creating event');
-    // Create a reaction event (kind 7) for this video
-    createEvent({
-      kind: 7,
-      content: '+',
-      tags: [
-        ['e', video.id],
-        ['p', video.pubkey],
-      ],
+    debugLog('[VideoCardWithMetrics] Toggle like for video:', video.id);
+    await toggleLike({
+      videoId: video.id,
+      videoPubkey: video.pubkey,
+      userPubkey: user.pubkey,
+      isCurrentlyLiked: userInteractions?.hasLiked || false,
+      currentLikeEventId: userInteractions?.likeEventId || null,
     });
   };
 
-  const handleRepost = () => {
+  const handleVideoRepost = async () => {
+    // Check authentication first, show login dialog if not authenticated
     if (!user) {
       openLoginDialog();
       return;
     }
 
-    console.log('[VideoCardWithMetrics] Repost action authenticated, creating event');
-    // Create a repost event (kind 6) for this video
-    createEvent({
-      kind: 6,
-      content: '',
-      tags: [
-        ['e', video.id],
-        ['p', video.pubkey],
-      ],
+    if (!video.vineId) {
+      toast({
+        title: 'Error',
+        description: 'Cannot repost this video',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    debugLog('[VideoCardWithMetrics] Toggle repost for video:', video.id);
+    await toggleRepost({
+      videoId: video.id,
+      videoPubkey: video.pubkey,
+      vineId: video.vineId,
+      userPubkey: user.pubkey,
+      isCurrentlyReposted: userInteractions?.hasReposted || false,
+      currentRepostEventId: userInteractions?.repostEventId || null,
     });
   };
 
@@ -66,14 +97,22 @@ export function VideoCardWithMetrics({ video, className }: VideoCardWithMetricsP
     <VideoCard
       video={video}
       className={className}
-      viewCount={socialMetrics.data?.viewCount}
-      likeCount={video.likeCount ?? socialMetrics.data?.likeCount ?? 0}
-      repostCount={video.repostCount ?? socialMetrics.data?.repostCount ?? 0}
-      commentCount={video.commentCount ?? socialMetrics.data?.commentCount ?? 0}
-      isLiked={userInteractions.data?.hasLiked || false}
-      isReposted={userInteractions.data?.hasReposted || false}
-      onLike={handleLike}
-      onRepost={handleRepost}
+      mode={mode}
+      onLike={handleVideoLike}
+      onRepost={handleVideoRepost}
+      onOpenComments={onOpenComments}
+      onCloseComments={onCloseComments}
+      onPlay={onPlay}
+      onLoadedData={onLoadedData}
+      isLiked={userInteractions?.hasLiked || false}
+      isReposted={userInteractions?.hasReposted || false}
+      likeCount={video.likeCount ?? socialMetrics?.likeCount ?? 0}
+      repostCount={video.repostCount ?? socialMetrics?.repostCount ?? 0}
+      commentCount={video.commentCount ?? socialMetrics?.commentCount ?? 0}
+      viewCount={socialMetrics?.viewCount || video.loopCount}
+      showComments={showComments}
+      navigationContext={navigationContext}
+      videoIndex={index}
     />
   );
 }

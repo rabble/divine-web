@@ -29,10 +29,10 @@ export function generateAvatar(pubkey: string): string {
   const styles = ['avataaars', 'bottts', 'identicon', 'shapes', 'initials'];
   const hash = hashCode(pubkey);
   const style = styles[hash % styles.length];
-  
+
   // Generate a seed from pubkey for consistent avatars
   const seed = pubkey.substring(0, 16);
-  
+
   // Use DiceBear API for avatar generation
   return `https://api.dicebear.com/7.x/${style}/svg?seed=${seed}&backgroundColor=${encodeURIComponent(generateColor(pubkey))}`;
 }
@@ -40,20 +40,20 @@ export function generateAvatar(pubkey: string): string {
 // Generate interesting usernames
 export function generateUsername(pubkey: string): string {
   const adjectives = [
-    'Electric', 'Cosmic', 'Digital', 'Neon', 'Cyber', 'Quantum', 'Stellar', 
+    'Electric', 'Cosmic', 'Digital', 'Neon', 'Cyber', 'Quantum', 'Stellar',
     'Lunar', 'Solar', 'Astral', 'Mystic', 'Echo', 'Nova', 'Prism', 'Zenith'
   ];
-  
+
   const nouns = [
     'Vine', 'Loop', 'Wave', 'Pulse', 'Flow', 'Stream', 'Signal', 'Beacon',
     'Phoenix', 'Comet', 'Nebula', 'Vortex', 'Matrix', 'Nexus', 'Cipher'
   ];
-  
+
   const hash = hashCode(pubkey);
   const adjective = adjectives[hash % adjectives.length];
   const noun = nouns[(hash >> 8) % nouns.length];
   const number = (hash % 900) + 100; // 3-digit number
-  
+
   return `${adjective}${noun}${number}`;
 }
 
@@ -71,7 +71,7 @@ export function generateBio(pubkey: string): string {
     'Exploring the art of the perfect loop',
     'Visual vibes and good times 🎥'
   ];
-  
+
   const hash = hashCode(pubkey);
   return bios[hash % bios.length];
 }
@@ -79,13 +79,14 @@ export function generateBio(pubkey: string): string {
 // Generate demo metadata for a user
 export function generateDemoMetadata(pubkey: string): NostrMetadata {
   const username = generateUsername(pubkey);
-  
+
   return {
     name: username.toLowerCase(),
     display_name: username,
     about: generateBio(pubkey),
     picture: generateAvatar(pubkey),
     banner: `https://source.unsplash.com/random/1024x768?sig=${pubkey.substring(0, 8)}`,
+    client: 'divine.video', // Tag profiles created on divine
     // Don't generate fake NIP-05 or website - only use real ones
     // website: `https://openvine.co/@${username.toLowerCase()}`,
     // nip05: `${username.toLowerCase()}@openvine.co`
@@ -102,7 +103,7 @@ export function enhanceAuthorData(
       metadata: generateDemoMetadata(pubkey)
     };
   }
-  
+
   // If we have an event but no metadata, generate demo metadata
   if (data.event && !data.metadata) {
     return {
@@ -110,7 +111,7 @@ export function enhanceAuthorData(
       metadata: generateDemoMetadata(pubkey)
     };
   }
-  
+
   // If we have partial metadata, enhance it
   if (data.metadata) {
     // Start with real data, fill in missing parts with generated data
@@ -126,13 +127,13 @@ export function enhanceAuthorData(
       nip05: data.metadata.nip05,
       website: data.metadata.website
     };
-    
+
     return {
       ...data,
       metadata: enhanced
     };
   }
-  
+
   // No data at all, return generated metadata
   return {
     metadata: generateDemoMetadata(pubkey)

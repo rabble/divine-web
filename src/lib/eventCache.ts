@@ -262,6 +262,47 @@ export class HybridEventCache implements NStore {
   }
 
   /**
+   * Get cached profile synchronously from memory cache
+   * Returns undefined if not in memory (caller should use async query)
+   */
+  getCachedProfile(pubkey: string): NostrEvent | undefined {
+    try {
+      // Use NCache's match method to find events
+      const filter = { kinds: [0], authors: [pubkey], limit: 1 };
+      const events = Array.from(this.memoryCache.match([filter]));
+
+      if (events.length > 0) {
+        return events[0];
+      }
+
+      return undefined;
+    } catch (error) {
+      console.warn('[HybridEventCache] Error getting cached profile:', error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Get cached contact list synchronously from memory cache
+   * Returns undefined if not in memory (caller should use async query)
+   */
+  getCachedContactList(pubkey: string): NostrEvent | undefined {
+    try {
+      const filter = { kinds: [3], authors: [pubkey], limit: 1 };
+      const events = Array.from(this.memoryCache.match([filter]));
+
+      if (events.length > 0) {
+        return events[0];
+      }
+
+      return undefined;
+    } catch (error) {
+      console.warn('[HybridEventCache] Error getting cached contact list:', error);
+      return undefined;
+    }
+  }
+
+  /**
    * Preload commonly needed events into memory cache
    */
   async preloadUserEvents(pubkey: string): Promise<void> {
