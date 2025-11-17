@@ -62,7 +62,10 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                   >
                     {displayName}
                   </Link>
-                  <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                  <p className="text-xs text-muted-foreground"
+                    title={new Date(comment.created_at * 1000).toLocaleString()}>
+                    {timeAgo}
+                  </p>
                 </div>
               </div>
             </div>
