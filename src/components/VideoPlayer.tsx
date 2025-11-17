@@ -194,9 +194,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     useEffect(() => {
       if (videoRef.current) {
         const video = videoRef.current;
-        const wasPlaying = !video.paused;
+        const shouldBePlayingCheck = isActive && !isLoading && !hasError;
 
-        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, wasPlaying: ${wasPlaying}`);
+        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, isActive: ${isActive}, shouldBePlaying: ${shouldBePlayingCheck}`);
 
         // Set flag to ignore pause events during mute state change
         isChangingMuteState.current = true;
@@ -204,24 +204,30 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         // Change muted state
         video.muted = globalMuted;
 
-        // Clear flag after a small delay to allow browser events to settle
-        setTimeout(() => {
-          isChangingMuteState.current = false;
-        }, 100);
-
-        // If video was playing and became paused after mute state change, resume it
-        if (wasPlaying && isActive) {
-          // Small delay to let the browser process the mute change
+        // If this video should be playing (is active and ready), ensure it stays playing
+        if (shouldBePlayingCheck) {
+          // Use requestAnimationFrame to let browser process the mute change first
           requestAnimationFrame(() => {
-            if (video.paused) {
-              video.play().catch(error => {
-                verboseLog(`[VideoPlayer ${videoId}] Failed to resume after mute change:`, error);
-              });
-            }
+            // Then use another one to ensure we're after any browser-triggered events
+            requestAnimationFrame(() => {
+              if (video.paused) {
+                verboseLog(`[VideoPlayer ${videoId}] Video paused after mute change, resuming...`);
+                video.play().catch(error => {
+                  verboseLog(`[VideoPlayer ${videoId}] Failed to resume after mute change:`, error);
+                });
+              }
+              // Clear flag after we've handled playback
+              isChangingMuteState.current = false;
+            });
           });
+        } else {
+          // Not active, just clear the flag after events settle
+          setTimeout(() => {
+            isChangingMuteState.current = false;
+          }, 100);
         }
       }
-    }, [globalMuted, videoId, isActive]);
+    }, [globalMuted, videoId, isActive, isLoading, hasError]);
 
     // Handle play/pause
     const togglePlay = useCallback(() => {
