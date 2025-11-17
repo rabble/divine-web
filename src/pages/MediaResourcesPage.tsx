@@ -269,7 +269,7 @@ export function MediaResourcesPage() {
             </div>
 
             {/* Demo Videos */}
-            <div>
+            {/* <div>
               <h3 className="font-semibold mb-3 flex items-center gap-2">
                 <Video className="h-4 w-4" />
                 Demo Videos
@@ -287,7 +287,7 @@ export function MediaResourcesPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* Brand Assets */}
             <div>
