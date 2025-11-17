@@ -1,31 +1,22 @@
 // ABOUTME: Discovery feed page showing all public videos with tabs for Hot, Top, Rising, New, and Hashtags
 // ABOUTME: Each tab uses different NIP-50 sort modes for unique content discovery
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useAppContext } from '@/hooks/useAppContext';
 import { HashtagExplorer } from '@/components/HashtagExplorer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Clock, Hash, Flame, Zap, Scale } from 'lucide-react';
-import type { SortMode } from '@/types/nostr';
+import { TrendingUp, Clock, Hash, Flame, Zap } from 'lucide-react';
 
 export function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState('hot');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const { user } = useCurrentUser();
-  const { config, updateConfig } = useAppContext();
 
-  // Ensure relay.divine.video is used for NIP-50 support
-  useEffect(() => {
-    if (config.relayUrl !== 'wss://relay.divine.video') {
-      updateConfig((current) => ({
-        ...current,
-        relayUrl: 'wss://relay.divine.video',
-      }));
-    }
-  }, [config.relayUrl, updateConfig]);
+  // Note: We no longer force relay changes here as it causes navigation delays
+  // The default relay (relay.divine.video) is already configured in App.tsx
+  // and supports NIP-50 search required for discovery features
 
   return (
     <div className="container mx-auto px-4 py-6">
