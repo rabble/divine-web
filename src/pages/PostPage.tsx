@@ -32,7 +32,7 @@ export function PostPage() {
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const cameraVideoRef = useRef<HTMLVideoElement>(null);
 
-  const [step, setStep] = useState<PostStep>('choose');
+  const [step, setStep] = useState<PostStep>('record');
   const [videoSegments, setVideoSegments] = useState<VideoSegment[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -385,7 +385,7 @@ export function PostPage() {
     const handleCancelRecording = () => {
       // Cleanup via hook
       reset();
-      setStep('choose');
+      navigate(-1);
     };
 
     return (
@@ -645,9 +645,9 @@ export function PostPage() {
                       {uploadProgress === 0
                         ? 'Preparing...'
                         : uploadProgress < 0.5
-                          ? 'Converting to MP4'
+                          ? 'Preparing video'
                           : uploadProgress < 1
-                            ? 'Uploading to Blossom'
+                            ? 'Uploading video'
                             : 'Publishing to Nostr'}
                     </span>
                     <span className="font-medium text-sm">
@@ -670,9 +670,9 @@ export function PostPage() {
                     {uploadProgress === 0
                       ? 'Getting ready...'
                       : uploadProgress < 0.5
-                        ? 'Converting video for maximum compatibility across all platforms'
+                        ? 'Preparing video'
                         : uploadProgress < 1
-                          ? 'Uploading to decentralized storage'
+                          ? 'Uploading video'
                           : 'Publishing event to Nostr network'}
                   </p>
                 </div>
