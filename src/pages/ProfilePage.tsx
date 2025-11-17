@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
+import { useSeoMeta } from '@unhead/react';
 import { Grid, List, Loader2 } from 'lucide-react';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { VideoGrid } from '@/components/VideoGrid';
@@ -77,6 +78,23 @@ export function ProfilePage() {
   // Check if this is the current user's own profile
   const isOwnProfile = currentUser?.pubkey === pubkey;
 
+  // Get displayName for SEO
+  const displayName = metadata?.display_name || metadata?.name || (pubkey ? genUserName(pubkey) : 'User');
+
+  // Dynamic SEO meta tags for social sharing
+  useSeoMeta({
+    title: `${displayName} - diVine`,
+    description: metadata?.about || `${displayName}'s profile on diVine`,
+    ogTitle: `${displayName} - diVine Profile`,
+    ogDescription: metadata?.about || `${displayName}'s profile on diVine`,
+    ogImage: metadata?.picture || '/app_icon.png',
+    ogType: 'profile',
+    twitterCard: 'summary',
+    twitterTitle: `${displayName} - diVine`,
+    twitterDescription: metadata?.about || `${displayName}'s profile on diVine`,
+    twitterImage: metadata?.picture || '/app_icon.png',
+  });
+
   if (error || !pubkey) {
     return (
       <div className="container mx-auto px-4 py-6">
@@ -93,8 +111,6 @@ export function ProfilePage() {
       </div>
     );
   }
-
-  const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
 
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {
