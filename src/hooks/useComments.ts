@@ -16,11 +16,11 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
     // Don't refetch when component mounts if data is already cached and fresh
     refetchOnMount: 'stale',
     queryFn: async (c) => {
-      // Query for Kind 1 (text notes) - this is what the Android app uses
+      // Query for Kind 1111 (NIP-22 comments)
       // Comments always reference the root event by its ID using the 'e' tag,
       // even for addressable events like Kind 34236
       const filter: NostrFilter = {
-        kinds: [1],
+        kinds: [1111],
         '#e': root instanceof URL ? [] : [root.id]
       };
 

@@ -43,7 +43,7 @@ export function usePostComment() {
       console.log('[usePostComment] Publishing comment with tags:', tags);
 
       const event = await publishEvent({
-        kind: 1, // Use Kind 1 (text note) like the Android app
+        kind: 1111, // NIP-22 comment kind
         content,
         tags,
       });
@@ -91,7 +91,7 @@ export function usePostComment() {
           id: `temp-${Date.now()}`,
           pubkey: user.pubkey,
           created_at: Math.floor(Date.now() / 1000),
-          kind: 1, // Kind 1 (text note) to match Android app
+          kind: 1111, // NIP-22 comment kind
           content,
           tags: commentTags,
           sig: '',
