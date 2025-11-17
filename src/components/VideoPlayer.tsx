@@ -136,13 +136,15 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         // Register/unregister video with context
         if (node) {
           verboseLog(`[VideoPlayer ${videoId}] Registering video element`);
+          // Set initial muted state
+          node.muted = globalMuted;
           registerVideo(videoId, node);
         } else {
           verboseLog(`[VideoPlayer ${videoId}] Unregistering video element`);
           unregisterVideo(videoId);
         }
       },
-      [videoId, registerVideo, unregisterVideo, inViewRef, ref] // Reordered for clarity, same deps
+      [videoId, registerVideo, unregisterVideo, inViewRef, ref, globalMuted]
     );
 
     // Set container ref
@@ -190,10 +192,27 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Sync video muted state with global muted state
     useEffect(() => {
       if (videoRef.current) {
-        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}`);
-        videoRef.current.muted = globalMuted;
+        const video = videoRef.current;
+        const wasPlaying = !video.paused;
+
+        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, wasPlaying: ${wasPlaying}`);
+
+        // Change muted state
+        video.muted = globalMuted;
+
+        // If video was playing and we're unmuting, ensure it continues playing
+        if (wasPlaying && !globalMuted) {
+          // Small delay to let the browser process the mute change
+          setTimeout(() => {
+            if (video.paused && isActive) {
+              video.play().catch(error => {
+                verboseLog(`[VideoPlayer ${videoId}] Failed to resume after unmute:`, error);
+              });
+            }
+          }, 10);
+        }
       }
-    }, [globalMuted, videoId]);
+    }, [globalMuted, videoId, isActive]);
 
     // Handle play/pause
     const togglePlay = useCallback(() => {
@@ -645,7 +664,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           // Don't set src directly if using HLS.js - it will handle the source
           // HLS.js is used when hlsUrl is provided and Hls.isSupported()
           poster={poster}
-          muted={globalMuted}
+          muted // Start muted, will be controlled via effect
           autoPlay={false} // Never autoplay, we control playback programmatically
           loop
           playsInline
