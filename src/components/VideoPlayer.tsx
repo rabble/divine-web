@@ -458,20 +458,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       };
     }, [isMobile, onOrientationChange]);
 
-    // Handle fullscreen changes
-    useEffect(() => {
-      if (!allowFullscreen) return;
 
-      const handleFullscreenChange = () => {
-        setIsFullscreen(!!document.fullscreenElement);
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-      return () => {
-        document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      };
-    }, [allowFullscreen]);
 
     // Initialize URLs array
     useEffect(() => {
