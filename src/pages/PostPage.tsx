@@ -56,6 +56,7 @@ export function PostPage() {
     switchCamera,
     startSegment,
     stopSegment,
+    finalizeRecording,
     reset,
     canRecord,
     currentDuration,
@@ -322,7 +323,7 @@ export function PostPage() {
 
   // Camera recording step
   if (step === 'record') {
-    const hasRecorded = segments.length > 0;
+    const hasRecorded = currentDuration > 0;
 
     const handleStartCamera = async () => {
       try {
@@ -365,21 +366,31 @@ export function PostPage() {
       });
     };
 
-    const handleFinishRecording = () => {
-      if (segments.length === 0) {
+    const handleFinishRecording = async () => {
+      if (currentDuration === 0) {
         toast({
           title: 'No Recording',
-          description: 'Please record at least one segment',
+          description: 'Please record some video first',
           variant: 'destructive',
         });
         return;
       }
 
-      // Use segments directly - they already have blob and blobUrl
-      setVideoSegments(segments);
-      setStep('metadata');
+      // Finalize the recording to create the final blob
+      const finalSegments = await finalizeRecording();
 
-      // Cleanup will happen in the hook
+      if (finalSegments.length === 0) {
+        toast({
+          title: 'No Recording',
+          description: 'Failed to create recording',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      // Use the finalized segments
+      setVideoSegments(finalSegments);
+      setStep('metadata');
     };
 
     const handleCancelRecording = () => {
@@ -468,20 +479,17 @@ export function PostPage() {
                   </Button>
                 </div>
 
-                {/* Segments indicator */}
-                {segments.length > 0 && (
+                {/* Recording progress */}
+                {hasRecorded && (
                   <div className="space-y-2 w-full max-w-xs">
                     <p className="text-sm text-muted-foreground text-center">
-                      {segments.length} segment{segments.length > 1 ? 's' : ''} recorded
+                      {(currentDuration / 1000).toFixed(1)}s / 6.0s recorded
                     </p>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      {segments.map((segment, index) => (
-                        <div key={index} className="relative">
-                          <Badge variant="secondary">
-                            Segment {index + 1}
-                          </Badge>
-                        </div>
-                      ))}
+                    <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
+                      <div
+                        className="bg-primary h-full transition-all duration-100"
+                        style={{ width: `${progress * 100}%` }}
+                      />
                     </div>
                     <Button
                       onClick={reset}
