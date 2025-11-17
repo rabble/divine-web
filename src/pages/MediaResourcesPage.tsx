@@ -98,6 +98,9 @@ export function MediaResourcesPage() {
                   alt="Rabble"
                   className="aspect-square rounded-lg object-cover w-full"
                 />
+                <p className="text-xs text-muted-foreground text-center">
+                  Photo credit: Web Summit
+                </p>
                 <a
                   href="/rabble-headshot.jpg"
                   download="rabble-headshot.jpg"
