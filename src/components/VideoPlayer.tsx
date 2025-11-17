@@ -82,6 +82,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [hasError, setHasError] = useState(false);
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [allUrls, setAllUrls] = useState<string[]>([]);
+    const isChangingMuteState = useRef(false);
 
     // Mobile-specific state
     const [touchState, setTouchState] = useState<TouchState | null>(null);
@@ -197,8 +198,16 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
 
         verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, wasPlaying: ${wasPlaying}`);
 
-        // Change muted state without triggering pause
+        // Set flag to ignore pause events during mute state change
+        isChangingMuteState.current = true;
+
+        // Change muted state
         video.muted = globalMuted;
+
+        // Clear flag after a small delay to allow browser events to settle
+        setTimeout(() => {
+          isChangingMuteState.current = false;
+        }, 100);
 
         // If video was playing and became paused after mute state change, resume it
         if (wasPlaying && isActive) {
@@ -457,6 +466,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       setIsPlaying(true);
     };
     const handlePause = () => {
+      // Ignore pause events that occur during mute state changes
+      if (isChangingMuteState.current) {
+        verboseLog(`[VideoPlayer ${videoId}] Pause event fired (ignored - changing mute state)`);
+        return;
+      }
       verboseLog(`[VideoPlayer ${videoId}] Pause event fired`);
       setIsPlaying(false);
     };
