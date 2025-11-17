@@ -163,7 +163,7 @@ export function MediaResourcesPage() {
               </Button>
               <Button asChild variant="outline" className="justify-start h-auto py-4">
                 <a
-                  href="https://rights.social"
+                  href="https://medium.com/revolution-social/we-deserve-better-a-new-social-media-bill-of-rights-28057b985cf2"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2"
