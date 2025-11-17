@@ -48,11 +48,14 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
 
       // Filter top-level comments
       // Top-level comments have an 'e' tag with marker 'root' pointing to the video
-      // Replies have an 'e' tag with marker 'reply' pointing to another comment
+      // AND no 'e' tag with marker 'reply' (which would make it a threaded reply)
       const rootId = root instanceof URL ? '' : root.id;
       const topLevelComments = events.filter(comment => {
-        const marker = getTagMarker(comment, 'e', rootId);
-        return marker === 'root';
+        const hasRootMarker = getTagMarker(comment, 'e', rootId) === 'root';
+        // Check if there's ANY 'e' tag with marker 'reply' (regardless of which event it's replying to)
+        const hasReplyMarker = comment.tags.some(tag => tag[0] === 'e' && tag[3] === 'reply');
+        // Only top-level if it has root marker but NO reply marker
+        return hasRootMarker && !hasReplyMarker;
       });
 
       console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments (with marker=root)');
