@@ -184,18 +184,24 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
     localStorage.setItem('signup_completed', Date.now().toString());
 
     try {
-      // Publish profile if user provided information
+      // Always publish a profile to tag the user as divine client
+      const metadata: Record<string, string> = {
+        client: 'divine.video', // Tag for follow list safety checks
+      };
+
+      // Add user-provided information if any
       if (!skipProfile && (profileData.name || profileData.about || profileData.picture)) {
-        const metadata: Record<string, string> = {};
         if (profileData.name) metadata.name = profileData.name;
         if (profileData.about) metadata.about = profileData.about;
         if (profileData.picture) metadata.picture = profileData.picture;
+      }
 
-        await publishEvent({
-          kind: 0,
-          content: JSON.stringify(metadata),
-        });
+      await publishEvent({
+        kind: 0,
+        content: JSON.stringify(metadata),
+      });
 
+      if (!skipProfile && (profileData.name || profileData.about || profileData.picture)) {
         toast({
           title: 'Profile Created!',
           description: 'Your profile has been set up.',

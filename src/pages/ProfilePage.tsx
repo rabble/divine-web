@@ -11,19 +11,24 @@ import { VideoFeed } from '@/components/VideoFeed';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { EditProfileDialog } from '@/components/EditProfileDialog';
+import { FollowListSafetyDialog } from '@/components/FollowListSafetyDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { useFollowRelationship, useFollowUser, useUnfollowUser } from '@/hooks/useFollowRelationship';
+import { useFollowListSafetyCheck } from '@/hooks/useFollowListSafetyCheck';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
+import { debugLog } from '@/lib/debug';
 
 export function ProfilePage() {
   const { npub, nip19: nip19Param } = useParams<{ npub?: string; nip19?: string }>();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [safetyDialogOpen, setSafetyDialogOpen] = useState(false);
+  const [pendingFollowAction, setPendingFollowAction] = useState<boolean | null>(null);
   const { user: currentUser } = useCurrentUser();
 
   // Get the identifier from either route param
@@ -74,6 +79,12 @@ export function ProfilePage() {
   const { mutateAsync: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
   const { openLoginDialog } = useLoginDialog();
 
+  // Safety check for follow list
+  const { data: safetyCheck } = useFollowListSafetyCheck(
+    currentUser?.pubkey,
+    !!currentUser?.pubkey // Only check if user is logged in
+  );
+
   // Check if this is the current user's own profile
   const isOwnProfile = currentUser?.pubkey === pubkey;
 
@@ -103,6 +114,20 @@ export function ProfilePage() {
       return;
     }
 
+    // Check if we need to show safety warning
+    if (shouldFollow && safetyCheck?.needsWarning) {
+      debugLog('[ProfilePage] Safety check triggered - showing warning dialog');
+      setPendingFollowAction(true);
+      setSafetyDialogOpen(true);
+      return;
+    }
+
+    // Proceed with follow/unfollow action
+    await executeFollowAction(shouldFollow);
+  };
+
+  // Execute the actual follow/unfollow action
+  const executeFollowAction = async (shouldFollow: boolean) => {
     try {
       if (shouldFollow) {
         await followUser({
@@ -119,6 +144,21 @@ export function ProfilePage() {
     } catch (error) {
       console.error('Failed to update follow status:', error);
     }
+  };
+
+  // Handle safety dialog confirmation
+  const handleSafetyConfirm = async () => {
+    setSafetyDialogOpen(false);
+    if (pendingFollowAction !== null) {
+      await executeFollowAction(pendingFollowAction);
+      setPendingFollowAction(null);
+    }
+  };
+
+  // Handle safety dialog cancellation
+  const handleSafetyCancel = () => {
+    setSafetyDialogOpen(false);
+    setPendingFollowAction(null);
   };
 
   return (
@@ -143,6 +183,14 @@ export function ProfilePage() {
             onOpenChange={setEditProfileOpen}
           />
         )}
+
+        {/* Follow List Safety Dialog */}
+        <FollowListSafetyDialog
+          open={safetyDialogOpen}
+          onConfirm={handleSafetyConfirm}
+          onCancel={handleSafetyCancel}
+          targetUserName={displayName}
+        />
 
         {/* Content Section */}
         <div className="space-y-4">
