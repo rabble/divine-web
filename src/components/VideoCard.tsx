@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2 } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
 import { useDeletionInfo } from '@/hooks/useDeletionEvents';
 import { useAppContext } from '@/hooks/useAppContext';
+import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
@@ -98,6 +99,7 @@ export function VideoCard({
   const { toast } = useToast();
   const muteUser = useMuteItem();
   const navigate = useNavigate();
+  const { globalMuted, setGlobalMuted } = useVideoPlayback();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
   const deletionInfo = useDeletionInfo(video.id);
@@ -498,6 +500,23 @@ export function VideoCard({
             aria-label="Share"
           >
             <Share className="h-4 w-4" />
+          </Button>
+
+          {/* Mute/Unmute button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              isMobile && "px-2"
+            )}
+            onClick={() => setGlobalMuted(!globalMuted)}
+            aria-label={globalMuted ? "Unmute" : "Mute"}
+          >
+            {globalMuted ? (
+              <VolumeX className="h-4 w-4" />
+            ) : (
+              <Volume2 className="h-4 w-4" />
+            )}
           </Button>
 
           {/* Add to list button - icon only on mobile */}

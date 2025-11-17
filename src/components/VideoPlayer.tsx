@@ -3,8 +3,6 @@
 
 import { useRef, useEffect, useState, forwardRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -26,11 +24,8 @@ interface VideoPlayerProps {
   onLoadedData?: () => void;
   onEnded?: () => void;
   onError?: () => void;
-  showControls?: boolean;
   preload?: 'none' | 'metadata' | 'auto';
   // Mobile-specific props
-  allowFullscreen?: boolean;
-  autoHideControls?: boolean;
   onDoubleTap?: () => void;
   onLongPress?: () => void;
   onSwipeLeft?: () => void;
@@ -65,11 +60,8 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       onLoadedData,
       onEnded,
       onError,
-      showControls = true,
       preload: _preload = 'none', // Changed to 'none' for better performance
       // Mobile-specific props
-      allowFullscreen = false,
-      autoHideControls = false,
       onDoubleTap,
       onLongPress,
       onSwipeLeft,
@@ -92,14 +84,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [allUrls, setAllUrls] = useState<string[]>([]);
 
     // Mobile-specific state
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const [controlsVisible, setControlsVisible] = useState(true);
     const [touchState, setTouchState] = useState<TouchState | null>(null);
     const [lastTapTime, setLastTapTime] = useState(0);
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
-    const [controlsTimer, setControlsTimer] = useState<NodeJS.Timeout | null>(null);
 
-    const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
+    const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted } = useVideoPlayback();
     const isActive = activeVideoId === videoId;
 
     // Get responsive layout class
@@ -227,56 +216,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       setIsPlaying(!isPlaying);
     }, [videoId, isPlaying]);
 
-    // Handle mute/unmute
-    const toggleMute = (e?: React.MouseEvent | React.TouchEvent) => {
-      e?.stopPropagation(); // Prevent event from bubbling to video click handler
-      e?.preventDefault(); // Also prevent default touch behavior
-      verboseLog(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
-      if (!videoRef.current) return;
 
-      // Toggle global mute state
-      const newMutedState = !globalMuted;
-      setGlobalMuted(newMutedState);
 
-      // Apply to all registered videos
-      verboseLog(`[VideoPlayer ${videoId}] Setting global muted state to: ${newMutedState}`);
-    };
 
-    // Mobile control functions
-    const resetControlsTimeout = useCallback(() => {
-      if (!isMobile || !autoHideControls) return;
 
-      // Clear existing timer
-      if (controlsTimer) {
-        clearTimeout(controlsTimer);
-      }
 
-      // Show controls immediately
-      setControlsVisible(true);
-
-      // Set new timer to hide controls after 3 seconds
-      const newTimer = setTimeout(() => {
-        setControlsVisible(false);
-      }, 3000);
-
-      setControlsTimer(newTimer);
-    }, [isMobile, autoHideControls, controlsTimer]);
-
-    const toggleFullscreen = useCallback(async () => {
-      if (!containerRef.current || !allowFullscreen) return;
-
-      try {
-        if (!document.fullscreenElement) {
-          await containerRef.current.requestFullscreen();
-          setIsFullscreen(true);
-        } else {
-          await document.exitFullscreen();
-          setIsFullscreen(false);
-        }
-      } catch (error) {
-        debugError('Fullscreen toggle failed:', error);
-      }
-    }, [allowFullscreen]);
 
     // Touch gesture handlers
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -288,8 +232,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       if (isButton) {
         return; // Don't handle touch gestures if touching a button
       }
-
-      resetControlsTimeout();
 
       const touch = e.touches[0];
       const currentTime = Date.now();
@@ -658,10 +600,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         unregisterVideo(videoId);
 
         // Clean up timers
-        if (controlsTimer) clearTimeout(controlsTimer);
         if (longPressTimer) clearTimeout(longPressTimer);
       };
-    }, [videoId, unregisterVideo, updateVideoVisibility, controlsTimer, longPressTimer]);
+    }, [videoId, unregisterVideo, updateVideoVisibility, longPressTimer]);
 
     // Handle GIF format (use img tag)
     const currentUrl = allUrls[currentUrlIndex] || src;
@@ -690,100 +631,77 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     }
 
     return (
-      <>
-        <div
-          ref={setContainerRef}
-          className={cn(
-            'relative overflow-hidden bg-black group',
-            layoutClass,
-            className
-          )}
-          onTouchStart={isMobile ? handleTouchStart : undefined}
-          onTouchMove={isMobile ? handleTouchMove : undefined}
-          onTouchEnd={isMobile ? handleTouchEnd : undefined}
-        >
-          {/* Blurhash placeholder - shows behind video while loading */}
-          {isValidBlurhash(blurhash) && (
-            <BlurhashPlaceholder
-              blurhash={blurhash}
-              className={cn(
-                'transition-opacity duration-300',
-                !isLoading && !hasError ? 'opacity-0' : 'opacity-100'
-              )}
-            />
-          )}
-
-          <video
-            ref={setRefs}
-            // Don't set src directly if using HLS.js - it will handle the source
-            // HLS.js is used when hlsUrl is provided and Hls.isSupported()
-            poster={poster}
-            muted={globalMuted}
-            autoPlay={false} // Never autoplay, we control playback programmatically
-            loop
-            playsInline
-            // Preload metadata for videos in view for faster playback
-            preload={inView ? 'auto' : 'none'}
-            crossOrigin="anonymous"
-            disableRemotePlayback
+      <div
+        ref={setContainerRef}
+        className={cn(
+          'relative overflow-hidden bg-black group',
+          layoutClass,
+          className
+        )}
+        onTouchStart={isMobile ? handleTouchStart : undefined}
+        onTouchMove={isMobile ? handleTouchMove : undefined}
+        onTouchEnd={isMobile ? handleTouchEnd : undefined}
+      >
+        {/* Blurhash placeholder - shows behind video while loading */}
+        {isValidBlurhash(blurhash) && (
+          <BlurhashPlaceholder
+            blurhash={blurhash}
             className={cn(
-              'w-full h-full object-contain relative z-10',
               'transition-opacity duration-300',
-              isLoading ? 'opacity-0' : 'opacity-100'
+              !isLoading && !hasError ? 'opacity-0' : 'opacity-100'
             )}
-            onLoadStart={handleLoadStart}
-            onLoadedData={handleLoadedData}
-            onError={handleError}
-            onEnded={handleEnded}
-            onPlay={handlePlay}
-            onPause={handlePause}
-            onClick={!isMobile ? togglePlay : undefined}
           />
+        )}
 
-          {/* Loading state - show spinner over blurhash */}
-          {isLoading && (
-            <div
-              className="absolute inset-0 flex items-center justify-center z-20"
-              data-testid={isMobile ? "mobile-loading" : undefined}
-            >
-              <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
-            </div>
+        <video
+          ref={setRefs}
+          // Don't set src directly if using HLS.js - it will handle the source
+          // HLS.js is used when hlsUrl is provided and Hls.isSupported()
+          poster={poster}
+          muted={globalMuted}
+          autoPlay={false} // Never autoplay, we control playback programmatically
+          loop
+          playsInline
+          // Preload metadata for videos in view for faster playback
+          preload={inView ? 'auto' : 'none'}
+          crossOrigin="anonymous"
+          disableRemotePlayback
+          className={cn(
+            'w-full h-full object-contain relative z-10',
+            'transition-opacity duration-300',
+            isLoading ? 'opacity-0' : 'opacity-100'
           )}
+          onLoadStart={handleLoadStart}
+          onLoadedData={handleLoadedData}
+          onError={handleError}
+          onEnded={handleEnded}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onClick={!isMobile ? togglePlay : undefined}
+        />
 
-          {/* Error state */}
-          {hasError && (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              <div className="text-center">
-                <div>Failed to load video</div>
-                {isMobile && (
-                  <div className="text-sm mt-2">Tap to retry</div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Mute button - OUTSIDE the video container */}
-        {showControls && !isLoading && !hasError && (
-          <div className="flex justify-end mt-2 px-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-full bg-black/60 hover:bg-black/80 text-white",
-                isMobile ? "w-12 h-12" : "w-10 h-10"
-              )}
-              onClick={() => toggleMute()}
-            >
-              {globalMuted ? (
-                <VolumeX className="h-5 w-5" />
-              ) : (
-                <Volume2 className="h-5 w-5" />
-              )}
-            </Button>
+        {/* Loading state - show spinner over blurhash */}
+        {isLoading && (
+          <div
+            className="absolute inset-0 flex items-center justify-center z-20"
+            data-testid={isMobile ? "mobile-loading" : undefined}
+          >
+            <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
           </div>
         )}
-      </>
+
+        {/* Error state */}
+        {hasError && (
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <div>Failed to load video</div>
+              {isMobile && (
+                <div className="text-sm mt-2">Tap to retry</div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 );
