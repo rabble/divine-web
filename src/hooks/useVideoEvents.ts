@@ -509,7 +509,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     },
     staleTime: 300000, // 5 minutes - reduce re-queries for better performance
     gcTime: 900000, // 15 minutes - keep data longer in cache
-    enabled: feedType !== 'home' || !!user?.pubkey, // Only run home feed if user is logged in
+    enabled: (feedType !== 'home' || !!user?.pubkey) && (feedType !== 'profile' || !!pubkey), // Only run home feed if user is logged in, and profile feed if pubkey is provided
   });
 
   // Auto-refresh logic matching Flutter app behavior

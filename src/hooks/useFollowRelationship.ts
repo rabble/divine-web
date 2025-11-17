@@ -1,10 +1,13 @@
 // ABOUTME: Hook for managing follow relationships using kind 3 contact lists
 // ABOUTME: Handles following/unfollowing users and querying follow status
+// ABOUTME: Invalidates follow list cache on follow/unfollow for instant UI updates
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
+import { followListCache } from '@/lib/followListCache';
+import { debugLog } from '@/lib/debug';
 import type { NostrEvent } from '@nostrify/nostrify';
 
 interface FollowRelationshipData {
@@ -151,9 +154,18 @@ export function useFollowUser() {
       });
     },
     onSuccess: (_, { targetPubkey }) => {
+      // Invalidate follow list cache for instant UI updates
+      if (user?.pubkey) {
+        followListCache.invalidate(user.pubkey);
+        debugLog('[useFollowUser] Invalidated follow list cache after following', targetPubkey);
+      }
+
       // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: ['follow-relationship', user?.pubkey, targetPubkey],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['follow-list', user?.pubkey],
       });
       queryClient.invalidateQueries({
         queryKey: ['profile-stats', targetPubkey],
@@ -191,9 +203,18 @@ export function useUnfollowUser() {
       });
     },
     onSuccess: (_, { targetPubkey }) => {
+      // Invalidate follow list cache for instant UI updates
+      if (user?.pubkey) {
+        followListCache.invalidate(user.pubkey);
+        debugLog('[useUnfollowUser] Invalidated follow list cache after unfollowing', targetPubkey);
+      }
+
       // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: ['follow-relationship', user?.pubkey, targetPubkey],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['follow-list', user?.pubkey],
       });
       queryClient.invalidateQueries({
         queryKey: ['profile-stats', targetPubkey],
