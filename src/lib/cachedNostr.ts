@@ -15,9 +15,55 @@ interface NostrClient {
  * Preserves all original methods while adding caching to query and event
  */
 export function createCachedNostr<T extends NostrClient>(baseNostr: T): T {
-  // TEMPORARY: Bypass cache to debug relay connection issue
-  debugLog('[CachedNostr] BYPASSING CACHE - using base nostr directly');
-  return baseNostr;
+  const cachedNostr = Object.create(baseNostr) as T;
+
+  // Wrap query method with cache-first logic
+  cachedNostr.query = async (filters: NostrFilter[], opts?: { signal?: AbortSignal }): Promise<NostrEvent[]> => {
+    debugLog('[CachedNostr] Query with filters:', filters);
+
+    // Check if this is a profile/contact query that should be cached
+    const isProfileQuery = filters.some(f => f.kinds?.includes(0));
+    const isContactQuery = filters.some(f => f.kinds?.includes(3));
+    const isCacheable = isProfileQuery || isContactQuery;
+
+    // Try cache first for cacheable queries
+    if (isCacheable) {
+      const cachedResults = await eventCache.query(filters);
+      if (cachedResults.length > 0) {
+        debugLog(`[CachedNostr] Cache hit: ${cachedResults.length} events`);
+
+        // Return cached results immediately, then update in background
+        _queryAndCacheInBackground(baseNostr.query.bind(baseNostr), filters, opts);
+
+        return cachedResults;
+      } else {
+        debugLog('[CachedNostr] Cache miss, querying relay');
+      }
+    }
+
+    // Query from relay
+    const results = await baseNostr.query(filters, opts);
+    debugLog(`[CachedNostr] Relay returned ${results.length} events`);
+
+    // Cache the results if cacheable
+    if (isCacheable && results.length > 0) {
+      await cacheResults(results);
+    }
+
+    return results;
+  };
+
+  // Wrap event method to cache published events
+  cachedNostr.event = async (event: NostrEvent): Promise<void> => {
+    // Publish to relay
+    await baseNostr.event(event);
+
+    // Cache the event
+    await eventCache.event(event);
+    debugLog('[CachedNostr] Event published and cached:', event.id);
+  };
+
+  return cachedNostr;
 }
 
 /**

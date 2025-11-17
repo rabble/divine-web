@@ -97,6 +97,10 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
       // Combine existing metadata with new values
       const data = { ...metadata, ...values };
 
+      // Add client tag to identify divine users
+      // This helps with follow list safety checks
+      data.client = 'divine.video';
+
       // Clean up empty values
       for (const key in data) {
         if (data[key] === '') {
@@ -113,6 +117,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
       // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['logins'] });
       queryClient.invalidateQueries({ queryKey: ['author', user.pubkey] });
+      queryClient.invalidateQueries({ queryKey: ['follow-list-safety-check'] });
 
       toast({
         title: 'Success',
