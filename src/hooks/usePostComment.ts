@@ -110,22 +110,23 @@ export function usePostComment() {
             // useComments returns an object with { allComments, topLevelComments, getDescendants, getDirectReplies }
             // We need to preserve this structure
             if (old && typeof old === 'object' && 'topLevelComments' in old) {
-              // If this is a reply, add to allComments but not topLevelComments
+              // If this is a reply to another comment, add to allComments only
               if (reply) {
                 const updated = {
                   ...old,
                   allComments: [optimisticComment, ...old.allComments],
+                  topLevelComments: old.topLevelComments, // Keep topLevelComments unchanged
                 };
-                console.log('[usePostComment] Added reply to cache. New cache:', updated);
+                console.log('[usePostComment] Added reply to allComments only (not top-level)');
                 return updated;
               }
-              // If this is a top-level comment, add to both
+              // If this is a top-level comment on the video, add to both
               const updated = {
                 ...old,
                 allComments: [optimisticComment, ...old.allComments],
                 topLevelComments: [optimisticComment, ...old.topLevelComments],
               };
-              console.log('[usePostComment] Added top-level comment to cache. New cache:', updated);
+              console.log('[usePostComment] Added top-level comment to both arrays');
               return updated;
             }
             // If the cache structure is unexpected, don't update it
@@ -172,16 +173,24 @@ export function usePostComment() {
             const allCommentsWithoutTemp = old.allComments.filter(c => !c.id.startsWith('temp-'));
             const topLevelWithoutTemp = old.topLevelComments.filter(c => !c.id.startsWith('temp-'));
 
-            // Check if this is a top-level comment or a reply based on tags
-            const isReply = newComment.tags.some(tag => tag[0] === 'e' && tag[3] === 'reply');
+            // Check if this is a reply to another comment (not just to the root video)
+            // A reply will have an 'e' tag with marker 'reply'
+            const hasReplyMarker = newComment.tags.some(tag => tag[0] === 'e' && tag[3] === 'reply');
 
-            if (isReply) {
+            console.log('[usePostComment] Comment tags:', newComment.tags);
+            console.log('[usePostComment] Has reply marker:', hasReplyMarker);
+
+            if (hasReplyMarker) {
+              // This is a reply to another comment, add to allComments only
+              console.log('[usePostComment] Adding as threaded reply (not top-level)');
               return {
                 ...old,
                 allComments: [newComment, ...allCommentsWithoutTemp],
                 topLevelComments: topLevelWithoutTemp,
               };
             } else {
+              // This is a top-level comment on the video, add to both
+              console.log('[usePostComment] Adding as top-level comment');
               return {
                 ...old,
                 allComments: [newComment, ...allCommentsWithoutTemp],
