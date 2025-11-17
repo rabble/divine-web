@@ -1,6 +1,7 @@
 // ABOUTME: Modal component for displaying comments only (no video replay)
 // ABOUTME: Uses CommentsSection for NIP-22 comments
 
+import { useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { CommentsSection } from '@/components/comments/CommentsSection';
 import { cn } from '@/lib/utils';
@@ -22,22 +23,33 @@ export function VideoCommentsModal({
   isLoadingComments = false,
   className,
 }: VideoCommentsModalProps) {
-  // Convert ParsedVideoData to NostrEvent for comments
-  const videoEvent: NostrEvent = {
-    id: video.id,
-    pubkey: video.pubkey,
-    created_at: video.createdAt,
-    kind: video.kind, // NIP-71 video kind (21, 22, or 34236)
-    content: video.content,
-    tags: [
+  // Memoize the video event to prevent unnecessary re-renders and query refetches
+  // This ensures the same object reference is used across renders
+  const videoEvent: NostrEvent = useMemo(() => {
+    const tags: string[][] = [
       ['url', video.videoUrl],
       ...(video.title ? [['title', video.title]] : []),
       ...video.hashtags.map(tag => ['t', tag]),
       ...(video.thumbnailUrl ? [['thumb', video.thumbnailUrl]] : []),
       ...(video.duration ? [['duration', video.duration.toString()]] : []),
-    ],
-    sig: '', // Signature would be provided by actual event
-  };
+    ];
+
+    // For addressable events (kind 34236), include the 'd' tag which is required
+    // Comments will reference this via the 'a' tag: `34236:pubkey:vineId`
+    if (video.kind === 34236 && video.vineId) {
+      tags.push(['d', video.vineId]);
+    }
+
+    return {
+      id: video.id,
+      pubkey: video.pubkey,
+      created_at: video.createdAt,
+      kind: video.kind, // NIP-71 video kind (21, 22, or 34236)
+      content: video.content,
+      tags,
+      sig: '', // Signature would be provided by actual event
+    };
+  }, [video.id, video.pubkey, video.createdAt, video.kind, video.content, video.videoUrl, video.title, video.hashtags, video.thumbnailUrl, video.duration, video.vineId]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

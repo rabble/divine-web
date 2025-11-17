@@ -7,27 +7,44 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
 
   return useQuery({
     queryKey: ['comments', root instanceof URL ? root.toString() : root.id, limit],
+    // Keep comments cached for 5 minutes to prevent unnecessary refetches
+    staleTime: 5 * 60 * 1000,
+    // Keep in cache for 10 minutes
+    gcTime: 10 * 60 * 1000,
+    // Don't refetch when window regains focus
+    refetchOnWindowFocus: false,
+    // Don't refetch when component mounts if data is already cached
+    refetchOnMount: false,
     queryFn: async (c) => {
       const filter: NostrFilter = { kinds: [1111] };
 
+      // Build the filter based on root type
+      // Comments use lowercase tags (e, a, i) to reference their root
       if (root instanceof URL) {
-        filter['#I'] = [root.toString()];
+        filter['#i'] = [root.toString()];
       } else if (NKinds.addressable(root.kind)) {
         const d = root.tags.find(([name]) => name === 'd')?.[1] ?? '';
-        filter['#A'] = [`${root.kind}:${root.pubkey}:${d}`];
+        const aTag = `${root.kind}:${root.pubkey}:${d}`;
+        filter['#a'] = [aTag];
+        console.log('[useComments] Querying addressable event comments:', { kind: root.kind, aTag, filter });
       } else if (NKinds.replaceable(root.kind)) {
-        filter['#A'] = [`${root.kind}:${root.pubkey}:`];
+        const aTag = `${root.kind}:${root.pubkey}:`;
+        filter['#a'] = [aTag];
+        console.log('[useComments] Querying replaceable event comments:', { kind: root.kind, aTag, filter });
       } else {
-        filter['#E'] = [root.id];
+        filter['#e'] = [root.id];
+        console.log('[useComments] Querying regular event comments:', { eventId: root.id, filter });
       }
 
       if (typeof limit === 'number') {
         filter.limit = limit;
       }
 
-      // Query for all kind 1111 comments that reference this addressable event regardless of depth
-      const signal = AbortSignal.any([c.signal, AbortSignal.timeout(5000)]);
+      // Query for all kind 1111 comments that reference this event
+      const signal = AbortSignal.any([c.signal, AbortSignal.timeout(10000)]); // Increased timeout
+      console.log('[useComments] Fetching comments with filter:', filter);
       const events = await nostr.query([filter], { signal });
+      console.log('[useComments] Found', events.length, 'comment events');
 
       // Helper function to get tag value
       const getTagValue = (event: NostrEvent, tagName: string): string | undefined => {
@@ -37,17 +54,27 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
 
       // Filter top-level comments (those with lowercase tag matching the root)
       const topLevelComments = events.filter(comment => {
+        let isTopLevel = false;
         if (root instanceof URL) {
-          return getTagValue(comment, 'i') === root.toString();
+          isTopLevel = getTagValue(comment, 'i') === root.toString();
         } else if (NKinds.addressable(root.kind)) {
           const d = getTagValue(root, 'd') ?? '';
-          return getTagValue(comment, 'a') === `${root.kind}:${root.pubkey}:${d}`;
+          const expectedATag = `${root.kind}:${root.pubkey}:${d}`;
+          const commentATag = getTagValue(comment, 'a');
+          isTopLevel = commentATag === expectedATag;
+          if (!isTopLevel) {
+            console.log('[useComments] Comment a-tag mismatch:', { commentId: comment.id, commentATag, expectedATag });
+          }
         } else if (NKinds.replaceable(root.kind)) {
-          return getTagValue(comment, 'a') === `${root.kind}:${root.pubkey}:`;
+          const expectedATag = `${root.kind}:${root.pubkey}:`;
+          isTopLevel = getTagValue(comment, 'a') === expectedATag;
         } else {
-          return getTagValue(comment, 'e') === root.id;
+          isTopLevel = getTagValue(comment, 'e') === root.id;
         }
+        return isTopLevel;
       });
+
+      console.log('[useComments] Filtered to', topLevelComments.length, 'top-level comments');
 
       // Helper function to get all descendants of a comment
       const getDescendants = (parentId: string): NostrEvent[] => {
@@ -57,7 +84,7 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
         });
 
         const allDescendants = [...directReplies];
-        
+
         // Recursively get descendants of each direct reply
         for (const reply of directReplies) {
           allDescendants.push(...getDescendants(reply.id));
