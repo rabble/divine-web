@@ -94,12 +94,22 @@ export function MediaResourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="md:w-48 flex-shrink-0">
+              <div className="md:w-48 flex-shrink-0 space-y-2">
                 <img
                   src="/rabble-headshot.jpg"
                   alt="Rabble"
                   className="aspect-square rounded-lg object-cover w-full"
                 />
+                <a
+                  href="/rabble-headshot.jpg"
+                  download="rabble-headshot.jpg"
+                  className="block"
+                >
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Download className="h-3 w-3 mr-2" />
+                    Download Photo
+                  </Button>
+                </a>
               </div>
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
@@ -171,12 +181,22 @@ export function MediaResourcesPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-col md:flex-row gap-6">
-              <div className="md:w-48 flex-shrink-0">
+              <div className="md:w-48 flex-shrink-0 space-y-2">
                 <img
                   src="/aos-logo.png"
                   alt="andotherstuff"
                   className="aspect-square rounded-lg object-cover w-full"
                 />
+                <a
+                  href="/aos-logo.png"
+                  download="aos-logo.png"
+                  className="block"
+                >
+                  <Button variant="outline" size="sm" className="w-full">
+                    <Download className="h-3 w-3 mr-2" />
+                    Download Logo
+                  </Button>
+                </a>
               </div>
               <div className="flex-1 space-y-4">
                 <p className="text-muted-foreground">
