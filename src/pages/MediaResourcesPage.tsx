@@ -250,13 +250,19 @@ export function MediaResourcesPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
                   <div key={i} className="space-y-2">
-                    <div className="aspect-[9/16] bg-muted rounded-lg flex items-center justify-center border">
-                      <span className="text-sm text-muted-foreground">Screenshot {i}</span>
+                    <div className="aspect-[9/16] bg-muted rounded-lg overflow-hidden border">
+                      <img
+                        src={`/screenshots/${i}_1.png`}
+                        alt={`diVine screenshot ${i}`}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <Button size="sm" variant="outline" className="w-full">
-                      <Download className="h-3 w-3 mr-2" />
-                      Download
-                    </Button>
+                    <a href={`/screenshots/${i}_1.png`} download={`divine-screenshot-${i}.png`}>
+                      <Button size="sm" variant="outline" className="w-full">
+                        <Download className="h-3 w-3 mr-2" />
+                        Download
+                      </Button>
+                    </a>
                   </div>
                 ))}
               </div>
