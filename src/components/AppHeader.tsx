@@ -184,58 +184,6 @@ export function AppHeader() {
                 <span>Open Source</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem asChild>
-                <a
-                  href="https://github.com/rabble/divine-web"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                >
-                  <Github className="mr-2 h-4 w-4" />
-                  <span>GitHub - Web App</span>
-                  <svg
-                    className="ml-auto h-3 w-3 opacity-50"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                </a>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
-                <a
-                  href="https://github.com/rabble/nostrvine"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                >
-                  <Github className="mr-2 h-4 w-4" />
-                  <span>GitHub - Flutter App</span>
-                  <svg
-                    className="ml-auto h-3 w-3 opacity-50"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                </a>
-              </DropdownMenuItem>
-
               <DropdownMenuSeparator />
 
               {/* Legal Section */}
