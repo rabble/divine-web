@@ -71,22 +71,18 @@ export function VideoPage() {
   }, [handleKeyDown]);
 
   // Dynamic SEO meta tags for social sharing
-  useEffect(() => {
-    if (currentVideo) {
-      useSeoMeta({
-        title: currentVideo.title || 'Video on diVine',
-        description: currentVideo.content || `Watch this video${authorName ? ` by ${authorName}` : ''} on diVine`,
-        ogTitle: currentVideo.title || 'Video on diVine',
-        ogDescription: currentVideo.content || 'Watch this video on diVine',
-        ogImage: currentVideo.thumbnailUrl || '/og.png',
-        ogType: 'video.other',
-        twitterCard: 'summary_large_image',
-        twitterTitle: currentVideo.title || 'Video on diVine',
-        twitterDescription: currentVideo.content || 'Watch this video on diVine',
-        twitterImage: currentVideo.thumbnailUrl || '/og.png',
-      });
-    }
-  }, [currentVideo, authorName]);
+  useSeoMeta({
+    title: currentVideo?.title || 'Video on diVine',
+    description: currentVideo?.content || `Watch this video${authorName ? ` by ${authorName}` : ''} on diVine`,
+    ogTitle: currentVideo?.title || 'Video on diVine',
+    ogDescription: currentVideo?.content || 'Watch this video on diVine',
+    ogImage: currentVideo?.thumbnailUrl || '/og.png',
+    ogType: 'video.other',
+    twitterCard: 'summary_large_image',
+    twitterTitle: currentVideo?.title || 'Video on diVine',
+    twitterDescription: currentVideo?.content || 'Watch this video on diVine',
+    twitterImage: currentVideo?.thumbnailUrl || '/og.png',
+  });
 
   // Navigation back to source
   const handleGoBack = useCallback(() => {
