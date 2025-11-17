@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Download, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -12,11 +13,20 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 export function PWAInstallPrompt() {
+  const location = useLocation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasLeftLanding, setHasLeftLanding] = useState(false);
+
+  // Track when user leaves the landing page
+  useEffect(() => {
+    if (location.pathname !== '/') {
+      setHasLeftLanding(true);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     // Check if mobile device
@@ -58,15 +68,6 @@ export function PWAInstallPrompt() {
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
-
-      // Don't show immediately - wait a bit for better UX
-      setTimeout(() => {
-        // Check if user hasn't dismissed this before
-        const dismissed = localStorage.getItem('pwa-install-dismissed');
-        if (!dismissed) {
-          setShowPrompt(true);
-        }
-      }, 3000); // Show after 3 seconds
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -76,6 +77,22 @@ export function PWAInstallPrompt() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  // Show prompt after user has been on a non-landing page for 3 seconds
+  useEffect(() => {
+    if (!hasLeftLanding) return;
+    if (location.pathname === '/') return; // Don't show on landing page even after returning
+
+    const timer = setTimeout(() => {
+      // Check if user hasn't dismissed this before
+      const dismissed = localStorage.getItem('pwa-install-dismissed');
+      if (!dismissed && (deferredPrompt || isIOS)) {
+        setShowPrompt(true);
+      }
+    }, 3000); // Show after 3 seconds on non-landing page
+
+    return () => clearTimeout(timer);
+  }, [hasLeftLanding, location.pathname, deferredPrompt, isIOS]);
 
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;

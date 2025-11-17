@@ -67,17 +67,11 @@
     <!-- Prevent FOUC with minimal inline CSS -->
     <style>
       /* Minimal loading styles to prevent FOUC */
-      #root {
+      /* Force light theme always - ignore system preferences */
+      #root, html, body {
         min-height: 100vh;
-        background-color: #ffffff;
-      }
-
-      /* Dark mode support */
-      @media (prefers-color-scheme: dark) {
-        #root {
-          background-color: #09090b;
-          color: #f8fafc;
-        }
+        background-color: #ffffff !important;
+        color: #0a0a0a !important;
       }
 
       /* Loading spinner for initial load */
