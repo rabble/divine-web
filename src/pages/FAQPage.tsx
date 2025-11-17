@@ -257,6 +257,15 @@ export function FAQPage() {
                   </p>
                 </AccordionContent>
               </AccordionItem>
+
+              <AccordionItem value="jack-dorsey-ownership">
+                <AccordionTrigger>Does Jack Dorsey own all or part of diVine?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  <p>
+                    No. While Jack Dorsey is providing funding for diVine, it is not an investment and he holds no equity in, or ownership of diVine.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </CardContent>
         </Card>
@@ -688,6 +697,21 @@ export function FAQPage() {
                     However, direct messages between users are end-to-end encrypted. We cannot read your
                     messages that you send between users or when you share videos privately via DM. Your
                     private conversations are truly private.
+                  </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="ai-data-selling">
+                <AccordionTrigger>Is diVine going to sell our data or content to AI companies?</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground space-y-2">
+                  <p>
+                    No, diVine is not in the business of selling user data or content to AI companies for training.
+                    We don't do it, we won't do it.
+                  </p>
+                  <p>
+                    We can't stop AI companies which want to ignore terms of service and people's copyright from
+                    scraping publicly accessible data, just like it's hard to stop AI companies from scraping
+                    publicly available websites.
                   </p>
                 </AccordionContent>
               </AccordionItem>
