@@ -36,6 +36,7 @@ const SORT_MODES = [
 
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [sortMode, setSortMode] = useState<SortMode | 'relevance'>(
     (searchParams.get('sort') as SortMode | 'relevance') || 'relevance'
@@ -104,6 +105,24 @@ export function SearchPage() {
 
   // Handle search input changes
   const handleSearchChange = (value: string) => {
+    // Detect and redirect to npub/nprofile profiles
+    const trimmedValue = value.trim();
+    if (trimmedValue.startsWith('npub1') || trimmedValue.startsWith('nprofile1')) {
+      try {
+        const decoded = nip19.decode(trimmedValue);
+        if (decoded.type === 'npub') {
+          navigate(`/${trimmedValue}`);
+          return;
+        } else if (decoded.type === 'nprofile') {
+          const npub = nip19.npubEncode(decoded.data.pubkey);
+          navigate(`/${npub}`);
+          return;
+        }
+      } catch {
+        // Invalid npub/nprofile, continue with normal search
+      }
+    }
+
     setSearchQuery(value);
     setShowSuggestions(false);
   };
