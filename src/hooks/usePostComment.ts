@@ -119,23 +119,53 @@ export function usePostComment() {
             // useComments returns an object with { allComments, topLevelComments, getDescendants, getDirectReplies }
             // We need to preserve this structure
             if (old && typeof old === 'object' && 'topLevelComments' in old) {
-              // If this is a reply to another comment, add to allComments only
-              if (reply) {
-                const updated = {
-                  ...old,
-                  allComments: [optimisticComment, ...old.allComments],
-                  topLevelComments: old.topLevelComments, // Keep topLevelComments unchanged
-                };
-                console.log('[usePostComment] Added reply to allComments only (not top-level)');
-                return updated;
-              }
-              // If this is a top-level comment on the video, add to both
-              const updated = {
-                ...old,
-                allComments: [optimisticComment, ...old.allComments],
-                topLevelComments: [optimisticComment, ...old.topLevelComments],
+              // Helper to get tag marker
+              const getTagMarker = (event: NostrEvent, tagName: string, value: string): string | undefined => {
+                const tag = event.tags.find(([name, val]) => name === tagName && val === value);
+                return tag?.[3];
               };
-              console.log('[usePostComment] Added top-level comment to both arrays');
+
+              // Determine new arrays
+              const newAllComments = [optimisticComment, ...old.allComments];
+              const newTopLevelComments = reply
+                ? old.topLevelComments // Keep topLevelComments unchanged for replies
+                : [optimisticComment, ...old.topLevelComments];
+
+              // Recreate getDirectReplies function with the new allComments array
+              const getDirectReplies = (commentId: string) => {
+                const directReplies = newAllComments.filter(comment => {
+                  const marker = getTagMarker(comment, 'e', commentId);
+                  return marker === 'reply';
+                });
+                // Sort direct replies by creation time (oldest first for threaded display)
+                return directReplies.sort((a, b) => a.created_at - b.created_at);
+              };
+
+              // Recreate getDescendants function
+              const getDescendants = (parentId: string): NostrEvent[] => {
+                const directReplies = newAllComments.filter(comment => {
+                  const marker = getTagMarker(comment, 'e', parentId);
+                  return marker === 'reply';
+                });
+
+                const allDescendants = [...directReplies];
+
+                // Recursively get descendants of each direct reply
+                for (const reply of directReplies) {
+                  allDescendants.push(...getDescendants(reply.id));
+                }
+
+                return allDescendants.sort((a, b) => a.created_at - b.created_at);
+              };
+
+              const updated = {
+                allComments: newAllComments,
+                topLevelComments: newTopLevelComments,
+                getDirectReplies,
+                getDescendants,
+              };
+
+              console.log('[usePostComment] Added', reply ? 'threaded reply' : 'top-level comment', 'to cache');
               return updated;
             }
             // If the cache structure is unexpected, don't update it
@@ -189,23 +219,53 @@ export function usePostComment() {
             console.log('[usePostComment] Comment tags:', newComment.tags);
             console.log('[usePostComment] Has reply marker:', hasReplyMarker);
 
-            if (hasReplyMarker) {
-              // This is a reply to another comment, add to allComments only
-              console.log('[usePostComment] Adding as threaded reply (not top-level)');
-              return {
-                ...old,
-                allComments: [newComment, ...allCommentsWithoutTemp],
-                topLevelComments: topLevelWithoutTemp,
-              };
-            } else {
-              // This is a top-level comment on the video, add to both
-              console.log('[usePostComment] Adding as top-level comment');
-              return {
-                ...old,
-                allComments: [newComment, ...allCommentsWithoutTemp],
-                topLevelComments: [newComment, ...topLevelWithoutTemp],
-              };
-            }
+            // Helper to get tag marker
+            const getTagMarker = (event: NostrEvent, tagName: string, value: string): string | undefined => {
+              const tag = event.tags.find(([name, val]) => name === tagName && val === value);
+              return tag?.[3];
+            };
+
+            // Determine new arrays
+            const newAllComments = [newComment, ...allCommentsWithoutTemp];
+            const newTopLevelComments = hasReplyMarker
+              ? topLevelWithoutTemp // Keep topLevelComments unchanged for replies
+              : [newComment, ...topLevelWithoutTemp];
+
+            // Recreate getDirectReplies function with the new allComments array
+            const getDirectReplies = (commentId: string) => {
+              const directReplies = newAllComments.filter(comment => {
+                const marker = getTagMarker(comment, 'e', commentId);
+                return marker === 'reply';
+              });
+              // Sort direct replies by creation time (oldest first for threaded display)
+              return directReplies.sort((a, b) => a.created_at - b.created_at);
+            };
+
+            // Recreate getDescendants function
+            const getDescendants = (parentId: string): NostrEvent[] => {
+              const directReplies = newAllComments.filter(comment => {
+                const marker = getTagMarker(comment, 'e', parentId);
+                return marker === 'reply';
+              });
+
+              const allDescendants = [...directReplies];
+
+              // Recursively get descendants of each direct reply
+              for (const reply of directReplies) {
+                allDescendants.push(...getDescendants(reply.id));
+              }
+
+              return allDescendants.sort((a, b) => a.created_at - b.created_at);
+            };
+
+            console.log('[usePostComment] Adding as', hasReplyMarker ? 'threaded reply' : 'top-level comment');
+
+            return {
+              allComments: newAllComments,
+              topLevelComments: newTopLevelComments,
+              getDirectReplies,
+              getDescendants,
+            };
           }
           return old;
         }
