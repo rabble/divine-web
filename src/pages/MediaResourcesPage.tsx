@@ -249,7 +249,7 @@ export function MediaResourcesPage() {
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="space-y-2">
+                  <div key={i} className="space-y-3">
                     <div className="aspect-[9/16] bg-muted rounded-lg overflow-hidden border">
                       <img
                         src={`/screenshots/${i}_1.png`}
