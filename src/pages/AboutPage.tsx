@@ -228,9 +228,14 @@ export function AboutPage() {
                 <h4 className="font-semibold">Open Source</h4>
                 <p className="text-sm text-muted-foreground">
                   Community-built and maintained. Check out our{" "}
-                  <a href="https://github.com/rabble/nostrvine" rel="noopener noreferrer" className="text-primary hover:underline">
-                    Flutter app on GitHub
-                  </a>.
+                  <a href="https://github.com/rabble/divine-web" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    web app
+                  </a>{" "}
+                  and{" "}
+                  <a href="https://github.com/rabble/nostrvine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    Flutter app
+                  </a>{" "}
+                  on GitHub.
                 </p>
               </div>
             </div>

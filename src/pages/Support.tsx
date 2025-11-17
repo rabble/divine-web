@@ -109,18 +109,32 @@ export function Support() {
               GitHub Issues
             </CardTitle>
             <CardDescription>
-              Report bugs, request features, or browse existing issues on our GitHub repository.
+              Report bugs, request features, or browse existing issues on our GitHub repositories.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <a
-              href="https://github.com/rabble/nostrvine/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
-            >
-              github.com/rabble/nostrvine/issues
-            </a>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-sm font-medium mb-1">Web App:</div>
+              <a
+                href="https://github.com/rabble/divine-web/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                github.com/rabble/divine-web/issues
+              </a>
+            </div>
+            <div>
+              <div className="text-sm font-medium mb-1">Flutter App (iOS/Android):</div>
+              <a
+                href="https://github.com/rabble/nostrvine/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                github.com/rabble/nostrvine/issues
+              </a>
+            </div>
           </CardContent>
         </Card>
 

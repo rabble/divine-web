@@ -246,14 +246,23 @@ export function FAQPage() {
                   <p>
                     diVine is open source, and we welcome contributions from the community. Check out our{' '}
                     <a
+                      href="https://github.com/rabble/divine-web"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      web app
+                    </a>{' '}
+                    and{' '}
+                    <a
                       href="https://github.com/rabble/nostrvine"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      GitHub repository
+                      Flutter app
                     </a>{' '}
-                    to learn more or get involved.
+                    repositories on GitHub to learn more or get involved.
                   </p>
                 </AccordionContent>
               </AccordionItem>
