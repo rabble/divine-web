@@ -5,6 +5,9 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **FAQ anchor links** - Each FAQ question now has a shareable anchor link (# icon) that appears on hover, allowing direct linking to specific questions. Accordions automatically open when visiting hash URLs
+- **Jack Dorsey funding FAQ** - Added FAQ clarifying that Jack Dorsey is providing funding but has no equity or ownership
+- **AI data selling FAQ** - Added FAQ confirming diVine will not sell user data or content to AI companies for training
 - **Grid view for hashtag pages** - Hashtag feeds now support grid/list view toggle with responsive multi-column layout
 - **"Divine needs a rest" empty state** - Beautiful empty state with full-width reclining Divine photo by Marcus Leatherdale when no videos are found
 

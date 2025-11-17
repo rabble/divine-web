@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useCallback, useState } from 'react';
+import { useSeoMeta } from '@unhead/react';
 import { Hash, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,6 +70,19 @@ export function VideoPage() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
+  // Dynamic SEO meta tags for social sharing
+  useSeoMeta({
+    title: currentVideo?.title || 'Video on diVine',
+    description: currentVideo?.content || `Watch this video${authorName ? ` by ${authorName}` : ''} on diVine`,
+    ogTitle: currentVideo?.title || 'Video on diVine',
+    ogDescription: currentVideo?.content || 'Watch this video on diVine',
+    ogImage: currentVideo?.thumbnailUrl || '/og.png',
+    ogType: 'video.other',
+    twitterCard: 'summary_large_image',
+    twitterTitle: currentVideo?.title || 'Video on diVine',
+    twitterDescription: currentVideo?.content || 'Watch this video on diVine',
+    twitterImage: currentVideo?.thumbnailUrl || '/og.png',
+  });
 
   // Navigation back to source
   const handleGoBack = useCallback(() => {

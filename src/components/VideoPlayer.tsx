@@ -3,8 +3,6 @@
 
 import { useRef, useEffect, useState, forwardRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useInView } from 'react-intersection-observer';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -26,11 +24,8 @@ interface VideoPlayerProps {
   onLoadedData?: () => void;
   onEnded?: () => void;
   onError?: () => void;
-  showControls?: boolean;
   preload?: 'none' | 'metadata' | 'auto';
   // Mobile-specific props
-  allowFullscreen?: boolean;
-  autoHideControls?: boolean;
   onDoubleTap?: () => void;
   onLongPress?: () => void;
   onSwipeLeft?: () => void;
@@ -65,11 +60,8 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       onLoadedData,
       onEnded,
       onError,
-      showControls = true,
       preload: _preload = 'none', // Changed to 'none' for better performance
       // Mobile-specific props
-      allowFullscreen = false,
-      autoHideControls = false,
       onDoubleTap,
       onLongPress,
       onSwipeLeft,
@@ -90,16 +82,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const [hasError, setHasError] = useState(false);
     const [currentUrlIndex, setCurrentUrlIndex] = useState(0);
     const [allUrls, setAllUrls] = useState<string[]>([]);
+    const isChangingMuteState = useRef(false);
 
     // Mobile-specific state
-    const [isFullscreen, setIsFullscreen] = useState(false);
-    const [controlsVisible, setControlsVisible] = useState(true);
     const [touchState, setTouchState] = useState<TouchState | null>(null);
     const [lastTapTime, setLastTapTime] = useState(0);
     const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
-    const [controlsTimer, setControlsTimer] = useState<NodeJS.Timeout | null>(null);
 
-    const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
+    const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted } = useVideoPlayback();
     const isActive = activeVideoId === videoId;
 
     // Get responsive layout class
@@ -147,13 +137,15 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         // Register/unregister video with context
         if (node) {
           verboseLog(`[VideoPlayer ${videoId}] Registering video element`);
+          // Set initial muted state
+          node.muted = globalMuted;
           registerVideo(videoId, node);
         } else {
           verboseLog(`[VideoPlayer ${videoId}] Unregistering video element`);
           unregisterVideo(videoId);
         }
       },
-      [videoId, registerVideo, unregisterVideo, inViewRef, ref] // Reordered for clarity, same deps
+      [videoId, registerVideo, unregisterVideo, inViewRef, ref, globalMuted]
     );
 
     // Set container ref
@@ -201,10 +193,41 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     // Sync video muted state with global muted state
     useEffect(() => {
       if (videoRef.current) {
-        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}`);
-        videoRef.current.muted = globalMuted;
+        const video = videoRef.current;
+        const shouldBePlayingCheck = isActive && !isLoading && !hasError;
+
+        verboseLog(`[VideoPlayer ${videoId}] Syncing muted state to: ${globalMuted}, isActive: ${isActive}, shouldBePlaying: ${shouldBePlayingCheck}`);
+
+        // Set flag to ignore pause events during mute state change
+        isChangingMuteState.current = true;
+
+        // Change muted state
+        video.muted = globalMuted;
+
+        // If this video should be playing (is active and ready), ensure it stays playing
+        if (shouldBePlayingCheck) {
+          // Use requestAnimationFrame to let browser process the mute change first
+          requestAnimationFrame(() => {
+            // Then use another one to ensure we're after any browser-triggered events
+            requestAnimationFrame(() => {
+              if (video.paused) {
+                verboseLog(`[VideoPlayer ${videoId}] Video paused after mute change, resuming...`);
+                video.play().catch(error => {
+                  verboseLog(`[VideoPlayer ${videoId}] Failed to resume after mute change:`, error);
+                });
+              }
+              // Clear flag after we've handled playback
+              isChangingMuteState.current = false;
+            });
+          });
+        } else {
+          // Not active, just clear the flag after events settle
+          setTimeout(() => {
+            isChangingMuteState.current = false;
+          }, 100);
+        }
       }
-    }, [globalMuted, videoId]);
+    }, [globalMuted, videoId, isActive, isLoading, hasError]);
 
     // Handle play/pause
     const togglePlay = useCallback(() => {
@@ -227,56 +250,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       setIsPlaying(!isPlaying);
     }, [videoId, isPlaying]);
 
-    // Handle mute/unmute
-    const toggleMute = (e?: React.MouseEvent | React.TouchEvent) => {
-      e?.stopPropagation(); // Prevent event from bubbling to video click handler
-      e?.preventDefault(); // Also prevent default touch behavior
-      verboseLog(`[VideoPlayer ${videoId}] toggleMute called, globalMuted: ${globalMuted}`);
-      if (!videoRef.current) return;
 
-      // Toggle global mute state
-      const newMutedState = !globalMuted;
-      setGlobalMuted(newMutedState);
 
-      // Apply to all registered videos
-      verboseLog(`[VideoPlayer ${videoId}] Setting global muted state to: ${newMutedState}`);
-    };
 
-    // Mobile control functions
-    const resetControlsTimeout = useCallback(() => {
-      if (!isMobile || !autoHideControls) return;
 
-      // Clear existing timer
-      if (controlsTimer) {
-        clearTimeout(controlsTimer);
-      }
 
-      // Show controls immediately
-      setControlsVisible(true);
-
-      // Set new timer to hide controls after 3 seconds
-      const newTimer = setTimeout(() => {
-        setControlsVisible(false);
-      }, 3000);
-
-      setControlsTimer(newTimer);
-    }, [isMobile, autoHideControls, controlsTimer]);
-
-    const toggleFullscreen = useCallback(async () => {
-      if (!containerRef.current || !allowFullscreen) return;
-
-      try {
-        if (!document.fullscreenElement) {
-          await containerRef.current.requestFullscreen();
-          setIsFullscreen(true);
-        } else {
-          await document.exitFullscreen();
-          setIsFullscreen(false);
-        }
-      } catch (error) {
-        debugError('Fullscreen toggle failed:', error);
-      }
-    }, [allowFullscreen]);
 
     // Touch gesture handlers
     const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -288,8 +266,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       if (isButton) {
         return; // Don't handle touch gestures if touching a button
       }
-
-      resetControlsTimeout();
 
       const touch = e.touches[0];
       const currentTime = Date.now();
@@ -314,10 +290,17 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       }, 500);
       setLongPressTimer(timer);
 
-    }, [isMobile, resetControlsTimeout, longPressTimer, onLongPress]);
+    }, [isMobile, longPressTimer, onLongPress]);
 
     const handleTouchMove = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
+
+      // Check if touch is on a button (ignore control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        return; // Don't handle touch gestures if touching a button
+      }
 
       const touch = e.touches[0];
       const deltaX = touch.clientX - touchState.startX;
@@ -360,6 +343,19 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
     const handleTouchEnd = useCallback((e: React.TouchEvent) => {
       if (!isMobile || !touchState) return;
 
+      // Check if touch target is a button FIRST (ignore taps on control buttons)
+      const target = e.target as HTMLElement;
+      const isButton = target.closest('button');
+      if (isButton) {
+        // Clear any state and timers, but don't process any gestures
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          setLongPressTimer(null);
+        }
+        setTouchState(null);
+        return; // Don't handle tap/swipe gestures if touching a button
+      }
+
       // Clear long press timer
       if (longPressTimer) {
         clearTimeout(longPressTimer);
@@ -370,14 +366,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       const duration = currentTime - touchState.startTime;
       const deltaX = (e.changedTouches[0]?.clientX || touchState.startX) - touchState.startX;
       const deltaY = (e.changedTouches[0]?.clientY || touchState.startY) - touchState.startY;
-
-      // Check if touch target is a button (ignore taps on control buttons)
-      const target = e.target as HTMLElement;
-      const isButton = target.closest('button');
-      if (isButton) {
-        setTouchState(null);
-        return; // Don't handle tap/swipe gestures if touching a button
-      }
 
       // Handle tap gesture
       if (duration < 300 && Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) {
@@ -484,6 +472,11 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       setIsPlaying(true);
     };
     const handlePause = () => {
+      // Ignore pause events that occur during mute state changes
+      if (isChangingMuteState.current) {
+        verboseLog(`[VideoPlayer ${videoId}] Pause event fired (ignored - changing mute state)`);
+        return;
+      }
       verboseLog(`[VideoPlayer ${videoId}] Pause event fired`);
       setIsPlaying(false);
     };
@@ -504,20 +497,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       };
     }, [isMobile, onOrientationChange]);
 
-    // Handle fullscreen changes
-    useEffect(() => {
-      if (!allowFullscreen) return;
 
-      const handleFullscreenChange = () => {
-        setIsFullscreen(!!document.fullscreenElement);
-      };
-
-      document.addEventListener('fullscreenchange', handleFullscreenChange);
-
-      return () => {
-        document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      };
-    }, [allowFullscreen]);
 
     // Initialize URLs array
     useEffect(() => {
@@ -646,10 +626,9 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
         unregisterVideo(videoId);
 
         // Clean up timers
-        if (controlsTimer) clearTimeout(controlsTimer);
         if (longPressTimer) clearTimeout(longPressTimer);
       };
-    }, [videoId, unregisterVideo, updateVideoVisibility, controlsTimer, longPressTimer]);
+    }, [videoId, unregisterVideo, updateVideoVisibility, longPressTimer]);
 
     // Handle GIF format (use img tag)
     const currentUrl = allUrls[currentUrlIndex] || src;
@@ -705,7 +684,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           // Don't set src directly if using HLS.js - it will handle the source
           // HLS.js is used when hlsUrl is provided and Hls.isSupported()
           poster={poster}
-          muted={globalMuted}
+          muted // Start muted, will be controlled via effect
           autoPlay={false} // Never autoplay, we control playback programmatically
           loop
           playsInline
@@ -747,84 +726,6 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
               )}
             </div>
           </div>
-        )}
-
-        {/* Controls overlay - only mute and fullscreen buttons */}
-        {showControls && !isLoading && !hasError && (
-          <>
-            {/* Mute button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "absolute bottom-4 right-4 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
-                isMobile
-                  ? (controlsVisible ? "opacity-100 w-14 h-14" : "opacity-100 w-14 h-14")
-                  : "opacity-0 group-hover:opacity-100 w-10 h-10"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                toggleMute(e);
-              }}
-              onTouchStart={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              onTouchMove={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-              onTouchEnd={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                toggleMute(e);
-              }}
-            >
-              {globalMuted ? (
-                <VolumeX className="h-6 w-6" />
-              ) : (
-                <Volume2 className="h-6 w-6" />
-              )}
-            </Button>
-
-            {/* Fullscreen button - mobile only */}
-            {isMobile && allowFullscreen && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className={cn(
-                  "absolute bottom-4 left-4 w-14 h-14 rounded-full bg-black/60 hover:bg-black/80 text-white min-h-[44px] transition-all z-30",
-                  controlsVisible ? "opacity-100" : "opacity-100"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleFullscreen();
-                }}
-                onTouchStart={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                onTouchMove={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-                onTouchEnd={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  toggleFullscreen();
-                }}
-                aria-label={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-              >
-                {isFullscreen ? (
-                  <Minimize className="h-6 w-6" />
-                ) : (
-                  <Maximize className="h-6 w-6" />
-                )}
-              </Button>
-            )}
-          </>
         )}
       </div>
     );
