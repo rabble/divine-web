@@ -96,7 +96,7 @@ export function MediaResourcesPage() {
             <div className="flex flex-col md:flex-row gap-6">
               <div className="md:w-48 flex-shrink-0">
                 <img
-                  src="/rabble-headshot.jpeg"
+                  src="/rabble-headshot.jpg"
                   alt="Rabble"
                   className="aspect-square rounded-lg object-cover w-full"
                 />
