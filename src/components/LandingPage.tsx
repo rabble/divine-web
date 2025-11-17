@@ -54,7 +54,7 @@ export function LandingPage() {
                 to="/support"
                 className="text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
-                Support
+                Help
               </Link>
               <Link
                 to="/discovery"
