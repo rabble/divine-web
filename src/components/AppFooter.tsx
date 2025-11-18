@@ -52,7 +52,7 @@ export function AppFooter() {
                 </Link>
                 <span>•</span>
                 <Link to="/support" className="hover:text-foreground transition-colors">
-                  Support
+                  Help
                 </Link>
               </div>
               <div className="flex flex-wrap items-center gap-2">
