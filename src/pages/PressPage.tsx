@@ -11,38 +11,50 @@ export function PressPage() {
     trackingScript.innerHTML = 'fetch("https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/takel")';
     document.body.appendChild(trackingScript);
 
+    // Create hidden iframe for form submission
+    const iframe = document.createElement('iframe');
+    iframe.name = 'ml-form-submit-frame';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
     return () => {
       if (document.body.contains(trackingScript)) {
         document.body.removeChild(trackingScript);
       }
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
     };
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     const form = e.currentTarget;
-    const formData = new FormData(form);
 
-    try {
-      // Use no-cors mode since MailerLite doesn't support CORS
-      // We won't be able to read the response, but the submission will work
-      await fetch(form.action, {
-        method: 'POST',
-        body: formData,
-        mode: 'no-cors',
-      });
+    // Validate required fields
+    const email = (form.elements.namedItem('fields[email]') as HTMLInputElement)?.value;
+    const message = (form.elements.namedItem('fields[message]') as HTMLTextAreaElement)?.value;
 
-      // Since we can't read the response with no-cors, assume success
-      setIsSuccess(true);
-    } catch (error) {
-      console.error('Form submission error:', error);
-      // Even on error, show success since we can't read the response anyway
-      setIsSuccess(true);
-    } finally {
-      setIsSubmitting(false);
+    if (!email || !message) {
+      return;
     }
+
+    setIsSubmitting(true);
+
+    // Submit the form to the iframe (bypasses preventDefault)
+    const submitForm = form.cloneNode(true) as HTMLFormElement;
+    submitForm.style.display = 'none';
+    submitForm.target = 'ml-form-submit-frame';
+    document.body.appendChild(submitForm);
+    submitForm.submit();
+    document.body.removeChild(submitForm);
+
+    // Show success message after a short delay
+    setTimeout(() => {
+      setIsSuccess(true);
+      setIsSubmitting(false);
+    }, 800);
   };
 
   return (
@@ -248,6 +260,7 @@ export function PressPage() {
                       action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe"
                       data-code=""
                       method="post"
+                      target="ml-form-submit-frame"
                       onSubmit={handleSubmit}
                     >
                       <div className="ml-form-formContent">
