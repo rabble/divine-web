@@ -1,20 +1,15 @@
 // ABOUTME: Core video event types and interfaces for OpenVine/Divine Web
-// ABOUTME: Defines the structure of NIP-71 video events (kinds 21, 22) and related metadata
+// ABOUTME: Defines the structure of video events (kind 34236) and related metadata
 
 import type { NostrEvent } from '@nostrify/nostrify';
 
-// NIP-71 Video Event Kinds
-export const HORIZONTAL_VIDEO_KIND = 21; // NIP-71 Normal (horizontal) videos
-export const SHORT_VIDEO_KIND = 22; // NIP-71 Short (vertical) videos
-export const LEGACY_VIDEO_KIND = 34236; // Legacy kind for backward compatibility
+// Video Event Kinds
+export const VIDEO_KIND = 34236; // Kind 34236 - Addressable short-form videos
 
 // Array of all supported video kinds
-export const VIDEO_KINDS = [HORIZONTAL_VIDEO_KIND, SHORT_VIDEO_KIND, LEGACY_VIDEO_KIND];
+export const VIDEO_KINDS = [VIDEO_KIND];
 
 export const REPOST_KIND = 6;
-
-// Deprecated: Use VIDEO_KINDS array instead
-export const VIDEO_KIND = SHORT_VIDEO_KIND;
 
 export interface VideoMetadata {
   url: string;
@@ -30,7 +25,7 @@ export interface VideoMetadata {
 }
 
 export interface VideoEvent extends NostrEvent {
-  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND;
+  kind: typeof VIDEO_KIND;
   videoMetadata?: VideoMetadata;
   title?: string;
   hashtags?: string[];
@@ -72,7 +67,7 @@ export interface RepostMetadata {
 export interface ParsedVideoData {
   id: string;                // Original video event ID
   pubkey: string;            // Original author pubkey
-  kind: typeof HORIZONTAL_VIDEO_KIND | typeof SHORT_VIDEO_KIND | typeof LEGACY_VIDEO_KIND; // NIP-71 video kind
+  kind: typeof VIDEO_KIND;   // Video kind (34236)
   createdAt: number;
   originalVineTimestamp?: number; // Custom published_at timestamp (NIP-31 - can be set by any video)
   content: string;
