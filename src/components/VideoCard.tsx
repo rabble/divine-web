@@ -92,6 +92,7 @@ export function VideoCard({
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const muteUser = useMuteItem();
@@ -327,16 +328,20 @@ export function VideoCard({
       {/* Video content */}
       <CardContent className="p-0">
         {/* Video player or thumbnail */}
-        <div className="relative aspect-square bg-black rounded-lg overflow-hidden">
+        <div 
+          className="relative bg-black rounded-lg overflow-hidden w-full"
+          style={{ aspectRatio: videoAspectRatio?.toString() || '1' }}
+        >
           {!isPlaying ? (
             <ThumbnailPlayer
               videoId={video.id}
               src={video.videoUrl}
               thumbnailUrl={video.thumbnailUrl}
               duration={video.duration}
-              className="w-full h-full"
+              className={cn("w-full h-full", !videoAspectRatio && "opacity-0")}
               onClick={handleThumbnailClick}
               onError={() => setVideoError(true)}
+              onVideoDimensions={(d) => setVideoAspectRatio(d.width / d.height)}
             />
           ) : !videoError ? (
             <VideoPlayer
@@ -351,10 +356,21 @@ export function VideoCard({
               onError={() => setVideoError(true)}
               onEnded={handleVideoEnd}
               onLoadedData={onLoadedData}
+              onVideoDimensions={(d) => setVideoAspectRatio(d.width / d.height)}
             />
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               <p>Failed to load video</p>
+            </div>
+          )}
+
+          {/* Loading spinner overlay */}
+          {!videoAspectRatio && !videoError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+              <div className="relative w-12 h-12">
+                <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
+                <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin" />
+              </div>
             </div>
           )}
 
