@@ -6,9 +6,11 @@ import { useAuthor } from '@/hooks/useAuthor';
 import { useComments } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useMuteItem } from '@/hooks/useModeration';
+import { useDeleteComment } from '@/hooks/useDeleteComment';
 import { CommentForm } from './CommentForm';
 import { NoteContent } from '@/components/NoteContent';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
+import { DeleteCommentDialog } from '@/components/DeleteCommentDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, Flag, UserX, Volume2 } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, Flag, UserX, Volume2, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
 import { MuteType } from '@/types/moderation';
@@ -39,11 +41,13 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [reportType, setReportType] = useState<'comment' | 'user'>('comment');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { user } = useCurrentUser();
   const author = useAuthor(comment.pubkey);
   const { data: commentsData } = useComments(root, limit);
   const { mutate: muteItem } = useMuteItem();
+  const { mutate: deleteComment, isPending: isDeleting } = useDeleteComment();
   const { toast } = useToast();
 
   const metadata = author.data?.metadata;
@@ -93,6 +97,17 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
           description: 'Failed to mute user. Please try again.',
           variant: 'destructive',
         });
+      }
+    });
+  };
+
+  const handleDeleteComment = (reason?: string) => {
+    deleteComment({
+      comment,
+      reason
+    }, {
+      onSuccess: () => {
+        setShowDeleteDialog(false);
       }
     });
   };
@@ -172,7 +187,15 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
-                  {!isOwnComment && (
+                  {isOwnComment ? (
+                    <DropdownMenuItem
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete comment
+                    </DropdownMenuItem>
+                  ) : (
                     <>
                       <DropdownMenuItem onClick={handleReportComment}>
                         <Flag className="h-4 w-4 mr-2" />
@@ -188,12 +211,6 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                         Mute user
                       </DropdownMenuItem>
                     </>
-                  )}
-                  {isOwnComment && (
-                    <DropdownMenuItem disabled>
-                      <UserX className="h-4 w-4 mr-2" />
-                      No actions available
-                    </DropdownMenuItem>
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -240,6 +257,15 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
         eventId={reportType === 'comment' ? comment.id : undefined}
         pubkey={reportType === 'user' ? comment.pubkey : undefined}
         contentType={reportType}
+      />
+
+      {/* Delete Dialog */}
+      <DeleteCommentDialog
+        open={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteComment}
+        comment={comment}
+        isDeleting={isDeleting}
       />
     </div>
   );
