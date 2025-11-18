@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX, Code } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { DeleteVideoDialog } from '@/components/DeleteVideoDialog';
+import { ViewSourceDialog } from '@/components/ViewSourceDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
@@ -92,6 +93,7 @@ export function VideoCard({
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showViewSourceDialog, setShowViewSourceDialog] = useState(false);
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -592,6 +594,11 @@ export function VideoCard({
                 <UserX className="h-4 w-4 mr-2" />
                 Mute {displayName}
               </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setShowViewSourceDialog(true)}>
+                <Code className="h-4 w-4 mr-2" />
+                View source
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -625,6 +632,15 @@ export function VideoCard({
         onConfirm={handleDeleteVideo}
         video={video}
         isDeleting={isDeleting}
+      />
+    )}
+
+    {showViewSourceDialog && (
+      <ViewSourceDialog
+        open={showViewSourceDialog}
+        onClose={() => setShowViewSourceDialog(false)}
+        video={video}
+        title="Video Event Source"
       />
     )}
     </>
