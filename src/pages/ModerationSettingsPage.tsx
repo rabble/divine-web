@@ -21,7 +21,9 @@ import {
   Hash,
   Type,
   Plus,
-  Flag
+  Flag,
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { MuteType, REPORT_REASON_LABELS } from '@/types/moderation';

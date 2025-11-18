@@ -236,7 +236,7 @@ export function useInfiniteVideos({
       }
 
       // Parse and filter
-      let videos = parseVideoEvents(events);
+      const videos = parseVideoEvents(events);
 
       // Determine next cursor
       const nextCursor = videos.length > 0
