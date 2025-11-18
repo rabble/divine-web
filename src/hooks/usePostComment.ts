@@ -82,7 +82,8 @@ export function usePostComment() {
 
       return event;
     },
-    onSuccess: (_, { root }) => {
+    onSuccess: async (_, { root }) => {
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait a moment to ensure event propagation
       // Invalidate and refetch comments
       queryClient.invalidateQueries({
         queryKey: ['nostr', 'comments', root instanceof URL ? root.toString() : root.id]
