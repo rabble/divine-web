@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Volume2, VolumeX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,13 +19,9 @@ import { OriginalContentBadge } from '@/components/OriginalContentBadge';
 import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
-import { DeleteVideoDialog } from '@/components/DeleteVideoDialog';
-import { DeletedVideoIndicator } from '@/components/DeletedVideoIndicator';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
-import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
-import { useDeletionInfo } from '@/hooks/useDeletionEvents';
 import { useAppContext } from '@/hooks/useAppContext';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { enhanceAuthorData } from '@/lib/generateProfile';
@@ -94,15 +90,11 @@ export function VideoCard({
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const muteUser = useMuteItem();
   const navigate = useNavigate();
   const { globalMuted, setGlobalMuted } = useVideoPlayback();
-  const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
-  const canDelete = useCanDeleteVideo(video);
-  const deletionInfo = useDeletionInfo(video.id);
   const { config } = useAppContext();
 
   // Enhance author data with generated profiles
@@ -206,17 +198,6 @@ export function VideoCard({
     }
   };
 
-  const handleDeleteVideo = (reason?: string) => {
-    deleteVideo(
-      { video, reason },
-      {
-        onSuccess: () => {
-          setShowDeleteDialog(false);
-        },
-      }
-    );
-  };
-
   const handleShare = async () => {
     const videoUrl = `${window.location.origin}/video/${video.id}`;
 
@@ -257,16 +238,6 @@ export function VideoCard({
       }
     }
   };
-
-  // Show deleted indicator if video is deleted and user has enabled showing deleted videos
-  if (deletionInfo && config.showDeletedVideos) {
-    return <DeletedVideoIndicator deletionInfo={deletionInfo} className={className} />;
-  }
-
-  // Don't render if deleted and user wants to hide deleted videos (default)
-  if (deletionInfo && !config.showDeletedVideos) {
-    return null;
-  }
 
   return (
     <>
@@ -566,18 +537,6 @@ export function VideoCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {canDelete && (
-                <>
-                  <DropdownMenuItem
-                    onClick={() => setShowDeleteDialog(true)}
-                    className="text-destructive focus:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete video
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
-              )}
               <DropdownMenuItem onClick={() => setShowReportDialog(true)}>
                 <Flag className="h-4 w-4 mr-2" />
                 Report video
@@ -614,16 +573,6 @@ export function VideoCard({
         onClose={() => setShowReportUserDialog(false)}
         pubkey={video.pubkey}
         contentType="user"
-      />
-    )}
-
-    {showDeleteDialog && (
-      <DeleteVideoDialog
-        open={showDeleteDialog}
-        onClose={() => setShowDeleteDialog(false)}
-        onConfirm={handleDeleteVideo}
-        video={video}
-        isDeleting={isDeleting}
       />
     )}
     </>
