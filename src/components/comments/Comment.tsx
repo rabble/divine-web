@@ -4,16 +4,27 @@ import { NostrEvent } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useComments } from '@/hooks/useComments';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useMuteItem } from '@/hooks/useModeration';
 import { CommentForm } from './CommentForm';
 import { NoteContent } from '@/components/NoteContent';
+import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, Flag, UserX, Volume2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
+import { MuteType } from '@/types/moderation';
+import { useToast } from '@/hooks/useToast';
 
 interface CommentProps {
   root: NostrEvent | URL;
@@ -26,10 +37,15 @@ interface CommentProps {
 export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: CommentProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
-  
+  const [showReportDialog, setShowReportDialog] = useState(false);
+  const [reportType, setReportType] = useState<'comment' | 'user'>('comment');
+
+  const { user } = useCurrentUser();
   const author = useAuthor(comment.pubkey);
   const { data: commentsData } = useComments(root, limit);
-  
+  const { mutate: muteItem } = useMuteItem();
+  const { toast } = useToast();
+
   const metadata = author.data?.metadata;
   const displayName = metadata?.name ?? genUserName(comment.pubkey)
   const timeAgo = formatDistanceToNow(new Date(comment.created_at * 1000), { addSuffix: true });
@@ -37,6 +53,49 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
   // Get direct replies to this comment
   const replies = commentsData?.getDirectReplies(comment.id) || [];
   const hasReplies = replies.length > 0;
+
+  const isOwnComment = user?.pubkey === comment.pubkey;
+
+  const handleReportComment = () => {
+    setReportType('comment');
+    setShowReportDialog(true);
+  };
+
+  const handleReportUser = () => {
+    setReportType('user');
+    setShowReportDialog(true);
+  };
+
+  const handleMuteUser = () => {
+    if (!user) {
+      toast({
+        title: 'Login required',
+        description: 'You must be logged in to mute users',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    muteItem({
+      type: MuteType.USER,
+      value: comment.pubkey,
+      reason: 'Muted from comment'
+    }, {
+      onSuccess: () => {
+        toast({
+          title: 'User muted',
+          description: `${displayName} has been added to your mute list`,
+        });
+      },
+      onError: () => {
+        toast({
+          title: 'Error',
+          description: 'Failed to mute user. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    });
+  };
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
@@ -55,7 +114,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                   </Avatar>
                 </Link>
                 <div>
-                  <Link 
+                  <Link
                     to={`/${nip19.npubEncode(comment.pubkey)}`}
                     className="font-medium text-sm hover:text-primary transition-colors"
                   >
@@ -83,7 +142,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                   <MessageSquare className="h-3 w-3 mr-1" />
                   Reply
                 </Button>
-                
+
                 {hasReplies && (
                   <Collapsible open={showReplies} onOpenChange={setShowReplies}>
                     <CollapsibleTrigger asChild>
@@ -112,6 +171,31 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                     <MoreHorizontal className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  {!isOwnComment && (
+                    <>
+                      <DropdownMenuItem onClick={handleReportComment}>
+                        <Flag className="h-4 w-4 mr-2" />
+                        Report comment
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleReportUser}>
+                        <Flag className="h-4 w-4 mr-2" />
+                        Report user
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleMuteUser}>
+                        <Volume2 className="h-4 w-4 mr-2" />
+                        Mute user
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {isOwnComment && (
+                    <DropdownMenuItem disabled>
+                      <UserX className="h-4 w-4 mr-2" />
+                      No actions available
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
@@ -148,6 +232,15 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
           </CollapsibleContent>
         </Collapsible>
       )}
+
+      {/* Report Dialog */}
+      <ReportContentDialog
+        open={showReportDialog}
+        onClose={() => setShowReportDialog(false)}
+        eventId={reportType === 'comment' ? comment.id : undefined}
+        pubkey={reportType === 'user' ? comment.pubkey : undefined}
+        contentType={reportType}
+      />
     </div>
   );
 }
