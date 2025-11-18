@@ -1,9 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function PressPage() {
-  const [showSuccess, setShowSuccess] = useState(false);
-
   useEffect(() => {
     // Load MailerLite script
     const script = document.createElement('script');
@@ -16,9 +14,13 @@ export function PressPage() {
     trackingScript.innerHTML = 'fetch("https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/takel")';
     document.body.appendChild(trackingScript);
 
-    // Add success handler function to window
+    // Add success handler function to window - matches MailerLite's expected pattern
     (window as any).ml_webform_success_33427086 = function() {
-      setShowSuccess(true);
+      const $ = (window as any).ml_jQuery || (window as any).jQuery;
+      if ($) {
+        $('.ml-subscribe-form-33427086 .row-success').show();
+        $('.ml-subscribe-form-33427086 .row-form').hide();
+      }
     };
 
     return () => {
@@ -45,96 +47,96 @@ export function PressPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {showSuccess ? (
-            <div className="py-8 text-center">
-              <h4 className="text-green-600 dark:text-green-400 text-xl font-semibold mb-2">We've received your inquiry.</h4>
-              <p className="text-muted-foreground">Someone from our media team will be in touch shortly.</p>
-            </div>
-          ) : (
-            <div id="mlb2-33427086" className="ml-form-embedContainer ml-subscribe-form ml-subscribe-form-33427086">
-              <div className="ml-form-align-center">
-                <div className="ml-form-embedWrapper embedForm">
-                  <div className="ml-form-embedBody ml-form-embedBodyDefault row-form">
-                    <div className="ml-form-embedContent mb-4">
-                      <h4 className="text-lg font-semibold">Media Contact</h4>
-                      <p className="text-muted-foreground">Share your contact information and deadline below.</p>
+          <div id="mlb2-33427086" className="ml-form-embedContainer ml-subscribe-form ml-subscribe-form-33427086">
+            <div className="ml-form-align-center">
+              <div className="ml-form-embedWrapper embedForm">
+                <div className="ml-form-embedBody ml-form-embedBodyDefault row-form">
+                  <div className="ml-form-embedContent mb-4">
+                    <h4 className="text-lg font-semibold">Media Contact</h4>
+                    <p className="text-muted-foreground">Share your contact information and deadline below.</p>
+                  </div>
+
+                  <form className="ml-block-form space-y-4" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post">
+                    <div className="ml-form-formContent space-y-4">
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-email ml-validate-email ml-validate-required">
+                          <input
+                            aria-label="email"
+                            aria-required="true"
+                            type="email"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[email]"
+                            placeholder="Email"
+                            autoComplete="email"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-name">
+                          <input
+                            aria-label="name"
+                            type="text"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[name]"
+                            placeholder="Name"
+                            autoComplete="given-name"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-last_name">
+                          <input
+                            aria-label="last_name"
+                            type="text"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[last_name]"
+                            placeholder="Last name"
+                            autoComplete="family-name"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow ml-last-item">
+                        <div className="ml-field-group ml-field-message ml-validate-required">
+                          <textarea
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[message]"
+                            aria-label="message"
+                            aria-required="true"
+                            maxLength={255}
+                            placeholder="Share your deadline and request."
+                            rows={4}
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <form className="ml-block-form space-y-4" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post">
-                      <div className="ml-form-formContent space-y-4">
-                        <div className="ml-form-fieldRow">
-                          <div className="ml-field-group ml-field-email ml-validate-email ml-validate-required">
-                            <input
-                              aria-label="email"
-                              aria-required="true"
-                              type="email"
-                              className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
-                              name="fields[email]"
-                              placeholder="Email"
-                              autoComplete="email"
-                            />
-                          </div>
-                        </div>
+                    <input type="hidden" name="ml-submit" value="1" />
+                    <input type="hidden" name="anticsrf" value="true" />
 
-                        <div className="ml-form-fieldRow">
-                          <div className="ml-field-group ml-field-name">
-                            <input
-                              aria-label="name"
-                              type="text"
-                              className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
-                              name="fields[name]"
-                              placeholder="Name"
-                              autoComplete="given-name"
-                            />
-                          </div>
-                        </div>
+                    <div className="ml-form-embedSubmit">
+                      <button type="submit" className="primary w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium">
+                        Submit
+                      </button>
+                      <button disabled style={{ display: 'none' }} type="button" className="loading">
+                        <div className="ml-form-embedSubmitLoad"></div>
+                        <span className="sr-only">Loading...</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
 
-                        <div className="ml-form-fieldRow">
-                          <div className="ml-field-group ml-field-last_name">
-                            <input
-                              aria-label="last_name"
-                              type="text"
-                              className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
-                              name="fields[last_name]"
-                              placeholder="Last name"
-                              autoComplete="family-name"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="ml-form-fieldRow ml-last-item">
-                          <div className="ml-field-group ml-field-message ml-validate-required">
-                            <textarea
-                              className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
-                              name="fields[message]"
-                              aria-label="message"
-                              aria-required="true"
-                              maxLength={255}
-                              placeholder="Share your deadline and request."
-                              rows={4}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <input type="hidden" name="ml-submit" value="1" />
-                      <input type="hidden" name="anticsrf" value="true" />
-
-                      <div className="ml-form-embedSubmit">
-                        <button type="submit" className="primary w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium">
-                          Submit
-                        </button>
-                        <button disabled style={{ display: 'none' }} type="button" className="loading">
-                          <div className="ml-form-embedSubmitLoad"></div>
-                          <span className="sr-only">Loading...</span>
-                        </button>
-                      </div>
-                    </form>
+                <div className="ml-form-successBody row-success" style={{ display: 'none' }}>
+                  <div className="ml-form-successContent py-8 text-center">
+                    <h4 className="text-green-600 dark:text-green-400 text-xl font-semibold mb-2">We've received your inquiry.</h4>
+                    <p className="text-muted-foreground">Someone from our media team will be in touch shortly.</p>
                   </div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </CardContent>
       </Card>
 
