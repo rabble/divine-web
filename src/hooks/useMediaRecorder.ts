@@ -43,6 +43,7 @@ export function useMediaRecorder() {
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const totalDurationRef = useRef<number>(0);
+  const mimeTypeRef = useRef<string | null>(null);
 
   // Get optimal video constraints based on device
   const getOptimalVideoConstraints = useCallback(() => {
@@ -176,6 +177,15 @@ export function useMediaRecorder() {
     // Stop current stream
     streamRef.current.getTracks().forEach(track => track.stop());
 
+    // Clear the MediaRecorder so it will be recreated with the new stream
+    if (mediaRecorderRef.current) {
+      const state = mediaRecorderRef.current.state;
+      if (state === 'recording' || state === 'paused') {
+        mediaRecorderRef.current.stop();
+      }
+      mediaRecorderRef.current = null;
+    }
+
     // Reinitialize with new camera
     await initialize(newFacingMode === 'user');
   }, [initialize]);
@@ -205,7 +215,11 @@ export function useMediaRecorder() {
       return false;
     }
 
-    const mimeType = getSupportedMimeType();
+    // Use stored MIME type if available, otherwise get a new one
+    const mimeType = mimeTypeRef.current || getSupportedMimeType();
+    if (!mimeTypeRef.current) {
+      mimeTypeRef.current = mimeType;
+    }
     console.log('Creating MediaRecorder with mimeType:', mimeType);
 
     try {
@@ -263,20 +277,15 @@ export function useMediaRecorder() {
 
     const recorder = mediaRecorderRef.current!;
 
-    // If paused, resume
-    if (recorder.state === 'paused') {
-      console.log('Resuming recording');
-      segmentStartTimeRef.current = Date.now();
-      recorder.resume();
-    }
-    // If inactive, start fresh
-    else if (recorder.state === 'inactive') {
-      console.log('Starting recording');
+    // Should only start if inactive
+    if (recorder.state === 'inactive') {
+      console.log('Starting new recording segment');
+      // Clear chunks for this new segment
       chunksRef.current = [];
       segmentStartTimeRef.current = Date.now();
 
       try {
-        // Request data every 100ms so we can track segments
+        // Request data every 100ms
         recorder.start(100);
         console.log('MediaRecorder started');
       } catch (error) {
@@ -288,10 +297,8 @@ export function useMediaRecorder() {
         });
         return;
       }
-    }
-    // Already recording
-    else {
-      console.log('Already recording');
+    } else {
+      console.log('Recorder not inactive, state:', recorder.state);
       return;
     }
 
@@ -315,29 +322,51 @@ export function useMediaRecorder() {
       // Auto-stop at max duration
       if (totalElapsed >= MAX_DURATION) {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-          mediaRecorderRef.current.pause();
+          // Stop and save the segment
+          const elapsed = Date.now() - segmentStartTimeRef.current;
+          totalDurationRef.current += elapsed;
+
+          const mimeType = mimeTypeRef.current || 'video/webm';
+          mediaRecorderRef.current.onstop = () => {
+            if (chunksRef.current.length > 0) {
+              const blob = new Blob(chunksRef.current, { type: mimeType });
+              const blobUrl = URL.createObjectURL(blob);
+
+              const segment: RecordingSegment = {
+                startTime: new Date(segmentStartTimeRef.current),
+                endTime: new Date(),
+                duration: elapsed,
+                blobUrl,
+                blob,
+              };
+
+              setState(prev => ({
+                ...prev,
+                segments: [...prev.segments, segment],
+                isRecording: false,
+                isPaused: true,
+                currentDuration: totalDurationRef.current,
+                progress: 1,
+              }));
+
+              chunksRef.current = [];
+            }
+
+            mediaRecorderRef.current = null;
+          };
+
+          mediaRecorderRef.current.stop();
         }
+
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
           progressIntervalRef.current = null;
         }
-
-        // Update duration
-        const finalElapsed = Date.now() - segmentStartTimeRef.current;
-        totalDurationRef.current += finalElapsed;
-
-        setState(prev => ({
-          ...prev,
-          isRecording: false,
-          isPaused: true,
-          currentDuration: totalDurationRef.current,
-          progress: 1,
-        }));
       }
     }, PROGRESS_UPDATE_INTERVAL);
   }, [getSupportedMimeType, toast, initializeRecorder]);
 
-  // Stop current recording segment (pause, not stop - keeps stream alive)
+  // Stop current recording segment (stops and saves segment)
   const stopSegment = useCallback(() => {
     console.log('stopSegment called', {
       recorderState: mediaRecorderRef.current?.state,
@@ -345,88 +374,127 @@ export function useMediaRecorder() {
     });
 
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      console.log('Pausing MediaRecorder');
-      mediaRecorderRef.current.pause();
+      console.log('Stopping MediaRecorder to save segment');
 
       // Update total duration
       const elapsed = Date.now() - segmentStartTimeRef.current;
       totalDurationRef.current += elapsed;
-      console.log('Segment paused, duration:', elapsed, 'total:', totalDurationRef.current);
+      console.log('Segment duration:', elapsed, 'total:', totalDurationRef.current);
+
+      // Set up onstop handler to save this segment
+      const mimeType = mimeTypeRef.current || 'video/webm';
+      mediaRecorderRef.current.onstop = () => {
+        if (chunksRef.current.length > 0) {
+          const blob = new Blob(chunksRef.current, { type: mimeType });
+          const blobUrl = URL.createObjectURL(blob);
+
+          const segment: RecordingSegment = {
+            startTime: new Date(segmentStartTimeRef.current),
+            endTime: new Date(),
+            duration: elapsed,
+            blobUrl,
+            blob,
+          };
+
+          console.log('Segment saved:', segment.duration, 'ms');
+
+          setState(prev => ({
+            ...prev,
+            segments: [...prev.segments, segment],
+            isRecording: false,
+            isPaused: true,
+            currentDuration: totalDurationRef.current,
+            progress: Math.min(totalDurationRef.current / MAX_DURATION, 1),
+          }));
+
+          // Clear chunks for next segment
+          chunksRef.current = [];
+        }
+
+        // Clear the recorder so a new one will be created for the next segment
+        mediaRecorderRef.current = null;
+      };
+
+      // Stop the recorder
+      mediaRecorderRef.current.stop();
     }
 
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
       progressIntervalRef.current = null;
     }
-
-    setState(prev => ({
-      ...prev,
-      isRecording: false,
-      isPaused: true,
-      currentDuration: totalDurationRef.current,
-      progress: Math.min(totalDurationRef.current / MAX_DURATION, 1),
-    }));
   }, []);
 
   // Finalize recording and create the final blob
   const finalizeRecording = useCallback(() => {
     return new Promise<RecordingSegment[]>((resolve) => {
-      if (!mediaRecorderRef.current) {
-        console.log('No recorder to finalize');
-        resolve([]);
-        return;
-      }
+      const finishUp = () => {
+        // Get all saved segments from state
+        setState(prev => {
+          const segments = prev.segments;
+          console.log('Finalizing with segments:', segments.length);
 
-      const recorder = mediaRecorderRef.current;
-
-      // If recording or paused, we need to stop to get the final data
-      if (recorder.state === 'recording' || recorder.state === 'paused') {
-        console.log('Stopping recorder to finalize, current state:', recorder.state);
-
-        // Set up onstop to create the final segment
-        recorder.onstop = () => {
-          console.log('Recorder stopped, creating final segment', {
-            chunksCount: chunksRef.current.length,
-            totalSize: chunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0),
-          });
-
-          if (chunksRef.current.length === 0) {
-            console.log('No chunks recorded');
+          if (segments.length === 0) {
+            console.log('No segments to finalize');
             resolve([]);
-            return;
+            return prev;
           }
 
-          const mimeType = getSupportedMimeType();
-          const blob = new Blob(chunksRef.current, { type: mimeType });
-          const blobUrl = URL.createObjectURL(blob);
+          // Return all segments as-is (don't combine them here)
+          // The PostPage will handle combining with FFmpeg if needed
+          console.log('Returning', segments.length, 'segment(s)');
+          resolve(segments);
+          return { ...prev, isRecording: false, isPaused: false };
+        });
+      };
 
-          const segment: RecordingSegment = {
-            startTime: new Date(Date.now() - totalDurationRef.current),
-            endTime: new Date(),
-            duration: totalDurationRef.current,
-            blobUrl,
-            blob,
-          };
+      // If currently recording, stop and save the last segment first
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        console.log('Stopping current recording before finalizing');
 
-          setState(prev => ({
-            ...prev,
-            segments: [segment],
-            isRecording: false,
-            isPaused: false,
-          }));
+        const elapsed = Date.now() - segmentStartTimeRef.current;
+        totalDurationRef.current += elapsed;
 
-          console.log('Final segment created');
-          resolve([segment]);
+        const mimeType = mimeTypeRef.current || 'video/webm';
+        mediaRecorderRef.current.onstop = () => {
+          if (chunksRef.current.length > 0) {
+            const blob = new Blob(chunksRef.current, { type: mimeType });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const segment: RecordingSegment = {
+              startTime: new Date(segmentStartTimeRef.current),
+              endTime: new Date(),
+              duration: elapsed,
+              blobUrl,
+              blob,
+            };
+
+            setState(prev => ({
+              ...prev,
+              segments: [...prev.segments, segment],
+            }));
+
+            chunksRef.current = [];
+          }
+
+          mediaRecorderRef.current = null;
+
+          // Now finish up with all segments
+          setTimeout(finishUp, 100);
         };
 
-        // Stop the recorder
-        recorder.stop();
+        mediaRecorderRef.current.stop();
+
+        if (progressIntervalRef.current) {
+          clearInterval(progressIntervalRef.current);
+          progressIntervalRef.current = null;
+        }
       } else {
-        console.log('Recorder already inactive');
-        resolve(state.segments);
+        // Not currently recording, just use existing segments
+        finishUp();
       }
     });
-  }, [getSupportedMimeType, state.segments]);
+  }, [toast]);
 
   // Reset recording (discard all segments)
   const reset = useCallback(() => {
@@ -451,6 +519,7 @@ export function useMediaRecorder() {
 
     chunksRef.current = [];
     totalDurationRef.current = 0;
+    mimeTypeRef.current = null;
 
     setState(prev => ({
       ...prev,
