@@ -1,52 +1,34 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useToast } from '@/hooks/useToast';
 
 export function PressPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const { toast } = useToast();
+  useEffect(() => {
+    // Load MailerLite script
+    const script = document.createElement('script');
+    script.src = 'https://groot.mailerlite.com/js/w/webforms.min.js?v176e10baa5e7ed80d35ae235be3d5024';
+    script.async = true;
+    document.body.appendChild(script);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+    // Load tracking script
+    const trackingScript = document.createElement('script');
+    trackingScript.innerHTML = 'fetch("https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/takel")';
+    document.body.appendChild(trackingScript);
 
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    try {
-      const response = await fetch('https://formspree.io/f/xwpannzl', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Accept: 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        setSubmitted(true);
-        toast({
-          title: 'Success!',
-          description: 'Your press inquiry has been submitted. We\'ll get back to you soon.',
-        });
-        form.reset();
-      } else {
-        throw new Error('Form submission failed');
+    // Add success handler function to window
+    (window as any).ml_webform_success_33427086 = function() {
+      const $ = (window as any).ml_jQuery || (window as any).jQuery;
+      if ($) {
+        $('.ml-subscribe-form-33427086 .row-success').show();
+        $('.ml-subscribe-form-33427086 .row-form').hide();
       }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to submit the form. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    };
+
+    return () => {
+      document.body.removeChild(script);
+      document.body.removeChild(trackingScript);
+      delete (window as any).ml_webform_success_33427086;
+    };
+  }, []);
 
   return (
     <div className="container max-w-4xl mx-auto py-8 px-4">
@@ -65,97 +47,96 @@ export function PressPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {submitted ? (
-            <div className="py-8 text-center">
-              <div className="text-green-600 dark:text-green-400 text-xl font-semibold mb-2">
-                Thank you for your inquiry!
+          <div id="mlb2-33427086" className="ml-form-embedContainer ml-subscribe-form ml-subscribe-form-33427086">
+            <div className="ml-form-align-center">
+              <div className="ml-form-embedWrapper embedForm">
+                <div className="ml-form-embedBody ml-form-embedBodyDefault row-form">
+                  <div className="ml-form-embedContent mb-4">
+                    <h4 className="text-lg font-semibold">Media Contact</h4>
+                    <p className="text-muted-foreground">Share your contact information and deadline below.</p>
+                  </div>
+
+                  <form className="ml-block-form space-y-4" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post" target="_blank">
+                    <div className="ml-form-formContent space-y-4">
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-email ml-validate-email ml-validate-required">
+                          <input
+                            aria-label="email"
+                            aria-required="true"
+                            type="email"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[email]"
+                            placeholder="Email"
+                            autoComplete="email"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-name">
+                          <input
+                            aria-label="name"
+                            type="text"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[name]"
+                            placeholder="Name"
+                            autoComplete="given-name"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow">
+                        <div className="ml-field-group ml-field-last_name">
+                          <input
+                            aria-label="last_name"
+                            type="text"
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[last_name]"
+                            placeholder="Last name"
+                            autoComplete="family-name"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="ml-form-fieldRow ml-last-item">
+                        <div className="ml-field-group ml-field-message ml-validate-required">
+                          <textarea
+                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            name="fields[message]"
+                            aria-label="message"
+                            aria-required="true"
+                            maxLength={255}
+                            placeholder="Share your deadline and request."
+                            rows={4}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <input type="hidden" name="ml-submit" value="1" />
+                    <input type="hidden" name="anticsrf" value="true" />
+
+                    <div className="ml-form-embedSubmit">
+                      <button type="submit" className="primary w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium">
+                        Submit
+                      </button>
+                      <button disabled style={{ display: 'none' }} type="button" className="loading">
+                        <div className="ml-form-embedSubmitLoad"></div>
+                        <span className="sr-only">Loading...</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <div className="ml-form-successBody row-success" style={{ display: 'none' }}>
+                  <div className="ml-form-successContent py-8 text-center">
+                    <h4 className="text-green-600 dark:text-green-400 text-xl font-semibold mb-2">We've received your inquiry.</h4>
+                    <p className="text-muted-foreground">Someone from our media team will be in touch shortly.</p>
+                  </div>
+                </div>
               </div>
-              <p className="text-muted-foreground mb-6">
-                We've received your message and will respond shortly.
-              </p>
-              <Button onClick={() => setSubmitted(false)}>
-                Submit Another Inquiry
-              </Button>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  placeholder="Your full name"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="your.email@example.com"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="organization">Organization</Label>
-                <Input
-                  id="organization"
-                  name="organization"
-                  type="text"
-                  placeholder="Your media outlet or organization"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  placeholder="+1 (555) 123-4567"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="deadline">Deadline (if applicable)</Label>
-                <Input
-                  id="deadline"
-                  name="deadline"
-                  type="date"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="message">Message *</Label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  required
-                  placeholder="Please describe your inquiry, the nature of your story, and any specific questions you have..."
-                  rows={8}
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : 'Submit Inquiry'}
-              </Button>
-            </form>
-          )}
+          </div>
         </CardContent>
       </Card>
 
