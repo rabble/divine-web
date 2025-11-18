@@ -9,13 +9,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { X, Hash, Loader2, Upload, Video, Camera, Circle, Square, Play, Trash2 } from 'lucide-react';
+import { X, Hash, Loader2, Upload, Video, Camera, Circle, Square, Play, Trash2, SwitchCamera } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoUpload } from '@/hooks/useVideoUpload';
 import { usePublishVideo } from '@/hooks/usePublishVideo';
 import { useToast } from '@/hooks/useToast';
 import { cn } from '@/lib/utils';
 import { useMediaRecorder } from '@/hooks/useMediaRecorder';
+import { convertToMP4, concatenateVideos } from '@/lib/videoConverter';
 
 type PostStep = 'choose' | 'record' | 'upload' | 'metadata';
 
@@ -39,6 +40,8 @@ export function PostPage() {
   const [hashtagInput, setHashtagInput] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [isProcessingVideo, setIsProcessingVideo] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState(0);
 
   const { uploadVideo, uploadProgress, isUploading } = useVideoUpload();
   const { mutateAsync: publishVideo, isPending: isPublishing } = usePublishVideo();
@@ -376,21 +379,90 @@ export function PostPage() {
         return;
       }
 
-      // Finalize the recording to create the final blob
-      const finalSegments = await finalizeRecording();
+      setIsProcessingVideo(true);
+      setProcessingProgress(0);
 
-      if (finalSegments.length === 0) {
+      try {
+        // Step 1: Finalize segments
         toast({
-          title: 'No Recording',
-          description: 'Failed to create recording',
+          title: 'Processing Video',
+          description: 'Finalizing recording...',
+        });
+
+        const finalSegments = await finalizeRecording();
+
+        if (finalSegments.length === 0) {
+          toast({
+            title: 'No Recording',
+            description: 'Failed to create recording',
+            variant: 'destructive',
+          });
+          setIsProcessingVideo(false);
+          return;
+        }
+
+        setProcessingProgress(0.2);
+
+        // Step 2: Concatenate multiple segments if needed
+        let videoBlob: Blob;
+        if (finalSegments.length > 1) {
+          toast({
+            title: 'Combining Segments',
+            description: `Stitching ${finalSegments.length} segments together...`,
+          });
+
+          const segmentBlobs = finalSegments.map(s => s.blob);
+          videoBlob = await concatenateVideos(segmentBlobs, (progress) => {
+            // Map progress 0-1 to 0.2-0.4
+            setProcessingProgress(0.2 + (progress * 0.2));
+          });
+        } else {
+          videoBlob = finalSegments[0].blob;
+        }
+
+        setProcessingProgress(0.4);
+
+        // Step 3: Convert to MP4
+        toast({
+          title: 'Converting Video',
+          description: 'Converting to MP4 format...',
+        });
+
+        const mp4Result = await convertToMP4({
+          blob: videoBlob,
+          onProgress: (progress) => {
+            // Map progress 0-1 to 0.4-1.0
+            setProcessingProgress(0.4 + (progress * 0.6));
+          },
+          quality: 'medium',
+        });
+
+        // Create final video segment with MP4
+        const mp4Segment: VideoSegment = {
+          blob: mp4Result.blob,
+          blobUrl: mp4Result.blobUrl,
+        };
+
+        setVideoSegments([mp4Segment]);
+        setProcessingProgress(1);
+
+        toast({
+          title: 'Video Ready!',
+          description: 'Your video is ready to post',
+        });
+
+        setStep('metadata');
+      } catch (error) {
+        console.error('Error processing video:', error);
+        toast({
+          title: 'Processing Failed',
+          description: error instanceof Error ? error.message : 'Failed to process video',
           variant: 'destructive',
         });
-        return;
+      } finally {
+        setIsProcessingVideo(false);
+        setProcessingProgress(0);
       }
-
-      // Use the finalized segments
-      setVideoSegments(finalSegments);
-      setStep('metadata');
     };
 
     const handleCancelRecording = () => {
@@ -459,7 +531,7 @@ export function PostPage() {
               </Button>
             ) : (
               <>
-                {/* Main record button */}
+                {/* Main record button with flip camera */}
                 <div className="flex items-center justify-center gap-4">
                   <Button
                     onClick={handleRecordClick}
@@ -477,6 +549,16 @@ export function PostPage() {
                       <Square className="h-8 w-8" />
                     )}
                   </Button>
+                  <Button
+                    onClick={switchCamera}
+                    size="lg"
+                    variant="outline"
+                    className="h-16 w-16 rounded-full p-0"
+                    disabled={isRecording || !cameraStream}
+                    title="Flip camera"
+                  >
+                    <SwitchCamera className="h-6 w-6" />
+                  </Button>
                 </div>
 
                 {/* Recording progress */}
@@ -484,6 +566,7 @@ export function PostPage() {
                   <div className="space-y-2 w-full max-w-xs">
                     <p className="text-sm text-muted-foreground text-center">
                       {(currentDuration / 1000).toFixed(1)}s / 6.0s recorded
+                      {segments.length > 0 && ` • ${segments.length} segment${segments.length > 1 ? 's' : ''}`}
                     </p>
                     <div className="w-full bg-secondary rounded-full h-2 overflow-hidden">
                       <div
@@ -503,21 +586,45 @@ export function PostPage() {
                   </div>
                 )}
 
+                {/* Processing progress */}
+                {isProcessingVideo && (
+                  <div className="space-y-2 w-full max-w-xs">
+                    <p className="text-sm text-muted-foreground text-center">
+                      {processingProgress < 0.2
+                        ? 'Finalizing recording...'
+                        : processingProgress < 0.4
+                          ? 'Combining segments...'
+                          : processingProgress < 1
+                            ? 'Converting to MP4...'
+                            : 'Done!'}
+                    </p>
+                    <Progress value={processingProgress * 100} />
+                  </div>
+                )}
+
                 {/* Action buttons */}
                 <div className="flex gap-3 w-full max-w-xs">
                   <Button
                     onClick={handleCancelRecording}
                     variant="outline"
                     className="flex-1"
+                    disabled={isProcessingVideo}
                   >
                     Cancel
                   </Button>
                   <Button
                     onClick={handleFinishRecording}
-                    disabled={!hasRecorded}
+                    disabled={!hasRecorded || isProcessingVideo}
                     className="flex-1"
                   >
-                    Next
+                    {isProcessingVideo ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Next'
+                    )}
                   </Button>
                 </div>
               </>

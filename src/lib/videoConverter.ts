@@ -91,6 +91,70 @@ export interface ConvertToMP4Result {
 }
 
 /**
+ * Concatenate multiple video segments into a single video
+ */
+export async function concatenateVideos(
+  segments: Blob[],
+  onProgress?: (progress: number) => void
+): Promise<Blob> {
+  if (segments.length === 0) {
+    throw new Error('No video segments to concatenate');
+  }
+
+  if (segments.length === 1) {
+    return segments[0];
+  }
+
+  console.log('[VideoConverter] Concatenating', segments.length, 'video segments...');
+
+  try {
+    const ffmpeg = await loadFFmpeg();
+    setupProgressHandler(ffmpeg, onProgress);
+
+    // Write each segment as a separate file
+    const inputFiles: string[] = [];
+    for (let i = 0; i < segments.length; i++) {
+      const filename = `segment${i}.webm`;
+      console.log(`[VideoConverter] Writing segment ${i + 1}/${segments.length}`);
+      await ffmpeg.writeFile(filename, await fetchFile(segments[i]));
+      inputFiles.push(filename);
+    }
+
+    // Create concat file list
+    const concatList = inputFiles.map(f => `file '${f}'`).join('\n');
+    await ffmpeg.writeFile('concat_list.txt', concatList);
+
+    console.log('[VideoConverter] Concatenating files...');
+
+    // Use concat demuxer for same-format files
+    await ffmpeg.exec([
+      '-f', 'concat',
+      '-safe', '0',
+      '-i', 'concat_list.txt',
+      '-c', 'copy',
+      'concatenated.webm'
+    ]);
+
+    // Read the output
+    const data = await ffmpeg.readFile('concatenated.webm');
+    const blob = new Blob([data], { type: 'video/webm' });
+
+    // Cleanup
+    await ffmpeg.deleteFile('concat_list.txt');
+    await ffmpeg.deleteFile('concatenated.webm');
+    for (const file of inputFiles) {
+      await ffmpeg.deleteFile(file);
+    }
+
+    console.log('[VideoConverter] Concatenation complete');
+    return blob;
+  } catch (error) {
+    console.error('[VideoConverter] Concatenation failed:', error);
+    throw new Error(`Failed to concatenate videos: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
  * Convert a video blob to MP4 format with H.264 codec
  * Ensures maximum compatibility across all platforms
  */
