@@ -63,7 +63,7 @@ function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
     parsedVideos.push({
       id: event.id,
       pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
+      kind: event.kind as 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,

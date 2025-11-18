@@ -147,10 +147,10 @@ function _convertHlsToMp4(hlsUrl: string): string | null {
 }
 
 /**
- * Extract video URL from NIP-71 compliant event following spec priority
+ * Extract video URL from event following spec priority
  */
 function extractVideoUrl(event: NostrEvent): string | null {
-  // NIP-71: Primary video URL should be in `imeta` tag with url field
+  // Primary video URL should be in `imeta` tag with url field
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
       const metadata = parseImetaTag(tag);
@@ -193,7 +193,7 @@ function extractVideoUrl(event: NostrEvent): string | null {
 }
 
 /**
- * Extract limited fallback video URLs from event tags (NIP-71 compliant)
+ * Extract limited fallback video URLs from event tags
  */
 function extractAllVideoUrls(event: NostrEvent): string[] {
   const urls: string[] = [];
@@ -232,7 +232,7 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
 }
 
 /**
- * Extract video metadata from NIP-71 compliant event
+ * Extract video metadata from video event
  */
 export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
   const primaryUrl = extractVideoUrl(event);
@@ -299,7 +299,7 @@ export function parseVideoEvent(event: NostrEvent): VideoEvent | null {
   // Create VideoEvent
   const videoEvent: VideoEvent = {
     ...event,
-    kind: event.kind as 34236, // NIP-71 Addressable Short Videos
+    kind: event.kind as 34236, // Kind 34236 Addressable Short Videos
     videoMetadata,
     title,
     hashtags

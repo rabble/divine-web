@@ -1,5 +1,5 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
-// ABOUTME: Handles NIP-71 videos (kinds 21, 22, 34236) and Kind 6 reposts with proper parsing
+// ABOUTME: Handles video events (kind 34236) and Kind 6 reposts with proper parsing
 // ABOUTME: Supports auto-refresh for home and recent feeds matching Flutter app behavior
 
 import { useNostr } from '@nostrify/react';
@@ -25,19 +25,16 @@ interface UseVideoEventsOptions {
 }
 
 /**
- * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
+ * Validates that a video event (kind 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
   // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
-  // Kinds 21 and 22 are regular events and don't require d tag
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-      return false;
-    }
+  const vineId = getVineId(event);
+  if (!vineId) {
+    debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+    return false;
   }
 
   return true;
@@ -113,8 +110,8 @@ async function parseVideoEvents(
       continue;
     }
 
-    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
-    const vineId = getVineId(event) || event.id;
+    // Get vineId from d tag (required for kind 34236)
+    const vineId = getVineId(event)!;
 
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
@@ -137,7 +134,7 @@ async function parseVideoEvents(
     videoMap.set(uniqueKey, {
       id: event.id,
       pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
+      kind: event.kind as 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
