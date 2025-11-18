@@ -62,7 +62,7 @@ export function VideoCommentsModal({
         </DialogHeader>
 
         {/* Just Comments - No Video */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)] px-6 py-6">
           {isLoadingComments ? (
             <div className="flex items-center justify-center h-64">
               <p className="text-muted-foreground">Loading comments...</p>

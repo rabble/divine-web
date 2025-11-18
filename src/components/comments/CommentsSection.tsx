@@ -67,9 +67,9 @@ export function CommentsSection({
         </div>
       )}
 
-      <div className={compact ? "px-6 pb-6 space-y-6" : "px-6 pb-6 space-y-6"}>
+      <div className={compact ? "space-y-6" : "px-6 pb-6 space-y-6"}>
         {/* Comment Form */}
-        <CommentForm root={root} />
+        <CommentForm root={root} compact={compact} />
 
         {/* Comments List */}
         {isLoading ? (
