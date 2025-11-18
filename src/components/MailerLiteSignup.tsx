@@ -155,7 +155,7 @@ export function MailerLiteSignup() {
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedContent h4 {
-          color: hsl(var(--muted-foreground));
+          color: hsl(var(--foreground));
           font-family: 'Inter Variable', 'Open Sans', Arial, Helvetica, sans-serif;
           font-size: 16px;
           font-weight: 400;
@@ -165,7 +165,7 @@ export function MailerLiteSignup() {
         }
 
         #mlb2-33354076.ml-form-embedContainer .ml-form-embedWrapper .ml-form-embedBody .ml-form-embedContent p {
-          color: hsl(var(--muted-foreground));
+          color: hsl(var(--foreground));
           font-family: 'Inter Variable', 'Open Sans', Arial, Helvetica, sans-serif;
           font-size: 14px;
           font-weight: 400;

@@ -1,4 +1,4 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones } from 'lucide-react';
+import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -25,15 +25,10 @@ export function AppHeader() {
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            className="flex items-center gap-2 text-2xl font-logo text-primary"
+            className="text-2xl font-logo text-primary"
             onClick={() => navigate('/')}
             aria-label="Go to home"
           >
-            <img
-              src="/divine_icon_transparent.png"
-              alt="diVine logo"
-              className="w-8 h-8"
-            />
             diVine
           </button>
         </div>
@@ -101,14 +96,6 @@ export function AppHeader() {
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => navigate('/authenticity')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Heart className="mr-2 h-4 w-4" />
-                <span>Our Mission</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
                 onClick={() => navigate('/faq')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
@@ -124,49 +111,13 @@ export function AppHeader() {
                 <span>Support</span>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
-
-              {/* Trust & Safety Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Trust & Safety</DropdownMenuLabel>
-
-              {user && (
-                <DropdownMenuItem
-                  onClick={() => navigate('/settings/moderation')}
-                  className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                >
-                  <ShieldAlert className="mr-2 h-4 w-4" />
-                  <span>Moderation Settings</span>
-                </DropdownMenuItem>
-              )}
-
               <DropdownMenuItem
-                onClick={() => navigate('/proofmode')}
+                onClick={() => navigate('/media-resources')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
-                <ShieldCheck className="mr-2 h-4 w-4" />
-                <span>ProofMode</span>
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Media Resources</span>
               </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/human-created')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Users className="mr-2 h-4 w-4" />
-                <span>Made by Humans</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/safety')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <ShieldAlert className="mr-2 h-4 w-4" />
-                <span>Safety Standards</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              {/* Technical Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Technical</DropdownMenuLabel>
 
               <DropdownMenuItem
                 onClick={() => navigate('/open-source')}
@@ -174,31 +125,6 @@ export function AppHeader() {
               >
                 <Code2 className="mr-2 h-4 w-4" />
                 <span>Open Source</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
-                <a
-                  href="https://github.com/rabble/nostrvine"
-                  rel="noopener noreferrer"
-                  className="flex items-center cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-                >
-                  <Github className="mr-2 h-4 w-4" />
-                  <span>GitHub Repository</span>
-                  <svg
-                    className="ml-auto h-3 w-3 opacity-50"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                </a>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

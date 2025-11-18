@@ -42,7 +42,11 @@ export function OpenSourcePage() {
               <div className="space-y-2 text-sm">
                 <p className="flex items-center gap-2">
                   <Smartphone className="h-4 w-4 text-blue-500" />
-                  <strong>iOS:</strong> <span className="text-muted-foreground">TestFlight is full (10k sign ups in 4 hours!) - Stay tuned for updates</span>
+                  <strong>iOS:</strong> <span className="text-muted-foreground">Beta is full (10k sign ups in 4 hours!) - Stay tuned for updates</span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-green-500" />
+                  <strong>Android:</strong> <span className="text-muted-foreground">Beta is full - Stay tuned for updates</span>
                 </p>
                 <p className="flex items-center gap-2">
                   <Monitor className="h-4 w-4 text-gray-500" />
@@ -50,7 +54,7 @@ export function OpenSourcePage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
-                  <strong>Web:</strong> You're already here! <Link to="/" className="text-primary hover:underline">Start exploring</Link>
+                  <strong>Web:</strong> You're already here! <Link to="/discovery" className="text-primary hover:underline">Start exploring</Link>
                 </p>
               </div>
             </div>
@@ -102,58 +106,28 @@ export function OpenSourcePage() {
           </CardContent>
         </Card>
 
-        {/* Technologies */}
+        {/* Repositories */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              Technologies
+              <Github className="h-5 w-5 text-primary" />
+              GitHub Repositories
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <Badge variant="outline" className="justify-center py-2">
-                Nostr Protocol
-              </Badge>
-              <Badge variant="outline" className="justify-center py-2">
-                Flutter
-              </Badge>
-              <Badge variant="outline" className="justify-center py-2">
-                Cloudflare Workers
-              </Badge>
-              <Badge variant="outline" className="justify-center py-2">
-                R2 Storage
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Community & Contribution */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              Community & Contribution
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <p className="text-muted-foreground mb-4">
-                Join our open-source community and help build the future of decentralized video sharing!
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button asChild>
-                  <a
-                    href="https://github.com/rabble/divine-web"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2"
-                  >
-                    <Github className="h-4 w-4" />
-                    Web App
-                  </a>
-                </Button>
-                <Button asChild variant="outline">
+          <CardContent className="space-y-6">
+            {/* Flutter App Repository */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Smartphone className="h-5 w-5 text-blue-500" />
+                    Mobile Applications
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Native iOS, Android, and macOS apps
+                  </p>
+                </div>
+                <Button asChild size="sm">
                   <a
                     href="https://github.com/rabble/nostrvine"
                     target="_blank"
@@ -161,14 +135,83 @@ export function OpenSourcePage() {
                     className="inline-flex items-center gap-2"
                   >
                     <Github className="h-4 w-4" />
-                    Flutter App
+                    View Repo
                   </a>
                 </Button>
               </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Tech Stack:</strong>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">Flutter</Badge>
+                  <Badge variant="outline">Dart</Badge>
+                  <Badge variant="outline">Nostr</Badge>
+                  <Badge variant="outline">Cross-platform</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Features:</strong>
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Native performance on iOS and Android</li>
+                  <li>Optimized video playback and caching</li>
+                  <li>Native camera integration</li>
+                  <li>Offline support and background sync</li>
+                </ul>
+              </div>
             </div>
 
-            <div className="text-sm text-muted-foreground">
-              Developed by <span className="font-semibold">Rabble Labs</span>
+            {/* Web App Repository */}
+            <div className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-blue-500" />
+                    Web Application
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    React-based web client for diVine
+                  </p>
+                </div>
+                <Button asChild size="sm" variant="outline">
+                  <a
+                    href="https://github.com/rabble/divine-web"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2"
+                  >
+                    <Github className="h-4 w-4" />
+                    View Repo
+                  </a>
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Tech Stack:</strong>
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline">React 18</Badge>
+                  <Badge variant="outline">TypeScript</Badge>
+                  <Badge variant="outline">Vite</Badge>
+                  <Badge variant="outline">TailwindCSS</Badge>
+                  <Badge variant="outline">Nostrify</Badge>
+                  <Badge variant="outline">shadcn/ui</Badge>
+                  <Badge variant="outline">MKStack</Badge>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm">
+                  <strong>Features:</strong>
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+                  <li>Progressive Web App (PWA) support</li>
+                  <li>Real-time Nostr event streaming</li>
+                  <li>Responsive design for all screen sizes</li>
+                  <li>Advanced search and discovery feeds</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -229,6 +272,111 @@ export function OpenSourcePage() {
                   Your data, your control
                 </p>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Community & Contribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              How to Contribute
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <p className="text-muted-foreground">
+              Join our open-source community and help build the future of decentralized video sharing!
+              Whether you're a developer, designer, or just passionate about the project, there are many ways to contribute.
+            </p>
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Code2 className="h-4 w-4 text-primary" />
+                  For Developers
+                </h4>
+                <ul className="text-sm text-muted-foreground space-y-2 pl-6 list-disc">
+                  <li>
+                    <strong>Web Development:</strong> Help improve the React web app - fix bugs, add features, or enhance performance.
+                    <div className="mt-1">
+                      <a
+                        href="https://github.com/rabble/divine-web/issues"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline text-xs"
+                      >
+                        Browse web app issues →
+                      </a>
+                    </div>
+                  </li>
+                  <li>
+                    <strong>Mobile Development:</strong> Contribute to the Flutter codebase for iOS and Android apps.
+                    <div className="mt-1">
+                      <a
+                        href="https://github.com/rabble/nostrvine/issues"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline text-xs"
+                      >
+                        Browse Flutter app issues →
+                      </a>
+                    </div>
+                  </li>
+                  <li><strong>Documentation:</strong> Help improve our docs, write tutorials, or create examples.</li>
+                  <li><strong>Testing:</strong> Report bugs, test new features, and help improve quality assurance.</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <Heart className="h-4 w-4 text-red-500" />
+                  Other Ways to Help
+                </h4>
+                <ul className="text-sm text-muted-foreground space-y-1 pl-6 list-disc">
+                  <li>Share diVine with your community and spread the word</li>
+                  <li>Report bugs and suggest improvements</li>
+                  <li>Help answer questions from other users</li>
+                  <li>Create content and showcase what you build</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
+              <Button asChild>
+                <a
+                  href="https://github.com/rabble/divine-web"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <Github className="h-4 w-4" />
+                  Contribute to Web App
+                </a>
+              </Button>
+              <Button asChild variant="outline">
+                <a
+                  href="https://github.com/rabble/nostrvine"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
+                  <Github className="h-4 w-4" />
+                  Contribute to Flutter App
+                </a>
+              </Button>
+            </div>
+
+            <div className="text-sm text-muted-foreground pt-4 border-t">
+              Developed by <span className="font-semibold">Rabble Labs</span> • Licensed under{' '}
+              <a
+                href="https://github.com/rabble/divine-web/blob/main/LICENSE"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                AGPL-3.0
+              </a>
             </div>
           </CardContent>
         </Card>
