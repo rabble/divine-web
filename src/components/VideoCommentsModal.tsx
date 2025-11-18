@@ -49,7 +49,7 @@ export function VideoCommentsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          'max-w-2xl w-full max-h-[90vh] p-0 gap-0',
+          'max-w-2xl w-full max-h-[90vh] p-0 gap-0 overflow-hidden',
           className
         )}
         data-testid="video-comments-modal"
