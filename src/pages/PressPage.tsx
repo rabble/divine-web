@@ -3,22 +3,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export function PressPage() {
   useEffect(() => {
-    // Add success handler function to window BEFORE loading MailerLite script
-    const successScript = document.createElement('script');
-    successScript.innerHTML = `
-      function ml_webform_success_33427086() {
-        var $ = ml_jQuery || jQuery;
-        $('.ml-subscribe-form-33427086 .row-success').show();
-        $('.ml-subscribe-form-33427086 .row-form').hide();
-      }
-    `;
-    document.body.appendChild(successScript);
+    // Intercept form submission
+    const handleFormSubmit = async (e: Event) => {
+      e.preventDefault();
+      const form = e.target as HTMLFormElement;
+      const formData = new FormData(form);
 
-    // Load MailerLite script
-    const script = document.createElement('script');
-    script.src = 'https://groot.mailerlite.com/js/w/webforms.min.js?v176e10baa5e7ed80d35ae235be3d5024';
-    script.type = 'text/javascript';
-    document.body.appendChild(script);
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          // Show success message
+          const successEl = document.querySelector('.ml-subscribe-form-33427086 .row-success') as HTMLElement;
+          const formEl = document.querySelector('.ml-subscribe-form-33427086 .row-form') as HTMLElement;
+          if (successEl && formEl) {
+            successEl.style.display = 'block';
+            formEl.style.display = 'none';
+          }
+        }
+      } catch (error) {
+        console.error('Form submission error:', error);
+      }
+    };
+
+    const form = document.querySelector('#mlb2-33427086 form');
+    if (form) {
+      form.addEventListener('submit', handleFormSubmit);
+    }
 
     // Load tracking script
     const trackingScript = document.createElement('script');
@@ -26,8 +43,9 @@ export function PressPage() {
     document.body.appendChild(trackingScript);
 
     return () => {
-      document.body.removeChild(successScript);
-      document.body.removeChild(script);
+      if (form) {
+        form.removeEventListener('submit', handleFormSubmit);
+      }
       document.body.removeChild(trackingScript);
     };
   }, []);
@@ -58,7 +76,7 @@ export function PressPage() {
                     <p>Share your contact information and deadline below.</p>
                   </div>
 
-                  <form className="ml-block-form" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post" target="_blank">
+                  <form className="ml-block-form" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post">
                     <div className="ml-form-formContent">
                       <div className="ml-form-fieldRow">
                         <div className="ml-field-group ml-field-email ml-validate-email ml-validate-required">
