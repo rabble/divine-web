@@ -26,7 +26,7 @@ class FollowListCache {
   }
 
   private async initIndexedDB(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const request = indexedDB.open(DB_NAME, DB_VERSION);
 
       request.onerror = () => {
@@ -62,7 +62,7 @@ class FollowListCache {
       if (!cached) return null;
 
       const data: CachedFollowList = JSON.parse(cached);
-      
+
       // Validate structure
       if (!data.pubkey || !Array.isArray(data.follows) || !data.timestamp) {
         debugWarn('[FollowListCache] Invalid cached data structure, clearing');

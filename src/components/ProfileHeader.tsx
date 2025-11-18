@@ -94,7 +94,7 @@ export function ProfileHeader({
         title: "Copied!",
         description: "npub copied to clipboard",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Copy failed",
         description: "Failed to copy npub to clipboard",

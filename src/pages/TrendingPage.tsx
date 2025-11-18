@@ -3,7 +3,6 @@
 
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Flame, TrendingUp, Zap, Scale } from 'lucide-react';
 import type { SortMode } from '@/types/nostr';
 
@@ -36,8 +35,6 @@ const SORT_MODES = [
 
 export function TrendingPage() {
   const [sortMode, setSortMode] = useState<SortMode>('hot');
-  const selectedMode = SORT_MODES.find(m => m.value === sortMode);
-  const Icon = selectedMode?.icon || Flame;
 
   return (
     <div className="container mx-auto px-4 py-6">

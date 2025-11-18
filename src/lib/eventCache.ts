@@ -264,42 +264,27 @@ export class HybridEventCache implements NStore {
   /**
    * Get cached profile synchronously from memory cache
    * Returns undefined if not in memory (caller should use async query)
+   *
+   * Note: NCache doesn't provide synchronous access, so this always returns undefined.
+   * Callers should rely on React Query's cache instead.
    */
-  getCachedProfile(pubkey: string): NostrEvent | undefined {
-    try {
-      // Use NCache's match method to find events
-      const filter = { kinds: [0], authors: [pubkey], limit: 1 };
-      const events = Array.from(this.memoryCache.match([filter]));
-
-      if (events.length > 0) {
-        return events[0];
-      }
-
-      return undefined;
-    } catch (error) {
-      console.warn('[HybridEventCache] Error getting cached profile:', error);
-      return undefined;
-    }
+  getCachedProfile(_pubkey: string): NostrEvent | undefined {
+    // NCache doesn't support synchronous queries
+    // React Query's own cache handles this use case
+    return undefined;
   }
 
   /**
    * Get cached contact list synchronously from memory cache
    * Returns undefined if not in memory (caller should use async query)
+   *
+   * Note: NCache doesn't provide synchronous access, so this always returns undefined.
+   * Callers should rely on React Query's cache instead.
    */
-  getCachedContactList(pubkey: string): NostrEvent | undefined {
-    try {
-      const filter = { kinds: [3], authors: [pubkey], limit: 1 };
-      const events = Array.from(this.memoryCache.match([filter]));
-
-      if (events.length > 0) {
-        return events[0];
-      }
-
-      return undefined;
-    } catch (error) {
-      console.warn('[HybridEventCache] Error getting cached contact list:', error);
-      return undefined;
-    }
+  getCachedContactList(_pubkey: string): NostrEvent | undefined {
+    // NCache doesn't support synchronous queries
+    // React Query's own cache handles this use case
+    return undefined;
   }
 
   /**

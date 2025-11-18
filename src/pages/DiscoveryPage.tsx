@@ -4,7 +4,6 @@
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { HashtagExplorer } from '@/components/HashtagExplorer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Clock, Hash, Flame, Zap } from 'lucide-react';
@@ -12,7 +11,6 @@ import { TrendingUp, Clock, Hash, Flame, Zap } from 'lucide-react';
 export function DiscoveryPage() {
   const [activeTab, setActiveTab] = useState('hot');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const { user } = useCurrentUser();
 
   // Note: We no longer force relay changes here as it causes navigation delays
   // The default relay (relay.divine.video) is already configured in App.tsx

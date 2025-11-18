@@ -2,6 +2,7 @@ import { useNostr } from '@nostrify/react';
 import { NLogin, useNostrLogin } from '@nostrify/react/login';
 import { followListCache } from '@/lib/followListCache';
 import { debugLog } from '@/lib/debug';
+import { nip19 } from 'nostr-tools';
 
 // NOTE: This file should not be edited except for adding new login methods.
 
@@ -32,9 +33,15 @@ export function useLoginActions() {
         // Clear user-specific caches on logout for privacy
         try {
           // Get user pubkey before removing login
-          const user = login.type === 'nsec'
-            ? (await import('@nostrify/nostrify')).NSecSigner.fromNsec(login.data.nsec).getPublicKey()
-            : undefined;
+          let user: string | undefined;
+          if (login.type === 'nsec') {
+            const decoded = nip19.decode(login.data.nsec);
+            if (decoded.type === 'nsec') {
+              // Convert private key bytes to public key
+              const { getPublicKey } = await import('nostr-tools');
+              user = getPublicKey(decoded.data);
+            }
+          }
 
           if (user) {
             debugLog('[useLoginActions] Clearing caches for user on logout:', user);
