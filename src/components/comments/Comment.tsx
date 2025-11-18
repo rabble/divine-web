@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, CornerDownRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
 
@@ -21,9 +21,10 @@ interface CommentProps {
   depth?: number;
   maxDepth?: number;
   limit?: number;
+  parentComment?: NostrEvent; // Parent comment for reply context
 }
 
-export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: CommentProps) {
+export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentComment }: CommentProps) {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showReplies, setShowReplies] = useState(depth < 2); // Auto-expand first 2 levels
   
@@ -37,6 +38,11 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
   // Get direct replies to this comment
   const replies = commentsData?.getDirectReplies(comment.id) || [];
   const hasReplies = replies.length > 0;
+
+  // Parent comment data (passed as prop when this is a reply)
+  const parentAuthor = useAuthor(parentComment?.pubkey || '');
+  const parentMetadata = parentAuthor.data?.metadata;
+  const parentDisplayName = parentComment ? (parentMetadata?.name ?? genUserName(parentComment.pubkey)) : '';
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
@@ -65,6 +71,27 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                 </div>
               </div>
             </div>
+
+            {/* Reply Preview - Show what comment this is replying to */}
+            {parentComment && (
+              <div className="flex items-start gap-2 px-3 py-2 bg-muted/30 rounded-md border-l-2 border-muted-foreground/20">
+                <CornerDownRight className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Avatar className="h-4 w-4 shrink-0">
+                    <AvatarImage src={parentMetadata?.picture} />
+                    <AvatarFallback className="text-[8px]">
+                      {parentDisplayName.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">
+                    {parentDisplayName}
+                  </span>
+                  <span className="text-xs text-muted-foreground truncate">
+                    {parentComment.content}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Comment Content */}
             <div className="text-sm">
@@ -143,6 +170,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                 depth={depth + 1}
                 maxDepth={maxDepth}
                 limit={limit}
+                parentComment={comment}
               />
             ))}
           </CollapsibleContent>
