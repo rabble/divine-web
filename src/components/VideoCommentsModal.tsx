@@ -22,8 +22,12 @@ export function VideoCommentsModal({
   isLoadingComments = false,
   className,
 }: VideoCommentsModalProps) {
-  // Convert ParsedVideoData to NostrEvent for comments
-  const videoEvent: NostrEvent = {
+  // CRITICAL: Use the original event if available to preserve all tags
+  // Kind 34236 is an addressable event that REQUIRES a 'd' tag (vineId) to properly
+  // filter comments. Without the original event's tags, all videos would query for
+  // comments using the same addressable identifier (34236:pubkey:), causing all
+  // videos to show the same comments.
+  const videoEvent: NostrEvent = video.originalEvent || {
     id: video.id,
     pubkey: video.pubkey,
     created_at: video.createdAt,
@@ -35,6 +39,8 @@ export function VideoCommentsModal({
       ...video.hashtags.map(tag => ['t', tag]),
       ...(video.thumbnailUrl ? [['thumb', video.thumbnailUrl]] : []),
       ...(video.duration ? [['duration', video.duration.toString()]] : []),
+      // Include vineId as 'd' tag for addressable events
+      ...(video.vineId ? [['d', video.vineId]] : []),
     ],
     sig: '', // Signature would be provided by actual event
   };
