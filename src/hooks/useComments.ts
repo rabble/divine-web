@@ -6,7 +6,7 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
   const { nostr } = useNostr();
 
   return useQuery({
-    queryKey: ['comments', root instanceof URL ? root.toString() : root.id, limit],
+    queryKey: ['nostr', 'comments', root instanceof URL ? root.toString() : root.id, limit],
     queryFn: async (c) => {
       const filter: NostrFilter = { kinds: [1111] };
 

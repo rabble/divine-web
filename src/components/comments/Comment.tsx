@@ -14,7 +14,6 @@ import { DropdownMenu, DropdownMenuTrigger } from '@/components/ui/dropdown-menu
 import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
-import { getSafeProfileImage } from '@/lib/imageUtils';
 
 interface CommentProps {
   root: NostrEvent | URL;
@@ -49,7 +48,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
               <div className="flex items-center space-x-3">
                 <Link to={`/${nip19.npubEncode(comment.pubkey)}`}>
                   <Avatar className="h-8 w-8 hover:ring-2 hover:ring-primary/30 transition-all cursor-pointer">
-                    <AvatarImage src={getSafeProfileImage(metadata?.picture)} />
+                    <AvatarImage src={metadata?.picture} />
                     <AvatarFallback className="text-xs">
                       {displayName.charAt(0)}
                     </AvatarFallback>
@@ -62,10 +61,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit }: Comme
                   >
                     {displayName}
                   </Link>
-                  <p className="text-xs text-muted-foreground"
-                    title={new Date(comment.created_at * 1000).toLocaleString()}>
-                    {timeAgo}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{timeAgo}</p>
                 </div>
               </div>
             </div>
