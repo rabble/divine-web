@@ -38,7 +38,7 @@ export function useOptimisticRepost() {
     isCurrentlyReposted,
     currentRepostEventId,
   }: OptimisticRepostParams) => {
-    const metricsQueryKey = ['video-social-metrics', videoId];
+    const metricsQueryKey = ['video-social-metrics', videoId, videoPubkey, vineId];
     const interactionsQueryKey = ['video-user-interactions', videoId, userPubkey];
 
     // Store previous state for rollback
