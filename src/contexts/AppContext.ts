@@ -9,8 +9,6 @@ export interface AppConfig {
   relayUrl: string;
   /** Array of relay URLs to query (overrides relayUrl if provided) */
   relayUrls?: string[];
-  /** Whether to show deleted videos with indicator (true) or hide them completely (false) */
-  showDeletedVideos?: boolean;
 }
 
 export interface AppContextType {

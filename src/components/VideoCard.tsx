@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2 } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,14 +20,11 @@ import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { DeleteVideoDialog } from '@/components/DeleteVideoDialog';
-import { DeletedVideoIndicator } from '@/components/DeletedVideoIndicator';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
-import { useDeletionInfo } from '@/hooks/useDeletionEvents';
-import { useAppContext } from '@/hooks/useAppContext';
-import { genUserName } from '@/lib/genUserName';
+import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
 import type { ParsedVideoData } from '@/types/video';
@@ -93,15 +90,15 @@ export function VideoCard({
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const muteUser = useMuteItem();
   const navigate = useNavigate();
+  const { globalMuted, setGlobalMuted } = useVideoPlayback();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
-  const deletionInfo = useDeletionInfo(video.id);
-  const { config } = useAppContext();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -256,16 +253,6 @@ export function VideoCard({
     }
   };
 
-  // Show deleted indicator if video is deleted and user has enabled showing deleted videos
-  if (deletionInfo && config.showDeletedVideos) {
-    return <DeletedVideoIndicator deletionInfo={deletionInfo} className={className} />;
-  }
-
-  // Don't render if deleted and user wants to hide deleted videos (default)
-  if (deletionInfo && !config.showDeletedVideos) {
-    return null;
-  }
-
   return (
     <>
       {/* Comments Modal */}
@@ -369,6 +356,41 @@ export function VideoCard({
             <div className="flex items-center justify-center h-full text-muted-foreground">
               <p>Failed to load video</p>
             </div>
+          )}
+
+          {/* Mute/Unmute button overlay - bottom right corner */}
+          {isPlaying && !videoError && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "absolute bottom-3 right-3 z-30",
+                "bg-black/50 hover:bg-black/70 text-white",
+                "backdrop-blur-sm rounded-full",
+                "w-10 h-10 p-0 flex items-center justify-center",
+                "transition-all duration-200"
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setGlobalMuted(!globalMuted);
+              }}
+              onTouchStart={(e) => {
+                // Prevent touch from bubbling to video player
+                e.stopPropagation();
+              }}
+              onTouchEnd={(e) => {
+                // Prevent touch from bubbling to video player
+                e.stopPropagation();
+              }}
+              aria-label={globalMuted ? "Unmute" : "Mute"}
+            >
+              {globalMuted ? (
+                <VolumeX className="h-5 w-5" />
+              ) : (
+                <Volume2 className="h-5 w-5" />
+              )}
+            </Button>
           )}
         </div>
 
@@ -545,6 +567,10 @@ export function VideoCard({
                 <Flag className="h-4 w-4 mr-2" />
                 Report video
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowReportUserDialog(true)}>
+                <Flag className="h-4 w-4 mr-2" />
+                Report user
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleMuteUser} className="text-destructive focus:text-destructive">
                 <UserX className="h-4 w-4 mr-2" />
@@ -564,6 +590,15 @@ export function VideoCard({
         eventId={video.id}
         pubkey={video.pubkey}
         contentType="video"
+      />
+    )}
+
+    {showReportUserDialog && (
+      <ReportContentDialog
+        open={showReportUserDialog}
+        onClose={() => setShowReportUserDialog(false)}
+        pubkey={video.pubkey}
+        contentType="user"
       />
     )}
 

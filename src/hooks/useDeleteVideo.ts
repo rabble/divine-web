@@ -5,7 +5,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useToast } from '@/hooks/useToast';
-import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError } from '@/lib/debug';
 import type { ParsedVideoData } from '@/types/video';
 
@@ -54,9 +53,6 @@ export function useDeleteVideo() {
 
       debugLog('[useDeleteVideo] Deletion event published:', deletionEvent.id);
 
-      // Process the deletion event immediately in local service
-      deletionService.processDeletionEvent(deletionEvent);
-
       return {
         deleteEventId: deletionEvent.id,
         deletedVideoId: video.id,
@@ -66,7 +62,7 @@ export function useDeleteVideo() {
       // Show success toast
       toast({
         title: 'Video Deleted',
-        description: 'Your delete request has been sent to relays. The video will be hidden from feeds.',
+        description: 'Your delete request has been sent to relays. The video will be removed.',
       });
 
       // Invalidate all video queries to refresh feeds
@@ -76,6 +72,7 @@ export function useDeleteVideo() {
       queryClient.invalidateQueries({ queryKey: ['hashtag-videos'] });
       queryClient.invalidateQueries({ queryKey: ['trending-videos'] });
       queryClient.invalidateQueries({ queryKey: ['discovery-videos'] });
+      queryClient.invalidateQueries({ queryKey: ['infinite-videos'] });
 
       debugLog('[useDeleteVideo] Video deleted successfully:', data.deletedVideoId);
     },

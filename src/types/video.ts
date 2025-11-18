@@ -88,7 +88,7 @@ export interface ParsedVideoData {
   title?: string;
   duration?: number;
   hashtags: string[];
-  vineId: string;
+  vineId: string | null;
   loopCount?: number;
   likeCount?: number;
   repostCount?: number;

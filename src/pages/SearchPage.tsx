@@ -52,7 +52,6 @@ export function SearchPage() {
     data: videoData,
     fetchNextPage: fetchNextVideos,
     hasNextPage: hasNextVideos,
-    isFetchingNextPage: isFetchingNextVideos,
     isLoading: isLoadingVideos,
     error: videoError,
   } = useInfiniteSearchVideos({

@@ -40,7 +40,6 @@ const defaultConfig: AppConfig = {
   relayUrls: [
     "wss://relay.divine.video",
   ],
-  showDeletedVideos: false, // Hide deleted videos by default
 };
 
 const presetRelays = [

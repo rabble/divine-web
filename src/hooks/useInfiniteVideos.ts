@@ -11,7 +11,6 @@ import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter, SortMode } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
-import { deletionService } from '@/lib/deletionService';
 import { debugLog } from '@/lib/debug';
 import { performanceMonitor } from '@/lib/performanceMonitoring';
 
@@ -237,17 +236,7 @@ export function useInfiniteVideos({
       }
 
       // Parse and filter
-      let videos = parseVideoEvents(events);
-
-      // Filter deleted videos if configured
-      if (!config.showDeletedVideos) {
-        const beforeFilter = videos.length;
-        videos = videos.filter(video => !deletionService.isDeleted(video.id));
-        const deletedCount = beforeFilter - videos.length;
-        if (deletedCount > 0) {
-          debugLog(`[useInfiniteVideos] Filtered ${deletedCount} deleted videos`);
-        }
-      }
+      const videos = parseVideoEvents(events);
 
       // Determine next cursor
       const nextCursor = videos.length > 0

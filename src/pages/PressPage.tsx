@@ -37,7 +37,7 @@ export function PressPage() {
       } else {
         throw new Error('Form submission failed');
       }
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to submit the form. Please try again.',
