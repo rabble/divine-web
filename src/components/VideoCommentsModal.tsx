@@ -73,7 +73,7 @@ export function VideoCommentsModal({
               title="Comments"
               emptyStateMessage="No comments yet"
               emptyStateSubtitle="Be the first to comment on this video!"
-              className="border-0 rounded-none"
+              compact={true}
               data-testid="comments-section"
               data-root-kind={video.kind.toString()}
               data-root-id={video.id}

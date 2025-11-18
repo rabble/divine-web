@@ -14,46 +14,60 @@ interface CommentsSectionProps {
   emptyStateSubtitle?: string;
   className?: string;
   limit?: number;
+  compact?: boolean; // Remove Card wrapper for use in modals
 }
 
-export function CommentsSection({ 
+export function CommentsSection({
   root,
   title = "Comments",
   emptyStateMessage = "No comments yet",
   emptyStateSubtitle = "Be the first to share your thoughts!",
   className,
   limit = 500,
+  compact = false,
 }: CommentsSectionProps) {
   const { data: commentsData, isLoading, error } = useComments(root, limit);
   const comments = commentsData?.topLevelComments || [];
 
   if (error) {
+    const errorContent = (
+      <div className="text-center text-muted-foreground py-6">
+        <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+        <p>Failed to load comments</p>
+      </div>
+    );
+
+    if (compact) {
+      return <div className={className}>{errorContent}</div>;
+    }
+
     return (
       <Card className="rounded-none sm:rounded-lg mx-0 sm:mx-0">
         <CardContent className="px-2 py-6 sm:p-6">
-          <div className="text-center text-muted-foreground">
-            <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>Failed to load comments</p>
-          </div>
+          {errorContent}
         </CardContent>
       </Card>
     );
   }
 
-  return (
-    <Card className={cn("rounded-none sm:rounded-lg mx-0 sm:mx-0", className)}>
-      <CardHeader className="px-2 pt-6 pb-4 sm:p-6">
-        <CardTitle className="flex items-center space-x-2">
-          <MessageSquare className="h-5 w-5" />
-          <span>{title}</span>
-          {!isLoading && (
-            <span className="text-sm font-normal text-muted-foreground">
-              ({comments.length})
-            </span>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="px-2 pb-6 pt-4 sm:p-6 sm:pt-0 space-y-6">
+  const content = (
+    <>
+      {/* Header - only show if not compact or title is provided */}
+      {!compact && (
+        <div className="px-6 pt-6 pb-4">
+          <div className="flex items-center space-x-2">
+            <MessageSquare className="h-5 w-5" />
+            <span className="font-semibold">{title}</span>
+            {!isLoading && (
+              <span className="text-sm font-normal text-muted-foreground">
+                ({comments.length})
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className={compact ? "px-6 pb-6 space-y-6" : "px-6 pb-6 space-y-6"}>
         {/* Comment Form */}
         <CommentForm root={root} />
 
@@ -94,7 +108,17 @@ export function CommentsSection({
             ))}
           </div>
         )}
-      </CardContent>
+      </div>
+    </>
+  );
+
+  if (compact) {
+    return <div className={className}>{content}</div>;
+  }
+
+  return (
+    <Card className={cn("rounded-none sm:rounded-lg mx-0 sm:mx-0", className)}>
+      {content}
     </Card>
   );
 }
