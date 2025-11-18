@@ -3,10 +3,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export function PressPage() {
   useEffect(() => {
+    // Add success handler function to window BEFORE loading MailerLite script
+    const successScript = document.createElement('script');
+    successScript.innerHTML = `
+      function ml_webform_success_33427086() {
+        var $ = ml_jQuery || jQuery;
+        $('.ml-subscribe-form-33427086 .row-success').show();
+        $('.ml-subscribe-form-33427086 .row-form').hide();
+      }
+    `;
+    document.body.appendChild(successScript);
+
     // Load MailerLite script
     const script = document.createElement('script');
     script.src = 'https://groot.mailerlite.com/js/w/webforms.min.js?v176e10baa5e7ed80d35ae235be3d5024';
-    script.async = true;
+    script.type = 'text/javascript';
     document.body.appendChild(script);
 
     // Load tracking script
@@ -14,19 +25,10 @@ export function PressPage() {
     trackingScript.innerHTML = 'fetch("https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/takel")';
     document.body.appendChild(trackingScript);
 
-    // Add success handler function to window - matches MailerLite's expected pattern
-    (window as any).ml_webform_success_33427086 = function() {
-      const $ = (window as any).ml_jQuery || (window as any).jQuery;
-      if ($) {
-        $('.ml-subscribe-form-33427086 .row-success').show();
-        $('.ml-subscribe-form-33427086 .row-form').hide();
-      }
-    };
-
     return () => {
+      document.body.removeChild(successScript);
       document.body.removeChild(script);
       document.body.removeChild(trackingScript);
-      delete (window as any).ml_webform_success_33427086;
     };
   }, []);
 
@@ -51,20 +53,21 @@ export function PressPage() {
             <div className="ml-form-align-center">
               <div className="ml-form-embedWrapper embedForm">
                 <div className="ml-form-embedBody ml-form-embedBodyDefault row-form">
-                  <div className="ml-form-embedContent mb-4">
-                    <h4 className="text-lg font-semibold">Media Contact</h4>
-                    <p className="text-muted-foreground">Share your contact information and deadline below.</p>
+                  <div className="ml-form-embedContent" style={{}}>
+                    <h4>Media Contact</h4>
+                    <p>Share your contact information and deadline below.</p>
                   </div>
 
-                  <form className="ml-block-form space-y-4" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post">
-                    <div className="ml-form-formContent space-y-4">
+                  <form className="ml-block-form" action="https://assets.mailerlite.com/jsonp/922604/forms/171273553854858427/subscribe" data-code="" method="post" target="_blank">
+                    <div className="ml-form-formContent">
                       <div className="ml-form-fieldRow">
                         <div className="ml-field-group ml-field-email ml-validate-email ml-validate-required">
                           <input
                             aria-label="email"
                             aria-required="true"
                             type="email"
-                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            className="form-control"
+                            data-inputmask=""
                             name="fields[email]"
                             placeholder="Email"
                             autoComplete="email"
@@ -77,7 +80,8 @@ export function PressPage() {
                           <input
                             aria-label="name"
                             type="text"
-                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            className="form-control"
+                            data-inputmask=""
                             name="fields[name]"
                             placeholder="Name"
                             autoComplete="given-name"
@@ -90,7 +94,8 @@ export function PressPage() {
                           <input
                             aria-label="last_name"
                             type="text"
-                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            className="form-control"
+                            data-inputmask=""
                             name="fields[last_name]"
                             placeholder="Last name"
                             autoComplete="family-name"
@@ -101,13 +106,12 @@ export function PressPage() {
                       <div className="ml-form-fieldRow ml-last-item">
                         <div className="ml-field-group ml-field-message ml-validate-required">
                           <textarea
-                            className="form-control w-full px-3 py-2 border border-input rounded-md bg-background"
+                            className="form-control"
                             name="fields[message]"
                             aria-label="message"
                             aria-required="true"
                             maxLength={255}
                             placeholder="Share your deadline and request."
-                            rows={4}
                           />
                         </div>
                       </div>
@@ -117,9 +121,7 @@ export function PressPage() {
                     <input type="hidden" name="anticsrf" value="true" />
 
                     <div className="ml-form-embedSubmit">
-                      <button type="submit" className="primary w-full px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium">
-                        Submit
-                      </button>
+                      <button type="submit" className="primary">Subscribe</button>
                       <button disabled style={{ display: 'none' }} type="button" className="loading">
                         <div className="ml-form-embedSubmitLoad"></div>
                         <span className="sr-only">Loading...</span>
@@ -129,9 +131,9 @@ export function PressPage() {
                 </div>
 
                 <div className="ml-form-successBody row-success" style={{ display: 'none' }}>
-                  <div className="ml-form-successContent py-8 text-center">
-                    <h4 className="text-green-600 dark:text-green-400 text-xl font-semibold mb-2">We've received your inquiry.</h4>
-                    <p className="text-muted-foreground">Someone from our media team will be in touch shortly.</p>
+                  <div className="ml-form-successContent">
+                    <h4>We've received your inquiry.</h4>
+                    <p>Someone from our media team will be in touch shortly.</p>
                   </div>
                 </div>
               </div>
