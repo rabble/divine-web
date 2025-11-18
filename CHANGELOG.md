@@ -5,6 +5,14 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Comment reporting and deletion** - Users can now report, mute, and delete comments
+  - Delete your own comments using NIP-09 deletion events with optional reason
+  - Report comments or users directly from comment menu
+  - Mute users from comment context menu
+  - Context-aware dropdown menu (delete for own comments, report/mute for others)
+  - Deletion warning about relay behavior and non-guaranteed removal
+- **Inline parent comment preview** - Replies now show a preview of the parent comment they're responding to for better conversation threading
+- **Dynamic video aspect ratios** - Videos now display at their natural aspect ratio (portrait or landscape) instead of being forced into squares
 - **PWA (Progressive Web App) support** - Users can install diVine as a standalone app on mobile devices
   - Install prompt appears after 10 seconds on Discovery page (mobile only)
   - Service worker for offline capability
