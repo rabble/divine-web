@@ -5,6 +5,20 @@ All notable changes to Divine Web will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **PWA (Progressive Web App) support** - Users can install diVine as a standalone app on mobile devices
+  - Install prompt appears after 10 seconds on Discovery page (mobile only)
+  - Service worker for offline capability
+  - Web app manifest for installable experience
+  - No offline caching (removed to avoid stale content)
+- **Media Resources page** - New /media-resources page for press and media with downloadable brand assets
+  - Logo variations (black/white/green/ivory backgrounds in PNG and SVG)
+  - App screenshots for download
+  - Rabble's Web Summit photo and headshot
+  - Press contact information
+  - Links to news coverage
+- **Enhanced News page** - Updated with latest media coverage and news outlet logos (TechCrunch, Business Insider, Newsweek, Yahoo)
+- **Brand assets** - Downloadable logos, app icons, and screenshots for media use
+- **MailerLite press inquiry form** - Integrated contact form on Press page with success message handling
 - **FAQ anchor links** - Each FAQ question now has a shareable anchor link (# icon) that appears on hover, allowing direct linking to specific questions. Accordions automatically open when visiting hash URLs
 - **Jack Dorsey funding FAQ** - Added FAQ clarifying that Jack Dorsey is providing funding but has no equity or ownership
 - **AI data selling FAQ** - Added FAQ confirming diVine will not sell user data or content to AI companies for training
@@ -12,6 +26,15 @@ All notable changes to Divine Web will be documented in this file.
 - **"Divine needs a rest" empty state** - Beautiful empty state with full-width reclining Divine photo by Marcus Leatherdale when no videos are found
 
 ### Changed
+- **Branding consistency** - Changed "Divine" to "diVine" throughout the application for consistent brand styling
+- **Navigation improvements** - Simplified header dropdown menus and reorganized footer navigation
+  - Changed "Support" to "Help" in navigation
+  - Added "Donate" link to footer
+  - Moved Press link to Media Resources page
+  - Removed redundant menu items
+- **Footer updates** - Streamlined footer with minimal email signup form and reorganized link sections
+- **Landing page navigation** - Added navigation bar to landing page for better logged-out user experience
+- **Open Source page enhancements** - Better repository information, Android app in beta section, reordered content for clarity
 - **Faster video loading** - Optimized initial video feed loading from 12 seconds to ~2 seconds by reducing query size and timeouts
 - **Removed client-side deletion filtering** - Relays now handle NIP-09 deletion events instead of the client
 - **Multi-relay support removed** - Simplified to use only relay.divine.video for better performance and reliability
@@ -20,6 +43,7 @@ All notable changes to Divine Web will be documented in this file.
 - **Increased hashtag query timeout** - Extended to 5 seconds for better reliability when relay is under load
 
 ### Fixed
+- **PWA build error** - Added missing workbox-build dependency required for service worker generation
 - **Blurhash flashing** - Video thumbnails no longer flash back to blurhash after initial load
 - **Grid layout rendering** - Fixed nested grid wrapper that prevented proper multi-column display on hashtag pages
 - **Thumbnail navigation** - Clicking videos in grid view now navigates to video page instead of playing inline
