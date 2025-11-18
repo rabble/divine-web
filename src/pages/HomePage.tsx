@@ -21,7 +21,7 @@ const SORT_MODES = [
 export function HomePage() {
   const { user } = useCurrentUser();
   const { data: followList, isLoading, isFetching, dataUpdatedAt } = useFollowList();
-  const [sortMode, setSortMode] = useState<SortMode | undefined>('hot');
+  const [sortMode, setSortMode] = useState<SortMode | undefined>(undefined);
 
   // Check if data is from cache (not currently fetching but has data)
   const isShowingCachedData = !isLoading && !isFetching && !!followList && followList.length > 0;
