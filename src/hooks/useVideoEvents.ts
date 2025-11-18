@@ -154,7 +154,8 @@ async function parseVideoEvents(
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
       isVineMigrated: isVineMigrated(event),
-      reposts: [] // Initialize empty reposts array
+      reposts: [], // Initialize empty reposts array
+      originalEvent: event // Store original event for source viewing
     });
   }
 
@@ -254,7 +255,8 @@ async function parseVideoEvents(
         proofMode: getProofModeData(originalVideo),
         origin: getOriginPlatform(originalVideo),
         isVineMigrated: isVineMigrated(originalVideo),
-        reposts: []
+        reposts: [],
+        originalEvent: originalVideo // Store original event for source viewing
       };
 
       videoMap.set(vineId, videoData);

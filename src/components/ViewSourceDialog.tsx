@@ -51,9 +51,9 @@ export function ViewSourceDialog({
 }: ViewSourceDialogProps) {
   const [copied, setCopied] = useState(false);
 
-  // Use provided event or reconstruct from video data
-  const displayEvent = event || (video ? reconstructEvent(video) : null);
-  const isReconstructed = !event && !!video;
+  // Use provided event, or originalEvent from video data, or reconstruct from video data
+  const displayEvent = event || video?.originalEvent || (video ? reconstructEvent(video) : null);
+  const isReconstructed = !event && !video?.originalEvent && !!video;
 
   if (!displayEvent) {
     return null;

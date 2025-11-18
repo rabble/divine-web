@@ -91,6 +91,9 @@ export interface ParsedVideoData {
   // NEW: Aggregated repost data (replaces individual isRepost/reposterPubkey/repostedAt)
   reposts: RepostMetadata[];
 
+  // Original Nostr event for full source viewing
+  originalEvent?: NostrEvent;
+
   // COMPUTED FIELDS: Use helper functions from videoParser.ts
   // - isReposted(video): boolean - Has any reposts
   // - getLatestRepostTime(video): number - Most recent repost timestamp (or createdAt if no reposts)
