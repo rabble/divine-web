@@ -20,15 +20,11 @@ import { VineBadge } from '@/components/VineBadge';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { DeleteVideoDialog } from '@/components/DeleteVideoDialog';
-import { DeletedVideoIndicator } from '@/components/DeletedVideoIndicator';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
-import { useDeletionInfo } from '@/hooks/useDeletionEvents';
-import { useAppContext } from '@/hooks/useAppContext';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
-import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
 import type { ParsedVideoData } from '@/types/video';
@@ -94,6 +90,7 @@ export function VideoCard({
   const [isPlaying, setIsPlaying] = useState(mode === 'auto-play');
   const [showAddToListDialog, setShowAddToListDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
+  const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -102,8 +99,6 @@ export function VideoCard({
   const { globalMuted, setGlobalMuted } = useVideoPlayback();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
-  const deletionInfo = useDeletionInfo(video.id);
-  const { config } = useAppContext();
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -257,16 +252,6 @@ export function VideoCard({
       }
     }
   };
-
-  // Show deleted indicator if video is deleted and user has enabled showing deleted videos
-  if (deletionInfo && config.showDeletedVideos) {
-    return <DeletedVideoIndicator deletionInfo={deletionInfo} className={className} />;
-  }
-
-  // Don't render if deleted and user wants to hide deleted videos (default)
-  if (deletionInfo && !config.showDeletedVideos) {
-    return null;
-  }
 
   return (
     <>
@@ -582,6 +567,10 @@ export function VideoCard({
                 <Flag className="h-4 w-4 mr-2" />
                 Report video
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowReportUserDialog(true)}>
+                <Flag className="h-4 w-4 mr-2" />
+                Report user
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleMuteUser} className="text-destructive focus:text-destructive">
                 <UserX className="h-4 w-4 mr-2" />
@@ -601,6 +590,15 @@ export function VideoCard({
         eventId={video.id}
         pubkey={video.pubkey}
         contentType="video"
+      />
+    )}
+
+    {showReportUserDialog && (
+      <ReportContentDialog
+        open={showReportUserDialog}
+        onClose={() => setShowReportUserDialog(false)}
+        pubkey={video.pubkey}
+        contentType="user"
       />
     )}
 

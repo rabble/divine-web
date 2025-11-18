@@ -68,7 +68,6 @@ export function VideoFeed({
     data,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage,
     isLoading,
     error,
     refetch

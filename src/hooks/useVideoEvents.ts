@@ -1,19 +1,16 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
-// ABOUTME: Handles NIP-71 videos (kinds 21, 22, 34236) and Kind 6 reposts with proper parsing
+// ABOUTME: Handles video events (kind 34236) and Kind 6 reposts with proper parsing
 // ABOUTME: Supports auto-refresh for home and recent feeds matching Flutter app behavior
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useFollowList } from '@/hooks/useFollowList';
-// import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
-import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
-import { deletionService } from '@/lib/deletionService';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
 
@@ -28,19 +25,16 @@ interface UseVideoEventsOptions {
 }
 
 /**
- * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
+ * Validates that a video event (kind 34236) has required fields
  */
 function validateVideoEvent(event: NostrEvent): boolean {
   if (!VIDEO_KINDS.includes(event.kind)) return false;
 
   // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
-  // Kinds 21 and 22 are regular events and don't require d tag
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-      return false;
-    }
+  const vineId = getVineId(event);
+  if (!vineId) {
+    debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
+    return false;
   }
 
   return true;
@@ -116,8 +110,8 @@ async function parseVideoEvents(
       continue;
     }
 
-    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
-    const vineId = getVineId(event) || event.id;
+    // Get vineId from d tag (required for kind 34236)
+    const vineId = getVineId(event)!;
 
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
@@ -140,7 +134,7 @@ async function parseVideoEvents(
     videoMap.set(uniqueKey, {
       id: event.id,
       pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
+      kind: event.kind as 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
@@ -319,7 +313,6 @@ async function parseVideoEvents(
 export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
-  const { config } = useAppContext();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until, sortMode } = options;
 
   // Get follow list for home feed - this is cached and auto-refetches
@@ -476,16 +469,6 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
             return timeB - timeA;
           })
           .slice(0, limit);
-      }
-
-      // Filter out deleted videos (NIP-09) unless user wants to see them
-      if (!config.showDeletedVideos) {
-        const beforeDeletionFilter = parsed.length;
-        parsed = parsed.filter(video => !deletionService.isDeleted(video.id));
-        const deletedCount = beforeDeletionFilter - parsed.length;
-        if (deletedCount > 0) {
-          debugLog(`[useVideoEvents] Filtered out ${deletedCount} deleted videos`);
-        }
       }
 
       const totalTime = performance.now() - startTime;

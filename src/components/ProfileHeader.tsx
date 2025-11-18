@@ -1,11 +1,19 @@
 // ABOUTME: Profile header component showing user avatar, bio, stats, and follow button
 // ABOUTME: Displays user metadata, social stats, and follow/unfollow functionality
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserPlus, UserCheck, CheckCircle, Pencil, Copy } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { UserPlus, UserCheck, CheckCircle, Pencil, Copy, MoreVertical, Flag } from 'lucide-react';
+import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import { toast } from '@/hooks/useToast';
@@ -64,6 +72,8 @@ export function ProfileHeader({
   isLoading: _isLoading = false,
   className,
 }: ProfileHeaderProps) {
+  const [showReportDialog, setShowReportDialog] = useState(false);
+
   // Show loading text if metadata hasn't loaded yet
   const displayName = metadata?.display_name || metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
   const userName = metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
@@ -84,7 +94,7 @@ export function ProfileHeader({
         title: "Copied!",
         description: "npub copied to clipboard",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Copy failed",
         description: "Failed to copy npub to clipboard",
@@ -174,7 +184,7 @@ export function ProfileHeader({
             </Button>
           </div>
         ) : (
-          <div className="flex-shrink-0 self-center sm:self-start">
+          <div className="flex-shrink-0 self-center sm:self-start flex gap-2">
             <Button
               onClick={handleFollowClick}
               variant={isFollowing ? "outline" : "default"}
@@ -194,6 +204,19 @@ export function ProfileHeader({
                 </>
               )}
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" data-testid="profile-menu-button">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowReportDialog(true)}>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report user
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
@@ -291,6 +314,16 @@ export function ProfileHeader({
           )}
         </div>
       </div>
+
+      {/* Report User Dialog */}
+      {showReportDialog && (
+        <ReportContentDialog
+          open={showReportDialog}
+          onClose={() => setShowReportDialog(false)}
+          pubkey={pubkey}
+          contentType="user"
+        />
+      )}
     </div>
   );
 }

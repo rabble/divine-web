@@ -111,7 +111,7 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
         onClose();
       }
     }}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New List</DialogTitle>
           <DialogDescription>
@@ -119,7 +119,7 @@ export function CreateListDialog({ open, onClose }: CreateListDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+        <div className="space-y-4 pr-2">
           <div className="space-y-2">
             <Label htmlFor="name">List Name *</Label>
             <Input
