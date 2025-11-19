@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function PressPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -58,7 +59,7 @@ export function PressPage() {
   };
 
   return (
-    <>
+    <MarketingLayout>
       <style dangerouslySetInnerHTML={{ __html: `
         @import url("https://assets.mlcdn.com/fonts.css?version=1762785");
 
@@ -382,7 +383,7 @@ export function PressPage() {
         </p>
       </div>
       </div>
-    </>
+    </MarketingLayout>
   );
 }
 

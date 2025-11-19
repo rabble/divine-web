@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, Users, Camera, Shield, Sparkles, Archive, Video, Fingerprint } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function AuthenticityPage() {
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
+    <MarketingLayout>
+      <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
       <ZendeskWidget />
       {/* Hero Section */}
       <div className="text-center space-y-4 py-8">
@@ -389,6 +391,7 @@ export function AuthenticityPage() {
         </p>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

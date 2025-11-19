@@ -1,4 +1,4 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
+import { Home, Compass, Search, MoreVertical, Info, Code2, HelpCircle, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -84,9 +84,6 @@ export function AppHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              {/* About diVine Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">About diVine</DropdownMenuLabel>
-
               <DropdownMenuItem
                 onClick={() => navigate('/about')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
@@ -112,14 +109,6 @@ export function AppHeader() {
               </DropdownMenuItem>
 
               <DropdownMenuItem
-                onClick={() => navigate('/media-resources')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                <span>Media Resources</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
                 onClick={() => navigate('/open-source')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
@@ -127,33 +116,12 @@ export function AppHeader() {
                 <span>Open Source</span>
               </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
-
-              {/* Legal Section */}
-              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">Legal</DropdownMenuLabel>
-
               <DropdownMenuItem
-                onClick={() => navigate('/terms')}
+                onClick={() => navigate('/media-resources')}
                 className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
               >
-                <Scale className="mr-2 h-4 w-4" />
-                <span>Terms & Conditions</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/privacy')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Shield className="mr-2 h-4 w-4" />
-                <span>Privacy Policy</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem
-                onClick={() => navigate('/dmca')}
-                className="cursor-pointer hover:!bg-transparent hover:outline hover:outline-1 hover:outline-primary/30 focus:!bg-transparent focus:outline focus:outline-1 focus:outline-primary"
-              >
-                <Scale className="mr-2 h-4 w-4" />
-                <span>Copyright & DMCA</span>
+                <FileText className="mr-2 h-4 w-4" />
+                <span>Media Resources</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

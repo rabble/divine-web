@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, Lock, Users, Database, UserCheck, AlertCircle } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function PrivacyPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
 
@@ -290,6 +292,7 @@ export function PrivacyPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

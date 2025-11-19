@@ -3,10 +3,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, Archive, Scale, Mail } from 'lucide-react';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function DMCAPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <h1 className="text-4xl font-bold mb-8">Copyright & DMCA Policy</h1>
 
       <div className="space-y-8">
@@ -187,6 +189,7 @@ export function DMCAPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

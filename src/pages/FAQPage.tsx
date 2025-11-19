@@ -22,6 +22,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 function FAQQuestion({
   value,
@@ -79,7 +80,8 @@ export function FAQPage() {
   }, []);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <div className="text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-3">
@@ -1061,6 +1063,7 @@ export function FAQPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

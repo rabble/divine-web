@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Mail, Download, FileText, Image, Video } from 'lucide-react';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function MediaResourcesPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -474,6 +476,7 @@ export function MediaResourcesPage() {
         </div>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 
