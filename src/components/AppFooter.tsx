@@ -47,8 +47,12 @@ export function AppFooter() {
                   Our Mission
                 </Link>
                 <span>•</span>
+                <Link to="/news" className="hover:text-foreground transition-colors">
+                  News
+                </Link>
+                <span>•</span>
                 <Link to="/media-resources" className="hover:text-foreground transition-colors">
-                  Press
+                  Media Resources
                 </Link>
                 <span>•</span>
                 <Link to="/support" className="hover:text-foreground transition-colors">
