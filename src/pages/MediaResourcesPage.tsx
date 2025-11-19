@@ -76,11 +76,17 @@ export function MediaResourcesPage() {
                 </ul>
               </div>
             </div>
-            <div className="pt-4">
+            <div className="pt-4 flex flex-wrap gap-3">
               <Button asChild variant="outline">
                 <Link to="/about" className="inline-flex items-center gap-2">
                   Learn More About diVine
                   <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/press-release" className="inline-flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Read Press Release
                 </Link>
               </Button>
             </div>
