@@ -68,13 +68,18 @@ export function NewsPage() {
 
           {/* Featured Media */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Featured Media</h2>
-            <div className="space-y-4">
-              <Card>
+            <h2 className="text-2xl font-bold mb-6">Featured Media</h2>
+            <div className="space-y-6">
+              <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                  <div className="flex items-start gap-4">
+                    <img
+                      src="/logos/techcrunch.png"
+                      alt="TechCrunch"
+                      className="h-8 w-auto object-contain shrink-0 mt-1"
+                    />
+                    <div className="flex-1 space-y-2">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
                           target="_blank"
@@ -84,34 +89,36 @@ export function NewsPage() {
                           Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
                         </a>
                       </CardTitle>
-                      <CardDescription>
-                        November 12, 2025 • TechCrunch
-                      </CardDescription>
+                      <CardDescription>November 12, 2025</CardDescription>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017.
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017. The platform aims to preserve authentic human creativity in the age of AI-generated content, bringing back the beloved six-second looping video format that made Vine a cultural phenomenon.
                   </p>
                   <a
                     href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                    className="text-primary hover:underline font-semibold inline-flex items-center gap-1.5"
                   >
-                    Read on TechCrunch
+                    Read full article on TechCrunch
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                  <div className="flex items-start gap-4">
+                    <img
+                      src="/logos/businessinsider.png"
+                      alt="Business Insider"
+                      className="h-8 w-auto object-contain shrink-0 mt-1"
+                    />
+                    <div className="flex-1 space-y-2">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
                           target="_blank"
@@ -121,34 +128,36 @@ export function NewsPage() {
                           Vine reboot diVine Jack Dorsey andotherstuff
                         </a>
                       </CardTitle>
-                      <CardDescription>
-                        November 2025 • Business Insider
-                      </CardDescription>
+                      <CardDescription>November 2025</CardDescription>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video.
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video. The new platform builds on Nostr, a decentralized protocol, ensuring that creators maintain true ownership of their content and that no single company can shut down the platform like Twitter did with the original Vine in 2017.
                   </p>
                   <a
                     href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                    className="text-primary hover:underline font-semibold inline-flex items-center gap-1.5"
                   >
-                    Read on Business Insider
+                    Read full article on Business Insider
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                  <div className="flex items-start gap-4">
+                    <img
+                      src="/logos/newsweek.png"
+                      alt="Newsweek"
+                      className="h-10 w-auto object-contain shrink-0"
+                    />
+                    <div className="flex-1 space-y-2">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
                           target="_blank"
@@ -158,24 +167,21 @@ export function NewsPage() {
                           diVine: Everything We Know About Vine's Reboot
                         </a>
                       </CardTitle>
-                      <CardDescription>
-                        November 2025 • Newsweek
-                      </CardDescription>
+                      <CardDescription>November 2025</CardDescription>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey.
+                  <p className="text-muted-foreground mb-4 leading-relaxed">
+                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey. The platform not only revives the six-second video format but also includes archived videos from the original Vine platform, preserving years of internet culture and creativity that would have otherwise been lost when Twitter shut down Vine.
                   </p>
                   <a
                     href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                    className="text-primary hover:underline font-semibold inline-flex items-center gap-1.5"
                   >
-                    Read on Newsweek
+                    Read full article on Newsweek
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </CardContent>
@@ -186,12 +192,12 @@ export function NewsPage() {
           {/* Media Coverage */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Media Coverage</h2>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">
                         <a
                           href="https://www.vice.com/en/article/vine-relaunches-as-divine/"
                           target="_blank"
@@ -200,35 +206,19 @@ export function NewsPage() {
                         >
                           Vine Relaunches as Divine
                         </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 2025 • Vice
-                      </CardDescription>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">Vice • November 2025</p>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    The beloved short-form video platform Vine is making a comeback as diVine, backed by Jack Dorsey.
-                  </p>
-                  <a
-                    href="https://www.vice.com/en/article/vine-relaunches-as-divine/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on Vice
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">
                         <a
                           href="https://stuff.co.za/2025/11/17/light-start-do-it-for-divine-send-a-ride/"
                           target="_blank"
@@ -237,35 +227,19 @@ export function NewsPage() {
                         >
                           Light Start: Do it for diVine, Send a Ride
                         </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 17, 2025 • Stuff.co.za
-                      </CardDescription>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">Stuff.co.za • November 17, 2025</p>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Coverage of diVine's launch and its mission to bring back authentic short-form video content.
-                  </p>
-                  <a
-                    href="https://stuff.co.za/2025/11/17/light-start-do-it-for-divine-send-a-ride/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on Stuff
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">
                         <a
                           href="https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn"
                           target="_blank"
@@ -274,35 +248,19 @@ export function NewsPage() {
                         >
                           Divine: Jack Dorsey's Vine revival
                         </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 14, 2025 • CNN
-                      </CardDescription>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">CNN • November 14, 2025</p>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey's latest venture brings back the beloved short-form video platform Vine as diVine.
-                  </p>
-                  <a
-                    href="https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Watch on CNN
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
+                <CardContent className="py-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">
                         <a
                           href="https://www.yahoo.com/news/article/what-to-know-about-jack-dorseys-new-vine-revival-divine-215918687.html"
                           target="_blank"
@@ -311,27 +269,11 @@ export function NewsPage() {
                         >
                           What to know about Jack Dorsey's new Vine revival, Divine
                         </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 2025 • Yahoo News
-                      </CardDescription>
+                      </h3>
+                      <p className="text-sm text-muted-foreground">Yahoo News • November 2025</p>
                     </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey has introduced diVine, an open-source revival of the short-form video platform Vine.
-                  </p>
-                  <a
-                    href="https://www.yahoo.com/news/article/what-to-know-about-jack-dorseys-new-vine-revival-divine-215918687.html"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on Yahoo News
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 </CardContent>
               </Card>
             </div>
