@@ -29,7 +29,7 @@ export function AppFooter() {
                   to="/proofmode"
                   className="font-semibold text-primary hover:text-primary/80 transition-colors"
                 >
-                  ProofMode
+                  No AI Slop
                 </Link>
               </div>
 
