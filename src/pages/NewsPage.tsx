@@ -68,7 +68,6 @@ export function NewsPage() {
 
           {/* Featured Media */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Featured Media</h2>
             <div className="space-y-6">
               <Card className="border-2 border-primary/20">
                 <CardHeader>
