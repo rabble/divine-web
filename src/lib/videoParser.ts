@@ -2,6 +2,7 @@
 // ABOUTME: Extracts video URLs and metadata from multiple tag sources with fallback to content parsing
 
 import type { NostrEvent } from '@nostrify/nostrify';
+import { VIDEO_KINDS, type ParsedVideoData, type RepostMetadata } from '@/types/video';
 import type { VideoMetadata, VideoEvent, ProofModeData, ProofModeLevel } from '@/types/video';
 
 // Common video file extensions - used only as hints, not requirements
@@ -512,8 +513,6 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
 /**
  * Helper functions for working with ParsedVideoData reposts array
  */
-
-import type { ParsedVideoData, RepostMetadata } from '@/types/video';
 
 /**
  * Check if a video has been reposted
