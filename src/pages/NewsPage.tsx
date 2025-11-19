@@ -68,7 +68,6 @@ export function NewsPage() {
 
           {/* Featured Media */}
           <div>
-            <h2 className="text-2xl font-bold mb-6">Featured Media</h2>
             <div className="space-y-6">
               <Card className="border-2 border-primary/20">
                 <CardHeader>
@@ -88,7 +87,7 @@ export function NewsPage() {
                           rel="noopener noreferrer"
                           className="hover:text-primary transition-colors"
                         >
-                          Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
+                          Jack Dorsey funds diVine, a Vine reboot that includes Vine’s video archive
                         </a>
                       </CardTitle>
                       <CardDescription>November 12, 2025</CardDescription>
@@ -97,7 +96,7 @@ export function NewsPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017. The platform aims to preserve authentic human creativity in the age of AI-generated content, bringing back the beloved six-second looping video format that made Vine a cultural phenomenon.
+                    As generative AI content starts to fill our social apps, a project to bring back Vine’s six-second looping videos is launching with Twitter co-founder Jack Dorsey’s backing. On Thursday, a new app called diVine will give access to more than 100,000 archived Vine videos, restored from an older backup that was created before Vine’s shutdown.
                   </p>
                   <a
                     href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
@@ -129,16 +128,16 @@ export function NewsPage() {
                           rel="noopener noreferrer"
                           className="hover:text-primary transition-colors"
                         >
-                          Vine reboot diVine Jack Dorsey andotherstuff
+                          The founder of the Jack Dorsey-backed Vine revival is fighting against AI slop
                         </a>
                       </CardTitle>
-                      <CardDescription>November 2025</CardDescription>
+                      <CardDescription>November 13,2025</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video. The new platform builds on Nostr, a decentralized protocol, ensuring that creators maintain true ownership of their content and that no single company can shut down the platform like Twitter did with the original Vine in 2017.
+                    DiVine, a decentralized reboot of Vine backed by Jack Dorsey, is resurrecting the long-lost super-short-form video platform. Behind the revival is one of the original Twitter employees who worked closely with Dorsey, Evan Henshaw-Plath, who goes by the alias Rabble. For the founder, diVine isn't just a nostalgia play for bringing back old six-second viral videos, but a sort of protest against the walled garden of "black box" algorithms that social media apps have become, with algorithms feeding users AI-generated content.
                   </p>
                   <a
                     href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
@@ -173,13 +172,14 @@ export function NewsPage() {
                           diVine: Everything We Know About Vine's Reboot
                         </a>
                       </CardTitle>
-                      <CardDescription>November 2025</CardDescription>
+                      <CardDescription>November 14, 2025</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-muted-foreground mb-4 leading-relaxed">
-                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey. The platform not only revives the six-second video format but also includes archived videos from the original Vine platform, preserving years of internet culture and creativity that would have otherwise been lost when Twitter shut down Vine.
+                    Jack Dorsey's latest social media experiment is launching with a promise: no AI slop. Backed by the former Twitter (now X) CEO and co-founder, the reboot of Vine—called diVine—will allow users to access over 100,000 archived six-second clips from the original platform, while creating new content in what its founders say will be a human-first space, designed to resist the spread of AI-generated content.
+
                   </p>
                   <a
                     href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
