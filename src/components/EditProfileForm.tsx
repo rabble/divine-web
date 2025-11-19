@@ -179,37 +179,20 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
           )}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="picture"
-            render={({ field }) => (
-              <ImageUploadField
-                field={field}
-                label="Profile Picture"
-                placeholder="https://example.com/profile.jpg"
-                description="URL to your profile picture. You can upload an image or provide a URL."
-                previewType="square"
-                onUpload={(file) => uploadPicture(file, 'picture')}
-              />
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="banner"
-            render={({ field }) => (
-              <ImageUploadField
-                field={field}
-                label="Banner Image"
-                placeholder="https://example.com/banner.jpg"
-                description="URL to a wide banner image for your profile. You can upload an image or provide a URL."
-                previewType="wide"
-                onUpload={(file) => uploadPicture(file, 'banner')}
-              />
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="picture"
+          render={({ field }) => (
+            <ImageUploadField
+              field={field}
+              label="Profile Picture"
+              placeholder="https://example.com/profile.jpg"
+              description="URL to your profile picture. You can upload an image or provide a URL."
+              previewType="square"
+              onUpload={(file) => uploadPicture(file, 'picture')}
+            />
+          )}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
