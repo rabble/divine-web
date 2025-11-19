@@ -318,6 +318,39 @@ export function FAQPage() {
                 </div>
               </FAQQuestion>
 
+              <FAQQuestion value="rabble-name" question="How did Rabble get their name?">
+                <div className="text-muted-foreground space-y-2">
+                  <p>
+                    In the 1990s, Rabble started an activist website called{' '}
+                    <a
+                      href="http://protest.net"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      protest.net
+                    </a>{' '}
+                    and helped build the media activist network{' '}
+                    <a
+                      href="http://indymedia.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      indymedia.org
+                    </a>
+                    . In that work, they didn't want to use their real name online, so they set up a contact
+                    email: rabble-rousers@protest.net. That got shortened to "rabble."
+                  </p>
+                  <p>
+                    When Odeo (the company that became Twitter) started, there were two Evans on the team:
+                    Rabble and Evan Williams. To keep everyone from getting confused, Mr. Williams went by "Ev"
+                    and Rabble used their username around the office. It stuck, and the nickname migrated from
+                    online to the real world.
+                  </p>
+                </div>
+              </FAQQuestion>
+
               <FAQQuestion value="jack-dorsey-ownership" question="Does Jack Dorsey own all or part of diVine?">
                 <div className="text-muted-foreground">
                   <p>
