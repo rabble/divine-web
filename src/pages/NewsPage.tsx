@@ -3,8 +3,7 @@
 
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ExternalLink, FileText, Mail } from 'lucide-react';
+import { ExternalLink, FileText } from 'lucide-react';
 import { MarketingLayout } from '@/components/MarketingLayout';
 
 const NEWS_OUTLETS = [
@@ -36,24 +35,7 @@ export function NewsPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-2">diVine News & Press</h1>
-          <p className="text-muted-foreground mb-4">
-            Press releases, media coverage, and announcements about diVine
-          </p>
-          <div className="flex gap-3">
-            <Button asChild variant="outline">
-              <Link to="/media-resources" className="inline-flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                Media Resources
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/support" className="inline-flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                Press Contact
-              </Link>
-            </Button>
-          </div>
+          <h1 className="text-4xl font-bold mb-6">diVine News & Press</h1>
         </div>
 
         <div className="space-y-8">
@@ -67,7 +49,7 @@ export function NewsPage() {
                   href={outlet.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="grayscale hover:grayscale-0 opacity-70 hover:opacity-100 transition-all duration-200"
+                  className="hover:grayscale hover:opacity-70 transition-all duration-200"
                   aria-label={`Read about Divine on ${outlet.name}`}
                 >
                   <img
