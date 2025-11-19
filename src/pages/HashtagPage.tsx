@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Grid3X3, List, Hash, Flame, TrendingUp, Zap, Scale } from 'lucide-react';
+import { ArrowLeft, Grid3X3, List, Hash } from 'lucide-react';
 import { useSeoMeta } from '@unhead/react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
@@ -14,15 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { SortMode } from '@/types/nostr';
+import { EXTENDED_SORT_MODES as SORT_MODES } from '@/lib/constants/sortModes';
 
 type ViewMode = 'feed' | 'grid';
-
-const SORT_MODES = [
-  { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
-  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
-  { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
-  { value: 'controversial' as SortMode, label: 'Controversial', icon: Scale },
-];
 
 export function HashtagPage() {
   const { tag } = useParams<{ tag: string }>();

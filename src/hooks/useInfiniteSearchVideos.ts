@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter, SortMode } from '@/types/nostr';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
+import { parseVideoEvents } from '@/lib/videoParser';
 import { debugLog } from '@/lib/debug';
 
 interface UseInfiniteSearchVideosOptions {
@@ -21,64 +21,6 @@ interface UseInfiniteSearchVideosOptions {
 interface VideoPage {
   videos: ParsedVideoData[];
   nextCursor: number | undefined;
-}
-
-/**
- * Validates that a NIP-71 video event has required fields
- */
-function validateVideoEvent(event: NostrEvent): boolean {
-  if (!VIDEO_KINDS.includes(event.kind)) return false;
-
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) return false;
-  }
-
-  return true;
-}
-
-/**
- * Parse video events into standardized format
- */
-function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
-  const parsedVideos: ParsedVideoData[] = [];
-
-  for (const event of events) {
-    if (!validateVideoEvent(event)) continue;
-
-    const videoEvent = parseVideoEvent(event);
-    if (!videoEvent) continue;
-
-    const vineId = getVineId(event);
-    if (!vineId && event.kind === 34236) continue;
-
-    parsedVideos.push({
-      id: event.id,
-      pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
-      createdAt: event.created_at,
-      originalVineTimestamp: getOriginalVineTimestamp(event),
-      content: event.content,
-      videoUrl: videoEvent.videoMetadata!.url,
-      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
-      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
-      thumbnailUrl: getThumbnailUrl(videoEvent),
-      title: videoEvent.title,
-      duration: videoEvent.videoMetadata?.duration,
-      hashtags: videoEvent.hashtags || [],
-      vineId,
-      loopCount: getLoopCount(event),
-      likeCount: getOriginalLikeCount(event),
-      repostCount: getOriginalRepostCount(event),
-      commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event),
-      origin: getOriginPlatform(event),
-      isVineMigrated: isVineMigrated(event),
-      reposts: []
-    });
-  }
-
-  return parsedVideos;
 }
 
 /**
