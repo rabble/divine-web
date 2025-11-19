@@ -72,7 +72,7 @@ export function NewsPage() {
             <div className="space-y-6">
               <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-6">
                     <img
                       src="/logos/techcrunch.png"
                       alt="TechCrunch"
@@ -111,7 +111,7 @@ export function NewsPage() {
 
               <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-6">
                     <img
                       src="/logos/businessinsider.png"
                       alt="Business Insider"
@@ -150,7 +150,7 @@ export function NewsPage() {
 
               <Card className="border-2 border-primary/20">
                 <CardHeader>
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-start gap-6">
                     <img
                       src="/logos/newsweek.png"
                       alt="Newsweek"
@@ -189,9 +189,9 @@ export function NewsPage() {
             </div>
           </div>
 
-          {/* Media Coverage */}
+          {/* More Coverage */}
           <div>
-            <h2 className="text-2xl font-bold mb-4">Media Coverage</h2>
+            <h2 className="text-2xl font-bold mb-4">More Coverage</h2>
             <div className="space-y-3">
               <Card>
                 <CardContent className="py-4">
