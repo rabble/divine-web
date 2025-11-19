@@ -76,6 +76,80 @@ export function NewsPage() {
                     <div className="space-y-1">
                       <CardTitle>
                         <a
+                          href="https://www.vice.com/en/article/vine-relaunches-as-divine/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Vine Relaunches as Divine
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 2025 • Vice
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    The beloved short-form video platform Vine is making a comeback as diVine, backed by Jack Dorsey.
+                  </p>
+                  <a
+                    href="https://www.vice.com/en/article/vine-relaunches-as-divine/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Read on Vice
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
+                          href="https://stuff.co.za/2025/11/17/light-start-do-it-for-divine-send-a-ride/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Light Start: Do it for diVine, Send a Ride
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 17, 2025 • Stuff.co.za
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Coverage of diVine's launch and its mission to bring back authentic short-form video content.
+                  </p>
+                  <a
+                    href="https://stuff.co.za/2025/11/17/light-start-do-it-for-divine-send-a-ride/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Read on Stuff
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
                           href="https://www.cnn.com/2025/11/14/business/video/divine-jack-dorsey-cli-hrzn"
                           target="_blank"
                           rel="noopener noreferrer"
