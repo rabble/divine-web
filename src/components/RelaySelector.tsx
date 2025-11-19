@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { PRESET_RELAYS, toLegacyFormat } from '@/config/relays';
 
 interface RelaySelectorProps {
   className?: string;
@@ -24,14 +25,8 @@ export function RelaySelector({ className }: RelaySelectorProps) {
     }));
   };
 
-  // Use preset relays if available, otherwise provide defaults
-  const relays = presetRelays || [
-    { name: 'Divine Video', url: 'wss://relay.divine.video' },
-    { name: 'Ditto', url: 'wss://relay.ditto.pub' },
-    { name: 'Nostr.Band', url: 'wss://relay.nostr.band' },
-    { name: 'Damus', url: 'wss://relay.damus.io' },
-    { name: 'Primal', url: 'wss://relay.primal.net' },
-  ];
+  // Use preset relays from context if available, otherwise use centralized defaults
+  const relays = presetRelays || toLegacyFormat(PRESET_RELAYS);
 
   return (
     <Select value={config.relayUrl} onValueChange={handleRelayChange}>

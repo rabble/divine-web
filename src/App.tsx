@@ -17,6 +17,7 @@ import { NWCProvider } from '@/contexts/NWCContext';
 import { AppConfig } from '@/contexts/AppContext';
 import { VideoPlaybackProvider } from '@/contexts/VideoPlaybackContext';
 import AppRouter from './AppRouter';
+import { PRIMARY_RELAY, PRESET_RELAYS, toLegacyFormat } from '@/config/relays';
 
 const head = createHead({
   plugins: [
@@ -36,20 +37,13 @@ const queryClient = new QueryClient({
 
 const defaultConfig: AppConfig = {
   theme: "light",
-  relayUrl: "wss://relay.divine.video", // Primary relay with NIP-50 support
+  relayUrl: PRIMARY_RELAY.url, // Primary relay with NIP-50 support
   relayUrls: [
-    "wss://relay.divine.video",
+    PRIMARY_RELAY.url,
   ],
 };
 
-const presetRelays = [
-  { url: 'wss://relay.divine.video', name: 'Divine' },
-  { url: 'wss://divine.diy', name: 'divine.diy' },
-  { url: 'wss://relay.ditto.pub', name: 'Ditto' },
-  { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },
-  { url: 'wss://relay.damus.io', name: 'Damus' },
-  { url: 'wss://relay.primal.net', name: 'Primal' },
-];
+const presetRelays = toLegacyFormat(PRESET_RELAYS);
 
 export function App() {
   return (
