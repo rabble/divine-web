@@ -66,6 +66,123 @@ export function NewsPage() {
             </div>
           </div>
 
+          {/* Featured Media */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Featured Media</h2>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
+                          href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 12, 2025 • TechCrunch
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017.
+                  </p>
+                  <a
+                    href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Read on TechCrunch
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
+                          href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Vine reboot diVine Jack Dorsey andotherstuff
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 2025 • Business Insider
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video.
+                  </p>
+                  <a
+                    href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Read on Business Insider
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle>
+                        <a
+                          href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-primary transition-colors"
+                        >
+                          diVine: Everything We Know About Vine's Reboot
+                        </a>
+                      </CardTitle>
+                      <CardDescription>
+                        November 2025 • Newsweek
+                      </CardDescription>
+                    </div>
+                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey.
+                  </p>
+                  <a
+                    href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
+                  >
+                    Read on Newsweek
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
           {/* Media Coverage */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Media Coverage</h2>
@@ -213,117 +330,6 @@ export function NewsPage() {
                     className="text-primary hover:underline font-medium inline-flex items-center gap-1"
                   >
                     Read on Yahoo News
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
-                        <a
-                          href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-primary transition-colors"
-                        >
-                          Vine reboot diVine Jack Dorsey andotherstuff
-                        </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 2025 • Business Insider
-                      </CardDescription>
-                    </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey's andotherstuff is bringing back Vine as diVine, an open-source platform for short-form video.
-                  </p>
-                  <a
-                    href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on Business Insider
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
-                        <a
-                          href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-primary transition-colors"
-                        >
-                          diVine: Everything We Know About Vine's Reboot
-                        </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 2025 • Newsweek
-                      </CardDescription>
-                    </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Everything you need to know about diVine, the spiritual successor to Vine backed by Jack Dorsey.
-                  </p>
-                  <a
-                    href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on Newsweek
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-1">
-                      <CardTitle>
-                        <a
-                          href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="hover:text-primary transition-colors"
-                        >
-                          Jack Dorsey funds diVine, a Vine reboot that includes Vine's video archive
-                        </a>
-                      </CardTitle>
-                      <CardDescription>
-                        November 12, 2025 • TechCrunch
-                      </CardDescription>
-                    </div>
-                    <ExternalLink className="h-5 w-5 text-muted-foreground shrink-0" />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4">
-                    Jack Dorsey, the co-founder of Twitter, is backing diVine, an open-source app that is reminiscent of Vine, the short-form video app that Twitter shut down in 2017.
-                  </p>
-                  <a
-                    href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline font-medium inline-flex items-center gap-1"
-                  >
-                    Read on TechCrunch
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 </CardContent>
