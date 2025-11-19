@@ -34,6 +34,7 @@ All notable changes to Divine Web will be documented in this file.
 - **"Divine needs a rest" empty state** - Beautiful empty state with full-width reclining Divine photo by Marcus Leatherdale when no videos are found
 
 ### Changed
+- **FAQ monetization section updated** - Removed specific details about Lightning Network zaps and Cashu wallets from monetization FAQ
 - **FAQ moderation label updated** - Changed "How does moderation work?" to "diVine trust and safety guidelines and policy" for clearer policy documentation
 - **Branding consistency** - Changed "Divine" to "diVine" throughout the application for consistent brand styling
 - **Navigation improvements** - Simplified header dropdown menus and reorganized footer navigation

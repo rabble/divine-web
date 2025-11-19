@@ -887,21 +887,6 @@ export function FAQPage() {
                     using Nostr, this new system can never be taken away from you.
                   </p>
 
-                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
-                    <p className="font-semibold mb-2">Coming Soon: Direct Creator Payments</p>
-                    <p>
-                      We're actively developing a system using Nostr's zaps (Lightning Network payments) and
-                      Cashu wallets for tips and micropayments directly from users to creators. When launched,
-                      this will enable:
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
-                      <li>Viewers can tip creators directly for great content</li>
-                      <li>No middleman taking a large cut of your earnings</li>
-                      <li>Instant, low-fee payments using Bitcoin's Lightning Network</li>
-                      <li>Privacy-preserving payments using Cashu ecash</li>
-                    </ul>
-                  </div>
-
                   <div>
                     <p className="font-semibold mb-1">Future Paid Features</p>
                     <p>
