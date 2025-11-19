@@ -8,14 +8,14 @@ import { MarketingLayout } from '@/components/MarketingLayout';
 
 const NEWS_OUTLETS = [
   {
-    name: 'TechCrunch',
-    logo: '/logos/techcrunch.png',
-    url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
-  },
-  {
     name: 'Yahoo',
     logo: '/logos/yahoo.png',
     url: 'https://www.yahoo.com/news/article/what-to-know-about-jack-dorseys-new-vine-revival-divine-215918687.html',
+  },
+  {
+    name: 'TechCrunch',
+    logo: '/logos/techcrunch.png',
+    url: 'https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/',
   },
   {
     name: 'Business Insider',
@@ -68,6 +68,7 @@ export function NewsPage() {
 
           {/* Featured Media */}
           <div>
+            <h2 className="text-2xl font-bold mb-6">Featured Media</h2>
             <div className="space-y-6">
               <Card className="border-2 border-primary/20">
                 <CardHeader>
@@ -80,7 +81,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-2xl">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
                           target="_blank"
@@ -121,7 +122,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-2xl">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
                           target="_blank"
@@ -162,7 +163,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-2xl">
+                      <CardTitle className="text-xl">
                         <a
                           href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
                           target="_blank"
@@ -213,7 +214,7 @@ export function NewsPage() {
                           Vine Relaunches as Divine
                         </a>
                       </h3>
-                      <p className="text-sm text-muted-foreground">Vice • November 2025</p>
+                      <p className="text-sm text-muted-foreground">Vice • November 18, 2025</p>
                     </div>
                     <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
@@ -276,7 +277,7 @@ export function NewsPage() {
                           What to know about Jack Dorsey's new Vine revival, Divine
                         </a>
                       </h3>
-                      <p className="text-sm text-muted-foreground">Yahoo News • November 2025</p>
+                      <p className="text-sm text-muted-foreground">Yahoo News • November 14, 2025</p>
                     </div>
                     <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0 mt-1" />
                   </div>
