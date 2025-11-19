@@ -141,22 +141,39 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your name" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your display name that will be displayed to others.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your name" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your display name that will be displayed to others.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="picture"
+            render={({ field }) => (
+              <ImageUploadField
+                field={field}
+                label="Profile Picture"
+                placeholder="https://example.com/profile.jpg"
+                description="URL to your profile picture. You can upload an image or provide a URL."
+                previewType="square"
+                onUpload={(file) => uploadPicture(file, 'picture')}
+              />
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
@@ -176,21 +193,6 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
               </FormDescription>
               <FormMessage />
             </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="picture"
-          render={({ field }) => (
-            <ImageUploadField
-              field={field}
-              label="Profile Picture"
-              placeholder="https://example.com/profile.jpg"
-              description="URL to your profile picture. You can upload an image or provide a URL."
-              previewType="square"
-              onUpload={(file) => uploadPicture(file, 'picture')}
-            />
           )}
         />
 
