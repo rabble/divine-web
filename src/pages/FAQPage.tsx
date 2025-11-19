@@ -352,10 +352,16 @@ export function FAQPage() {
               </FAQQuestion>
 
               <FAQQuestion value="jack-dorsey-ownership" question="Does Jack Dorsey own all or part of diVine?">
-                <div className="text-muted-foreground">
+                <div className="text-muted-foreground space-y-3">
                   <p>
                     No. While Jack Dorsey is providing funding for diVine, it is not an investment and he holds no equity in, or ownership of diVine.
                   </p>
+                  <p>
+                    Jack Dorsey explains his support:
+                  </p>
+                  <blockquote className="border-l-4 border-primary/30 pl-4 italic text-sm">
+                    "Nostr - the underlying open source protocol being used by Divine - is empowering developers to create a new generation of apps without the need for VC-backing, toxic business models or huge teams of engineers. The reason I funded the non-profit, and Other Stuff, is to allow creative engineers like Rabble to show what's possible in this new world, by using permissionless protocols which can't be shut down based on the whim of a corporate owner."
+                  </blockquote>
                 </div>
               </FAQQuestion>
             </Accordion>
