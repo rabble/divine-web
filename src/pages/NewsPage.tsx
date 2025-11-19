@@ -66,39 +66,6 @@ export function NewsPage() {
             </div>
           </div>
 
-          {/* Press Release */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-2xl">
-                    <Link
-                      to="/news/vine-revisited"
-                      className="hover:text-primary transition-colors"
-                    >
-                      Vine Revisited - A Return to the Halcyon Days of the Internet
-                    </Link>
-                  </CardTitle>
-                  <CardDescription>
-                    November 13, 2025 • Press Release
-                  </CardDescription>
-                </div>
-                <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                With a grant funded by Jack Dorsey, Rabble has created diVine - an open source revival of Vine videos and its six-second video creation capabilities.
-              </p>
-              <Link
-                to="/news/vine-revisited"
-                className="text-primary hover:underline font-medium"
-              >
-                Read full press release →
-              </Link>
-            </CardContent>
-          </Card>
-
           {/* Media Coverage */}
           <div>
             <h2 className="text-2xl font-bold mb-4">Media Coverage</h2>
@@ -285,6 +252,44 @@ export function NewsPage() {
                     Read on TechCrunch
                     <ExternalLink className="h-4 w-4" />
                   </a>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Press Releases */}
+          <div>
+            <h2 className="text-2xl font-bold mb-4">Press Releases</h2>
+            <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-1">
+                      <CardTitle className="text-2xl">
+                        <Link
+                          to="/news/vine-revisited"
+                          className="hover:text-primary transition-colors"
+                        >
+                          Vine Revisited - A Return to the Halcyon Days of the Internet
+                        </Link>
+                      </CardTitle>
+                      <CardDescription>
+                        November 13, 2025 • Press Release
+                      </CardDescription>
+                    </div>
+                    <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    With a grant funded by Jack Dorsey, Rabble has created diVine - an open source revival of Vine videos and its six-second video creation capabilities.
+                  </p>
+                  <Link
+                    to="/news/vine-revisited"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    Read full press release →
+                  </Link>
                 </CardContent>
               </Card>
             </div>
