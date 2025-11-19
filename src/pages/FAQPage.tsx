@@ -567,7 +567,7 @@ export function FAQPage() {
                 </div>
               </FAQQuestion>
 
-              <FAQQuestion value="moderation" question="How does moderation work?">
+              <FAQQuestion value="moderation" question="diVine trust and safety guidelines and policy">
                 <div className="text-muted-foreground space-y-2">
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                     <p className="font-semibold text-destructive mb-2">
