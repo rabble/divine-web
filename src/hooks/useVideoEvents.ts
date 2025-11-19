@@ -10,7 +10,7 @@ import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
 import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter } from '@/types/nostr';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime, validateVideoEvent } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
 
@@ -22,22 +22,6 @@ interface UseVideoEventsOptions {
   limit?: number;
   until?: number; // For pagination - get videos before this timestamp
   sortMode?: SortMode; // NIP-50 sort mode override
-}
-
-/**
- * Validates that a video event (kind 34236) has required fields
- */
-function validateVideoEvent(event: NostrEvent): boolean {
-  if (!VIDEO_KINDS.includes(event.kind)) return false;
-
-  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
-  const vineId = getVineId(event);
-  if (!vineId) {
-    debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-    return false;
-  }
-
-  return true;
 }
 
 /**
