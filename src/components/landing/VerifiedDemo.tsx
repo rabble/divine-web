@@ -10,7 +10,7 @@ export function VerifiedDemo() {
       <CardContent className="pt-6 pb-6 h-full flex flex-col">
         <div className="flex flex-col items-center gap-3 flex-1">
           <Shield className="h-8 w-8 text-green-500 group-hover:scale-110 transition-transform flex-shrink-0" />
-          <h3 className="font-semibold flex-shrink-0">Verified</h3>
+          <h3 className="font-semibold flex-shrink-0 text-foreground">Verified</h3>
 
           <div className="w-full flex-1 flex flex-col justify-center">
             {/* Stock image with verification badge */}

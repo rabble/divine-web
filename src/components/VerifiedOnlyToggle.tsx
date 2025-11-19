@@ -22,9 +22,9 @@ export function VerifiedOnlyToggle({ enabled, onToggle, className }: VerifiedOnl
         />
         <Label
           htmlFor="verified-only"
-          className="flex items-center gap-2 cursor-pointer text-sm"
+          className="flex items-center gap-2 cursor-pointer text-sm text-foreground"
         >
-          <ShieldCheck className="h-4 w-4 text-green-600" />
+          <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
           <span>Verified</span>
         </Label>
       </div>
