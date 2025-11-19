@@ -12,8 +12,6 @@ interface PostCommentParams {
 type CommentsQueryData = {
   allComments: NostrEvent[];
   topLevelComments: NostrEvent[];
-  getDescendants: (commentId: string) => NostrEvent[];
-  getDirectReplies: (commentId: string) => NostrEvent[];
 };
 
 /** Post a NIP-22 (kind 1111) comment on an event. */
@@ -118,7 +116,6 @@ export function usePostComment() {
       allQueries.forEach(([queryKey, previousData]) => {
         if (previousData) {
           queryClient.setQueryData<CommentsQueryData>(queryKey, {
-            ...previousData,
             allComments: [optimisticComment, ...previousData.allComments],
             topLevelComments: !reply 
               ? [optimisticComment, ...previousData.topLevelComments]
@@ -140,7 +137,6 @@ export function usePostComment() {
       allQueries.forEach(([queryKey, previousData]) => {
         if (previousData && context) {
           queryClient.setQueryData<CommentsQueryData>(queryKey, {
-            ...previousData,
             allComments: [
               newEvent,
               ...previousData.allComments.filter(c => c.id !== context.optimisticId)
@@ -152,13 +148,8 @@ export function usePostComment() {
         }
       });
       
-      // Mark query as stale but don't refetch immediately (relay index may not be updated yet)
-      queryClient.invalidateQueries({ 
-        queryKey: ['nostr', 'comments', rootId],
-        refetchType: 'none'
-      });
-      
       // Schedule background refetch after relay's OpenSearch index refresh (5s interval + 1s buffer)
+      // Don't refetch immediately - the relay index hasn't refreshed yet
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['nostr', 'comments', rootId] });
       }, 6000);
