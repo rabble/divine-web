@@ -54,12 +54,12 @@ export function AppFooter() {
                 <Link to="/media-resources" className="hover:text-foreground transition-colors">
                   Media Resources
                 </Link>
-                <span>•</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
                 <Link to="/support" className="hover:text-foreground transition-colors">
                   Help
                 </Link>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
+                <span>•</span>
                 <Link to="/privacy" className="hover:text-foreground transition-colors">
                   Privacy
                 </Link>
