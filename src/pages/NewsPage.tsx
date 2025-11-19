@@ -80,7 +80,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-2xl">
                         <a
                           href="https://techcrunch.com/2025/11/12/jack-dorsey-funds-divine-a-vine-reboot-that-includes-vines-video-archive/"
                           target="_blank"
@@ -121,7 +121,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-2xl">
                         <a
                           href="https://www.businessinsider.com/vine-reboot-divine-jack-dorsey-andotherstuff-2025-11"
                           target="_blank"
@@ -162,7 +162,7 @@ export function NewsPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2">
-                      <CardTitle className="text-xl">
+                      <CardTitle className="text-2xl">
                         <a
                           href="https://www.newsweek.com/divine-everything-we-know-about-vines-reboot-11048434"
                           target="_blank"
