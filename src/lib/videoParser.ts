@@ -615,6 +615,7 @@ export function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
       fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
       hlsUrl: videoEvent.videoMetadata?.hlsUrl,
       thumbnailUrl: getThumbnailUrl(videoEvent),
+      blurhash: videoEvent.videoMetadata?.blurhash,
       title: videoEvent.title,
       duration: videoEvent.videoMetadata?.duration,
       hashtags: videoEvent.hashtags || [],
@@ -626,7 +627,8 @@ export function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
       isVineMigrated: isVineMigrated(event),
-      reposts: []
+      reposts: [],
+      originalEvent: event
     });
   }
 
