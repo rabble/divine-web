@@ -60,6 +60,9 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
   const hasReplies = replies.length > 0;
 
   const isOwnComment = user?.pubkey === comment.pubkey;
+  
+  // Check if this is an optimistic (pending) comment
+  const isOptimistic = (comment as any)._optimistic === true;
 
   // Parent comment data (passed as prop when this is a reply)
   const parentAuthor = useAuthor(parentComment?.pubkey || '');
@@ -120,7 +123,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
-      <Card className="bg-card/50">
+      <Card className={`bg-card/50 transition-opacity ${isOptimistic ? 'opacity-60' : 'opacity-100'}`}>
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Comment Header */}
@@ -141,7 +144,10 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
                   >
                     {displayName}
                   </Link>
-                  <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {timeAgo}
+                    {isOptimistic && <span className="ml-1 italic">(sending...)</span>}
+                  </p>
                 </div>
               </div>
             </div>
