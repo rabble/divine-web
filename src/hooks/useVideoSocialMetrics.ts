@@ -14,25 +14,42 @@ export interface VideoSocialMetrics {
 /**
  * Fetch social interaction metrics for a video event
  * Uses batched queries to efficiently fetch likes, reposts, and views
+ *
+ * @param videoId - The video event ID
+ * @param videoPubkey - The video author's pubkey (required for addressable events)
+ * @param vineId - The video's vineId (d tag) for addressable events
  */
-export function useVideoSocialMetrics(videoId: string, _videoPubkey?: string) {
+export function useVideoSocialMetrics(videoId: string, videoPubkey?: string, vineId?: string | null) {
   const { nostr } = useNostr();
 
   return useQuery({
-    queryKey: ['video-social-metrics', videoId],
+    queryKey: ['video-social-metrics', videoId, videoPubkey, vineId],
     queryFn: async (context) => {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(3000)]);
 
       try {
-        // Batch query for all social interactions related to this video
-        // Using a single query with multiple kinds for efficiency
-        const events = await nostr.query([
+        // For kind 34236 (addressable videos), we need to query by both #e and #a tags
+        // - #e tag: Used by likes (kind 7) and reposts (kind 6)
+        // - #a tag: Used by comments (kind 1111) for addressable events
+        const filters = [
           {
-            kinds: [1, 6, 7, 1111, 9735], // comments, reposts, reactions, NIP-22 comments, zap receipts
-            '#e': [videoId], // events that reference this video
-            limit: 500, // generous limit to capture all interactions
+            kinds: [6, 7, 9735], // reposts, reactions, zap receipts
+            '#e': [videoId], // Standard event references
+            limit: 500,
           }
-        ], { signal });
+        ];
+
+        // Add addressable event filter for comments if we have the required data
+        if (videoPubkey && vineId) {
+          const addressableId = `34236:${videoPubkey}:${vineId}`;
+          filters.push({
+            kinds: [1111], // NIP-22 comments
+            '#a': [addressableId], // Addressable event references
+            limit: 500,
+          });
+        }
+
+        const events = await nostr.query(filters, { signal });
 
         let likeCount = 0;
         let repostCount = 0;

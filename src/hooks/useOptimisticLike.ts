@@ -10,6 +10,7 @@ import type { VideoSocialMetrics } from '@/hooks/useVideoSocialMetrics';
 interface OptimisticLikeParams {
   videoId: string;
   videoPubkey: string;
+  vineId: string | null;
   userPubkey: string;
   isCurrentlyLiked: boolean;
   currentLikeEventId: string | null;
@@ -30,11 +31,12 @@ export function useOptimisticLike() {
   const toggleLike = async ({
     videoId,
     videoPubkey,
+    vineId,
     userPubkey,
     isCurrentlyLiked,
     currentLikeEventId,
   }: OptimisticLikeParams) => {
-    const metricsQueryKey = ['video-social-metrics', videoId];
+    const metricsQueryKey = ['video-social-metrics', videoId, videoPubkey, vineId];
     const interactionsQueryKey = ['video-user-interactions', videoId, userPubkey];
 
     // Store previous state for rollback

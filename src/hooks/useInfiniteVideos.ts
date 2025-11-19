@@ -107,14 +107,18 @@ export function useInfiniteVideos({
   const { config } = useAppContext();
   const supportsNIP50 = useNIP50Support();
 
-  // Auto-determine sort mode if not specified
-  const requestedSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+  // Auto-determine sort mode ONLY for trending/discovery feeds
+  // Home feed should always be chronological unless explicitly sorted
+  let requestedSortMode = sortMode;
+  if (!sortMode && feedType === 'trending') {
+    requestedSortMode = 'hot';
+  }
 
-  // Only use sort mode if relay supports NIP-50
-  const effectiveSortMode = supportsNIP50 ? requestedSortMode : undefined;
+  // Only use sort mode if relay supports NIP-50 AND a sort mode is requested
+  const effectiveSortMode = (supportsNIP50 && requestedSortMode) ? requestedSortMode : undefined;
 
   if (!supportsNIP50 && requestedSortMode) {
-    debugLog(`[useInfiniteVideos] Relay doesn't support NIP-50, will use client-side sorting fallback`);
+    debugLog(`[useInfiniteVideos] Relay doesn't support NIP-50, will use chronological order instead of sort:${requestedSortMode}`);
   }
 
   return useInfiniteQuery<VideoPage, Error>({
@@ -182,14 +186,12 @@ export function useInfiniteVideos({
           break;
 
         case 'discovery':
-          // Only add search if relay supports NIP-50
+          // Only add search if relay supports NIP-50 and a sort mode is provided
           if (effectiveSortMode) {
-            // Use the requested sort mode, defaulting to 'top' for discovery
-            const discoverySort = sortMode || 'top';
-            debugLog(`[useInfiniteVideos] 🔍 Discovery feed with sort mode: ${discoverySort}`);
-            filter.search = `sort:${discoverySort}`;
+            debugLog(`[useInfiniteVideos] 🔍 Discovery feed with sort mode: ${effectiveSortMode}`);
+            filter.search = `sort:${effectiveSortMode}`;
           } else {
-            debugLog('[useInfiniteVideos] ⚠️ Discovery feed WITHOUT sort mode (relay may not support NIP-50)');
+            debugLog('[useInfiniteVideos] ⚠️ Discovery feed in chronological order (no sort mode)');
           }
           break;
 

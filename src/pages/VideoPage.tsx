@@ -130,7 +130,13 @@ export function VideoPage() {
 
       // Invalidate queries to refresh UI
       queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
+      // Invalidate all variants of social metrics for this video
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          Array.isArray(query.queryKey) &&
+          query.queryKey[0] === 'video-social-metrics' &&
+          query.queryKey[1] === video.id
+      });
     } catch (error) {
       console.error('Failed to like video:', error);
       toast({
@@ -176,7 +182,13 @@ export function VideoPage() {
 
       // Invalidate queries to refresh UI
       queryClient.invalidateQueries({ queryKey: ['video-user-interactions', video.id] });
-      queryClient.invalidateQueries({ queryKey: ['video-social-metrics', video.id] });
+      // Invalidate all variants of social metrics for this video
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          Array.isArray(query.queryKey) &&
+          query.queryKey[0] === 'video-social-metrics' &&
+          query.queryKey[1] === video.id
+      });
     } catch (error) {
       console.error('Failed to repost video:', error);
       toast({
@@ -259,7 +271,7 @@ export function VideoPage() {
 
   // Helper component to provide social metrics data for the video
   function VideoCardWithMetrics({ video }: { video: ParsedVideoData }) {
-    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
+    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey, video.vineId);
     const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
 
     const handleVideoLike = async () => {
