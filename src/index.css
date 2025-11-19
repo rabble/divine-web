@@ -162,6 +162,22 @@
     @apply bg-primary/20 text-primary;
   }
 
+  /* Global scrollbar styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 9999px;
+  }
+
+  .dark * { scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent; }
+  .dark *::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.4); }
+
   /* Safe area support for mobile bottom navigation */
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
     .safe-area-bottom {

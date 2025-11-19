@@ -1,9 +1,8 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText, Moon, Sun } from 'lucide-react';
+import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -18,13 +17,8 @@ export function AppHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useCurrentUser();
-  const { displayTheme, setTheme } = useTheme();
 
   const isActive = (path: string) => location.pathname === path;
-
-  const toggleTheme = () => {
-    setTheme(displayTheme === 'dark' ? 'light' : 'dark');
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/10 bg-background/80 backdrop-blur-md shadow-sm">
@@ -39,7 +33,7 @@ export function AppHeader() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {/* Main navigation - hidden on mobile, shown in bottom nav */}
+          {/* Main navigation - hidden on mobile when BottomNav is visible */}
           {user && (
             <Button
               variant="ghost"
@@ -131,21 +125,6 @@ export function AppHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          {/* Theme toggle button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            className="h-9 w-9"
-            aria-label={displayTheme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-          >
-            {displayTheme === 'dark' ? (
-              <Sun className="h-4 w-4" />
-            ) : (
-              <Moon className="h-4 w-4" />
-            )}
-          </Button>
 
           <LoginArea className="max-w-60" />
         </div>
