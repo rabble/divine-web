@@ -35,7 +35,7 @@ export function NewsPage() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-8">
         <div>
-          <h1 className="text-4xl font-bold mb-6">diVine News & Press</h1>
+          <h1 className="text-4xl font-bold mb-6">Latest News</h1>
         </div>
 
         <div className="space-y-8">
