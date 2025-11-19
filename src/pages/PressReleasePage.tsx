@@ -4,10 +4,12 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function PressReleasePage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-8">
         {/* Back link */}
         <Link
@@ -98,6 +100,7 @@ export function PressReleasePage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

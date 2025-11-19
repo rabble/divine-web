@@ -6,10 +6,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Heart, Archive, Shield } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function AboutPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">About diVine</h1>
 
@@ -316,6 +318,7 @@ export function AboutPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

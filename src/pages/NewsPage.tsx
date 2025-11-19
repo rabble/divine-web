@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ExternalLink, FileText, Mail } from 'lucide-react';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 const NEWS_OUTLETS = [
   {
@@ -31,7 +32,8 @@ const NEWS_OUTLETS = [
 
 export function NewsPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-2">diVine News & Press</h1>
@@ -308,6 +310,7 @@ export function NewsPage() {
         </div>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

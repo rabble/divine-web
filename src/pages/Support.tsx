@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function Support() {
   useEffect(() => {
@@ -55,7 +56,8 @@ export function Support() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8">
+    <MarketingLayout>
+      <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Support</h1>
@@ -156,5 +158,6 @@ export function Support() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
