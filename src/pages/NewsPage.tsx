@@ -73,13 +73,6 @@ export function NewsPage() {
               <Card className="border-2 border-primary/20">
                 <CardHeader>
                   <div className="flex items-start gap-6">
-                    <div className="w-32 shrink-0">
-                      <img
-                        src="/logos/techcrunch.png"
-                        alt="TechCrunch"
-                        className="w-full h-auto object-contain mt-1"
-                      />
-                    </div>
                     <div className="flex-1 space-y-2">
                       <CardTitle className="text-xl">
                         <a
@@ -92,6 +85,13 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>November 12, 2025</CardDescription>
+                    </div>
+                    <div className="w-32 shrink-0">
+                      <img
+                        src="/logos/techcrunch.png"
+                        alt="TechCrunch"
+                        className="w-full h-auto object-contain mt-1"
+                      />
                     </div>
                   </div>
                 </CardHeader>
@@ -114,13 +114,6 @@ export function NewsPage() {
               <Card className="border-2 border-primary/20">
                 <CardHeader>
                   <div className="flex items-start gap-6">
-                    <div className="w-32 shrink-0">
-                      <img
-                        src="/logos/businessinsider.png"
-                        alt="Business Insider"
-                        className="w-full h-auto object-contain mt-1"
-                      />
-                    </div>
                     <div className="flex-1 space-y-2">
                       <CardTitle className="text-xl">
                         <a
@@ -133,6 +126,13 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>November 2025</CardDescription>
+                    </div>
+                    <div className="w-32 shrink-0">
+                      <img
+                        src="/logos/businessinsider.png"
+                        alt="Business Insider"
+                        className="w-full h-auto object-contain mt-1"
+                      />
                     </div>
                   </div>
                 </CardHeader>
@@ -155,13 +155,6 @@ export function NewsPage() {
               <Card className="border-2 border-primary/20">
                 <CardHeader>
                   <div className="flex items-start gap-6">
-                    <div className="w-32 shrink-0">
-                      <img
-                        src="/logos/newsweek.png"
-                        alt="Newsweek"
-                        className="w-full h-auto object-contain"
-                      />
-                    </div>
                     <div className="flex-1 space-y-2">
                       <CardTitle className="text-xl">
                         <a
@@ -174,6 +167,13 @@ export function NewsPage() {
                         </a>
                       </CardTitle>
                       <CardDescription>November 2025</CardDescription>
+                    </div>
+                    <div className="w-32 shrink-0">
+                      <img
+                        src="/logos/newsweek.png"
+                        alt="Newsweek"
+                        className="w-full h-auto object-contain"
+                      />
                     </div>
                   </div>
                 </CardHeader>
