@@ -142,11 +142,12 @@ export function useRepostVideo() {
       const tags: string[][] = [
         ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],
         ['p', originalPubkey],
+        ['k', VIDEO_KIND.toString()],
         ['client', 'divine-web']
       ];
 
       const event = await publishEvent({
-        kind: 6, // Repost kind
+        kind: 16, // Generic repost kind
         content: '',
         tags
       });
