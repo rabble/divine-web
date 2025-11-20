@@ -68,17 +68,18 @@ The `imeta` tag structure follows NIP-92 with these properties:
 
 Multiple `imeta` tags may be used to specify different video variants (resolutions, formats).
 
-### Reposts (Kind 6)
+### Reposts (Kind 16)
 
-Reposts of Kind 34236 videos use standard Kind 6 events:
+Reposts of Kind 34236 videos use standard Kind 16 events:
 
 ```json
 {
-  "kind": 6,
+  "kind": 16,
   "content": "",
   "tags": [
     ["a", "34236:original_pubkey:d-tag-value"],
-    ["p", "original_author_pubkey"]
+    ["p", "original_author_pubkey"],
+    ["k", "34236"]
   ]
 }
 ```
