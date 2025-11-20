@@ -223,7 +223,7 @@ export function ProfilePage() {
             <div>
               <h2 className="text-xl font-semibold">Videos</h2>
               <p className="text-muted-foreground text-sm">
-                {stats ? `${stats.videosCount} videos` : 'Loading...'} from {displayName}
+                {videosLoading ? 'Loading...' : `${videos?.length || 0} videos`} from {displayName}
               </p>
             </div>
 
