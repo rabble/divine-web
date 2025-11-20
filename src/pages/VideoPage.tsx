@@ -444,8 +444,16 @@ export function VideoPage() {
       {(hasNext || hasPrevious) && (
         <div className="text-center mt-4">
           <div className="text-xs text-muted-foreground inline-flex items-center gap-3">
-            {hasPrevious && <span>← previous</span>}
-            {hasNext && <span>next →</span>}
+            {hasPrevious && (
+              <button onClick={goToPrevious} className="hover:underline">
+                ← previous
+              </button>
+            )}
+            {hasNext && (
+              <button onClick={goToNext} className="hover:underline">
+                next →
+              </button>
+            )}
           </div>
         </div>
       )}
