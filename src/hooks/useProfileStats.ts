@@ -1,6 +1,6 @@
 // ABOUTME: Hook for fetching profile statistics including video count, views, followers, and joined date
 // ABOUTME: Aggregates data from video events, social interactions, and contact lists
-// ABOUTME: Queries multiple relays with higher limits for accurate follower counts
+// ABOUTME: Queries multiple relays without limits for accurate counts
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
@@ -23,14 +23,12 @@ export function useProfileStats(pubkey: string) {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(10000)]);
 
       try {
-        // Optimized: Single batched query for all profile data
-        // Combine multiple filters into one WebSocket request
+        // Query all videos (no limit) and contact list
         const allEvents = await nostr.query([
-          // 1. User's videos (kind 34236 - NIP-71)
+          // 1. User's videos (kind 34236 - NIP-71) - NO LIMIT
           {
             kinds: VIDEO_KINDS,
             authors: [pubkey],
-            limit: 500,
           },
           // 2. User's own contact list (people they follow)
           {
