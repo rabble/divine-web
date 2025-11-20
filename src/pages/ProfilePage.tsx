@@ -185,6 +185,12 @@ export function ProfilePage() {
     setPendingFollowAction(null);
   };
 
+  // Use actual loaded video count instead of stats count for consistency
+  const displayStats = stats ? {
+    ...stats,
+    videosCount: videos?.length || 0,
+  } : undefined;
+
   return (
     <div className="container mx-auto px-4 py-6">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -192,7 +198,7 @@ export function ProfilePage() {
         <ProfileHeader
           pubkey={pubkey}
           metadata={metadata}
-          stats={stats}
+          stats={displayStats}
           isOwnProfile={isOwnProfile}
           isFollowing={followData?.isFollowing || false}
           onFollowToggle={handleFollowToggle}
