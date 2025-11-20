@@ -5,32 +5,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 import type { ProfileStats } from '@/components/ProfileHeader';
-import { VIDEO_KINDS } from '@/types/video';
 import { debugLog } from '@/lib/debug';
+import type { ParsedVideoData } from '@/types/video';
 
 /**
  * Fetch comprehensive profile statistics for a user
  * Includes video count, total views, follower/following counts, and joined date
  */
-export function useProfileStats(pubkey: string) {
+export function useProfileStats(pubkey: string, videos?: ParsedVideoData[]) {
   const { nostr } = useNostr();
 
   return useQuery({
-    queryKey: ['profile-stats', pubkey],
+    queryKey: ['profile-stats', pubkey, videos?.length],
     queryFn: async (context) => {
       if (!pubkey) throw new Error('No pubkey provided');
 
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(10000)]);
 
       try {
-        // Query all videos (no limit) and contact list
+        // Query contact list for social metrics
         const allEvents = await nostr.query([
-          // 1. User's videos (kind 34236 - NIP-71) - NO LIMIT
-          {
-            kinds: VIDEO_KINDS,
-            authors: [pubkey],
-          },
-          // 2. User's own contact list (people they follow)
           {
             kinds: [3],
             authors: [pubkey],
@@ -38,15 +32,13 @@ export function useProfileStats(pubkey: string) {
           }
         ], { signal });
 
-        // Separate events by type
-        const videoEvents = allEvents.filter(e => VIDEO_KINDS.includes(e.kind));
         const userContactList = allEvents.filter(e => e.kind === 3 && e.pubkey === pubkey);
 
-        // Calculate video count
-        const videosCount = videoEvents.length;
+        // Calculate video count from provided videos
+        const videosCount = videos?.length || 0;
 
         // Get video IDs for social metrics calculation
-        const videoIds = videoEvents.map(event => event.id);
+        const videoIds = videos?.map(v => v.id) || [];
 
         // Fetch social interactions for all videos
         let totalViews = 0;
@@ -93,9 +85,8 @@ export function useProfileStats(pubkey: string) {
 
         // Calculate joined date (earliest video or contact list)
         let joinedDate: Date | null = null;
-        const allUserEvents = [...videoEvents, ...userContactList];
-        if (allUserEvents.length > 0) {
-          const earliestTimestamp = Math.min(...allUserEvents.map(event => event.created_at));
+        if (userContactList.length > 0) {
+          const earliestTimestamp = Math.min(...userContactList.map(event => event.created_at));
           joinedDate = new Date(earliestTimestamp * 1000);
         }
 
@@ -112,7 +103,7 @@ export function useProfileStats(pubkey: string) {
         console.error('Failed to fetch profile stats:', error);
         // Return default stats on error
         return {
-          videosCount: 0,
+          videosCount: videos?.length || 0,
           totalViews: 0,
           joinedDate: null,
           followersCount: 0,

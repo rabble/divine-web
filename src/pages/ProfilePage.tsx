@@ -64,15 +64,14 @@ export function ProfilePage() {
   const author = pubkey ? enhanceAuthorData(authorData, pubkey) : null;
   const metadata = author?.metadata;
 
-  // Fetch profile statistics
-  const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '');
-
-  // Fetch videos
+  // Fetch ALL videos for profile (no limit)
   const { data: videos, isLoading: videosLoading, error: videosError } = useVideoEvents({
     feedType: 'profile',
     pubkey: pubkey || '',
-    limit: 50,
   });
+
+  // Fetch profile statistics - pass videos to calculate totalViews
+  const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '', videos);
 
   // Follow relationship data
   const { data: followData, isLoading: followLoading } = useFollowRelationship(pubkey || '');
