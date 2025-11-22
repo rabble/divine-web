@@ -76,14 +76,37 @@ export function AppProvider(props: AppProviderProps) {
 
 /**
  * Hook to apply theme changes to the document root
- * Note: This app always uses light theme, ignoring system preferences
+ * Respects user's theme preference (light, dark, or system)
  */
 function useApplyTheme(theme: Theme) {
   useEffect(() => {
     const root = window.document.documentElement;
 
-    // Always force light theme - remove any dark class
-    root.classList.remove('dark');
-    root.classList.add('light');
+    // Determine the actual theme to apply
+    let effectiveTheme: "light" | "dark" = "light";
+    
+    if (theme === "system") {
+      // Check system preference
+      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      effectiveTheme = systemPrefersDark ? "dark" : "light";
+    } else {
+      effectiveTheme = theme;
+    }
+
+    // Apply the theme class
+    root.classList.remove("light", "dark");
+    root.classList.add(effectiveTheme);
+
+    // Also listen for system theme changes when using "system" mode
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (event: MediaQueryListEvent) => {
+        root.classList.remove("light", "dark");
+        root.classList.add(event.matches ? "dark" : "light");
+      };
+
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
   }, [theme]);
 }

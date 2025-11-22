@@ -231,6 +231,7 @@ export default function ModerationSettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowDebug(!showDebug)}
+            className="text-foreground"
           >
             {showDebug ? 'Hide' : 'Show'} Debug Info
           </Button>

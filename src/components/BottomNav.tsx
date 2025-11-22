@@ -13,7 +13,7 @@ export function BottomNav() {
   const getUserProfilePath = () => {
     if (!user?.pubkey) return '/';
     const npub = nip19.npubEncode(user.pubkey);
-    return `/${npub}`;
+    return `/profile/${npub}`;
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -28,12 +28,12 @@ export function BottomNav() {
           size="sm"
           onClick={() => navigate('/')}
           className={cn(
-            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-            isHomePage && "text-primary bg-primary/10"
+            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none hover:bg-transparent",
+            isHomePage && "text-primary"
           )}
         >
-          <Home className="h-5 w-5" />
-          <span className="text-xs">Home</span>
+          <Home className={cn("h-5 w-5", isHomePage && "text-primary")} />
+          <span className={cn("text-xs", isHomePage && "text-primary")}>Home</span>
         </Button>
 
         {/* Explore - Redirects to home page with explore tab */}
@@ -42,12 +42,12 @@ export function BottomNav() {
           size="sm"
           onClick={() => navigate('/discovery')}
           className={cn(
-            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-            isActive('/discovery') && "text-primary bg-primary/10"
+            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none hover:bg-transparent",
+            isActive('/discovery') && "text-primary"
           )}
         >
-          <Compass className="h-5 w-5" />
-          <span className="text-xs">Discover</span>
+          <Compass className={cn("h-5 w-5", isActive('/discovery') && "text-primary")} />
+          <span className={cn("text-xs", isActive('/discovery') && "text-primary")}>Discover</span>
         </Button>
 
         {/* Search */}
@@ -56,12 +56,12 @@ export function BottomNav() {
           size="sm"
           onClick={() => navigate('/search')}
           className={cn(
-            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-            isActive('/search') && "text-primary bg-primary/10"
+            "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none hover:bg-transparent",
+            isActive('/search') && "text-primary"
           )}
         >
-          <Search className="h-5 w-5" />
-          <span className="text-xs">Search</span>
+          <Search className={cn("h-5 w-5", isActive('/search') && "text-primary")} />
+          <span className={cn("text-xs", isActive('/search') && "text-primary")}>Search</span>
         </Button>
 
         {/* Profile */}
@@ -71,12 +71,12 @@ export function BottomNav() {
             size="sm"
             onClick={() => navigate(getUserProfilePath())}
             className={cn(
-              "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none",
-              isActive(getUserProfilePath()) && "text-primary bg-primary/10"
+              "flex flex-col items-center justify-center gap-1 h-full flex-1 rounded-none hover:bg-transparent",
+              isActive(getUserProfilePath()) && "text-primary"
             )}
           >
-            <User className="h-5 w-5" />
-            <span className="text-xs">Profile</span>
+            <User className={cn("h-5 w-5", isActive(getUserProfilePath()) && "text-primary")} />
+            <span className={cn("text-xs", isActive(getUserProfilePath()) && "text-primary")}>Profile</span>
           </Button>
         )}
       </div>

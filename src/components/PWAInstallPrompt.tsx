@@ -135,25 +135,25 @@ export function PWAInstallPrompt() {
     }
 
     return (
-      <div className="fixed bottom-20 left-4 right-4 z-50 bg-white border-2 border-primary rounded-lg shadow-lg p-4 animate-in slide-in-from-bottom-4">
+      <div className="fixed bottom-20 left-4 right-4 z-50 bg-background border-2 border-primary rounded-lg shadow-lg p-4 animate-in slide-in-from-bottom-4">
         <button
           onClick={handleDismiss}
-          className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          className="absolute top-2 right-2 p-1 hover:bg-accent rounded-full transition-colors"
           aria-label="Close"
         >
-          <X className="h-4 w-4 text-gray-600" />
+          <X className="h-4 w-4 text-muted-foreground" />
         </button>
 
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Download className="h-5 w-5 text-white" />
+            <Download className="h-5 w-5 text-primary-foreground" />
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 text-sm mb-1">
+            <h3 className="font-semibold text-foreground text-sm mb-1">
               Install diVine Web
             </h3>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-muted-foreground">
               Tap the Share button <span className="inline-block mx-1">
                 <svg className="inline w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.11 0-2-.9-2-2V10c0-1.11.89-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .89 2 2z"/>
@@ -172,25 +172,25 @@ export function PWAInstallPrompt() {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 z-50 bg-white border-2 border-primary rounded-lg shadow-lg p-4 animate-in slide-in-from-bottom-4">
+    <div className="fixed bottom-20 left-4 right-4 z-50 bg-background border-2 border-primary rounded-lg shadow-lg p-4 animate-in slide-in-from-bottom-4">
       <button
         onClick={handleDismiss}
-        className="absolute top-2 right-2 p-1 hover:bg-gray-100 rounded-full transition-colors"
+        className="absolute top-2 right-2 p-1 hover:bg-accent rounded-full transition-colors"
         aria-label="Close"
       >
-        <X className="h-4 w-4 text-gray-600" />
+        <X className="h-4 w-4 text-muted-foreground" />
       </button>
 
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-          <Download className="h-5 w-5 text-white" />
+          <Download className="h-5 w-5 text-primary-foreground" />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 mb-1">
+          <h3 className="font-semibold text-foreground mb-1">
             Install diVine Web
           </h3>
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-sm text-muted-foreground mb-3">
             Install our app for a better experience
           </p>
 
