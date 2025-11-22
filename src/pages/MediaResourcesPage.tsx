@@ -467,12 +467,20 @@ export function MediaResourcesPage() {
           <p className="text-muted-foreground mb-4">
             Our press team is here to help with interviews, additional materials, or any questions.
           </p>
-          <Button asChild size="lg">
-            <Link to="/press">
-              <Mail className="h-4 w-4 mr-2" />
-              Contact Press Team
-            </Link>
-          </Button>
+          <div className="flex flex-col items-center gap-3">
+            <Button asChild size="lg">
+              <Link to="/press">
+                <Mail className="h-4 w-4 mr-2" />
+                Contact Press Team
+              </Link>
+            </Button>
+            <a
+              href="mailto:press@divine.video"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              press@divine.video
+            </a>
+          </div>
         </div>
       </div>
     </div>
