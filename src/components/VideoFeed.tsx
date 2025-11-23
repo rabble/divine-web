@@ -1,7 +1,8 @@
 // ABOUTME: Video feed component for displaying scrollable lists of videos with infinite scroll
 // ABOUTME: Uses optimized useInfiniteVideos hook with NIP-50 search and cursor pagination
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { performanceMonitor } from '@/lib/performanceMonitoring';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { VideoGrid } from '@/components/VideoGrid';
@@ -55,6 +56,7 @@ export function VideoFeed({
 }: VideoFeedProps) {
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
+  const mountTimeRef = useRef<number | null>(null);
 
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -113,6 +115,24 @@ export function VideoFeed({
       return true;
     });
   }, [allVideos, checkContent, verifiedOnly]);
+
+  // Track perceived first-render time for the Recent feed
+  useEffect(() => {
+    if (feedType === 'recent') {
+      if (mountTimeRef.current === null) {
+        mountTimeRef.current = performance.now();
+      }
+      if (!isLoading && filteredVideos.length > 0 && mountTimeRef.current !== null) {
+        const duration = performance.now() - mountTimeRef.current;
+        performanceMonitor.recordMetric('recent_feed_first_render', duration, {
+          videos: filteredVideos.length,
+        });
+        console.log(`[Performance] Recent feed first render in ${duration.toFixed(0)}ms (${filteredVideos.length} videos)`);
+        // Only measure once per mount
+        mountTimeRef.current = null;
+      }
+    }
+  }, [feedType, isLoading, filteredVideos.length]);
 
   // Collect all unique pubkeys for batched author fetching
   const authorPubkeys = useMemo(() => {
