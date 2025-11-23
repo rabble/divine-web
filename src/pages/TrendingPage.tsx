@@ -28,7 +28,7 @@ export function TrendingPage() {
               return (
                 <button
                   key={mode.value}
-                  onClick={() => setSortMode(mode.value)}
+                  onClick={() => setSortMode(mode.value as SortMode)}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
                     ${isSelected

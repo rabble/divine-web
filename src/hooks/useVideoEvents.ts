@@ -8,7 +8,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useFollowList } from '@/hooks/useFollowList';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KIND, VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter } from '@/types/nostr';
 import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime, validateVideoEvent } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
@@ -219,7 +219,7 @@ async function parseVideoEvents(
       videoData = {
         id: originalVideo.id,
         pubkey: originalVideo.pubkey,
-        kind: originalVideo.kind as 21 | 22 | 34236,
+        kind: VIDEO_KIND,
         createdAt: originalVideo.created_at,
         originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
         content: originalVideo.content,
@@ -244,6 +244,12 @@ async function parseVideoEvents(
       };
 
       videoMap.set(vineId, videoData);
+    }
+
+    // Safety check (should never happen due to logic above)
+    if (!videoData) {
+      debugError(`[useVideoEvents] videoData unexpectedly undefined for vineId ${vineId}`);
+      continue;
     }
 
     // Add repost metadata to the video

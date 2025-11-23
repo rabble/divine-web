@@ -131,7 +131,7 @@ export function OpenSourcePage() {
                 </div>
                 <Button asChild size="sm">
                   <a
-                    href="https://github.com/rabble/nostrvine"
+                    href="https://github.com/divinevideo/divine-mobile"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2"
@@ -316,7 +316,7 @@ export function OpenSourcePage() {
                     <strong>Mobile Development:</strong> Contribute to the Flutter codebase for iOS and Android apps.
                     <div className="mt-1">
                       <a
-                        href="https://github.com/rabble/nostrvine/issues"
+                        href="https://github.com/divinevideo/divine-mobile/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline text-xs"
@@ -358,7 +358,7 @@ export function OpenSourcePage() {
               </Button>
               <Button asChild variant="outline">
                 <a
-                  href="https://github.com/rabble/nostrvine"
+                  href="https://github.com/divinevideo/divine-mobile"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2"

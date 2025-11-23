@@ -85,6 +85,75 @@ export function AppFooter() {
                   Donate
                 </a>
               </div>
+
+              {/* Social Media Icons */}
+              <div className="flex items-center gap-3 mt-1" aria-label="Social media links">
+                <a
+                  href="https://instagram.com/divinevideapp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Instagram"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img
+                    src="/social-icons/instagram.svg"
+                    alt="Instagram"
+                    className="w-5 h-5"
+                  />
+                </a>
+                <a
+                  href="https://www.reddit.com/r/divinevideo/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Reddit"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img
+                    src="/social-icons/reddit.svg"
+                    alt="Reddit"
+                    className="w-5 h-5"
+                  />
+                </a>
+                <a
+                  href="https://discord.gg/sHb4HMSF"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Join us on Discord"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img
+                    src="/social-icons/discord.svg"
+                    alt="Discord"
+                    className="w-5 h-5"
+                  />
+                </a>
+                <a
+                  href="https://twitter.com/divinevideoapp"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Twitter"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img
+                    src="/social-icons/twitter.svg"
+                    alt="Twitter"
+                    className="w-5 h-5"
+                  />
+                </a>
+                <a
+                  href="https://bsky.app/profile/divine.video"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on Bluesky"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <img
+                    src="/social-icons/bluesky.svg"
+                    alt="Bluesky"
+                    className="w-5 h-5"
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </div>

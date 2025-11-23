@@ -176,7 +176,7 @@ export function HashtagPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_MODES.map(mode => (
-                    <SelectItem key={mode.value} value={mode.value}>
+                    <SelectItem key={mode.value} value={mode.value as string}>
                       <div className="flex items-center gap-2">
                         <mode.icon className="h-4 w-4" />
                         {mode.label}

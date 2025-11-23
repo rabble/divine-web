@@ -45,7 +45,7 @@ export function useVideoSocialMetrics(videoId: string, videoPubkey: string, vine
           kinds: [1111, 16], // NIP-22 comments, generic reposts
           '#a': [addressableId], // Addressable event references
           limit: 500,
-        });
+        } as any); // Type assertion needed for dynamic tag filter properties
 
         const events = await nostr.query(filters, { signal });
 
