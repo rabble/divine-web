@@ -176,7 +176,7 @@ export function VideoFeed({
   if (isLoading && !data) {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -212,7 +212,7 @@ export function VideoFeed({
   if (error) {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -239,7 +239,7 @@ export function VideoFeed({
 
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -423,7 +423,7 @@ export function VideoFeed({
   if (viewMode === 'grid') {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}

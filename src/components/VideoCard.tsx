@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, Repeat2, MessageCircle, Share, Eye, ListPlus, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX, Code } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Share, Eye, MoreVertical, Flag, UserX, Trash2, Volume2, VolumeX, Code, Users, ListPlus } from 'lucide-react';
 import { nip19 } from 'nostr-tools';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ import { useIsMobile } from '@/hooks/useIsMobile';
 import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
+import { useVideosInLists } from '@/hooks/useVideoLists';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
 import type { ParsedVideoData } from '@/types/video';
@@ -80,6 +81,7 @@ export function VideoCard({
   videoIndex: _videoIndex,
 }: VideoCardProps) {
   const authorData = useAuthor(video.pubkey);
+  const { data: lists } = useVideosInLists(video.vineId ?? undefined);
 
   // NEW: Get reposter data from reposts array
   const hasReposts = video.reposts && video.reposts.length > 0;
@@ -540,19 +542,21 @@ export function VideoCard({
             <Share className="h-4 w-4" />
           </Button>
 
-          {/* Add to list button - icon only on mobile */}
+          {/* Lists button */}
           {video.vineId && (
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                isMobile ? "px-2" : "gap-1"
+                "gap-2",
+                isMobile && "gap-1 px-2"
               )}
               onClick={() => setShowAddToListDialog(true)}
-              aria-label="Add to list"
+              aria-label="Lists"
             >
-              <ListPlus className="h-4 w-4" />
-              {!isMobile && <span className="text-xs">Add to list</span>}
+              {(lists?.length ?? 0) > 0 ? <Users className="h-4 w-4" /> : <ListPlus className="h-4 w-4" />}
+              {!isMobile && <span className="text-xs">Lists</span>}
+              {lists && lists.length > 0 && !isMobile && <span className="text-xs">{formatCount(lists.length)}</span>}
             </Button>
           )}
 

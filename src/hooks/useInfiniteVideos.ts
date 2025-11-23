@@ -63,6 +63,7 @@ export function useInfiniteVideos({
   return useInfiniteQuery<VideoPage, Error>({
     queryKey: ['infinite-videos', feedType, hashtag, pubkey, effectiveSortMode, pageSize],
     queryFn: async ({ pageParam, signal }) => {
+      const totalStart = performance.now();
       const cursor = pageParam as number | undefined;
 
       // Build filter based on feed type
@@ -78,7 +79,7 @@ export function useInfiniteVideos({
 
       // Filter for Classic (archived Vines) when top sort is selected
       if (effectiveSortMode === 'top') {
-        filter['#origin'] = ['vine'];
+        filter['#platform'] = ['vine'];
         debugLog('[useInfiniteVideos] 🎬 Classic mode: filtering for archived Vines only');
       }
 
@@ -183,7 +184,33 @@ export function useInfiniteVideos({
       }
 
       // Parse and filter
-      const videos = parseVideoEvents(events);
+      const parseStart = performance.now();
+      let videos = parseVideoEvents(events);
+
+      // Sort Classic Vines by loop count (original Vine popularity metric)
+      // NIP-50's 'top' sort uses Nostr engagement, not original Vine loops
+      if (effectiveSortMode === 'top' && feedType === 'trending') {
+        videos = videos.sort((a, b) => {
+          const aLoops = a.loopCount || 0;
+          const bLoops = b.loopCount || 0;
+          return bLoops - aLoops; // Descending order (most loops first)
+        });
+        debugLog(`[useInfiniteVideos] 🔄 Sorted ${videos.length} Classic Vines by loop count`);
+      }
+
+      const parseTime = performance.now() - parseStart;
+
+      const totalTime = performance.now() - totalStart;
+
+      // Record feed load timing for this page
+      performanceMonitor.recordFeedLoad({
+        feedType,
+        queryTime,
+        parseTime,
+        totalTime,
+        videoCount: videos.length,
+        sortMode: effectiveSortMode,
+      });
 
       // Determine next cursor
       const nextCursor = videos.length > 0

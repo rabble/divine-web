@@ -2,7 +2,7 @@
 // ABOUTME: Allows users to select existing lists or create new ones
 
 import { useState } from 'react';
-import { useVideoLists, useAddVideoToList, useCreateVideoList } from '@/hooks/useVideoLists';
+import { useVideoLists, useAddVideoToList, useCreateVideoList, useVideosInLists } from '@/hooks/useVideoLists';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -20,7 +20,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, List, Check, Loader2 } from 'lucide-react';
+import { Plus, List, Check, Loader2, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { format } from 'date-fns';
 import { useToast } from '@/hooks/useToast';
 import { VIDEO_KIND } from '@/types/video';
 
@@ -41,6 +43,7 @@ export function AddToListDialog({
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: userLists, isLoading: listsLoading } = useVideoLists(user?.pubkey);
+  const { data: publicLists, isLoading: publicListsLoading } = useVideosInLists(videoId);
   const addToList = useAddVideoToList();
   const createList = useCreateVideoList();
 
@@ -150,6 +153,42 @@ export function AddToListDialog({
             Add this video to your lists or create a new one
           </DialogDescription>
         </DialogHeader>
+
+        {/* Public lists containing this video */}
+        <div className="space-y-2 mb-4">
+          <h3 className="text-sm font-medium">Included in public lists</h3>
+          {publicListsLoading ? (
+            <div className="space-y-2">
+              {[...Array(3)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-full" />
+              ))}
+            </div>
+          ) : (publicLists && publicLists.length > 0) ? (
+            <div className="grid grid-cols-1 gap-2">
+              {publicLists.slice(0, 6).map((list) => {
+                const owner = list.pubkey;
+                return (
+                  <Link
+                    to={`/list/${owner}/${encodeURIComponent(list.id)}`}
+                    key={list.id + owner}
+                    className="flex items-center justify-between rounded-md border p-2 hover:bg-accent"
+                    onClick={() => onClose()}
+                  >
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium truncate">{list.name}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {list.videoCoordinates.length} videos • {format(new Date(list.createdAt * 1000), 'MMM d, yyyy')}
+                      </div>
+                    </div>
+                    <ExternalLink className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Not on any public lists yet</p>
+          )}
+        </div>
 
         <Tabs defaultValue="existing" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

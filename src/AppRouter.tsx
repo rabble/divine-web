@@ -80,6 +80,7 @@ export function AppRouter() {
 
           {/* Public browsing routes - accessible without login */}
           <Route path="/discovery" element={<DiscoveryPage />} />
+          <Route path="/discovery/:tab" element={<DiscoveryPage />} />
           <Route path="/trending" element={<TrendingPage />} />
           <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
           <Route path="/hashtag/:tag" element={<HashtagPage />} />

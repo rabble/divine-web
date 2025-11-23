@@ -66,7 +66,8 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         verboseLog('[NostrProvider] Opening relay connection to:', url);
         const relay = new NRelay1(url, {
           idleTimeout: false, // Disable idle timeout to prevent premature connection closure
-          log: (log) => verboseLog(`[NRelay1:${log.ns}]`, log),
+          // Disabled to reduce console noise - enable for debugging relay issues
+          // log: (log) => verboseLog(`[NRelay1:${log.ns}]`, log),
         });
         verboseLog('[NostrProvider] NRelay1 instance created, readyState:', relay.socket?.readyState);
         return relay;

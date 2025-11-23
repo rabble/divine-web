@@ -345,8 +345,10 @@ export function getOriginalVineTimestamp(event: NostrEvent): number | undefined 
 
 /**
  * Get origin platform information from event tags
- * Format: ["origin", platform, external-id, original-url, optional-metadata]
+ * Checks both 'origin' tag (newer format) and 'platform' tag (legacy vine-archaeologist format)
+ * Origin format: ["origin", platform, external-id, original-url, optional-metadata]
  * Example: ["origin", "vine", "hBFP5LFKUOU", "https://vine.co/v/hBFP5LFKUOU"]
+ * Platform format: ["platform", "vine"] (used by vine-archaeologist)
  */
 export function getOriginPlatform(event: NostrEvent): {
   platform: string;
@@ -354,20 +356,41 @@ export function getOriginPlatform(event: NostrEvent): {
   url?: string;
   metadata?: string;
 } | undefined {
+  // First check for 'origin' tag (newer format)
   const originTag = event.tags.find(tag => tag[0] === 'origin');
-  if (!originTag || !originTag[1] || !originTag[2]) return undefined;
+  if (originTag && originTag[1] && originTag[2]) {
+    return {
+      platform: originTag[1],
+      externalId: originTag[2],
+      url: originTag[3],
+      metadata: originTag[4]
+    };
+  }
 
-  return {
-    platform: originTag[1],
-    externalId: originTag[2],
-    url: originTag[3],
-    metadata: originTag[4]
-  };
+  // Fallback to 'platform' tag (legacy vine-archaeologist format)
+  const platformTag = event.tags.find(tag => tag[0] === 'platform');
+  if (platformTag && platformTag[1]) {
+    // For platform tag, extract externalId from d tag
+    const dTag = event.tags.find(tag => tag[0] === 'd');
+    const externalId = dTag?.[1] || '';
+
+    // Extract original URL from r tag
+    const rTag = event.tags.find(tag => tag[0] === 'r' && tag[1]?.includes('vine.co'));
+
+    return {
+      platform: platformTag[1],
+      externalId,
+      url: rTag?.[1],
+      metadata: undefined
+    };
+  }
+
+  return undefined;
 }
 
 /**
  * Check if video is migrated from original Vine platform
- * Uses 'origin' tag, NOT 'published_at' tag
+ * Uses 'origin' or 'platform' tag, NOT 'published_at' tag
  */
 export function isVineMigrated(event: NostrEvent): boolean {
   const origin = getOriginPlatform(event);

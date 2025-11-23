@@ -120,6 +120,11 @@
   }
 }
 
+/* Prevent browser overflow anchoring from shifting feed on dynamic updates */
+.feed-root {
+  overflow-anchor: none;
+}
+
 @layer base {
   * {
     @apply border-border;
