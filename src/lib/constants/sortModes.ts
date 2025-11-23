@@ -32,8 +32,8 @@ export const SORT_MODES: SortModeDefinition[] = [
   },
   {
     value: 'top',
-    label: 'Top',
-    description: 'Most popular all-time',
+    label: 'Classic',
+    description: 'Popular archived Vines',
     icon: TrendingUp
   },
   {
@@ -63,8 +63,8 @@ export const EXTENDED_SORT_MODES: SortModeDefinition[] = [
   },
   {
     value: 'top',
-    label: 'Top',
-    description: 'Most popular all-time',
+    label: 'Classic',
+    description: 'Popular archived Vines',
     icon: TrendingUp
   },
   {
@@ -100,8 +100,8 @@ export const SEARCH_SORT_MODES: SearchSortModeDefinition[] = [
   },
   {
     value: 'top',
-    label: 'Top',
-    description: 'Most popular all-time',
+    label: 'Classic',
+    description: 'Popular archived Vines',
     icon: TrendingUp
   },
   {

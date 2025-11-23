@@ -42,7 +42,7 @@ export function DiscoveryPage() {
             </TabsTrigger>
             <TabsTrigger value="top" className="gap-1.5 sm:gap-2">
               <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Top</span>
+              <span className="hidden sm:inline">Classic</span>
             </TabsTrigger>
             <TabsTrigger value="rising" className="gap-1.5 sm:gap-2">
               <Zap className="h-4 w-4" />
