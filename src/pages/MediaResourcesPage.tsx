@@ -72,7 +72,7 @@ export function MediaResourcesPage() {
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Launched: November 2025</li>
                   <li>• Platform: Web, iOS, Android</li>
-                  <li>• License: Open Source (AGPL-3.0)</li>
+                  <li>• License: Open Source (MPL-2.0)</li>
                 </ul>
               </div>
             </div>
