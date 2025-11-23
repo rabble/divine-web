@@ -5,8 +5,8 @@ import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent, NostrMetadata, NostrFilter } from '@nostrify/nostrify';
-import { NPool, NRelay1 } from '@nostrify/nostrify';
-import { SEARCH_RELAY } from '@/config/relays';
+// Search will prefer the app's primary relay. If it doesn't support NIP-50,
+// we fall back to fetching recent metadata and client-side filtering.
 
 interface UseSearchUsersOptions {
   query: string;
@@ -106,34 +106,30 @@ export function useSearchUsers(options: UseSearchUsersOptions) {
         AbortSignal.timeout(8000)
       ]);
 
-      let events: NostrEvent[];
+      let events: NostrEvent[] = [];
 
-      // Create a dedicated search pool that queries the search relay (supports NIP-50 search)
-      const searchPool = new NPool({
-        open(url: string) {
-          return new NRelay1(url);
-        },
-        reqRouter(filters): ReadonlyMap<string, NostrFilter[]> {
-          return new Map([[SEARCH_RELAY.url, filters]]) as ReadonlyMap<string, NostrFilter[]>;
-        },
-        eventRouter(_event: NostrEvent) {
-          return [SEARCH_RELAY.url];
-        },
-      });
-
+      // Attempt NIP-50 search on the app's active relays first.
       try {
-        // Try relay-level search on relay.nostr.band (has NIP-50 support and large index)
-        events = await searchPool.query([{
-          kinds: [0],
-          search: actualQuery,
-          limit: Math.min(limit * 2, 200), // Get more for deduplication
-        }], { signal });
+        events = await nostr.query([
+          {
+            kinds: [0],
+            search: actualQuery,
+            limit: Math.min(limit * 2, 200),
+          },
+        ], { signal });
+
+        // If relay doesn't support NIP-50 or returns empty, fall back below.
+        if (!Array.isArray(events) || events.length === 0) {
+          throw new Error('No search results; falling back to client filter');
+        }
       } catch {
-        // Fallback: query main relay for recent metadata and filter client-side
-        events = await nostr.query([{
-          kinds: [0],
-          limit: Math.min(limit * 10, 1000), // Get more to filter from
-        }], { signal });
+        // Fallback: query recent metadata and filter client-side
+        events = await nostr.query([
+          {
+            kinds: [0],
+            limit: Math.min(limit * 10, 1000),
+          },
+        ], { signal });
       }
 
       // Parse user metadata

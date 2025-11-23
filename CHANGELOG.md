@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- **PERFORMANCE**: Dramatically improve perceived page load speed with deferred social metrics loading
+  - Videos now render immediately with placeholders for reactions/comments
+  - Social metrics (likes, reposts, comments) load progressively after render
+  - First 3 videos load metrics immediately, rest load with staggered delays (progressive enhancement)
+  - Reduces initial relay queries from ~100+ to ~20, improving time-to-first-video from 5.7s to <1s
+  - New hook: `useDeferredVideoMetrics` for progressive data loading
+  - Updated `useVideoSocialMetrics` and `useVideoUserInteractions` to support optional `enabled` flag
 - Discovery routing: Add `/discovery/:tab` routes (hot, top, rising, new, hashtags) and default `/discovery` → `/discovery/new`. Sync tab state with URL.
 - Performance metrics: Instrument recent feed with query/parse/total timings and first-render metric; expose logs via `window.performanceMonitor`.
 - Modal/feed stability: Prevent layout/scroll jumps by reserving scrollbar gutter and disabling overflow anchoring on feed containers.

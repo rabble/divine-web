@@ -18,12 +18,19 @@ export interface VideoSocialMetrics {
  * @param videoId - The video event ID
  * @param videoPubkey - The video author's pubkey (required for addressable events)
  * @param vineId - The video's vineId (d tag) for addressable events
+ * @param options - Optional query options
  */
-export function useVideoSocialMetrics(videoId: string, videoPubkey: string, vineId: string | null) {
+export function useVideoSocialMetrics(
+  videoId: string,
+  videoPubkey: string,
+  vineId: string | null,
+  options?: { enabled?: boolean }
+) {
   const { nostr } = useNostr();
 
   return useQuery({
     queryKey: ['video-social-metrics', videoId, videoPubkey, vineId],
+    enabled: options?.enabled !== false,
     queryFn: async (context) => {
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(3000)]);
 
@@ -113,11 +120,18 @@ export function useVideoSocialMetrics(videoId: string, videoPubkey: string, vine
 /**
  * Check if the current user has liked a specific video and get the event IDs for deletion
  */
-export function useVideoUserInteractions(videoId: string, videoPubkey: string, vineId: string | null, userPubkey?: string) {
+export function useVideoUserInteractions(
+  videoId: string,
+  videoPubkey: string,
+  vineId: string | null,
+  userPubkey?: string,
+  options?: { enabled?: boolean }
+) {
   const { nostr } = useNostr();
 
   return useQuery({
     queryKey: ['video-user-interactions', videoId, userPubkey],
+    enabled: (options?.enabled !== false) && !!userPubkey,
     queryFn: async (context) => {
       if (!userPubkey) {
         return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
@@ -187,7 +201,6 @@ export function useVideoUserInteractions(videoId: string, videoPubkey: string, v
         return { hasLiked: false, hasReposted: false, likeEventId: null, repostEventId: null };
       }
     },
-    enabled: !!userPubkey,
     staleTime: 30000, // Consider data stale after 30 seconds (faster refresh for interactive features)
     gcTime: 300000, // Keep in cache for 5 minutes
   });
