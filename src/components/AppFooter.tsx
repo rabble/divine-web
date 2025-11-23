@@ -153,6 +153,19 @@ export function AppFooter() {
                     className="w-5 h-5 dark:invert"
                   />
                 </a>
+                <a
+                  href="https://www.tiktok.com/@divine.video"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on TikTok"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
+                >
+                  <img
+                    src="/social-icons/tiktok.svg"
+                    alt="TikTok"
+                    className="w-5 h-5 dark:invert"
+                  />
+                </a>
               </div>
             </div>
           </div>
