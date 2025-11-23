@@ -258,19 +258,19 @@ export function SearchPage() {
         <Tabs value={activeFilter} onValueChange={handleFilterChange} className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-4 mb-6">
             <TabsTrigger value="all" className="gap-2">
-              <Search className="h-4 w-4" />
+              <Search className="h-4 w-4 flex-shrink-0" />
               <span className="hidden sm:inline">All</span>
             </TabsTrigger>
             <TabsTrigger value="videos" className="gap-2">
-              <Video className="h-4 w-4" />
+              <Video className="h-4 w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Videos</span>
             </TabsTrigger>
             <TabsTrigger value="users" className="gap-2">
-              <Users className="h-4 w-4" />
+              <Users className="h-4 w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
             <TabsTrigger value="hashtags" className="gap-2">
-              <Hash className="h-4 w-4" />
+              <Hash className="h-4 w-4 flex-shrink-0" />
               <span className="hidden sm:inline">Hashtags</span>
             </TabsTrigger>
           </TabsList>
