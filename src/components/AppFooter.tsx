@@ -166,6 +166,19 @@ export function AppFooter() {
                     className="w-5 h-5 dark:invert"
                   />
                 </a>
+                <a
+                  href="https://github.com/divinevideo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Follow us on GitHub"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
+                >
+                  <img
+                    src="/social-icons/github.svg"
+                    alt="GitHub"
+                    className="w-5 h-5 dark:invert"
+                  />
+                </a>
               </div>
             </div>
           </div>
