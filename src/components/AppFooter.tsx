@@ -89,16 +89,16 @@ export function AppFooter() {
               {/* Social Media Icons */}
               <div className="flex items-center gap-3 mt-1" aria-label="Social media links">
                 <a
-                  href="https://instagram.com/divinevideapp"
+                  href="https://www.instagram.com/divinevideoapp"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Instagram"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <img
                     src="/social-icons/instagram.svg"
                     alt="Instagram"
-                    className="w-5 h-5"
+                    className="w-5 h-5 dark:invert"
                   />
                 </a>
                 <a
@@ -106,12 +106,12 @@ export function AppFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Reddit"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <img
                     src="/social-icons/reddit.svg"
                     alt="Reddit"
-                    className="w-5 h-5"
+                    className="w-5 h-5 dark:invert"
                   />
                 </a>
                 <a
@@ -119,12 +119,12 @@ export function AppFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Join us on Discord"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <img
                     src="/social-icons/discord.svg"
                     alt="Discord"
-                    className="w-5 h-5"
+                    className="w-5 h-5 dark:invert"
                   />
                 </a>
                 <a
@@ -132,12 +132,12 @@ export function AppFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Twitter"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <img
                     src="/social-icons/twitter.svg"
                     alt="Twitter"
-                    className="w-5 h-5"
+                    className="w-5 h-5 dark:invert"
                   />
                 </a>
                 <a
@@ -145,12 +145,12 @@ export function AppFooter() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Follow us on Bluesky"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="opacity-60 hover:opacity-100 transition-opacity"
                 >
                   <img
                     src="/social-icons/bluesky.svg"
                     alt="Bluesky"
-                    className="w-5 h-5"
+                    className="w-5 h-5 dark:invert"
                   />
                 </a>
               </div>
