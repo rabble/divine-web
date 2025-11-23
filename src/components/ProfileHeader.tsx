@@ -230,7 +230,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.videosCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Videos</div>
@@ -247,7 +247,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.followersCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Followers</div>
@@ -264,7 +264,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.followingCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Following</div>
@@ -281,7 +281,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.totalViews)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Total Views</div>

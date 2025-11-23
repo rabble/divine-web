@@ -319,9 +319,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       ]);
 
       // Build base filter with NIP-50 support
+      // Profile feeds: no limit (get all videos for accurate stats)
+      // Other feeds: cap at 50 per query (they use pagination/infinite scroll)
       const baseFilter: NIP50Filter = {
         kinds: VIDEO_KINDS,
-        limit: Math.min(limit, 50),
+        ...(feedType === 'profile' 
+          ? {} // No limit for profiles
+          : { limit: Math.min(limit, 50) } // Cap at 50 for other feeds
+        ),
         ...filter
       };
 

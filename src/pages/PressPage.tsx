@@ -374,12 +374,21 @@ export function PressPage() {
           </a>
           .
         </p>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-4">
           See where we've been featured:{' '}
           <a href="/news" className="text-primary hover:underline">
             In the News
           </a>
           .
+        </p>
+        <p className="text-sm text-muted-foreground/70">
+          You can also reach us directly at{' '}
+          <a
+            href="mailto:press@divine.video"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            press@divine.video
+          </a>
         </p>
       </div>
       </div>

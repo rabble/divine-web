@@ -64,7 +64,7 @@ export function ProofModeBadge({ level, proofData, className, showDetails = fals
           <div className="space-y-2 text-sm">
             {proofData.deviceAttestation && (
               <div className="flex items-start gap-2">
-                <ShieldCheck className="h-4 w-4 mt-0.5 text-green-600 flex-shrink-0" />
+                <ShieldCheck className="h-4 w-4 mt-0.5 text-green-600 dark:text-green-400 flex-shrink-0" />
                 <div>
                   <p className="font-medium">Hardware Attestation</p>
                   <p className="text-xs text-muted-foreground">
@@ -76,7 +76,7 @@ export function ProofModeBadge({ level, proofData, className, showDetails = fals
 
             {proofData.pgpFingerprint && (
               <div className="flex items-start gap-2">
-                <Shield className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
+                <Shield className="h-4 w-4 mt-0.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                 <div>
                   <p className="font-medium">Cryptographic Signature</p>
                   <p className="text-xs text-muted-foreground font-mono break-all">
@@ -140,8 +140,8 @@ function getProofModeConfig(level: ProofModeLevel) {
       return {
         icon: ShieldCheck,
         label: 'Fully Verified',
-        className: 'border-green-600 text-green-600 bg-green-50 dark:bg-green-950/20',
-        iconColor: 'text-green-600',
+        className: 'border-green-600 text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20',
+        iconColor: 'text-green-600 dark:text-green-400',
         tooltip: 'Full hardware attestation - captured on secure mobile device',
         description: 'This video was captured on a verified mobile device with hardware-backed security attestation. It includes cryptographic proof that the content is authentic and has not been tampered with.'
       };
@@ -149,8 +149,8 @@ function getProofModeConfig(level: ProofModeLevel) {
       return {
         icon: Shield,
         label: 'Verified',
-        className: 'border-blue-600 text-blue-600 bg-blue-50 dark:bg-blue-950/20',
-        iconColor: 'text-blue-600',
+        className: 'border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/20',
+        iconColor: 'text-blue-600 dark:text-blue-400',
         tooltip: 'Software verification - valid signature but no hardware attestation',
         description: 'This video has been cryptographically signed and includes proof of authenticity. While it lacks hardware attestation, the signature confirms the content has not been altered since creation.'
       };
@@ -158,8 +158,8 @@ function getProofModeConfig(level: ProofModeLevel) {
       return {
         icon: ShieldAlert,
         label: 'Basic Proof',
-        className: 'border-yellow-600 text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20',
-        iconColor: 'text-yellow-600',
+        className: 'border-yellow-600 text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/20',
+        iconColor: 'text-yellow-600 dark:text-yellow-400',
         tooltip: 'Basic proof - valid signature, integrity verified',
         description: 'This video includes basic cryptographic proof data. Some verification information is present but it does not meet the full criteria for verified status.'
       };

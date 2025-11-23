@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { NostrEvent } from '@nostrify/nostrify';
 import { nip19 } from 'nostr-tools';
 import { useAuthor } from '@/hooks/useAuthor';
-import { useComments } from '@/hooks/useComments';
+import { useComments, getDirectReplies } from '@/hooks/useComments';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteComment } from '@/hooks/useDeleteComment';
@@ -56,10 +56,13 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
   const timeAgo = formatDistanceToNow(new Date(comment.created_at * 1000), { addSuffix: true });
 
   // Get direct replies to this comment
-  const replies = commentsData?.getDirectReplies(comment.id) || [];
+  const replies = commentsData ? getDirectReplies(commentsData.allComments, comment.id) : [];
   const hasReplies = replies.length > 0;
 
   const isOwnComment = user?.pubkey === comment.pubkey;
+  
+  // Check if this is an optimistic (pending) comment
+  const isOptimistic = '_optimistic' in comment && (comment as { _optimistic?: boolean })._optimistic === true;
 
   // Parent comment data (passed as prop when this is a reply)
   const parentAuthor = useAuthor(parentComment?.pubkey || '');
@@ -120,7 +123,7 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
 
   return (
     <div className={`space-y-3 ${depth > 0 ? 'ml-6 border-l-2 border-muted pl-4' : ''}`}>
-      <Card className="bg-card/50">
+      <Card className={`transition-all ${isOptimistic ? 'bg-orange-50/80 opacity-60' : 'bg-card/50'}`}>
         <CardContent className="p-4">
           <div className="space-y-3">
             {/* Comment Header */}
@@ -141,7 +144,10 @@ export function Comment({ root, comment, depth = 0, maxDepth = 3, limit, parentC
                   >
                     {displayName}
                   </Link>
-                  <p className="text-xs text-muted-foreground">{timeAgo}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {timeAgo}
+                    {isOptimistic && <span className="ml-1 italic">(sending...)</span>}
+                  </p>
                 </div>
               </div>
             </div>

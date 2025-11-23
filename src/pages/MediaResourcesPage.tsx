@@ -76,11 +76,17 @@ export function MediaResourcesPage() {
                 </ul>
               </div>
             </div>
-            <div className="pt-4">
+            <div className="pt-4 flex flex-wrap gap-3">
               <Button asChild variant="outline">
                 <Link to="/about" className="inline-flex items-center gap-2">
                   Learn More About diVine
                   <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/press-release" className="inline-flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Read Press Release
                 </Link>
               </Button>
             </div>
@@ -467,12 +473,20 @@ export function MediaResourcesPage() {
           <p className="text-muted-foreground mb-4">
             Our press team is here to help with interviews, additional materials, or any questions.
           </p>
-          <Button asChild size="lg">
-            <Link to="/press">
-              <Mail className="h-4 w-4 mr-2" />
-              Contact Press Team
-            </Link>
-          </Button>
+          <div className="flex flex-col items-center gap-3">
+            <Button asChild size="lg">
+              <Link to="/press">
+                <Mail className="h-4 w-4 mr-2" />
+                Contact Press Team
+              </Link>
+            </Button>
+            <a
+              href="mailto:press@divine.video"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              press@divine.video
+            </a>
+          </div>
         </div>
       </div>
     </div>

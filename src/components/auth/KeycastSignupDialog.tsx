@@ -339,14 +339,14 @@ export function KeycastSignupDialog({
               <div className="relative p-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-950/50 dark:to-indigo-950/50">
                 <div className="flex justify-center items-center space-x-4 mb-3">
                   <div className="relative">
-                    <Cloud className="w-12 h-12 text-blue-600" />
-                    <Sparkles className="w-4 h-4 text-yellow-500 absolute -top-1 -right-1 animate-pulse" />
+                    <Cloud className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+                    <Sparkles className="w-4 h-4 text-yellow-500 dark:text-yellow-400 absolute -top-1 -right-1 animate-pulse" />
                   </div>
-                  <Globe className="w-16 h-16 text-blue-700 animate-spin-slow" />
+                  <Globe className="w-16 h-16 text-blue-700 dark:text-blue-400 animate-spin-slow" />
                   <div className="relative">
-                    <Mail className="w-12 h-12 text-blue-600" />
+                    <Mail className="w-12 h-12 text-blue-600 dark:text-blue-400" />
                     <Sparkles
-                      className="w-4 h-4 text-yellow-500 absolute -top-1 -left-1 animate-pulse"
+                      className="w-4 h-4 text-yellow-500 dark:text-yellow-400 absolute -top-1 -left-1 animate-pulse"
                       style={{ animationDelay: '0.3s' }}
                     />
                   </div>
