@@ -44,7 +44,7 @@ export function useVideoSocialMetrics(videoId: string, videoPubkey?: string, vin
           const addressableId = `34236:${videoPubkey}:${vineId}`;
           filters.push({
             kinds: [1111], // NIP-22 comments
-            '#a': [addressableId], // Addressable event references
+            '#A': [addressableId], // Query by ROOT tag to get ALL comments in the thread
             limit: 500,
           });
         }
