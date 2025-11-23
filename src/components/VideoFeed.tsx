@@ -153,6 +153,16 @@ export function VideoFeed({
   // Prefetch all authors in a single query
   useBatchedAuthors(authorPubkeys);
 
+  // Auto-navigate to discovery if home feed is empty
+  useEffect(() => {
+    // Only navigate if we have empty filtered videos but we're done loading
+    const noFilteredVideos = !filteredVideos || filteredVideos.length === 0;
+    const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
+    if (!isLoading && feedType === 'home' && noFilteredVideos && !allFiltered) {
+      navigate('/discovery/');
+    }
+  }, [isLoading, feedType, filteredVideos, allVideos, navigate]);
+
   // Log video data when it changes
   useEffect(() => {
     const filtered = filteredVideos.length;
@@ -238,12 +248,6 @@ export function VideoFeed({
   if (!filteredVideos || filteredVideos.length === 0) {
     // Check if we have videos but they're all filtered
     const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
-
-    useEffect(() => {
-      if (!isLoading && feedType === 'home' && !allFiltered) {
-        navigate('/discovery/');
-      }
-    }, [isLoading, feedType, allFiltered, navigate]);
 
     return (
       <div
