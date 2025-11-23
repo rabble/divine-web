@@ -196,7 +196,7 @@ export function AddToListDialog({
                             <List className="h-4 w-4" />
                             <span>{list.name}</span>
                             {isInList && (
-                              <Check className="h-3 w-3 text-green-600 ml-auto" />
+                              <Check className="h-3 w-3 text-green-600 dark:text-green-400 ml-auto" />
                             )}
                           </Label>
                           <span className="text-xs text-muted-foreground">

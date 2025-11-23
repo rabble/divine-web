@@ -1,4 +1,4 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, HelpCircle, Headphones, FileText } from 'lucide-react';
+import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -33,7 +33,7 @@ export function AppHeader() {
           </button>
         </div>
         <div className="flex items-center gap-2">
-          {/* Main navigation - hidden on mobile, shown in bottom nav */}
+          {/* Main navigation - hidden on mobile when BottomNav is visible */}
           {user && (
             <Button
               variant="ghost"
