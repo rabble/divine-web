@@ -76,6 +76,12 @@ export function useInfiniteVideos({
         filter.until = cursor;
       }
 
+      // Filter for Classic (archived Vines) when top sort is selected
+      if (effectiveSortMode === 'top') {
+        filter['#origin'] = ['vine'];
+        debugLog('[useInfiniteVideos] 🎬 Classic mode: filtering for archived Vines only');
+      }
+
       // Configure based on feed type
       switch (feedType) {
         case 'hashtag':
