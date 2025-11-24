@@ -100,12 +100,27 @@ export function PostPage() {
 
   // Keep camera preview playing even when recording state changes
   useEffect(() => {
-    if (cameraVideoRef.current && cameraStream && cameraVideoRef.current.paused) {
+    if (!cameraStream || !cameraVideoRef.current) return;
+
+    // Check and restart playback immediately
+    if (cameraVideoRef.current.paused) {
       console.log('Camera preview paused, restarting playback');
       cameraVideoRef.current.play().catch(err => {
         console.error('Failed to restart camera preview:', err);
       });
     }
+
+    // Poll to ensure video stays playing (some browsers pause it when MediaRecorder stops)
+    const keepAliveInterval = setInterval(() => {
+      if (cameraVideoRef.current && cameraVideoRef.current.paused) {
+        console.log('Camera preview paused during recording, restarting...');
+        cameraVideoRef.current.play().catch(err => {
+          console.error('Failed to keep camera preview playing:', err);
+        });
+      }
+    }, 100); // Check every 100ms
+
+    return () => clearInterval(keepAliveInterval);
   }, [isRecording, cameraStream]);
 
   // Require login
@@ -406,6 +421,18 @@ export function PostPage() {
 
         const finalSegments = await finalizeRecording();
 
+        console.log('[PostPage] Finalized segments:', {
+          count: finalSegments.length,
+          segments: finalSegments.map((s, i) => ({
+            index: i,
+            duration: s.duration,
+            durationSeconds: (s.duration / 1000).toFixed(2),
+            size: s.blob.size,
+            sizeMB: (s.blob.size / 1024 / 1024).toFixed(2),
+            type: s.blob.type,
+          })),
+        });
+
         if (finalSegments.length === 0) {
           toast({
             title: 'No Recording',
@@ -418,47 +445,89 @@ export function PostPage() {
 
         setProcessingProgress(0.2);
 
-        // Step 2: Concatenate multiple segments if needed
+        // Step 2: For multiple segments, just use the first one for now
+        // (FFmpeg concatenation doesn't work well on mobile)
         let videoBlob: Blob;
         if (finalSegments.length > 1) {
+          console.warn('[PostPage] Multiple segments detected, but using first segment only (FFmpeg unavailable on mobile)');
+
           toast({
-            title: 'Combining Segments',
-            description: `Stitching ${finalSegments.length} segments together...`,
+            title: 'Using First Segment',
+            description: `Recorded ${finalSegments.length} segments, uploading first one`,
           });
 
-          const segmentBlobs = finalSegments.map(s => s.blob);
-          videoBlob = await concatenateVideos(segmentBlobs, (progress) => {
-            // Map progress 0-1 to 0.2-0.4
-            setProcessingProgress(0.2 + (progress * 0.2));
-          });
+          videoBlob = finalSegments[0].blob;
         } else {
           videoBlob = finalSegments[0].blob;
         }
 
         setProcessingProgress(0.4);
 
-        // Step 3: Convert to MP4
-        toast({
-          title: 'Converting Video',
-          description: 'Converting to MP4 format...',
-        });
+        // Step 3: Convert to MP4 (with timeout fallback)
+        let finalVideoSegment: VideoSegment;
 
-        const mp4Result = await convertToMP4({
-          blob: videoBlob,
-          onProgress: (progress) => {
-            // Map progress 0-1 to 0.4-1.0
-            setProcessingProgress(0.4 + (progress * 0.6));
-          },
-          quality: 'medium',
-        });
+        // Only convert if not already MP4
+        if (videoBlob.type !== 'video/mp4') {
+          try {
+            toast({
+              title: 'Converting Video',
+              description: 'Converting to MP4 format... This may take a moment.',
+            });
 
-        // Create final video segment with MP4
-        const mp4Segment: VideoSegment = {
-          blob: mp4Result.blob,
-          blobUrl: mp4Result.blobUrl,
-        };
+            console.log('[PostPage] Starting MP4 conversion...', {
+              blobSize: videoBlob.size,
+              blobType: videoBlob.type,
+            });
 
-        setVideoSegments([mp4Segment]);
+            // Add timeout to conversion
+            const conversionPromise = convertToMP4({
+              blob: videoBlob,
+              onProgress: (progress) => {
+                console.log('[PostPage] Conversion progress:', progress);
+                // Map progress 0-1 to 0.4-1.0
+                setProcessingProgress(0.4 + (progress * 0.6));
+              },
+              quality: 'medium',
+            });
+
+            const timeoutPromise = new Promise<never>((_, reject) => {
+              setTimeout(() => reject(new Error('Conversion timeout')), 30000); // 30 second timeout
+            });
+
+            const mp4Result = await Promise.race([conversionPromise, timeoutPromise]);
+
+            console.log('[PostPage] MP4 conversion complete!', {
+              resultSize: mp4Result.blob.size,
+              sizeReduction: mp4Result.sizeReduction,
+            });
+
+            finalVideoSegment = {
+              blob: mp4Result.blob,
+              blobUrl: mp4Result.blobUrl,
+            };
+          } catch (error) {
+            console.warn('[PostPage] MP4 conversion failed or timed out, using original format:', error);
+
+            toast({
+              title: 'Using Original Format',
+              description: 'MP4 conversion unavailable, uploading as WebM',
+            });
+
+            // Use original WebM
+            finalVideoSegment = {
+              blob: videoBlob,
+              blobUrl: URL.createObjectURL(videoBlob),
+            };
+          }
+        } else {
+          console.log('[PostPage] Video already MP4, skipping conversion');
+          finalVideoSegment = {
+            blob: videoBlob,
+            blobUrl: URL.createObjectURL(videoBlob),
+          };
+        }
+
+        setVideoSegments([finalVideoSegment]);
         setProcessingProgress(1);
 
         toast({
