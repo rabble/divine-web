@@ -5,7 +5,8 @@ import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import type { NostrEvent, NostrMetadata, NostrFilter } from '@nostrify/nostrify';
-import { NPool, NRelay1 } from '@nostrify/nostrify';
+// Search will prefer the app's primary relay. If it doesn't support NIP-50,
+// we fall back to fetching recent metadata and client-side filtering.
 
 interface UseSearchUsersOptions {
   query: string;
@@ -37,11 +38,11 @@ function parseUserMetadata(event: NostrEvent): SearchUserResult | null {
  */
 function deduplicateUsers(users: SearchUserResult[], events: NostrEvent[]): SearchUserResult[] {
   const userMap = new Map<string, { user: SearchUserResult; timestamp: number }>();
-  
+
   users.forEach((user, index) => {
     const event = events[index];
     const existing = userMap.get(user.pubkey);
-    
+
     if (!existing || event.created_at > existing.timestamp) {
       userMap.set(user.pubkey, {
         user,
@@ -49,7 +50,7 @@ function deduplicateUsers(users: SearchUserResult[], events: NostrEvent[]): Sear
       });
     }
   });
-  
+
   return Array.from(userMap.values()).map(({ user }) => user);
 }
 
@@ -58,10 +59,10 @@ function deduplicateUsers(users: SearchUserResult[], events: NostrEvent[]): Sear
  */
 function userMatchesQuery(user: SearchUserResult, query: string): boolean {
   if (!user.metadata) return false;
-  
+
   const searchValue = query.toLowerCase();
   const metadata = user.metadata;
-  
+
   return (
     metadata.name?.toLowerCase().includes(searchValue) ||
     metadata.display_name?.toLowerCase().includes(searchValue) ||
@@ -77,11 +78,11 @@ function userMatchesQuery(user: SearchUserResult, query: string): boolean {
 export function useSearchUsers(options: UseSearchUsersOptions) {
   const { nostr } = useNostr();
   const { query, limit = 50 } = options;
-  
+
   // Debounce the query - disable in test environment
   const isTest = process.env.NODE_ENV === 'test';
   const debounceDelay = isTest ? 0 : 300;
-  
+
   const debouncedQuery = useMemo(() => {
     let timeoutId: NodeJS.Timeout;
     return new Promise<string>((resolve) => {
@@ -89,60 +90,56 @@ export function useSearchUsers(options: UseSearchUsersOptions) {
       timeoutId = setTimeout(() => resolve(query), debounceDelay);
     });
   }, [query, debounceDelay]);
-  
+
   return useQuery({
     queryKey: ['search-users', query, limit],
     queryFn: async (context) => {
       // Wait for debounced query
       const actualQuery = await debouncedQuery;
-      
+
       if (!actualQuery.trim()) {
         return [];
       }
-      
+
       const signal = AbortSignal.any([
         context.signal,
         AbortSignal.timeout(8000)
       ]);
 
-      let events: NostrEvent[];
+      let events: NostrEvent[] = [];
 
-      // Create a dedicated search pool that queries relay.nostr.band (supports NIP-50 search)
-      const searchPool = new NPool({
-        open(url: string) {
-          return new NRelay1(url);
-        },
-        reqRouter(filters): ReadonlyMap<string, NostrFilter[]> {
-          return new Map([['wss://relay.nostr.band', filters]]) as ReadonlyMap<string, NostrFilter[]>;
-        },
-        eventRouter(_event: NostrEvent) {
-          return ['wss://relay.nostr.band'];
-        },
-      });
-
+      // Attempt NIP-50 search on the app's active relays first.
       try {
-        // Try relay-level search on relay.nostr.band (has NIP-50 support and large index)
-        events = await searchPool.query([{
-          kinds: [0],
-          search: actualQuery,
-          limit: Math.min(limit * 2, 200), // Get more for deduplication
-        }], { signal });
+        events = await nostr.query([
+          {
+            kinds: [0],
+            search: actualQuery,
+            limit: Math.min(limit * 2, 200),
+          },
+        ], { signal });
+
+        // If relay doesn't support NIP-50 or returns empty, fall back below.
+        if (!Array.isArray(events) || events.length === 0) {
+          throw new Error('No search results; falling back to client filter');
+        }
       } catch {
-        // Fallback: query main relay for recent metadata and filter client-side
-        events = await nostr.query([{
-          kinds: [0],
-          limit: Math.min(limit * 10, 1000), // Get more to filter from
-        }], { signal });
+        // Fallback: query recent metadata and filter client-side
+        events = await nostr.query([
+          {
+            kinds: [0],
+            limit: Math.min(limit * 10, 1000),
+          },
+        ], { signal });
       }
-      
+
       // Parse user metadata
       const users = events
         .map(parseUserMetadata)
         .filter((user): user is SearchUserResult => user !== null);
-      
+
       // Deduplicate by pubkey (keep most recent)
       const deduplicatedUsers = deduplicateUsers(users, events);
-      
+
       // Filter by search query if relay search wasn't used
       let filteredUsers = deduplicatedUsers;
       if (events.length > limit * 2) {
@@ -151,7 +148,7 @@ export function useSearchUsers(options: UseSearchUsersOptions) {
           userMatchesQuery(user, actualQuery)
         );
       }
-      
+
       // Sort by relevance (exact name matches first, then partial matches)
       const searchValue = actualQuery.toLowerCase();
       filteredUsers.sort((a, b) => {
@@ -159,27 +156,27 @@ export function useSearchUsers(options: UseSearchUsersOptions) {
         const bName = b.metadata?.name?.toLowerCase() || '';
         const aDisplayName = a.metadata?.display_name?.toLowerCase() || '';
         const bDisplayName = b.metadata?.display_name?.toLowerCase() || '';
-        
+
         // Exact name matches first
         if (aName === searchValue && bName !== searchValue) return -1;
         if (bName === searchValue && aName !== searchValue) return 1;
-        
+
         // Exact display name matches second
         if (aDisplayName === searchValue && bDisplayName !== searchValue) return -1;
         if (bDisplayName === searchValue && aDisplayName !== searchValue) return 1;
-        
+
         // Name starts with search value
         if (aName.startsWith(searchValue) && !bName.startsWith(searchValue)) return -1;
         if (bName.startsWith(searchValue) && !aName.startsWith(searchValue)) return 1;
-        
+
         // Display name starts with search value
         if (aDisplayName.startsWith(searchValue) && !bDisplayName.startsWith(searchValue)) return -1;
         if (bDisplayName.startsWith(searchValue) && !aDisplayName.startsWith(searchValue)) return 1;
-        
+
         // Alphabetical by name
         return aName.localeCompare(bName);
       });
-      
+
       return filteredUsers.slice(0, limit);
     },
     enabled: !!query.trim(),

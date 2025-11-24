@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield, ShieldAlert, Lock, AlertTriangle, Eye, Users } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function SafetyPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <div className="text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-3">
@@ -431,6 +433,7 @@ export function SafetyPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

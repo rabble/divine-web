@@ -6,9 +6,6 @@ import { useMuteList, useMuteItem, useUnmuteItem, useReportHistory } from '@/hoo
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useNostr } from '@nostrify/react';
-import { useAppContext } from '@/hooks/useAppContext';
-import { useDeletionEvents } from '@/hooks/useDeletionEvents';
-import { deletionService } from '@/lib/deletionService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,11 +21,9 @@ import {
   Hash,
   Type,
   Plus,
-  Trash2,
   Flag,
-  AlertCircle,
-  Eye,
-  EyeOff
+  Trash2,
+  AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
 import { MuteType, REPORT_REASON_LABELS } from '@/types/moderation';
@@ -73,156 +68,7 @@ function MutedUserItem({ pubkey, reason, onUnmute }: {
   );
 }
 
-// Deletion Settings Section Component
-function DeletionSettingsSection() {
-  const { config, updateConfig } = useAppContext();
-  const { data: deletionData } = useDeletionEvents();
-  const { toast } = useToast();
 
-  const deletedCount = deletionService.getDeletedEventCount();
-  const deletionEventCount = deletionService.getDeletionCount();
-
-  const handleToggleShowDeleted = () => {
-    updateConfig(currentConfig => ({
-      ...currentConfig,
-      showDeletedVideos: !currentConfig.showDeletedVideos
-    }));
-
-    toast({
-      title: config.showDeletedVideos ? 'Hiding Deleted Videos' : 'Showing Deleted Videos',
-      description: config.showDeletedVideos
-        ? 'Deleted videos will now be hidden from feeds'
-        : 'Deleted videos will now show with an indicator',
-    });
-  };
-
-  const handleClearDeletionHistory = () => {
-    deletionService.clear();
-    toast({
-      title: 'Deletion History Cleared',
-      description: 'Local deletion records have been removed',
-    });
-  };
-
-  return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Deleted Content Settings</CardTitle>
-          <CardDescription>
-            Configure how deleted videos (NIP-09) are displayed
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Toggle Show/Hide */}
-          <div className="flex items-start justify-between p-4 rounded-lg border">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                {config.showDeletedVideos ? (
-                  <Eye className="h-5 w-5 text-primary" />
-                ) : (
-                  <EyeOff className="h-5 w-5 text-muted-foreground" />
-                )}
-                <h3 className="font-semibold">
-                  {config.showDeletedVideos ? 'Showing' : 'Hiding'} Deleted Videos
-                </h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {config.showDeletedVideos
-                  ? 'Deleted videos appear with a notice explaining they were removed by the author'
-                  : 'Deleted videos are completely hidden from all feeds (recommended)'}
-              </p>
-            </div>
-            <Button
-              onClick={handleToggleShowDeleted}
-              variant={config.showDeletedVideos ? "default" : "outline"}
-              size="sm"
-            >
-              {config.showDeletedVideos ? 'Hide Deleted' : 'Show Deleted'}
-            </Button>
-          </div>
-
-          {/* Stats */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Deletion Tracking Stats
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-muted-foreground">Deletion Events</div>
-                <div className="text-2xl font-bold">{deletionEventCount}</div>
-              </div>
-              <div>
-                <div className="text-muted-foreground">Deleted Videos</div>
-                <div className="text-2xl font-bold">{deletedCount}</div>
-              </div>
-            </div>
-            {deletionData && (
-              <div className="text-xs text-muted-foreground pt-2 border-t">
-                Last updated: {new Date(deletionData.lastUpdated).toLocaleString()}
-              </div>
-            )}
-          </div>
-
-          {/* Clear History */}
-          {deletedCount > 0 && (
-            <div className="pt-4 border-t">
-              <Button
-                onClick={handleClearDeletionHistory}
-                variant="destructive"
-                size="sm"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Clear Deletion History
-              </Button>
-              <p className="text-xs text-muted-foreground mt-2">
-                This will remove local deletion records. Deletion events will be re-downloaded from relays on next refresh.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* How It Works */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5" />
-            How Deletion Works (NIP-09)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm">
-          <div className="space-y-2">
-            <h4 className="font-semibold">When you delete a video:</h4>
-            <ul className="list-disc list-inside space-y-1 ml-2 text-muted-foreground">
-              <li>A "deletion event" (Kind 5) is sent to all relays</li>
-              <li>Most relays will stop sharing your video</li>
-              <li>The video is immediately hidden from your feeds</li>
-              <li>Other diVine Web users will also stop seeing it</li>
-            </ul>
-          </div>
-
-          <div className="space-y-2 pt-2">
-            <h4 className="font-semibold">Important Notes:</h4>
-            <ul className="list-disc list-inside space-y-1 ml-2 text-muted-foreground">
-              <li>Some relays may choose to retain content despite deletion requests</li>
-              <li>Users who saved the video locally may still have it</li>
-              <li>Deletion is a "request" - not guaranteed to remove from all copies</li>
-              <li>Deletion records are kept for 90 days then automatically cleaned up</li>
-            </ul>
-          </div>
-
-          <div className="bg-muted/50 rounded p-3 mt-4">
-            <p className="text-xs">
-              <strong>Privacy tip:</strong> If you need to delete sensitive content, consider also contacting relay operators directly to ensure removal.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    </>
-  );
-}
 
 export default function ModerationSettingsPage() {
   const { user } = useCurrentUser();
@@ -385,6 +231,7 @@ export default function ModerationSettingsPage() {
             variant="outline"
             size="sm"
             onClick={() => setShowDebug(!showDebug)}
+            className="text-foreground"
           >
             {showDebug ? 'Hide' : 'Show'} Debug Info
           </Button>
@@ -493,18 +340,14 @@ export default function ModerationSettingsPage() {
       </Card>
 
       <Tabs defaultValue="mute-list" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="mute-list">
-            <UserX className="h-4 w-4 mr-2" />
-            Mute List
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="mute-list" className="gap-2">
+            <UserX className="h-4 w-4" />
+            <span className="hidden sm:inline">Mute List</span>
           </TabsTrigger>
-          <TabsTrigger value="deletion">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Deleted Content
-          </TabsTrigger>
-          <TabsTrigger value="reports">
-            <Flag className="h-4 w-4 mr-2" />
-            My Reports
+          <TabsTrigger value="reports" className="gap-2">
+            <Flag className="h-4 w-4" />
+            <span className="hidden sm:inline">My Reports</span>
           </TabsTrigger>
         </TabsList>
 
@@ -680,11 +523,6 @@ export default function ModerationSettingsPage() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Deletion Tab */}
-        <TabsContent value="deletion" className="space-y-6">
-          <DeletionSettingsSection />
         </TabsContent>
 
         {/* Reports Tab */}

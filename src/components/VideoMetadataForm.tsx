@@ -109,7 +109,6 @@ export function VideoMetadataForm({
         title: title.trim(),
         duration: Math.round(uploadResult.duration / 1000), // Convert ms to seconds
         hashtags,
-        kind: 34236, // Legacy short video kind for backward compatibility
       });
 
       toast({

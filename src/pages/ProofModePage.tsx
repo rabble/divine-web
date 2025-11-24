@@ -4,10 +4,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, ShieldCheck, ShieldAlert, ShieldQuestion, Camera, Lock, Fingerprint, Video } from "lucide-react";
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function ProofModePage() {
   return (
-    <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
+    <MarketingLayout>
+      <div className="container max-w-4xl mx-auto py-8 px-4 space-y-8">
       {/* Hero Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
@@ -274,6 +276,7 @@ export function ProofModePage() {
         </CardContent>
       </Card>
     </div>
+    </MarketingLayout>
   );
 }
 

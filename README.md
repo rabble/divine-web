@@ -4,7 +4,7 @@ OpenVine-compatible Nostr client for short-form looping videos. Built with React
 
 ## Features
 
-- **6-second looping videos** (Kind 34236 - NIP-71)
+- **6-second looping videos** (Kind 34236)
 - **MP4 and GIF support** with auto-loop playback
 - **Blurhash placeholders** for smooth progressive loading
 - **Social features**: Likes, reposts, follows, hashtag discovery

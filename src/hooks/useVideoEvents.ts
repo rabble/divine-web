@@ -1,19 +1,16 @@
 // ABOUTME: Hook for querying and managing video events from Nostr relays
-// ABOUTME: Handles NIP-71 videos (kinds 21, 22, 34236) and Kind 6 reposts with proper parsing
+// ABOUTME: Handles video events (kind 34236) and Kind 6 reposts with proper parsing
 // ABOUTME: Supports auto-refresh for home and recent feeds matching Flutter app behavior
 
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useFollowList } from '@/hooks/useFollowList';
-// import { useDeletionEvents } from '@/hooks/useDeletionEvents'; // Imported but not directly used - deletion filtering happens via deletionService
-import { useAppContext } from '@/hooks/useAppContext';
 import { useEffect } from 'react';
 import type { NostrEvent, NostrFilter } from '@nostrify/nostrify';
-import { VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
+import { VIDEO_KIND, VIDEO_KINDS, REPOST_KIND, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter } from '@/types/nostr';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime } from '@/lib/videoParser';
-import { deletionService } from '@/lib/deletionService';
+import { parseVideoEvent, getVineId, getThumbnailUrl, getLoopCount, getOriginalVineTimestamp, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated, getLatestRepostTime, validateVideoEvent } from '@/lib/videoParser';
 import { debugLog, debugError, verboseLog } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
 
@@ -25,25 +22,6 @@ interface UseVideoEventsOptions {
   limit?: number;
   until?: number; // For pagination - get videos before this timestamp
   sortMode?: SortMode; // NIP-50 sort mode override
-}
-
-/**
- * Validates that a NIP-71 video event (kinds 21, 22, or 34236) has required fields
- */
-function validateVideoEvent(event: NostrEvent): boolean {
-  if (!VIDEO_KINDS.includes(event.kind)) return false;
-
-  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
-  // Kinds 21 and 22 are regular events and don't require d tag
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-      return false;
-    }
-  }
-
-  return true;
 }
 
 /**
@@ -116,8 +94,8 @@ async function parseVideoEvents(
       continue;
     }
 
-    // Get vineId - for kind 34236 use d tag, for 21/22 use event id as fallback
-    const vineId = getVineId(event) || event.id;
+    // Get vineId from d tag (required for kind 34236)
+    const vineId = getVineId(event)!;
 
     const videoUrl = videoEvent.videoMetadata?.url;
     if (!videoUrl) {
@@ -140,7 +118,7 @@ async function parseVideoEvents(
     videoMap.set(uniqueKey, {
       id: event.id,
       pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
+      kind: event.kind as 34236,
       createdAt: event.created_at,
       originalVineTimestamp: getOriginalVineTimestamp(event),
       content: event.content,
@@ -160,7 +138,8 @@ async function parseVideoEvents(
       proofMode: getProofModeData(event),
       origin: getOriginPlatform(event),
       isVineMigrated: isVineMigrated(event),
-      reposts: [] // Initialize empty reposts array
+      reposts: [], // Initialize empty reposts array
+      originalEvent: event // Store original event for source viewing
     });
   }
 
@@ -240,7 +219,7 @@ async function parseVideoEvents(
       videoData = {
         id: originalVideo.id,
         pubkey: originalVideo.pubkey,
-        kind: originalVideo.kind as 21 | 22 | 34236,
+        kind: VIDEO_KIND,
         createdAt: originalVideo.created_at,
         originalVineTimestamp: getOriginalVineTimestamp(originalVideo),
         content: originalVideo.content,
@@ -260,10 +239,17 @@ async function parseVideoEvents(
         proofMode: getProofModeData(originalVideo),
         origin: getOriginPlatform(originalVideo),
         isVineMigrated: isVineMigrated(originalVideo),
-        reposts: []
+        reposts: [],
+        originalEvent: originalVideo // Store original event for source viewing
       };
 
       videoMap.set(vineId, videoData);
+    }
+
+    // Safety check (should never happen due to logic above)
+    if (!videoData) {
+      debugError(`[useVideoEvents] videoData unexpectedly undefined for vineId ${vineId}`);
+      continue;
     }
 
     // Add repost metadata to the video
@@ -319,7 +305,6 @@ async function parseVideoEvents(
 export function useVideoEvents(options: UseVideoEventsOptions = {}) {
   const { nostr } = useNostr();
   const { user } = useCurrentUser();
-  const { config } = useAppContext();
   const { filter, feedType = 'discovery', hashtag, pubkey, limit = 50, until, sortMode } = options;
 
   // Get follow list for home feed - this is cached and auto-refetches
@@ -340,9 +325,14 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
       ]);
 
       // Build base filter with NIP-50 support
+      // Profile feeds: no limit (get all videos for accurate stats)
+      // Other feeds: cap at 50 per query (they use pagination/infinite scroll)
       const baseFilter: NIP50Filter = {
         kinds: VIDEO_KINDS,
-        limit: Math.min(limit, 50),
+        ...(feedType === 'profile' 
+          ? {} // No limit for profiles
+          : { limit: Math.min(limit, 50) } // Cap at 50 for other feeds
+        ),
         ...filter
       };
 
@@ -478,16 +468,6 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
           .slice(0, limit);
       }
 
-      // Filter out deleted videos (NIP-09) unless user wants to see them
-      if (!config.showDeletedVideos) {
-        const beforeDeletionFilter = parsed.length;
-        parsed = parsed.filter(video => !deletionService.isDeleted(video.id));
-        const deletedCount = beforeDeletionFilter - parsed.length;
-        if (deletedCount > 0) {
-          debugLog(`[useVideoEvents] Filtered out ${deletedCount} deleted videos`);
-        }
-      }
-
       const totalTime = performance.now() - startTime;
       debugLog(`[useVideoEvents] Total query time: ${totalTime.toFixed(0)}ms, returning ${parsed.length} videos`);
 
@@ -509,7 +489,7 @@ export function useVideoEvents(options: UseVideoEventsOptions = {}) {
     },
     staleTime: 300000, // 5 minutes - reduce re-queries for better performance
     gcTime: 900000, // 15 minutes - keep data longer in cache
-    enabled: feedType !== 'home' || !!user?.pubkey, // Only run home feed if user is logged in
+    enabled: (feedType !== 'home' || !!user?.pubkey) && (feedType !== 'profile' || !!pubkey), // Only run home feed if user is logged in, and profile feed if pubkey is provided
   });
 
   // Auto-refresh logic matching Flutter app behavior

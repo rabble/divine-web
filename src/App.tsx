@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0.
+ * If a copy of the MPL was not distributed with this file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
 // NOTE: This file should normally not be modified unless you are adding a new provider.
 // To add new routes, edit the AppRouter.tsx file.
 
@@ -17,6 +21,7 @@ import { NWCProvider } from '@/contexts/NWCContext';
 import { AppConfig } from '@/contexts/AppContext';
 import { VideoPlaybackProvider } from '@/contexts/VideoPlaybackContext';
 import AppRouter from './AppRouter';
+import { PRIMARY_RELAY, PRESET_RELAYS, toLegacyFormat } from '@/config/relays';
 
 const head = createHead({
   plugins: [
@@ -35,22 +40,14 @@ const queryClient = new QueryClient({
 });
 
 const defaultConfig: AppConfig = {
-  theme: "light",
-  relayUrl: "wss://relay.divine.video", // Primary relay with NIP-50 support
+  theme: "system",
+  relayUrl: PRIMARY_RELAY.url, // Primary relay with NIP-50 support
   relayUrls: [
-    "wss://relay.divine.video",
+    PRIMARY_RELAY.url,
   ],
-  showDeletedVideos: false, // Hide deleted videos by default
 };
 
-const presetRelays = [
-  { url: 'wss://relay.divine.video', name: 'Divine' },
-  { url: 'wss://divine.diy', name: 'divine.diy' },
-  { url: 'wss://relay.ditto.pub', name: 'Ditto' },
-  { url: 'wss://relay.nostr.band', name: 'Nostr.Band' },
-  { url: 'wss://relay.damus.io', name: 'Damus' },
-  { url: 'wss://relay.primal.net', name: 'Primal' },
-];
+const presetRelays = toLegacyFormat(PRESET_RELAYS);
 
 export function App() {
   return (

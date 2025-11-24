@@ -3,7 +3,8 @@
 
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Grid3X3, List, Hash, Flame, TrendingUp, Zap, Scale } from 'lucide-react';
+import { ArrowLeft, Grid3X3, List, Hash } from 'lucide-react';
+import { useSeoMeta } from '@unhead/react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { parseHashtags, formatHashtag } from '@/lib/hashtag';
@@ -12,17 +13,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 import type { SortMode } from '@/types/nostr';
+import { EXTENDED_SORT_MODES as SORT_MODES } from '@/lib/constants/sortModes';
 
 type ViewMode = 'feed' | 'grid';
-
-const SORT_MODES = [
-  { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
-  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
-  { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
-  { value: 'controversial' as SortMode, label: 'Controversial', icon: Scale },
-];
 
 export function HashtagPage() {
   const { tag } = useParams<{ tag: string }>();
@@ -74,6 +68,25 @@ export function HashtagPage() {
       .slice(0, 5);
   }, [normalizedTag, allVideos]);
 
+  // Dynamic SEO meta tags for social sharing
+  const videoCount = videos?.length || 0;
+  const description = videoCount > 0
+    ? `Browse ${videoCount} video${videoCount !== 1 ? 's' : ''} tagged with #${tag} on diVine`
+    : `Explore videos tagged with #${tag} on diVine`;
+
+  useSeoMeta({
+    title: `#${tag} - diVine`,
+    description: description,
+    ogTitle: `#${tag} - diVine`,
+    ogDescription: description,
+    ogImage: '/og.png',
+    ogType: 'website',
+    twitterCard: 'summary_large_image',
+    twitterTitle: `#${tag} - diVine`,
+    twitterDescription: description,
+    twitterImage: '/og.png',
+  });
+
   if (!normalizedTag || normalizedTag.trim() === '') {
     return (
       <div className="container mx-auto px-4 py-6">
@@ -90,8 +103,6 @@ export function HashtagPage() {
       </div>
     );
   }
-
-  const videoCount = videos?.length || 0;
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -165,7 +176,7 @@ export function HashtagPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_MODES.map(mode => (
-                    <SelectItem key={mode.value} value={mode.value}>
+                    <SelectItem key={mode.value} value={mode.value as string}>
                       <div className="flex items-center gap-2">
                         <mode.icon className="h-4 w-4" />
                         {mode.label}

@@ -1,13 +1,23 @@
 // ABOUTME: Profile header component showing user avatar, bio, stats, and follow button
 // ABOUTME: Displays user metadata, social stats, and follow/unfollow functionality
 
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserPlus, UserCheck, CheckCircle, Pencil } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { UserPlus, UserCheck, CheckCircle, Pencil, Copy, MoreVertical, Flag } from 'lucide-react';
+import { ReportContentDialog } from '@/components/ReportContentDialog';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
+import { toast } from '@/hooks/useToast';
+import { nip19 } from 'nostr-tools';
 import type { NostrMetadata } from '@nostrify/nostrify';
 
 export interface ProfileStats {
@@ -62,6 +72,8 @@ export function ProfileHeader({
   isLoading: _isLoading = false,
   className,
 }: ProfileHeaderProps) {
+  const [showReportDialog, setShowReportDialog] = useState(false);
+
   // Show loading text if metadata hasn't loaded yet
   const displayName = metadata?.display_name || metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
   const userName = metadata?.name || (!metadata ? "Loading profile..." : genUserName(pubkey));
@@ -72,6 +84,23 @@ export function ProfileHeader({
 
   const handleFollowClick = () => {
     onFollowToggle(!isFollowing);
+  };
+
+  const handleCopyNpub = async () => {
+    try {
+      const npub = nip19.npubEncode(pubkey);
+      await navigator.clipboard.writeText(npub);
+      toast({
+        title: "Copied!",
+        description: "npub copied to clipboard",
+      });
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy npub to clipboard",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -95,9 +124,21 @@ export function ProfileHeader({
         <div className="flex-1 min-w-0 text-center sm:text-left">
           <div className="space-y-2">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold truncate">
-                {displayName}
-              </h1>
+              <div className="flex items-center gap-2 justify-center sm:justify-start">
+                <h1 className="text-2xl sm:text-3xl font-bold truncate">
+                  {displayName}
+                </h1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={handleCopyNpub}
+                  title="Copy npub"
+                  data-testid="copy-npub-button"
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
               {nip05 ? (
                 <div className="flex items-center gap-1 justify-center sm:justify-start">
                   <CheckCircle className="h-4 w-4 text-primary" />
@@ -143,7 +184,7 @@ export function ProfileHeader({
             </Button>
           </div>
         ) : (
-          <div className="flex-shrink-0 self-center sm:self-start">
+          <div className="flex-shrink-0 self-center sm:self-start flex gap-2">
             <Button
               onClick={handleFollowClick}
               variant={isFollowing ? "outline" : "default"}
@@ -163,6 +204,19 @@ export function ProfileHeader({
                 </>
               )}
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" data-testid="profile-menu-button">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowReportDialog(true)}>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report user
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         )}
       </div>
@@ -176,7 +230,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.videosCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Videos</div>
@@ -193,7 +247,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.followersCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Followers</div>
@@ -210,7 +264,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.followingCount)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Following</div>
@@ -227,7 +281,7 @@ export function ProfileHeader({
         <div className="text-center">
           {stats ? (
             <>
-              <div className="text-xl sm:text-2xl font-bold">
+              <div className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatNumber(stats.totalViews)}
               </div>
               <div className="text-xs sm:text-sm text-muted-foreground">Total Views</div>
@@ -260,6 +314,16 @@ export function ProfileHeader({
           )}
         </div>
       </div>
+
+      {/* Report User Dialog */}
+      {showReportDialog && (
+        <ReportContentDialog
+          open={showReportDialog}
+          onClose={() => setShowReportDialog(false)}
+          pubkey={pubkey}
+          contentType="user"
+        />
+      )}
     </div>
   );
 }

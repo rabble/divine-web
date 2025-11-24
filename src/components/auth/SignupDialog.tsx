@@ -11,8 +11,10 @@ import { toast } from '@/hooks/useToast';
 import { useLoginActions } from '@/hooks/useLoginActions';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { useUploadFile } from '@/hooks/useUploadFile';
+import { useQueryClient } from '@tanstack/react-query';
 import { generateSecretKey, nip19 } from 'nostr-tools';
 import { cn } from '@/lib/utils';
+import { debugLog } from '@/lib/debug';
 
 interface SignupDialogProps {
   isOpen: boolean;
@@ -39,6 +41,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
   const login = useLoginActions();
   const { mutateAsync: publishEvent, isPending: isPublishing } = useNostrPublish();
   const { mutateAsync: uploadFile, isPending: isUploading } = useUploadFile();
+  const queryClient = useQueryClient();
   const avatarFileInputRef = useRef<HTMLInputElement>(null);
 
   // Generate a proper nsec key using nostr-tools
@@ -184,18 +187,36 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
     localStorage.setItem('signup_completed', Date.now().toString());
 
     try {
-      // Publish profile if user provided information
+      // Always publish a profile to tag the user as divine client
+      const metadata: Record<string, string> = {
+        client: 'divine.video', // Tag for follow list safety checks
+      };
+
+      // Add user-provided information if any
       if (!skipProfile && (profileData.name || profileData.about || profileData.picture)) {
-        const metadata: Record<string, string> = {};
         if (profileData.name) metadata.name = profileData.name;
         if (profileData.about) metadata.about = profileData.about;
         if (profileData.picture) metadata.picture = profileData.picture;
+      }
 
-        await publishEvent({
-          kind: 0,
-          content: JSON.stringify(metadata),
+      const profileEvent = await publishEvent({
+        kind: 0,
+        content: JSON.stringify(metadata),
+      });
+
+      debugLog('[SignupDialog] Profile published:', profileEvent);
+      debugLog('[SignupDialog] Profile metadata:', metadata);
+
+      // Invalidate safety check cache so new profile is recognized immediately
+      // Wait a bit for the event to propagate through relays
+      setTimeout(() => {
+        queryClient.invalidateQueries({
+          queryKey: ['follow-list-safety-check'],
         });
+        debugLog('[SignupDialog] Invalidated safety check cache after profile publication');
+      }, 1000);
 
+      if (!skipProfile && (profileData.name || profileData.about || profileData.picture)) {
         toast({
           title: 'Profile Created!',
           description: 'Your profile has been set up.',
@@ -394,7 +415,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                   <Download className='w-4 h-4 mr-2' />
                   Download Key
                   {keySecured === 'downloaded' && (
-                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600 dark:text-green-400' />
                   )}
                 </Button>
 
@@ -406,7 +427,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                   <Copy className='w-4 h-4 mr-2' />
                   Copy to Clipboard
                   {keySecured === 'copied' && (
-                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600 dark:text-green-400' />
                   )}
                 </Button>
               </div>

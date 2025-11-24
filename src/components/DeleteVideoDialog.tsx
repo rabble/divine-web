@@ -1,20 +1,19 @@
-// ABOUTME: Dialog for confirming video deletion with NIP-09 explanation
-// ABOUTME: Warns users about relay behavior and deletion permanence
+// ABOUTME: Dialog for confirming video deletion
+// ABOUTME: Allows user to optionally provide a reason for deletion
 
 import { useState } from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { AlertTriangle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import type { ParsedVideoData } from '@/types/video';
 
 interface DeleteVideoDialogProps {
@@ -22,7 +21,7 @@ interface DeleteVideoDialogProps {
   onClose: () => void;
   onConfirm: (reason?: string) => void;
   video: ParsedVideoData;
-  isDeleting?: boolean;
+  isDeleting: boolean;
 }
 
 export function DeleteVideoDialog({
@@ -30,81 +29,90 @@ export function DeleteVideoDialog({
   onClose,
   onConfirm,
   video,
-  isDeleting = false,
+  isDeleting,
 }: DeleteVideoDialogProps) {
   const [reason, setReason] = useState('');
 
   const handleConfirm = () => {
     onConfirm(reason.trim() || undefined);
-    setReason(''); // Reset for next time
   };
 
-  const handleCancel = () => {
-    setReason(''); // Reset
-    onClose();
+  const handleClose = () => {
+    if (!isDeleting) {
+      setReason('');
+      onClose();
+    }
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onClose}>
-      <AlertDialogContent className="max-w-md">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-destructive" />
             Delete Video?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-3 text-left">
-            <p>
-              Are you sure you want to delete this video?
+          </DialogTitle>
+          <DialogDescription>
+            This action will send a deletion request to all relays. Most relays will honor this request and remove your video.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Video preview */}
+          {video.title && (
+            <div className="rounded-lg border p-3 bg-muted/50">
+              <p className="font-medium text-sm">{video.title}</p>
+              {video.content && video.content !== video.title && (
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                  {video.content}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Optional reason */}
+          <div className="space-y-2">
+            <Label htmlFor="delete-reason">
+              Reason (optional)
+            </Label>
+            <Textarea
+              id="delete-reason"
+              placeholder="Why are you deleting this video?"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              disabled={isDeleting}
+              rows={3}
+            />
+            <p className="text-xs text-muted-foreground">
+              This reason will be included in the deletion event sent to relays.
             </p>
+          </div>
 
-            <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
-              <p className="font-semibold">How deletion works:</p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>A delete request will be sent to all relays</li>
-                <li>Most relays will stop sharing your video</li>
-                <li>Some relays may still retain the content</li>
-                <li>The video will be hidden from feeds in this app</li>
-              </ul>
-            </div>
+          {/* Warning */}
+          <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900/50 rounded-lg p-3">
+            <p className="text-sm text-yellow-900 dark:text-yellow-200">
+              <strong>Note:</strong> While most relays will remove your video, deletion is not guaranteed. Some relays may choose to keep the content, and users who have already downloaded it will still have access.
+            </p>
+          </div>
+        </div>
 
-            {video.title && (
-              <p className="text-sm">
-                <span className="font-semibold">Video:</span> {video.title}
-              </p>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="delete-reason" className="text-sm">
-                Reason for deletion (optional)
-              </Label>
-              <Textarea
-                id="delete-reason"
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g., Published by accident, incorrect content, etc."
-                className="resize-none"
-                rows={3}
-                disabled={isDeleting}
-              />
-              <p className="text-xs text-muted-foreground">
-                This reason will be visible to relay operators
-              </p>
-            </div>
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel} disabled={isDeleting}>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={isDeleting}
+          >
             Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
+          </Button>
+          <Button
+            variant="destructive"
             onClick={handleConfirm}
             disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive/90"
           >
             {isDeleting ? 'Deleting...' : 'Delete Video'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

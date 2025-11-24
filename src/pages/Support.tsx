@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mail, Github, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function Support() {
   useEffect(() => {
@@ -55,7 +56,8 @@ export function Support() {
   };
 
   return (
-    <div className="container max-w-2xl mx-auto px-4 py-8">
+    <MarketingLayout>
+      <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Support</h1>
@@ -109,18 +111,32 @@ export function Support() {
               GitHub Issues
             </CardTitle>
             <CardDescription>
-              Report bugs, request features, or browse existing issues on our GitHub repository.
+              Report bugs, request features, or browse existing issues on our GitHub repositories.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <a
-              href="https://github.com/rabble/nostrvine/issues"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline font-medium"
-            >
-              github.com/rabble/nostrvine/issues
-            </a>
+          <CardContent className="space-y-2">
+            <div>
+              <div className="text-sm font-medium mb-1">Web App:</div>
+              <a
+                href="https://github.com/rabble/divine-web/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                github.com/rabble/divine-web/issues
+              </a>
+            </div>
+            <div>
+              <div className="text-sm font-medium mb-1">Flutter App (iOS/Android):</div>
+              <a
+                href="https://github.com/rabble/nostrvine/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline"
+              >
+                github.com/rabble/nostrvine/issues
+              </a>
+            </div>
           </CardContent>
         </Card>
 
@@ -142,5 +158,6 @@ export function Support() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }

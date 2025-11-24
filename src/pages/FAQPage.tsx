@@ -1,7 +1,8 @@
 // ABOUTME: Frequently Asked Questions page for diVine Web
-// ABOUTME: Answers common questions about the platform, Nostr, and how to use Divine
+// ABOUTME: Answers common questions about the platform, Nostr, and how to use diVine
 
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,7 +12,8 @@ import {
   Key,
   Globe,
   Upload,
-  Settings
+  Settings,
+  Hash
 } from 'lucide-react';
 import {
   Accordion,
@@ -20,10 +22,66 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
+
+function FAQQuestion({
+  value,
+  question,
+  children
+}: {
+  value: string;
+  question: string;
+  children: React.ReactNode;
+}) {
+  const handleHashClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const url = `${window.location.pathname}#${value}`;
+    window.history.pushState({}, '', url);
+    navigator.clipboard.writeText(window.location.href);
+  };
+
+  return (
+    <AccordionItem value={value} id={value}>
+      <AccordionTrigger className="group">
+        <div className="flex items-center justify-between w-full pr-2">
+          <span className="text-left">{question}</span>
+          <a
+            href={`#${value}`}
+            onClick={handleHashClick}
+            className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Copy link to this question"
+          >
+            <Hash className="h-4 w-4 text-muted-foreground hover:text-primary" />
+          </a>
+        </div>
+      </AccordionTrigger>
+      <AccordionContent>
+        {children}
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
 
 export function FAQPage() {
+  const [openItem, setOpenItem] = useState<string>('');
+
+  useEffect(() => {
+    // Handle hash navigation on page load
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1);
+      setOpenItem(hash);
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, []);
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <div className="text-center space-y-4 mb-8">
         <div className="flex items-center justify-center gap-3">
@@ -31,7 +89,7 @@ export function FAQPage() {
           <h1 className="text-4xl font-bold">Frequently Asked Questions</h1>
         </div>
         <p className="text-xl text-muted-foreground">
-          Everything you need to know about Divine
+          Everything you need to know about diVine
         </p>
       </div>
 
@@ -45,29 +103,27 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="what-is">
-                <AccordionTrigger>What is Divine?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="what-is" question="What is diVine?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Divine is an independent short-form video app inspired by Vine's creative 6-second format.
+                    diVine is an independent short-form video app inspired by Vine's creative 6-second format.
                     It allows you to create and share looping videos using the decentralized Nostr protocol,
                     making your content censorship-resistant and truly owned by you.
                   </p>
                   <p>
-                    Unlike traditional social media platforms, Divine doesn't store your data on centralized
+                    Unlike traditional social media platforms, diVine doesn't store your data on centralized
                     servers. Instead, it uses the Nostr protocol to distribute your content across a network
                     of independent relays.
                   </p>
                   <p className="font-semibold">
-                    Divine has no affiliation with X (formerly Twitter) or the original Vine platform.
+                    diVine has no affiliation with X (formerly Twitter) or the original Vine platform.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="different">
-                <AccordionTrigger>How is Divine different from TikTok or Instagram Reels?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="different" question="How is diVine different from TikTok or Instagram Reels?">
+                <div className="text-muted-foreground space-y-2">
                   <p><strong>You own your content:</strong> Your videos are cryptographically signed with your private keys,
                   proving ownership.</p>
                   <p><strong>Decentralized:</strong> No single company controls the platform or can delete your content.</p>
@@ -75,12 +131,11 @@ export function FAQPage() {
                   <p><strong>No algorithms:</strong> You choose what you see, or pick from community-created algorithms.</p>
                   <p><strong>Open source:</strong> The code is public and anyone can contribute or build their own client.</p>
                   <p><strong>6-second loops:</strong> Inspired by Vine's format, keeping it simple and creative.</p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="vine-videos">
-                <AccordionTrigger>What happened to videos from the original Vine platform?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="vine-videos" question="What happened to videos from the original Vine platform?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     When Twitter shut down Vine in 2017, volunteer archivists at{' '}
                     <a href="https://wiki.archiveteam.org/index.php/Vine" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
@@ -89,16 +144,15 @@ export function FAQPage() {
                     preserved many videos through Internet Archive efforts before they disappeared forever.
                   </p>
                   <p>
-                    Divine (an independent app with no affiliation to Vine or Twitter/X) has imported these
+                    diVine (an independent app with no affiliation to Vine or Twitter/X) has imported these
                     archived videos, giving them a permanent home on the decentralized web. These videos are
                     marked with a special badge to indicate they're from the Internet Archive.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="classic-vines">
-                <AccordionTrigger>How many archived videos have been imported?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="classic-vines" question="How many archived videos have been imported?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     So far, we've successfully imported from the Internet Archive:
                   </p>
@@ -155,25 +209,24 @@ export function FAQPage() {
                       {' '}to share your collection.
                     </p>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="vine-account-recovery">
-                <AccordionTrigger>How do I claim my archived creator account?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="vine-account-recovery" question="How do I claim my archived creator account?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     <strong>We're working on building an account recovery system.</strong>
                   </p>
                   <p>
                     Users who can prove they owned an account from the original Vine platform (through
                     associated Twitter, Instagram, Musically/TikTok, or YouTube accounts) will be able to
-                    claim their Divine account and receive login credentials.
+                    claim their diVine account and receive login credentials.
                   </p>
                   <p className="font-semibold">
                     This feature isn't ready yet.
                   </p>
                   <p>
-                    Divine is a one-person dev project, and these things take time. Please{' '}
+                    diVine is a one-person dev project, and these things take time. Please{' '}
                     <Link to="/support" className="text-primary hover:underline">
                       email us
                     </Link>
@@ -191,12 +244,11 @@ export function FAQPage() {
                       {' '}with proof of ownership, and we'll process it accordingly.
                     </p>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="missing-vine">
-                <AccordionTrigger>Where is a specific video I'm looking for?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="missing-vine" question="Where is a specific video I'm looking for?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     We're actively working to load more archived videos into the system, but unfortunately
                     the archive team was only able to save a small percentage of videos that existed on
@@ -212,14 +264,13 @@ export function FAQPage() {
                     archived or has been lost. However, we continue to search for and import recovered
                     videos as new archives are discovered.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="who-built">
-                <AccordionTrigger>Who built Divine?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="who-built" question="Who built Divine?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Divine was created by{' '}
+                    diVine was created by{' '}
                     <a
                       href="https://rabblelabs.com/about"
                       target="_blank"
@@ -244,19 +295,75 @@ export function FAQPage() {
                     open-source development.
                   </p>
                   <p>
-                    Divine is open source, and we welcome contributions from the community. Check out our{' '}
+                    diVine is open source, and we welcome contributions from the community. Check out our{' '}
+                    <a
+                      href="https://github.com/rabble/divine-web"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      web app
+                    </a>{' '}
+                    and{' '}
                     <a
                       href="https://github.com/rabble/nostrvine"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"
                     >
-                      GitHub repository
+                      Flutter app
                     </a>{' '}
-                    to learn more or get involved.
+                    repositories on GitHub to learn more or get involved.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
+
+              <FAQQuestion value="rabble-name" question="How did Rabble get their name?">
+                <div className="text-muted-foreground space-y-2">
+                  <p>
+                    In the 1990s, Rabble started an activist website called{' '}
+                    <a
+                      href="http://protest.net"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      protest.net
+                    </a>{' '}
+                    and helped build the media activist network{' '}
+                    <a
+                      href="http://indymedia.org"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline"
+                    >
+                      indymedia.org
+                    </a>
+                    . In that work, they didn't want to use their real name online, so they set up a contact
+                    email: rabble-rousers@protest.net. That got shortened to "rabble."
+                  </p>
+                  <p>
+                    When Odeo (the company that became Twitter) started, there were two Evans on the team:
+                    Rabble and Evan Williams. To keep everyone from getting confused, Mr. Williams went by "Ev"
+                    and Rabble used their username around the office. It stuck, and the nickname migrated from
+                    online to the real world.
+                  </p>
+                </div>
+              </FAQQuestion>
+
+              <FAQQuestion value="jack-dorsey-ownership" question="Does Jack Dorsey own all or part of diVine?">
+                <div className="text-muted-foreground space-y-3">
+                  <p>
+                    No. While Jack Dorsey is providing funding for diVine, it is not an investment and he holds no equity in, or ownership of diVine.
+                  </p>
+                  <p>
+                    Jack Dorsey explains his support:
+                  </p>
+                  <blockquote className="border-l-4 border-primary/30 pl-4 italic text-sm">
+                    "Nostr - the underlying open source protocol being used by Divine - is empowering developers to create a new generation of apps without the need for VC-backing, toxic business models or huge teams of engineers. The reason I funded the non-profit, and Other Stuff, is to allow creative engineers like Rabble to show what's possible in this new world, by using permissionless protocols which can't be shut down based on the whim of a corporate owner."
+                  </blockquote>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -270,12 +377,11 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="create-account">
-                <AccordionTrigger>How do I create an account?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="create-account" question="How do I create an account?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    <strong>Mobile app:</strong> The Divine iOS app automatically creates new Nostr keys for you when you first open it.
+                    <strong>Mobile app:</strong> The diVine iOS app automatically creates new Nostr keys for you when you first open it.
                     No registration required - you can start posting immediately!
                   </p>
                   <p>
@@ -291,12 +397,11 @@ export function FAQPage() {
                     <strong>Optional:</strong> If you want a username@divine.video address, you can register for one after creating your account.
                     This is completely optional - most users don't need it.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="nostr">
-                <AccordionTrigger>What is Nostr?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="nostr" question="What is Nostr?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     Nostr (Notes and Other Stuff Transmitted by Relays) is a simple, open protocol that
                     enables censorship-resistant social media. Instead of storing data on one company's servers,
@@ -312,24 +417,22 @@ export function FAQPage() {
                       nostr.org
                     </a>
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="multiple-devices">
-                <AccordionTrigger>Can I use my account on multiple devices?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+              <FAQQuestion value="multiple-devices" question="Can I use my account on multiple devices?">
+                <div className="text-muted-foreground">
                   <p>
                     Yes! Since Nostr is decentralized, you can use your account on any Nostr client
                     (diVine web, diVine iOS app, or any other Nostr app) by importing your private key
                     or connecting your browser extension. Your profile and content will appear the same
                     across all clients.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="lost-key">
-                <AccordionTrigger>What if I lose my private key?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="lost-key" question="What if I lose my private key?">
+                <div className="text-muted-foreground space-y-2">
                   <p className="font-semibold text-destructive">
                     Important: There is NO password recovery on Nostr!
                   </p>
@@ -347,12 +450,11 @@ export function FAQPage() {
                     <li>Use a browser extension that securely stores your key</li>
                     <li>Or use email signup with Keycast, which manages keys for you</li>
                   </ul>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="divine-username">
-                <AccordionTrigger>Can I get a username@divine.video address?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="divine-username" question="Can I get a username@divine.video address?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     Yes! We're currently beta testing a username registration system that allows you to
                     claim a human-readable address like username@divine.video (also known as a NIP-05 identifier).
@@ -380,8 +482,8 @@ export function FAQPage() {
                     claiming a username@divine.video address, stay tuned for announcements about when
                     registration opens to all users.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -395,41 +497,38 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="post-video">
-                <AccordionTrigger>How do I post a video?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="post-video" question="How do I post a video?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Currently, you can post videos using the Divine mobile apps.
+                    Currently, you can post videos using the diVine mobile apps.
                     The web version supports browsing and viewing videos, with posting features coming soon.
                   </p>
                   <p>
                     iOS TestFlight is currently full (10k signups in 4 hours!). Stay tuned for updates on mobile app availability.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="video-requirements">
-                <AccordionTrigger>What are the video requirements?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+              <FAQQuestion value="video-requirements" question="What are the video requirements?">
+                <div className="text-muted-foreground">
                   <ul className="list-disc list-inside space-y-1">
                     <li><strong>Length:</strong> 6 seconds maximum (just like original Vine!)</li>
                     <li><strong>Format:</strong> MP4</li>
                     <li><strong>Loop:</strong> Videos automatically loop for the perfect vine experience</li>
                     <li><strong>Size:</strong> Recommended max 10MB for best performance</li>
                   </ul>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="edit-delete">
-                <AccordionTrigger>Can I edit or delete my videos?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="edit-delete" question="Can I edit or delete my videos?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     <strong>Yes!</strong> You can delete any video you've posted and edit your video records
                     (such as titles, descriptions, and hashtags) at any time.
                   </p>
                   <p>
-                    <strong>How deletion works:</strong> When you delete a video, Divine removes it from our
+                    <strong>How deletion works:</strong> When you delete a video, diVine removes it from our
                     systems and sends a deletion request to all Nostr relays. Most relays honor these deletion
                     requests. However, because Nostr is decentralized, some relays may retain copies - this is
                     the trade-off for a censorship-resistant platform.
@@ -438,23 +537,21 @@ export function FAQPage() {
                     <strong>Editing metadata:</strong> You can update your video's information (title, description,
                     hashtags) by editing the event record. Changes will propagate across the Nostr network.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="hashtags">
-                <AccordionTrigger>How do hashtags work?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+              <FAQQuestion value="hashtags" question="How do hashtags work?">
+                <div className="text-muted-foreground">
                   <p>
                     Add hashtags to your video description (like #comedy or #skateboarding) to help
                     others discover your content. You can browse videos by hashtag using the hashtag
                     discovery page or by clicking on any hashtag in a video description.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="lists">
-                <AccordionTrigger>Can I create and curate lists of videos?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="lists" question="Can I create and curate lists of videos?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     <strong>Yes! This is a feature that every user can use on Divine.</strong>
                   </p>
@@ -482,8 +579,8 @@ export function FAQPage() {
                     This democratization of curation means the best collections are built by passionate
                     community members, not just platform employees!
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -497,30 +594,28 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="privacy">
-                <AccordionTrigger>Is my content private?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="privacy" question="Is my content private?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    No, all content on Divine is public by default. Nostr is designed as a public
+                    No, all content on diVine is public by default. Nostr is designed as a public
                     protocol similar to Twitter or Instagram. Everything you post can be seen by anyone.
                   </p>
                   <p>
                     However, your personal information is more private than traditional social media
                     because you don't need to provide email, phone number, or real name to use Divine.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="moderation">
-                <AccordionTrigger>How does moderation work?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="moderation" question="diVine trust and safety guidelines and policy">
+                <div className="text-muted-foreground space-y-2">
                   <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
                     <p className="font-semibold text-destructive mb-2">
                       Zero Tolerance for Objectionable Content
                     </p>
                     <p>
-                      Divine maintains a strict zero-tolerance policy for objectionable content and abusive users.
+                      diVine maintains a strict zero-tolerance policy for objectionable content and abusive users.
                       By using Divine, you agree to our{' '}
                       <Link to="/terms" className="text-primary hover:underline font-semibold">
                         Terms of Service
@@ -561,7 +656,7 @@ export function FAQPage() {
                   <div>
                     <p className="font-semibold mb-2">Composable Moderation</p>
                     <p>
-                      Divine uses composable moderation, similar to Bluesky's approach. Instead of one
+                      diVine uses composable moderation, similar to Bluesky's approach. Instead of one
                       central moderator, you can:
                     </p>
                     <ul className="list-disc list-inside space-y-1 ml-4">
@@ -575,7 +670,7 @@ export function FAQPage() {
                   <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
                     <p className="font-semibold mb-2">Decentralized Network & Limited Responsibility</p>
                     <p className="mb-2">
-                      The Divine app can connect to multiple servers (relays and media servers) across the
+                      The diVine app can connect to multiple servers (relays and media servers) across the
                       decentralized Nostr network. <strong>We only bear responsibility for content hosted on
                       our own servers.</strong>
                     </p>
@@ -586,7 +681,7 @@ export function FAQPage() {
                     <p>
                       <strong>Run your own servers:</strong> If you want different moderation policies, you're
                       welcome to run your own Nostr relays and Blossom media servers with whatever policies you
-                      prefer. The Divine app can connect to any compatible server.
+                      prefer. The diVine app can connect to any compatible server.
                     </p>
                   </div>
 
@@ -595,12 +690,11 @@ export function FAQPage() {
                       Learn more about our safety standards
                     </Link>
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="report">
-                <AccordionTrigger>How do I report inappropriate content?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="report" question="How do I report inappropriate content?">
+                <div className="text-muted-foreground space-y-2">
                   <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
                     <p className="font-semibold text-destructive mb-2">
                       24-Hour Response Commitment
@@ -618,7 +712,7 @@ export function FAQPage() {
                     <p className="font-semibold mb-2">How to Report Content</p>
                     <p>
                       You can report content using Nostr's reporting system (NIP-56), which creates a
-                      public report that both Divine moderators and your followers can see. Reports help build
+                      public report that both diVine moderators and your followers can see. Reports help build
                       community-driven moderation through trust networks.
                     </p>
                   </div>
@@ -656,12 +750,11 @@ export function FAQPage() {
                     </Link>
                     {' '}for more information about content moderation.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="block">
-                <AccordionTrigger>Can I block users?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="block" question="Can I block users?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     Yes! You can block any user, and their content won't appear in your feeds.
                     Blocking is stored in your account and follows you across all Nostr clients.
@@ -670,15 +763,15 @@ export function FAQPage() {
                     Important: Blocks have limitations on decentralized platforms
                   </p>
                   <p>
-                    Just like with Bluesky, blocks on Divine don't prevent users from seeing your content
+                    Just like with Bluesky, blocks on diVine don't prevent users from seeing your content
                     if they want to use special tools or alternative clients. Our primary app attempts to
                     respect your blocks, but it's not a foolproof system.
                   </p>
                   <p className="text-destructive font-semibold">
-                    Don't use Divine for private videos.
+                    Don't use diVine for private videos.
                   </p>
                   <p>
-                    All videos posted to Divine are public by default. If you need true privacy for video content,
+                    All videos posted to diVine are public by default. If you need true privacy for video content,
                     don't post it on Divine.
                   </p>
                   <p className="font-semibold">
@@ -689,8 +782,22 @@ export function FAQPage() {
                     messages that you send between users or when you share videos privately via DM. Your
                     private conversations are truly private.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
+
+              <FAQQuestion value="ai-data-selling" question="Is diVine going to sell our data or content to AI companies?">
+                <div className="text-muted-foreground space-y-2">
+                  <p>
+                    No, diVine is not in the business of selling user data or content to AI companies for training.
+                    We don't do it, we won't do it.
+                  </p>
+                  <p>
+                    We can't stop AI companies which want to ignore terms of service and people's copyright from
+                    scraping publicly accessible data, just like it's hard to stop AI companies from scraping
+                    publicly available websites.
+                  </p>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -704,12 +811,11 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="ai-detection">
-                <AccordionTrigger>How do you prove it's not AI?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="ai-detection" question="How do you prove it's not AI?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Divine uses multiple layers of verification to distinguish authentic, human-created
+                    diVine uses multiple layers of verification to distinguish authentic, human-created
                     content from AI-generated videos:
                   </p>
 
@@ -725,7 +831,7 @@ export function FAQPage() {
                   <div>
                     <p className="font-semibold mb-1">2. ProofMode Verification</p>
                     <p>
-                      Videos shot directly in the Divine mobile app can use ProofMode to cryptographically
+                      Videos shot directly in the diVine mobile app can use ProofMode to cryptographically
                       prove they were captured on a real phone camera, not generated by AI. ProofMode creates
                       verifiable signatures that confirm the video's authenticity.
                     </p>
@@ -752,12 +858,11 @@ export function FAQPage() {
                     verification, machine learning, and community reporting - to provide the most robust
                     protection possible.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="proofmode">
-                <AccordionTrigger>What is ProofMode?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="proofmode" question="What is ProofMode?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     ProofMode is a system for cryptographically proving that videos were captured
                     by a real camera, not generated by AI. It includes:
@@ -776,14 +881,13 @@ export function FAQPage() {
                       Learn more about ProofMode
                     </Link>
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="algorithms">
-                <AccordionTrigger>Can I choose my own algorithm?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="algorithms" question="Can I choose my own algorithm?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Yes! Divine supports multiple feed algorithms:
+                    Yes! diVine supports multiple feed algorithms:
                   </p>
                   <ul className="list-disc list-inside space-y-1 ml-4">
                     <li><strong>Home:</strong> Videos from people you follow</li>
@@ -795,51 +899,34 @@ export function FAQPage() {
                     In the future, we'll support custom algorithms created by the community using
                     Nostr's DVM (Data Vending Machine) system.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="relays">
-                <AccordionTrigger>What are relays and can I choose which ones to use?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="relays" question="What are relays and can I choose which ones to use?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     Relays are servers that store and distribute Nostr events. Think of them like
                     email servers - they relay your messages to others.
                   </p>
                   <p>
-                    Divine uses specific relays optimized for video content, but you can configure
+                    diVine uses specific relays optimized for video content, but you can configure
                     your own relay list if you prefer. Using multiple relays ensures your content
                     stays available even if one relay goes down.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="monetization">
-                <AccordionTrigger>Can I monetize my content?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="monetization" question="Can I monetize my content?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
                     <strong>Yes - this is a priority feature we're building!</strong> One of the major problems
                     with the original Vine was that there was no way for Viners to make money from their content.
                     This led many creators to leave the platform, contributing to Vine's eventual shutdown.
                   </p>
                   <p>
-                    Divine fixes this fundamental problem. Because you're in control of your account and content
+                    diVine fixes this fundamental problem. Because you're in control of your account and content
                     using Nostr, this new system can never be taken away from you.
                   </p>
-
-                  <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-500/20 rounded-lg">
-                    <p className="font-semibold mb-2">Coming Soon: Direct Creator Payments</p>
-                    <p>
-                      We're actively developing a system using Nostr's zaps (Lightning Network payments) and
-                      Cashu wallets for tips and micropayments directly from users to creators. When launched,
-                      this will enable:
-                    </p>
-                    <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
-                      <li>Viewers can tip creators directly for great content</li>
-                      <li>No middleman taking a large cut of your earnings</li>
-                      <li>Instant, low-fee payments using Bitcoin's Lightning Network</li>
-                      <li>Privacy-preserving payments using Cashu ecash</li>
-                    </ul>
-                  </div>
 
                   <div>
                     <p className="font-semibold mb-1">Future Paid Features</p>
@@ -858,7 +945,7 @@ export function FAQPage() {
                   <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
                     <p className="font-semibold mb-2">Always Open and Permissionless</p>
                     <p>
-                      The Divine system will always be open source using permissionless open protocols. This means:
+                      The diVine system will always be open source using permissionless open protocols. This means:
                     </p>
                     <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                       <li>You own your audience - they follow you, not the platform</li>
@@ -871,8 +958,8 @@ export function FAQPage() {
                       without fear of losing everything if the platform changes direction.
                     </p>
                   </div>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -886,12 +973,11 @@ export function FAQPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="open-source">
-                <AccordionTrigger>Is Divine open source?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+            <Accordion type="single" collapsible className="w-full" value={openItem} onValueChange={setOpenItem}>
+              <FAQQuestion value="open-source" question="Is diVine open source?">
+                <div className="text-muted-foreground">
                   <p>
-                    Yes! Divine is completely open source. You can view the code, contribute improvements,
+                    Yes! diVine is completely open source. You can view the code, contribute improvements,
                     or even run your own version of Divine:
                   </p>
                   <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
@@ -916,14 +1002,13 @@ export function FAQPage() {
                       </a>
                     </li>
                   </ul>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="hosting">
-                <AccordionTrigger>Where are videos stored?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="hosting" question="Where are videos stored?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    <strong>CDN Delivery:</strong> Divine uses Cloudflare and BunnyCDN to deliver videos
+                    <strong>CDN Delivery:</strong> diVine uses Cloudflare and BunnyCDN to deliver videos
                     quickly and efficiently to users around the world.
                   </p>
                   <p>
@@ -941,48 +1026,45 @@ export function FAQPage() {
                     <li>Community members can help host content</li>
                     <li>Content is delivered globally via Cloudflare and BunnyCDN for best performance</li>
                   </ul>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="mobile-app">
-                <AccordionTrigger>Is there a mobile app?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="mobile-app" question="Is there a mobile app?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    Yes! Divine mobile apps are available in beta for both iOS and Android.
+                    Yes! diVine mobile apps are available in beta for both iOS and Android.
                     Both apps include camera recording, video upload, and all viewing features.
                   </p>
                   <p className="text-muted-foreground">
                     iOS TestFlight is currently full (10k signups in 4 hours!). Stay tuned for updates.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="other-apps">
-                <AccordionTrigger>Can I use other Nostr apps with my Divine account?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+              <FAQQuestion value="other-apps" question="Can I use other Nostr apps with my diVine account?">
+                <div className="text-muted-foreground">
                   <p>
                     Absolutely! Your Nostr account works across all Nostr applications. You can use
-                    the same account for Divine videos, Damus for text posts, Amethyst for Android,
+                    the same account for diVine videos, Damus for text posts, Amethyst for Android,
                     and many other Nostr clients. Your profile and follows sync across all of them.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
 
-              <AccordionItem value="cost">
-                <AccordionTrigger>Do I need cryptocurrency to use Divine?</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground space-y-2">
+              <FAQQuestion value="cost" question="Do I need cryptocurrency to use Divine?">
+                <div className="text-muted-foreground space-y-2">
                   <p>
-                    <strong>No!</strong> You can browse, post, and interact with Divine completely free.
-                    Divine doesn't require any cryptocurrency or payment to use.
+                    <strong>No!</strong> You can browse, post, and interact with diVine completely free.
+                    diVine doesn't require any cryptocurrency or payment to use.
                   </p>
                   <p>
-                    Divine is <strong>not</strong> a blockchain, cryptocurrency, Bitcoin, or "Web3" project.
-                    While Divine uses the Nostr protocol (a decentralized communication protocol), it has nothing
+                    diVine is <strong>not</strong> a blockchain, cryptocurrency, Bitcoin, or "Web3" project.
+                    While diVine uses the Nostr protocol (a decentralized communication protocol), it has nothing
                     to do with cryptocurrency, NFTs, or blockchain technology. It's simply a video sharing platform
                     that gives you control over your content.
                   </p>
-                </AccordionContent>
-              </AccordionItem>
+                </div>
+              </FAQQuestion>
             </Accordion>
           </CardContent>
         </Card>
@@ -1020,6 +1102,7 @@ export function FAQPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

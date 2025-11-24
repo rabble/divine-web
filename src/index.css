@@ -82,7 +82,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    /* Brand primary (dark): match #00b488 and keep light foreground */
+    /* Brand primary: #00b488 -> hsl(165 100% 35%) - same in dark mode */
     --primary: 165 100% 35%;
     --primary-foreground: 210 40% 98%;
 
@@ -100,26 +100,29 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 165 100% 35%;
 
-    /* Design tokens for dark mode */
-    --shadow-sm: 0 2px 8px rgba(0, 180, 136, 0.05);
-    --shadow-md: 0 4px 16px rgba(0, 180, 136, 0.08);
-    --shadow-lg: 0 8px 32px rgba(0, 180, 136, 0.12);
+    --sidebar-background: 222.2 84% 4.9%;
 
-    --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+    --sidebar-foreground: 210 40% 98%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-primary: 210 40% 98%;
+
+    --sidebar-primary-foreground: 222.2 84% 4.9%;
+
+    --sidebar-accent: 217.2 32.6% 17.5%;
+
+    --sidebar-accent-foreground: 210 40% 98%;
+
+    --sidebar-border: 217.2 32.6% 17.5%;
+
+    --sidebar-ring: 165 100% 35%;
   }
+}
+
+/* Prevent browser overflow anchoring from shifting feed on dynamic updates */
+.feed-root {
+  overflow-anchor: none;
 }
 
 @layer base {
@@ -132,10 +135,16 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
+  /* Ensure all text elements inherit foreground color */
+  p, span, div, li, td, th {
+    @apply text-foreground;
+  }
+
   /* Custom font for headings and logo */
   h1, h2, h3, h4, h5, h6, .font-logo {
     font-family: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
     letter-spacing: -0.02em;
+    @apply text-foreground;
   }
 
   /* Improved focus states */
@@ -157,6 +166,22 @@
   ::selection {
     @apply bg-primary/20 text-primary;
   }
+
+  /* Global scrollbar styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 9999px;
+  }
+
+  .dark * { scrollbar-color: hsl(var(--muted-foreground) / 0.4) transparent; }
+  .dark *::-webkit-scrollbar-thumb { background: hsl(var(--muted-foreground) / 0.4); }
 
   /* Safe area support for mobile bottom navigation */
   @supports (padding-bottom: env(safe-area-inset-bottom)) {

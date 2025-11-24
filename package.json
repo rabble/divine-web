@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "license": "MPL-2.0",
   "scripts": {
     "dev": "npm i && vite",
     "build": "npm i && vite build && cp dist/index.html dist/404.html",
@@ -10,7 +11,8 @@
     "deploy": "npm run build && npx -y nostr-deploy-cli deploy --skip-setup",
     "deploy:cloudflare": "npm run build && wrangler pages deploy dist",
     "deploy:cloudflare:preview": "npm run build && wrangler pages deploy dist --branch preview",
-    "precalculate-thumbnails": "tsx scripts/precalculate-hashtag-thumbnails.ts"
+    "precalculate-thumbnails": "tsx scripts/precalculate-hashtag-thumbnails.ts",
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.6",
@@ -104,12 +106,15 @@
     "jsdom": "^26.1.0",
     "playwright": "^1.55.0",
     "postcss": "^8.4.47",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.11",
     "tsx": "^4.20.6",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^6.3.5",
+    "vite-plugin-pwa": "^1.1.0",
     "vitest": "^3.1.4",
+    "workbox-build": "^7.3.0",
     "wrangler": "^4.31.0"
   }
 }

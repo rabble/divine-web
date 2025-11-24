@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
+import { useSeoMeta } from '@unhead/react';
 import { Grid, List, Loader2 } from 'lucide-react';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { VideoGrid } from '@/components/VideoGrid';
@@ -11,19 +12,24 @@ import { VideoFeed } from '@/components/VideoFeed';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { EditProfileDialog } from '@/components/EditProfileDialog';
+import { FollowListSafetyDialog } from '@/components/FollowListSafetyDialog';
 import { useAuthor } from '@/hooks/useAuthor';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoEvents } from '@/hooks/useVideoEvents';
 import { useProfileStats } from '@/hooks/useProfileStats';
 import { useFollowRelationship, useFollowUser, useUnfollowUser } from '@/hooks/useFollowRelationship';
+import { useFollowListSafetyCheck } from '@/hooks/useFollowListSafetyCheck';
 import { useLoginDialog } from '@/contexts/LoginDialogContext';
 import { genUserName } from '@/lib/genUserName';
 import { enhanceAuthorData } from '@/lib/generateProfile';
+import { debugLog } from '@/lib/debug';
 
 export function ProfilePage() {
   const { npub, nip19: nip19Param } = useParams<{ npub?: string; nip19?: string }>();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [editProfileOpen, setEditProfileOpen] = useState(false);
+  const [safetyDialogOpen, setSafetyDialogOpen] = useState(false);
+  const [pendingFollowAction, setPendingFollowAction] = useState<boolean | null>(null);
   const { user: currentUser } = useCurrentUser();
 
   // Get the identifier from either route param
@@ -58,15 +64,14 @@ export function ProfilePage() {
   const author = pubkey ? enhanceAuthorData(authorData, pubkey) : null;
   const metadata = author?.metadata;
 
-  // Fetch profile statistics
-  const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '');
-
-  // Fetch videos
+  // Fetch ALL videos for profile (no limit)
   const { data: videos, isLoading: videosLoading, error: videosError } = useVideoEvents({
     feedType: 'profile',
     pubkey: pubkey || '',
-    limit: 50,
   });
+
+  // Fetch profile statistics - pass videos to calculate totalViews
+  const { data: stats, isLoading: statsLoading } = useProfileStats(pubkey || '', videos);
 
   // Follow relationship data
   const { data: followData, isLoading: followLoading } = useFollowRelationship(pubkey || '');
@@ -74,8 +79,31 @@ export function ProfilePage() {
   const { mutateAsync: unfollowUser, isPending: isUnfollowing } = useUnfollowUser();
   const { openLoginDialog } = useLoginDialog();
 
+  // Safety check for follow list
+  const { data: safetyCheck } = useFollowListSafetyCheck(
+    currentUser?.pubkey,
+    !!currentUser?.pubkey // Only check if user is logged in
+  );
+
   // Check if this is the current user's own profile
   const isOwnProfile = currentUser?.pubkey === pubkey;
+
+  // Get displayName for SEO
+  const displayName = metadata?.display_name || metadata?.name || (pubkey ? genUserName(pubkey) : 'User');
+
+  // Dynamic SEO meta tags for social sharing
+  useSeoMeta({
+    title: `${displayName} - diVine`,
+    description: metadata?.about || `${displayName}'s profile on diVine`,
+    ogTitle: `${displayName} - diVine Profile`,
+    ogDescription: metadata?.about || `${displayName}'s profile on diVine`,
+    ogImage: metadata?.picture || '/app_icon.png',
+    ogType: 'profile',
+    twitterCard: 'summary',
+    twitterTitle: `${displayName} - diVine`,
+    twitterDescription: metadata?.about || `${displayName}'s profile on diVine`,
+    twitterImage: metadata?.picture || '/app_icon.png',
+  });
 
   if (error || !pubkey) {
     return (
@@ -94,8 +122,6 @@ export function ProfilePage() {
     );
   }
 
-  const displayName = metadata?.display_name || metadata?.name || genUserName(pubkey);
-
   // Handle follow/unfollow
   const handleFollowToggle = async (shouldFollow: boolean) => {
     if (!currentUser) {
@@ -103,6 +129,28 @@ export function ProfilePage() {
       return;
     }
 
+    debugLog('[ProfilePage] ========================================');
+    debugLog('[ProfilePage] Follow toggle clicked');
+    debugLog('[ProfilePage] Should follow?', shouldFollow);
+    debugLog('[ProfilePage] Safety check data:', safetyCheck);
+    debugLog('[ProfilePage] ========================================');
+
+    // Check if we need to show safety warning
+    if (shouldFollow && safetyCheck?.needsWarning) {
+      debugLog('[ProfilePage] ⚠️  Safety check triggered - showing warning dialog');
+      setPendingFollowAction(true);
+      setSafetyDialogOpen(true);
+      return;
+    }
+
+    debugLog('[ProfilePage] ✅ No safety warning needed, proceeding with follow');
+
+    // Proceed with follow/unfollow action
+    await executeFollowAction(shouldFollow);
+  };
+
+  // Execute the actual follow/unfollow action
+  const executeFollowAction = async (shouldFollow: boolean) => {
     try {
       if (shouldFollow) {
         await followUser({
@@ -119,6 +167,21 @@ export function ProfilePage() {
     } catch (error) {
       console.error('Failed to update follow status:', error);
     }
+  };
+
+  // Handle safety dialog confirmation
+  const handleSafetyConfirm = async () => {
+    setSafetyDialogOpen(false);
+    if (pendingFollowAction !== null) {
+      await executeFollowAction(pendingFollowAction);
+      setPendingFollowAction(null);
+    }
+  };
+
+  // Handle safety dialog cancellation
+  const handleSafetyCancel = () => {
+    setSafetyDialogOpen(false);
+    setPendingFollowAction(null);
   };
 
   return (
@@ -144,6 +207,14 @@ export function ProfilePage() {
           />
         )}
 
+        {/* Follow List Safety Dialog */}
+        <FollowListSafetyDialog
+          open={safetyDialogOpen}
+          onConfirm={handleSafetyConfirm}
+          onCancel={handleSafetyCancel}
+          targetUserName={displayName}
+        />
+
         {/* Content Section */}
         <div className="space-y-4">
           {/* View Mode Toggle */}
@@ -151,7 +222,7 @@ export function ProfilePage() {
             <div>
               <h2 className="text-xl font-semibold">Videos</h2>
               <p className="text-muted-foreground text-sm">
-                {stats ? `${stats.videosCount} videos` : 'Loading...'} from {displayName}
+                {videosLoading ? 'Loading...' : `${videos?.length || 0} videos`} from {displayName}
               </p>
             </div>
 

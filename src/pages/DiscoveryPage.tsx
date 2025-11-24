@@ -1,31 +1,40 @@
 // ABOUTME: Discovery feed page showing all public videos with tabs for Hot, Top, Rising, New, and Hashtags
 // ABOUTME: Each tab uses different NIP-50 sort modes for unique content discovery
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { VideoFeed } from '@/components/VideoFeed';
 import { VerifiedOnlyToggle } from '@/components/VerifiedOnlyToggle';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { useAppContext } from '@/hooks/useAppContext';
 import { HashtagExplorer } from '@/components/HashtagExplorer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, Clock, Hash, Flame, Zap, Scale } from 'lucide-react';
-import type { SortMode } from '@/types/nostr';
+import { Star, Clock, Hash, Flame, Zap } from 'lucide-react';
 
 export function DiscoveryPage() {
-  const [activeTab, setActiveTab] = useState('hot');
+  const navigate = useNavigate();
+  const params = useParams<{ tab?: string }>();
+  const allowedTabs = useMemo(() => ['top', 'hot', 'rising', 'new', 'hashtags'] as const, []);
+  const routeTab = (params.tab || '').toLowerCase();
+  const initialTab = allowedTabs.includes(routeTab as any) ? (routeTab as typeof allowedTabs[number]) : 'top';
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-  const { user } = useCurrentUser();
-  const { config, updateConfig } = useAppContext();
 
-  // Ensure relay.divine.video is used for NIP-50 support
+  // Note: We no longer force relay changes here as it causes navigation delays
+  // The default relay (relay.divine.video) is already configured in App.tsx
+  // and supports NIP-50 search required for discovery features
+
+  // Sync state when URL param changes
   useEffect(() => {
-    if (config.relayUrl !== 'wss://relay.divine.video') {
-      updateConfig((current) => ({
-        ...current,
-        relayUrl: 'wss://relay.divine.video',
-      }));
+    if (allowedTabs.includes(routeTab as any)) {
+      setActiveTab(routeTab);
     }
-  }, [config.relayUrl, updateConfig]);
+  }, [routeTab, allowedTabs]);
+
+  // Redirect bare /discovery to /discovery/top to make tab part of URL
+  useEffect(() => {
+    if (!params.tab) {
+      navigate('/discovery/top', { replace: true });
+    }
+  }, [params.tab, navigate]);
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -45,15 +54,22 @@ export function DiscoveryPage() {
           </div>
         </header>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => {
+            setActiveTab(val);
+            navigate(`/discovery/${val}`);
+          }}
+          className="space-y-6"
+        >
           <TabsList className="w-full grid grid-cols-5 gap-1">
+            <TabsTrigger value="top" className="gap-1.5 sm:gap-2">
+              <Star className="h-4 w-4" />
+              <span className="hidden sm:inline">Classic</span>
+            </TabsTrigger>
             <TabsTrigger value="hot" className="gap-1.5 sm:gap-2">
               <Flame className="h-4 w-4" />
               <span className="hidden sm:inline">Hot</span>
-            </TabsTrigger>
-            <TabsTrigger value="top" className="gap-1.5 sm:gap-2">
-              <TrendingUp className="h-4 w-4" />
-              <span className="hidden sm:inline">Top</span>
             </TabsTrigger>
             <TabsTrigger value="rising" className="gap-1.5 sm:gap-2">
               <Zap className="h-4 w-4" />
@@ -69,17 +85,6 @@ export function DiscoveryPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="hot" className="mt-0 space-y-6">
-            <VideoFeed
-              feedType="trending"
-              sortMode="hot"
-              verifiedOnly={verifiedOnly}
-              data-testid="video-feed-hot"
-              className="space-y-6"
-              key="hot"
-            />
-          </TabsContent>
-
           <TabsContent value="top" className="mt-0 space-y-6">
             <VideoFeed
               feedType="trending"
@@ -88,6 +93,17 @@ export function DiscoveryPage() {
               data-testid="video-feed-top"
               className="space-y-6"
               key="top"
+            />
+          </TabsContent>
+
+          <TabsContent value="hot" className="mt-0 space-y-6">
+            <VideoFeed
+              feedType="trending"
+              sortMode="hot"
+              verifiedOnly={verifiedOnly}
+              data-testid="video-feed-hot"
+              className="space-y-6"
+              key="hot"
             />
           </TabsContent>
 

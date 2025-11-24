@@ -18,7 +18,6 @@ interface AppProviderProps {
 const AppConfigSchema: z.ZodType<AppConfig, z.ZodTypeDef, unknown> = z.object({
   theme: z.enum(['dark', 'light', 'system']),
   relayUrl: z.string().url(),
-  showDeletedVideos: z.boolean().optional(),
 });
 
 export function AppProvider(props: AppProviderProps) {
@@ -77,41 +76,37 @@ export function AppProvider(props: AppProviderProps) {
 
 /**
  * Hook to apply theme changes to the document root
+ * Respects user's theme preference (light, dark, or system)
  */
 function useApplyTheme(theme: Theme) {
   useEffect(() => {
     const root = window.document.documentElement;
 
-    root.classList.remove('light', 'dark');
-
-    if (theme === 'system') {
-      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
-        .matches
-        ? 'dark'
-        : 'light';
-
-      root.classList.add(systemTheme);
-      return;
+    // Determine the actual theme to apply
+    let effectiveTheme: "light" | "dark" = "light";
+    
+    if (theme === "system") {
+      // Check system preference
+      const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      effectiveTheme = systemPrefersDark ? "dark" : "light";
+    } else {
+      effectiveTheme = theme;
     }
 
-    root.classList.add(theme);
-  }, [theme]);
+    // Apply the theme class
+    root.classList.remove("light", "dark");
+    root.classList.add(effectiveTheme);
 
-  // Handle system theme changes when theme is set to "system"
-  useEffect(() => {
-    if (theme !== 'system') return;
+    // Also listen for system theme changes when using "system" mode
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      const handleChange = (event: MediaQueryListEvent) => {
+        root.classList.remove("light", "dark");
+        root.classList.add(event.matches ? "dark" : "light");
+      };
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const handleChange = () => {
-      const root = window.document.documentElement;
-      root.classList.remove('light', 'dark');
-
-      const systemTheme = mediaQuery.matches ? 'dark' : 'light';
-      root.classList.add(systemTheme);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+      mediaQuery.addEventListener("change", handleChange);
+      return () => mediaQuery.removeEventListener("change", handleChange);
+    }
   }, [theme]);
 }

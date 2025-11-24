@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { Loader2, Upload } from 'lucide-react';
 import { NSchema as n, type NostrMetadata } from '@nostrify/nostrify';
 import { useQueryClient } from '@tanstack/react-query';
@@ -97,6 +96,10 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
       // Combine existing metadata with new values
       const data = { ...metadata, ...values };
 
+      // Add client tag to identify divine users
+      // This helps with follow list safety checks
+      data.client = 'divine.video';
+
       // Clean up empty values
       for (const key in data) {
         if (data[key] === '') {
@@ -113,6 +116,7 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
       // Invalidate queries to refresh the data
       queryClient.invalidateQueries({ queryKey: ['logins'] });
       queryClient.invalidateQueries({ queryKey: ['author', user.pubkey] });
+      queryClient.invalidateQueries({ queryKey: ['follow-list-safety-check'] });
 
       toast({
         title: 'Success',
@@ -135,23 +139,40 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your name" {...field} />
-              </FormControl>
-              <FormDescription>
-                This is your display name that will be displayed to others.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Your name" {...field} />
+                </FormControl>
+                <FormDescription>
+                  This is your display name that will be displayed to others.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="picture"
+            render={({ field }) => (
+              <ImageUploadField
+                field={field}
+                label="Profile Picture"
+                placeholder="https://example.com/profile.jpg"
+                description="URL to your profile picture. You can upload an image or provide a URL."
+                previewType="square"
+                onUpload={(file) => uploadPicture(file, 'picture')}
+              />
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
@@ -173,38 +194,6 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="picture"
-            render={({ field }) => (
-              <ImageUploadField
-                field={field}
-                label="Profile Picture"
-                placeholder="https://example.com/profile.jpg"
-                description="URL to your profile picture. You can upload an image or provide a URL."
-                previewType="square"
-                onUpload={(file) => uploadPicture(file, 'picture')}
-              />
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="banner"
-            render={({ field }) => (
-              <ImageUploadField
-                field={field}
-                label="Banner Image"
-                placeholder="https://example.com/banner.jpg"
-                description="URL to a wide banner image for your profile. You can upload an image or provide a URL."
-                previewType="wide"
-                onUpload={(file) => uploadPicture(file, 'banner')}
-              />
-            )}
-          />
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
@@ -241,27 +230,6 @@ export const EditProfileForm: React.FC<EditProfileFormProps> = ({ onSuccess }) =
             )}
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="bot"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Bot Account</FormLabel>
-                <FormDescription>
-                  Mark this account as automated or a bot.
-                </FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
 
         <Button
           type="submit"

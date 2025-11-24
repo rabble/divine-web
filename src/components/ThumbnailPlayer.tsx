@@ -15,6 +15,7 @@ interface ThumbnailPlayerProps {
   className?: string;
   onClick?: () => void;
   onError?: () => void;
+  onVideoDimensions?: (dimensions: { width: number; height: number; isVertical: boolean }) => void;
 }
 
 export function ThumbnailPlayer({
@@ -25,26 +26,41 @@ export function ThumbnailPlayer({
   className,
   onClick,
   onError,
+  onVideoDimensions,
 }: ThumbnailPlayerProps) {
   const [thumbnailError, setThumbnailError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [useVideoFallback, setUseVideoFallback] = useState(false);
 
   const handleThumbnailError = () => {
     // If image fails, try video fallback
     if (!useVideoFallback) {
       setUseVideoFallback(true);
-      setIsLoading(true);
       return;
     }
 
     setThumbnailError(true);
-    setIsLoading(false);
     onError?.();
   };
 
-  const handleThumbnailLoad = () => {
-    setIsLoading(false);
+  const handleThumbnailLoad = (e: React.SyntheticEvent<HTMLVideoElement | HTMLImageElement>) => {
+    
+    // Detect video dimensions from loaded thumbnail
+    const target = e.currentTarget;
+    if (target instanceof HTMLVideoElement) {
+      const width = target.videoWidth;
+      const height = target.videoHeight;
+      if (width > 0 && height > 0) {
+        const isVertical = height > width;
+        onVideoDimensions?.({ width, height, isVertical });
+      }
+    } else if (target instanceof HTMLImageElement) {
+      const width = target.naturalWidth;
+      const height = target.naturalHeight;
+      if (width > 0 && height > 0) {
+        const isVertical = height > width;
+        onVideoDimensions?.({ width, height, isVertical });
+      }
+    }
   };
 
   const handleClick = () => {
@@ -104,11 +120,6 @@ export function ThumbnailPlayer({
             <p className="text-sm">Video Preview</p>
           </div>
         </div>
-      )}
-
-      {/* Loading overlay */}
-      {isLoading && !thumbnailError && (
-        <div className="absolute inset-0 bg-gray-800 animate-pulse" />
       )}
 
       {/* Play button overlay */}

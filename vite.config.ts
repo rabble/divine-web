@@ -2,6 +2,7 @@ import path from "node:path";
 
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vitest/config";
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
@@ -29,8 +30,83 @@ export default defineConfig(() => ({
       },
     },
   },
+  build: {
+    // Enable source maps for better debugging
+    sourcemap: false, // Disable in production for smaller builds
+    // Optimize dependencies
+    commonjsOptions: {
+      include: [/node_modules/]
+    }
+  },
   plugins: [
     react(),
+VitePWA({
+      registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      devOptions: {
+        enabled: false
+      },
+      workbox: {
+        // Disable all caching - network only
+        skipWaiting: true,
+        clientsClaim: true,
+        navigateFallback: null,
+        runtimeCaching: []
+      },
+      includeAssets: [
+        'app_icon.png',
+        'og.png',
+        'no-ai-icon.svg',
+        'divine_icon_transparent.png',
+        'browserconfig.xml'
+      ],
+      manifest: {
+        name: 'diVine Web - Short-form Looping Videos',
+        short_name: 'diVine',
+        description: 'Watch and share 6-second looping videos on the decentralized Nostr network.',
+        theme_color: '#00b488',
+        background_color: '#09090b',
+        display: 'standalone',
+        orientation: 'portrait-primary',
+        scope: '/',
+        start_url: '/',
+        categories: ['entertainment', 'video', 'social'],
+        screenshots: [
+          {
+            src: '/screenshots/iPad 13 inch-0.png',
+            sizes: '2048x2732',
+            type: 'image/png',
+            form_factor: 'wide'
+          },
+          {
+            src: '/screenshots/iPad 13 inch-1.png',
+            sizes: '2048x2732',
+            type: 'image/png',
+            form_factor: 'wide'
+          },
+          {
+            src: '/screenshots/iPad 13 inch-2.png',
+            sizes: '2048x2732',
+            type: 'image/png',
+            form_factor: 'wide'
+          }
+        ],
+        icons: [
+          {
+            src: 'app_icon.png',
+            sizes: '256x256',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'app_icon.png',
+            sizes: '256x256 512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          }
+        ]
+      }
+    })
   ],
   test: {
     globals: true,

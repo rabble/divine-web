@@ -3,41 +3,11 @@
 
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Flame, TrendingUp, Zap, Scale } from 'lucide-react';
 import type { SortMode } from '@/types/nostr';
-
-const SORT_MODES = [
-  {
-    value: 'hot' as SortMode,
-    label: 'Hot',
-    description: 'Recent + high engagement',
-    icon: Flame
-  },
-  {
-    value: 'top' as SortMode,
-    label: 'Top',
-    description: 'Most popular all-time',
-    icon: TrendingUp
-  },
-  {
-    value: 'rising' as SortMode,
-    label: 'Rising',
-    description: 'Gaining traction',
-    icon: Zap
-  },
-  {
-    value: 'controversial' as SortMode,
-    label: 'Controversial',
-    description: 'Mixed reactions',
-    icon: Scale
-  },
-];
+import { EXTENDED_SORT_MODES as SORT_MODES } from '@/lib/constants/sortModes';
 
 export function TrendingPage() {
   const [sortMode, setSortMode] = useState<SortMode>('hot');
-  const selectedMode = SORT_MODES.find(m => m.value === sortMode);
-  const Icon = selectedMode?.icon || Flame;
 
   return (
     <div className="container mx-auto px-4 py-6">
@@ -58,7 +28,7 @@ export function TrendingPage() {
               return (
                 <button
                   key={mode.value}
-                  onClick={() => setSortMode(mode.value)}
+                  onClick={() => setSortMode(mode.value as SortMode)}
                   className={`
                     flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all
                     ${isSelected

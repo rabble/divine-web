@@ -4,22 +4,23 @@
 import { useState } from 'react';
 import { VideoFeed } from '@/components/VideoFeed';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useFollowList } from '@/hooks/useFollowList';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Flame, TrendingUp, Zap, Clock } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { SortMode } from '@/types/nostr';
-
-const SORT_MODES = [
-  { value: 'hot' as SortMode, label: 'Hot', icon: Flame, description: 'Recent + high engagement' },
-  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp, description: 'Most popular' },
-  { value: 'rising' as SortMode, label: 'Rising', icon: Zap, description: 'Gaining traction' },
-  { value: undefined as SortMode | undefined, label: 'Recent', icon: Clock, description: 'Latest videos' },
-];
+import { SORT_MODES } from '@/lib/constants/sortModes';
 
 export function HomePage() {
   const { user } = useCurrentUser();
-  const [sortMode, setSortMode] = useState<SortMode | undefined>('hot');
+  const { data: followList, isLoading, isFetching, dataUpdatedAt } = useFollowList();
+  const [sortMode, setSortMode] = useState<SortMode | undefined>(undefined);
+
+  // Check if data is from cache (not currently fetching but has data)
+  const isShowingCachedData = !isLoading && !isFetching && !!followList && followList.length > 0;
+  const cacheAge = dataUpdatedAt ? Date.now() - dataUpdatedAt : 0;
+  const isStale = cacheAge > 60000; // More than 1 minute old
 
   if (!user) {
     return (
@@ -46,8 +47,20 @@ export function HomePage() {
       <div className="max-w-2xl mx-auto">
         <header className="mb-6 space-y-4">
           <div>
-            <h1 className="text-2xl font-bold">Home</h1>
-            <p className="text-muted-foreground">Videos from people you follow</p>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">Home</h1>
+              {isFetching && (
+                <RefreshCw className="h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+            </div>
+            <p className="text-muted-foreground">
+              Videos from people you follow
+              {isShowingCachedData && isStale && (
+                <span className="text-xs ml-2 opacity-70">
+                  • Updating...
+                </span>
+              )}
+            </p>
           </div>
 
           {/* Sort mode selector */}

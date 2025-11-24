@@ -22,8 +22,12 @@ export function VideoCommentsModal({
   isLoadingComments = false,
   className,
 }: VideoCommentsModalProps) {
-  // Convert ParsedVideoData to NostrEvent for comments
-  const videoEvent: NostrEvent = {
+  // CRITICAL: Use the original event if available to preserve all tags
+  // Kind 34236 is an addressable event that REQUIRES a 'd' tag (vineId) to properly
+  // filter comments. Without the original event's tags, all videos would query for
+  // comments using the same addressable identifier (34236:pubkey:), causing all
+  // videos to show the same comments.
+  const videoEvent: NostrEvent = video.originalEvent || {
     id: video.id,
     pubkey: video.pubkey,
     created_at: video.createdAt,
@@ -35,6 +39,8 @@ export function VideoCommentsModal({
       ...video.hashtags.map(tag => ['t', tag]),
       ...(video.thumbnailUrl ? [['thumb', video.thumbnailUrl]] : []),
       ...(video.duration ? [['duration', video.duration.toString()]] : []),
+      // Include vineId as 'd' tag for addressable events
+      ...(video.vineId ? [['d', video.vineId]] : []),
     ],
     sig: '', // Signature would be provided by actual event
   };
@@ -43,7 +49,7 @@ export function VideoCommentsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          'max-w-2xl w-full max-h-[90vh] p-0 gap-0',
+          'max-w-2xl w-full max-h-[90vh] p-0 gap-0 overflow-hidden',
           className
         )}
         data-testid="video-comments-modal"
@@ -56,7 +62,7 @@ export function VideoCommentsModal({
         </DialogHeader>
 
         {/* Just Comments - No Video */}
-        <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="overflow-y-auto max-h-[calc(90vh-80px)] px-6 py-6">
           {isLoadingComments ? (
             <div className="flex items-center justify-center h-64">
               <p className="text-muted-foreground">Loading comments...</p>
@@ -67,7 +73,7 @@ export function VideoCommentsModal({
               title="Comments"
               emptyStateMessage="No comments yet"
               emptyStateSubtitle="Be the first to comment on this video!"
-              className="border-0 rounded-none"
+              compact={true}
               data-testid="comments-section"
               data-root-kind={video.kind.toString()}
               data-root-id={video.id}

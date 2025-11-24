@@ -4,10 +4,12 @@
 import { Brain, Shield, Video, ExternalLink } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export default function HumanCreatedPage() {
   return (
-    <div className="container max-w-4xl mx-auto px-4 py-8">
+    <MarketingLayout>
+      <div className="container max-w-4xl mx-auto px-4 py-8">
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
@@ -183,5 +185,6 @@ export default function HumanCreatedPage() {
         </div>
       </div>
     </div>
+    </MarketingLayout>
   );
 }

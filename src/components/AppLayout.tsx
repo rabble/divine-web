@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { AppHeader } from '@/components/AppHeader';
 import { AppFooter } from '@/components/AppFooter';
 import { BottomNav } from '@/components/BottomNav';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { useNostrLogin } from '@nostrify/react/login';
 import { useAppContext } from '@/hooks/useAppContext';
 
@@ -24,6 +25,7 @@ export function AppLayout() {
       </div>
       <AppFooter />
       {!isLandingPage && !isRecording && <BottomNav />}
+      <PWAInstallPrompt />
     </div>
   );
 }

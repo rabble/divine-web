@@ -262,6 +262,32 @@ export class HybridEventCache implements NStore {
   }
 
   /**
+   * Get cached profile synchronously from memory cache
+   * Returns undefined if not in memory (caller should use async query)
+   *
+   * Note: NCache doesn't provide synchronous access, so this always returns undefined.
+   * Callers should rely on React Query's cache instead.
+   */
+  getCachedProfile(_pubkey: string): NostrEvent | undefined {
+    // NCache doesn't support synchronous queries
+    // React Query's own cache handles this use case
+    return undefined;
+  }
+
+  /**
+   * Get cached contact list synchronously from memory cache
+   * Returns undefined if not in memory (caller should use async query)
+   *
+   * Note: NCache doesn't provide synchronous access, so this always returns undefined.
+   * Callers should rely on React Query's cache instead.
+   */
+  getCachedContactList(_pubkey: string): NostrEvent | undefined {
+    // NCache doesn't support synchronous queries
+    // React Query's own cache handles this use case
+    return undefined;
+  }
+
+  /**
    * Preload commonly needed events into memory cache
    */
   async preloadUserEvents(pubkey: string): Promise<void> {

@@ -5,6 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAppContext } from '@/hooks/useAppContext';
 import { debugLog, verboseLog } from '@/lib/debug';
 import { createCachedNostr } from '@/lib/cachedNostr';
+import { PROFILE_RELAYS, getRelayUrls } from '@/config/relays';
 
 interface NostrProviderProps {
   children: React.ReactNode;
@@ -65,7 +66,8 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         verboseLog('[NostrProvider] Opening relay connection to:', url);
         const relay = new NRelay1(url, {
           idleTimeout: false, // Disable idle timeout to prevent premature connection closure
-          log: (log) => verboseLog(`[NRelay1:${log.ns}]`, log),
+          // Disabled to reduce console noise - enable for debugging relay issues
+          // log: (log) => verboseLog(`[NRelay1:${log.ns}]`, log),
         });
         verboseLog('[NostrProvider] NRelay1 instance created, readyState:', relay.socket?.readyState);
         return relay;
@@ -92,16 +94,11 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
 
         // Route kind 0 and kind 3 queries to profile-specific relays for better availability
         if (profileRelayFilters.length > 0) {
-          const profileRelays = [
-            'wss://purplepag.es',
-            'wss://relay.nos.social',
-            'wss://relay.damus.io',
-            'wss://relay.ditto.pub',
-          ];
+          const profileRelayUrls = getRelayUrls(PROFILE_RELAYS);
 
-          debugLog(`[NostrProvider] Routing ${profileRelayFilters.length} profile/contact filters to ${profileRelays.length} relays`);
+          debugLog(`[NostrProvider] Routing ${profileRelayFilters.length} profile/contact filters to ${profileRelayUrls.length} relays`);
 
-          for (const relay of profileRelays) {
+          for (const relay of profileRelayUrls) {
             result.set(relay, profileRelayFilters);
           }
         }
@@ -124,19 +121,14 @@ const NostrProvider: React.FC<NostrProviderProps> = (props) => {
         // For contact lists (kind 3), publish to multiple relays for better availability
         if (event.kind === 3) {
           // Add common relays where contact lists should be stored
-          allRelays.add('wss://purplepag.es');
-          allRelays.add('wss://relay.nos.social');
-          allRelays.add('wss://relay.damus.io');
-          allRelays.add('wss://relay.ditto.pub');
+          getRelayUrls(PROFILE_RELAYS).forEach(url => allRelays.add(url));
         }
 
         // For list events (kind 30000, 30001, 30005), publish to multiple relays for better discoverability
         const LIST_KINDS = [30000, 30001, 30005];
         if (LIST_KINDS.includes(event.kind)) {
           // Add common relays where lists should be stored
-          allRelays.add('wss://relay.nostr.band');
-          allRelays.add('wss://relay.damus.io');
-          allRelays.add('wss://nos.lol');
+          getRelayUrls(PROFILE_RELAYS).forEach(url => allRelays.add(url));
         }
 
         // Also publish to the preset relays, capped to 5
