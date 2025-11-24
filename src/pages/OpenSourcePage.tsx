@@ -377,7 +377,7 @@ export function OpenSourcePage() {
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                AGPL-3.0
+                MPL-2.0
               </a>
             </div>
           </CardContent>
