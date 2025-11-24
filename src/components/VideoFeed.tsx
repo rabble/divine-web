@@ -22,6 +22,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import type { ParsedVideoData } from '@/types/video';
 import { debugLog, debugWarn } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
+import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useNavigate } from 'react-router-dom';
 
 type ViewMode = 'feed' | 'grid';
@@ -63,6 +64,10 @@ export function VideoFeed({
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
   const mountTimeRef = useRef<number | null>(null);
 
+  const videoCardsListRef = useRef<HTMLDivElement | null>(null);
+  const activeVideoIndexRef = useRef<number | null>(null);
+  const autoScrollTimeoutIdRef = useRef<number | null>(null);
+
   const { user } = useCurrentUser();
   const { toast } = useToast();
   const { toggleLike } = useOptimisticLike();
@@ -70,6 +75,8 @@ export function VideoFeed({
   const { checkContent } = useContentModeration();
   const { openLoginDialog } = useLoginDialog();
   const navigate = useNavigate();
+
+  const { activeVideoId, registerVideo, unregisterVideo, updateVideoVisibility, globalMuted, setGlobalMuted } = useVideoPlayback();
 
   // Use new infinite scroll hook with NIP-50 support
   const {
