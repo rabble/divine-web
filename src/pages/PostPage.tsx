@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { X, Hash, Loader2, Upload, Video, Camera, Circle, Square, Play, Trash2, SwitchCamera } from 'lucide-react';
+import { X, Hash, Loader2, Upload, Video, Camera, Circle, Square, Play, Trash2 } from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useVideoUpload } from '@/hooks/useVideoUpload';
 import { usePublishVideo } from '@/hooks/usePublishVideo';
@@ -56,7 +56,6 @@ export function PostPage() {
     segments,
     cameraStream,
     initialize,
-    switchCamera,
     startSegment,
     stopSegment,
     finalizeRecording,
@@ -90,38 +89,8 @@ export function PostPage() {
     if (cameraVideoRef.current && cameraStream) {
       console.log('Attaching camera stream to video element');
       cameraVideoRef.current.srcObject = cameraStream;
-
-      // Ensure video keeps playing even when recording pauses
-      cameraVideoRef.current.play().catch(err => {
-        console.error('Failed to play camera stream:', err);
-      });
     }
   }, [cameraStream]);
-
-  // Keep camera preview playing even when recording state changes
-  useEffect(() => {
-    if (!cameraStream || !cameraVideoRef.current) return;
-
-    // Check and restart playback immediately
-    if (cameraVideoRef.current.paused) {
-      console.log('Camera preview paused, restarting playback');
-      cameraVideoRef.current.play().catch(err => {
-        console.error('Failed to restart camera preview:', err);
-      });
-    }
-
-    // Poll to ensure video stays playing (some browsers pause it when MediaRecorder stops)
-    const keepAliveInterval = setInterval(() => {
-      if (cameraVideoRef.current && cameraVideoRef.current.paused) {
-        console.log('Camera preview paused during recording, restarting...');
-        cameraVideoRef.current.play().catch(err => {
-          console.error('Failed to keep camera preview playing:', err);
-        });
-      }
-    }, 100); // Check every 100ms
-
-    return () => clearInterval(keepAliveInterval);
-  }, [isRecording, cameraStream]);
 
   // Require login
   if (!user) {
@@ -421,18 +390,6 @@ export function PostPage() {
 
         const finalSegments = await finalizeRecording();
 
-        console.log('[PostPage] Finalized segments:', {
-          count: finalSegments.length,
-          segments: finalSegments.map((s, i) => ({
-            index: i,
-            duration: s.duration,
-            durationSeconds: (s.duration / 1000).toFixed(2),
-            size: s.blob.size,
-            sizeMB: (s.blob.size / 1024 / 1024).toFixed(2),
-            type: s.blob.type,
-          })),
-        });
-
         if (finalSegments.length === 0) {
           toast({
             title: 'No Recording',
@@ -445,89 +402,47 @@ export function PostPage() {
 
         setProcessingProgress(0.2);
 
-        // Step 2: For multiple segments, just use the first one for now
-        // (FFmpeg concatenation doesn't work well on mobile)
+        // Step 2: Concatenate multiple segments if needed
         let videoBlob: Blob;
         if (finalSegments.length > 1) {
-          console.warn('[PostPage] Multiple segments detected, but using first segment only (FFmpeg unavailable on mobile)');
-
           toast({
-            title: 'Using First Segment',
-            description: `Recorded ${finalSegments.length} segments, uploading first one`,
+            title: 'Combining Segments',
+            description: `Stitching ${finalSegments.length} segments together...`,
           });
 
-          videoBlob = finalSegments[0].blob;
+          const segmentBlobs = finalSegments.map(s => s.blob);
+          videoBlob = await concatenateVideos(segmentBlobs, (progress) => {
+            // Map progress 0-1 to 0.2-0.4
+            setProcessingProgress(0.2 + (progress * 0.2));
+          });
         } else {
           videoBlob = finalSegments[0].blob;
         }
 
         setProcessingProgress(0.4);
 
-        // Step 3: Convert to MP4 (with timeout fallback)
-        let finalVideoSegment: VideoSegment;
+        // Step 3: Convert to MP4
+        toast({
+          title: 'Converting Video',
+          description: 'Converting to MP4 format...',
+        });
 
-        // Only convert if not already MP4
-        if (videoBlob.type !== 'video/mp4') {
-          try {
-            toast({
-              title: 'Converting Video',
-              description: 'Converting to MP4 format... This may take a moment.',
-            });
+        const mp4Result = await convertToMP4({
+          blob: videoBlob,
+          onProgress: (progress) => {
+            // Map progress 0-1 to 0.4-1.0
+            setProcessingProgress(0.4 + (progress * 0.6));
+          },
+          quality: 'medium',
+        });
 
-            console.log('[PostPage] Starting MP4 conversion...', {
-              blobSize: videoBlob.size,
-              blobType: videoBlob.type,
-            });
+        // Create final video segment with MP4
+        const mp4Segment: VideoSegment = {
+          blob: mp4Result.blob,
+          blobUrl: mp4Result.blobUrl,
+        };
 
-            // Add timeout to conversion
-            const conversionPromise = convertToMP4({
-              blob: videoBlob,
-              onProgress: (progress) => {
-                console.log('[PostPage] Conversion progress:', progress);
-                // Map progress 0-1 to 0.4-1.0
-                setProcessingProgress(0.4 + (progress * 0.6));
-              },
-              quality: 'medium',
-            });
-
-            const timeoutPromise = new Promise<never>((_, reject) => {
-              setTimeout(() => reject(new Error('Conversion timeout')), 30000); // 30 second timeout
-            });
-
-            const mp4Result = await Promise.race([conversionPromise, timeoutPromise]);
-
-            console.log('[PostPage] MP4 conversion complete!', {
-              resultSize: mp4Result.blob.size,
-              sizeReduction: mp4Result.sizeReduction,
-            });
-
-            finalVideoSegment = {
-              blob: mp4Result.blob,
-              blobUrl: mp4Result.blobUrl,
-            };
-          } catch (error) {
-            console.warn('[PostPage] MP4 conversion failed or timed out, using original format:', error);
-
-            toast({
-              title: 'Using Original Format',
-              description: 'MP4 conversion unavailable, uploading as WebM',
-            });
-
-            // Use original WebM
-            finalVideoSegment = {
-              blob: videoBlob,
-              blobUrl: URL.createObjectURL(videoBlob),
-            };
-          }
-        } else {
-          console.log('[PostPage] Video already MP4, skipping conversion');
-          finalVideoSegment = {
-            blob: videoBlob,
-            blobUrl: URL.createObjectURL(videoBlob),
-          };
-        }
-
-        setVideoSegments([finalVideoSegment]);
+        setVideoSegments([mp4Segment]);
         setProcessingProgress(1);
 
         toast({
@@ -615,8 +530,8 @@ export function PostPage() {
               </Button>
             ) : (
               <>
-                {/* Main record button with flip camera */}
-                <div className="flex items-center justify-center gap-4">
+                {/* Main record button */}
+                <div className="flex items-center justify-center">
                   <Button
                     onClick={handleRecordClick}
                     size="lg"
@@ -632,16 +547,6 @@ export function PostPage() {
                     ) : (
                       <Square className="h-8 w-8" />
                     )}
-                  </Button>
-                  <Button
-                    onClick={switchCamera}
-                    size="lg"
-                    variant="outline"
-                    className="h-16 w-16 rounded-full p-0"
-                    disabled={isRecording || !cameraStream}
-                    title="Flip camera"
-                  >
-                    <SwitchCamera className="h-6 w-6" />
                   </Button>
                 </div>
 

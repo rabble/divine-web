@@ -31,32 +31,19 @@ export async function loadFFmpeg(): Promise<FFmpeg> {
 
   try {
     console.log('[FFmpeg] Loading FFmpeg.wasm...');
-    console.log('[FFmpeg] Checking SharedArrayBuffer support:', typeof SharedArrayBuffer !== 'undefined');
-    console.log('[FFmpeg] Cross-origin isolated:', window.crossOriginIsolated);
-
     const ffmpeg = new FFmpeg();
 
     // Set up logging
     ffmpeg.on('log', ({ message }) => {
-      console.log('[FFmpeg LOG]', message);
+      console.log('[FFmpeg]', message);
     });
 
     // Load FFmpeg core from CDN
     console.log('[FFmpeg] Fetching core files from CDN...');
     const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
-
-    console.log('[FFmpeg] Fetching core JS...');
-    const coreURL = await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript');
-    console.log('[FFmpeg] Core JS fetched');
-
-    console.log('[FFmpeg] Fetching WASM...');
-    const wasmURL = await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm');
-    console.log('[FFmpeg] WASM fetched');
-
-    console.log('[FFmpeg] Loading FFmpeg with fetched files...');
     await ffmpeg.load({
-      coreURL,
-      wasmURL,
+      coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+      wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
     });
 
     console.log('[FFmpeg] Successfully loaded!');
@@ -65,11 +52,6 @@ export async function loadFFmpeg(): Promise<FFmpeg> {
     return ffmpeg;
   } catch (error) {
     console.error('[FFmpeg] Failed to load FFmpeg:', error);
-    console.error('[FFmpeg] Error details:', {
-      name: error instanceof Error ? error.name : 'unknown',
-      message: error instanceof Error ? error.message : 'unknown',
-      stack: error instanceof Error ? error.stack : 'unknown',
-    });
     isLoading = false;
     throw new Error(`Failed to load video converter: ${error instanceof Error ? error.message : 'Unknown error'}`);
   } finally {
