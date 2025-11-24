@@ -3,11 +3,12 @@ import path from "node:path";
 import react from "@vitejs/plugin-react-swc";
 import { defineConfig } from "vitest/config";
 import { VitePWA } from 'vite-plugin-pwa';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 // https://vitejs.dev/config/
 export default defineConfig(() => ({
   server: {
-    host: "::",
+    host: "0.0.0.0", // Bind to all network interfaces for phone access
     port: 8080,
     headers: {
       // Required for SharedArrayBuffer (FFmpeg.wasm needs this)
@@ -44,6 +45,7 @@ export default defineConfig(() => ({
     }
   },
   plugins: [
+    basicSsl(), // Add SSL plugin for HTTPS support
     react(),
 VitePWA({
       registerType: 'autoUpdate',

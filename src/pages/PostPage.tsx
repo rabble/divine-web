@@ -90,8 +90,23 @@ export function PostPage() {
     if (cameraVideoRef.current && cameraStream) {
       console.log('Attaching camera stream to video element');
       cameraVideoRef.current.srcObject = cameraStream;
+
+      // Ensure video keeps playing even when recording pauses
+      cameraVideoRef.current.play().catch(err => {
+        console.error('Failed to play camera stream:', err);
+      });
     }
   }, [cameraStream]);
+
+  // Keep camera preview playing even when recording state changes
+  useEffect(() => {
+    if (cameraVideoRef.current && cameraStream && cameraVideoRef.current.paused) {
+      console.log('Camera preview paused, restarting playback');
+      cameraVideoRef.current.play().catch(err => {
+        console.error('Failed to restart camera preview:', err);
+      });
+    }
+  }, [isRecording, cameraStream]);
 
   // Require login
   if (!user) {

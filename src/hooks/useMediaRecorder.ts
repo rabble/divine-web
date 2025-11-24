@@ -259,6 +259,9 @@ export function useMediaRecorder() {
   const startSegment = useCallback(() => {
     console.log('startSegment called', {
       hasStream: !!streamRef.current,
+      streamActive: streamRef.current?.active,
+      videoTracks: streamRef.current?.getVideoTracks().length,
+      audioTracks: streamRef.current?.getAudioTracks().length,
       currentDuration: totalDurationRef.current,
       maxDuration: MAX_DURATION,
       currentRecorderState: mediaRecorderRef.current?.state,
@@ -266,6 +269,17 @@ export function useMediaRecorder() {
 
     if (!streamRef.current || totalDurationRef.current >= MAX_DURATION) {
       console.log('Cannot start segment - conditions not met');
+      return;
+    }
+
+    // Check if stream is still active
+    if (!streamRef.current.active) {
+      console.error('Stream exists but is not active - tracks may have been stopped');
+      toast({
+        title: 'Camera Disconnected',
+        description: 'Please reinitialize the camera',
+        variant: 'destructive',
+      });
       return;
     }
 
