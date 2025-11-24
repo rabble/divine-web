@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { nip19 } from 'nostr-tools';
 import { useSeoMeta } from '@unhead/react';
-import { Search, Hash, Users, Video, Flame, TrendingUp, Zap, Scale } from 'lucide-react';
+import { Search, Hash, Users, Video } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,16 +23,9 @@ import { useSearchHashtags } from '@/hooks/useSearchHashtags';
 import { genUserName } from '@/lib/genUserName';
 import { getSafeProfileImage } from '@/lib/imageUtils';
 import type { SortMode } from '@/types/nostr';
+import { SEARCH_SORT_MODES as SORT_MODES } from '@/lib/constants/sortModes';
 
 type SearchFilter = 'all' | 'videos' | 'users' | 'hashtags';
-
-const SORT_MODES = [
-  { value: 'relevance' as const, label: 'Relevance', icon: Search },
-  { value: 'hot' as SortMode, label: 'Hot', icon: Flame },
-  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp },
-  { value: 'rising' as SortMode, label: 'Rising', icon: Zap },
-  { value: 'controversial' as SortMode, label: 'Controversial', icon: Scale },
-];
 
 export function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();

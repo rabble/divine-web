@@ -9,6 +9,7 @@ import { useNostrPublish } from '@/hooks/useNostrPublish';
 import { followListCache } from '@/lib/followListCache';
 import { debugLog } from '@/lib/debug';
 import type { NostrEvent } from '@nostrify/nostrify';
+import { PRIMARY_RELAY } from '@/config/relays';
 
 interface FollowRelationshipData {
   isFollowing: boolean;
@@ -143,7 +144,7 @@ export function useFollowUser() {
 
       // Preserve relay information from existing contact list or use default
       const relayContent = currentContactList?.content || JSON.stringify({
-        'wss://relay.divine.video': { read: true, write: true },
+        [PRIMARY_RELAY.url]: { read: true, write: true },
       });
 
       // Create new contact list event

@@ -5,10 +5,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, FileText, UserX, Flag } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
+import { MarketingLayout } from '@/components/MarketingLayout';
 
 export function TermsPage() {
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <MarketingLayout>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
       <ZendeskWidget />
       <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
       <p className="text-muted-foreground mb-8">
@@ -336,6 +338,7 @@ export function TermsPage() {
         </Card>
       </div>
     </div>
+    </MarketingLayout>
   );
 }
 

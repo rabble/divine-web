@@ -103,7 +103,7 @@ const WalletContent = forwardRef<HTMLDivElement, {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {hasWebLN && <CheckCircle className="h-4 w-4 text-green-600" />}
+            {hasWebLN && <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />}
             <Badge variant={hasWebLN ? "default" : "secondary"} className="text-xs">
               {isDetecting ? "..." : hasWebLN ? "Ready" : "Not Found"}
             </Badge>
@@ -124,7 +124,7 @@ const WalletContent = forwardRef<HTMLDivElement, {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {hasNWC && <CheckCircle className="h-4 w-4 text-green-600" />}
+            {hasNWC && <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />}
             <Badge variant={hasNWC ? "default" : "secondary"} className="text-xs">
               {hasNWC ? "Ready" : "None"}
             </Badge>
@@ -166,7 +166,7 @@ const WalletContent = forwardRef<HTMLDivElement, {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {isActive && <CheckCircle className="h-4 w-4 text-green-600" />}
+                  {isActive && <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />}
                   {!isActive && (
                     <Button
                       size="sm"

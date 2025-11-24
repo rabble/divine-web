@@ -415,7 +415,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                   <Download className='w-4 h-4 mr-2' />
                   Download Key
                   {keySecured === 'downloaded' && (
-                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600 dark:text-green-400' />
                   )}
                 </Button>
 
@@ -427,7 +427,7 @@ const SignupDialog: React.FC<SignupDialogProps> = ({ isOpen, onClose, onComplete
                   <Copy className='w-4 h-4 mr-2' />
                   Copy to Clipboard
                   {keySecured === 'copied' && (
-                    <CheckCircle className='w-4 h-4 ml-auto text-green-600' />
+                    <CheckCircle className='w-4 h-4 ml-auto text-green-600 dark:text-green-400' />
                   )}
                 </Button>
               </div>

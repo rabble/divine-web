@@ -1,14 +1,15 @@
 // ABOUTME: Video feed component for displaying scrollable lists of videos with infinite scroll
 // ABOUTME: Uses optimized useInfiniteVideos hook with NIP-50 search and cursor pagination
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { performanceMonitor } from '@/lib/performanceMonitoring';
 import { Video } from 'lucide-react';
 import { VideoCard } from '@/components/VideoCard';
 import { VideoGrid } from '@/components/VideoGrid';
 import { AddToListDialog } from '@/components/AddToListDialog';
 import { useInfiniteVideos } from '@/hooks/useInfiniteVideos';
 import { useBatchedAuthors } from '@/hooks/useBatchedAuthors';
-import { useVideoSocialMetrics, useVideoUserInteractions } from '@/hooks/useVideoSocialMetrics';
+import { useDeferredVideoMetrics } from '@/hooks/useDeferredVideoMetrics';
 import { useOptimisticLike } from '@/hooks/useOptimisticLike';
 import { useOptimisticRepost } from '@/hooks/useOptimisticRepost';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -21,6 +22,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import type { ParsedVideoData } from '@/types/video';
 import { debugLog, debugWarn } from '@/lib/debug';
 import type { SortMode } from '@/types/nostr';
+import { useNavigate } from 'react-router-dom';
 
 type ViewMode = 'feed' | 'grid';
 
@@ -55,6 +57,7 @@ export function VideoFeed({
 }: VideoFeedProps) {
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
+  const mountTimeRef = useRef<number | null>(null);
 
   const { user } = useCurrentUser();
   const { toast } = useToast();
@@ -62,6 +65,7 @@ export function VideoFeed({
   const { toggleRepost } = useOptimisticRepost();
   const { checkContent } = useContentModeration();
   const { openLoginDialog } = useLoginDialog();
+  const navigate = useNavigate();
 
   // Use new infinite scroll hook with NIP-50 support
   const {
@@ -114,6 +118,24 @@ export function VideoFeed({
     });
   }, [allVideos, checkContent, verifiedOnly]);
 
+  // Track perceived first-render time for the Recent feed
+  useEffect(() => {
+    if (feedType === 'recent') {
+      if (mountTimeRef.current === null) {
+        mountTimeRef.current = performance.now();
+      }
+      if (!isLoading && filteredVideos.length > 0 && mountTimeRef.current !== null) {
+        const duration = performance.now() - mountTimeRef.current;
+        performanceMonitor.recordMetric('recent_feed_first_render', duration, {
+          videos: filteredVideos.length,
+        });
+        console.log(`[Performance] Recent feed first render in ${duration.toFixed(0)}ms (${filteredVideos.length} videos)`);
+        // Only measure once per mount
+        mountTimeRef.current = null;
+      }
+    }
+  }, [feedType, isLoading, filteredVideos.length]);
+
   // Collect all unique pubkeys for batched author fetching
   const authorPubkeys = useMemo(() => {
     if (!filteredVideos || filteredVideos.length === 0) return [];
@@ -156,7 +178,7 @@ export function VideoFeed({
   if (isLoading && !data) {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -192,7 +214,7 @@ export function VideoFeed({
   if (error) {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -217,9 +239,15 @@ export function VideoFeed({
     // Check if we have videos but they're all filtered
     const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
 
+    useEffect(() => {
+      if (!isLoading && feedType === 'home' && !allFiltered) {
+        navigate('/discovery/');
+      }
+    }, [isLoading, feedType, allFiltered, navigate]);
+
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}
@@ -322,8 +350,17 @@ export function VideoFeed({
 
   // Helper component to provide social metrics data for each video
   function VideoCardWithMetrics({ video, index }: { video: ParsedVideoData; index: number }) {
-    const { data: socialMetrics } = useVideoSocialMetrics(video.id, video.pubkey);
-    const { data: userInteractions } = useVideoUserInteractions(video.id, user?.pubkey);
+    // Use deferred loading: render video immediately, load metrics after a short delay
+    // First 3 videos load immediately, rest have a staggered delay for progressive enhancement
+    const delay = index < 3 ? 0 : Math.min(index * 50, 500);
+    const { socialMetrics, userInteractions, isLoading } = useDeferredVideoMetrics({
+      videoId: video.id,
+      videoPubkey: video.pubkey,
+      vineId: video.vineId,
+      userPubkey: user?.pubkey,
+      delay,
+      immediate: index < 3, // Load first 3 immediately for perceived speed
+    });
 
     const handleVideoLike = async () => {
       // Check authentication first, show login dialog if not authenticated
@@ -336,9 +373,10 @@ export function VideoFeed({
       await toggleLike({
         videoId: video.id,
         videoPubkey: video.pubkey,
+        vineId: video.vineId,
         userPubkey: user.pubkey,
-        isCurrentlyLiked: userInteractions?.hasLiked || false,
-        currentLikeEventId: userInteractions?.likeEventId || null,
+        isCurrentlyLiked: userInteractions.data?.hasLiked || false,
+        currentLikeEventId: userInteractions.data?.likeEventId || null,
       });
     };
 
@@ -364,8 +402,8 @@ export function VideoFeed({
         videoPubkey: video.pubkey,
         vineId: video.vineId,
         userPubkey: user.pubkey,
-        isCurrentlyReposted: userInteractions?.hasReposted || false,
-        currentRepostEventId: userInteractions?.repostEventId || null,
+        isCurrentlyReposted: userInteractions.data?.hasReposted || false,
+        currentRepostEventId: userInteractions.data?.repostEventId || null,
       });
     };
 
@@ -378,12 +416,12 @@ export function VideoFeed({
         onRepost={handleVideoRepost}
         onOpenComments={() => handleOpenComments(video)}
         onCloseComments={handleCloseComments}
-        isLiked={userInteractions?.hasLiked || false}
-        isReposted={userInteractions?.hasReposted || false}
-        likeCount={video.likeCount ?? socialMetrics?.likeCount ?? 0}
-        repostCount={video.repostCount ?? socialMetrics?.repostCount ?? 0}
-        commentCount={video.commentCount ?? socialMetrics?.commentCount ?? 0}
-        viewCount={socialMetrics?.viewCount || video.loopCount}
+        isLiked={userInteractions.data?.hasLiked || false}
+        isReposted={userInteractions.data?.hasReposted || false}
+        likeCount={video.likeCount ?? socialMetrics.data?.likeCount ?? 0}
+        repostCount={video.repostCount ?? socialMetrics.data?.repostCount ?? 0}
+        commentCount={video.commentCount ?? socialMetrics.data?.commentCount ?? 0}
+        viewCount={socialMetrics.data?.viewCount || video.loopCount}
         showComments={showCommentsForVideo === video.id}
         navigationContext={{
           source: feedType,
@@ -402,7 +440,7 @@ export function VideoFeed({
   if (viewMode === 'grid') {
     return (
       <div
-        className={className}
+        className={`feed-root ${className || ''}`}
         data-testid={testId}
         data-hashtag-testid={hashtagTestId}
         data-profile-testid={profileTestId}

@@ -1,9 +1,9 @@
-// ABOUTME: Hook for publishing NIP-71 video events (kinds 21, 22) to Nostr
+// ABOUTME: Hook for publishing video events (kind 34236) to Nostr
 // ABOUTME: Handles video metadata creation and event signing with proper tags
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
+import { VIDEO_KIND, SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
 import type { VideoMetadata } from '@/types/video';
 
 interface PublishVideoOptions {
@@ -131,7 +131,7 @@ export function usePublishVideo() {
 
       // Publish the event
       const event = await publishEvent({
-        kind,
+        kind: VIDEO_KIND,
         content,
         tags
       });
@@ -169,13 +169,14 @@ export function useRepostVideo() {
       kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND;
     }) => {
       const tags: string[][] = [
-        ['a', `${kind}:${originalPubkey}:${vineId}`],
+        ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],
         ['p', originalPubkey],
+        ['k', VIDEO_KIND.toString()],
         ['client', 'divine-web']
       ];
 
       const event = await publishEvent({
-        kind: 6, // Repost kind
+        kind: 16, // Generic repost kind
         content: '',
         tags
       });

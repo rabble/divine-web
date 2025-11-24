@@ -10,7 +10,7 @@ import { useNIP50Support } from '@/hooks/useRelayCapabilities';
 import type { NostrEvent } from '@nostrify/nostrify';
 import { VIDEO_KINDS, type ParsedVideoData } from '@/types/video';
 import type { NIP50Filter, SortMode } from '@/types/nostr';
-import { parseVideoEvent, getVineId, getThumbnailUrl, getOriginalVineTimestamp, getLoopCount, getProofModeData, getOriginalLikeCount, getOriginalRepostCount, getOriginalCommentCount, getOriginPlatform, isVineMigrated } from '@/lib/videoParser';
+import { parseVideoEvents } from '@/lib/videoParser';
 import { debugLog } from '@/lib/debug';
 import { performanceMonitor } from '@/lib/performanceMonitoring';
 
@@ -26,67 +26,6 @@ interface UseInfiniteVideosOptions {
 interface VideoPage {
   videos: ParsedVideoData[];
   nextCursor: number | undefined;
-}
-
-/**
- * Validates that a NIP-71 video event has required fields
- */
-function validateVideoEvent(event: NostrEvent): boolean {
-  if (!VIDEO_KINDS.includes(event.kind)) return false;
-
-  if (event.kind === 34236) {
-    const vineId = getVineId(event);
-    if (!vineId) {
-      debugLog('[validateVideoEvent] Kind 34236 event missing required d tag:', event.id);
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Parse video events into standardized format
- */
-function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
-  const parsedVideos: ParsedVideoData[] = [];
-
-  for (const event of events) {
-    if (!validateVideoEvent(event)) continue;
-
-    const videoEvent = parseVideoEvent(event);
-    if (!videoEvent) continue;
-
-    const vineId = getVineId(event);
-    if (!vineId && event.kind === 34236) continue;
-
-    parsedVideos.push({
-      id: event.id,
-      pubkey: event.pubkey,
-      kind: event.kind as 21 | 22 | 34236,
-      createdAt: event.created_at,
-      originalVineTimestamp: getOriginalVineTimestamp(event),
-      content: event.content,
-      videoUrl: videoEvent.videoMetadata!.url,
-      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
-      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
-      thumbnailUrl: getThumbnailUrl(videoEvent),
-      title: videoEvent.title,
-      duration: videoEvent.videoMetadata?.duration,
-      hashtags: videoEvent.hashtags || [],
-      vineId,
-      loopCount: getLoopCount(event),
-      likeCount: getOriginalLikeCount(event),
-      repostCount: getOriginalRepostCount(event),
-      commentCount: getOriginalCommentCount(event),
-      proofMode: getProofModeData(event),
-      origin: getOriginPlatform(event),
-      isVineMigrated: isVineMigrated(event),
-      reposts: []
-    });
-  }
-
-  return parsedVideos;
 }
 
 /**
@@ -107,19 +46,24 @@ export function useInfiniteVideos({
   const { config } = useAppContext();
   const supportsNIP50 = useNIP50Support();
 
-  // Auto-determine sort mode if not specified
-  const requestedSortMode = sortMode || (feedType === 'trending' ? 'hot' : 'top');
+  // Auto-determine sort mode ONLY for trending/discovery feeds
+  // Home feed should always be chronological unless explicitly sorted
+  let requestedSortMode = sortMode;
+  if (!sortMode && feedType === 'trending') {
+    requestedSortMode = 'hot';
+  }
 
-  // Only use sort mode if relay supports NIP-50
-  const effectiveSortMode = supportsNIP50 ? requestedSortMode : undefined;
+  // Only use sort mode if relay supports NIP-50 AND a sort mode is requested
+  const effectiveSortMode = (supportsNIP50 && requestedSortMode) ? requestedSortMode : undefined;
 
   if (!supportsNIP50 && requestedSortMode) {
-    debugLog(`[useInfiniteVideos] Relay doesn't support NIP-50, will use client-side sorting fallback`);
+    debugLog(`[useInfiniteVideos] Relay doesn't support NIP-50, will use chronological order instead of sort:${requestedSortMode}`);
   }
 
   return useInfiniteQuery<VideoPage, Error>({
     queryKey: ['infinite-videos', feedType, hashtag, pubkey, effectiveSortMode, pageSize],
     queryFn: async ({ pageParam, signal }) => {
+      const totalStart = performance.now();
       const cursor = pageParam as number | undefined;
 
       // Build filter based on feed type
@@ -131,6 +75,12 @@ export function useInfiniteVideos({
       // Add cursor for pagination
       if (cursor) {
         filter.until = cursor;
+      }
+
+      // Filter for Classic (archived Vines) when top sort is selected
+      if (effectiveSortMode === 'top') {
+        filter['#platform'] = ['vine'];
+        debugLog('[useInfiniteVideos] 🎬 Classic mode: filtering for archived Vines only');
       }
 
       // Configure based on feed type
@@ -182,14 +132,12 @@ export function useInfiniteVideos({
           break;
 
         case 'discovery':
-          // Only add search if relay supports NIP-50
+          // Only add search if relay supports NIP-50 and a sort mode is provided
           if (effectiveSortMode) {
-            // Use the requested sort mode, defaulting to 'top' for discovery
-            const discoverySort = sortMode || 'top';
-            debugLog(`[useInfiniteVideos] 🔍 Discovery feed with sort mode: ${discoverySort}`);
-            filter.search = `sort:${discoverySort}`;
+            debugLog(`[useInfiniteVideos] 🔍 Discovery feed with sort mode: ${effectiveSortMode}`);
+            filter.search = `sort:${effectiveSortMode}`;
           } else {
-            debugLog('[useInfiniteVideos] ⚠️ Discovery feed WITHOUT sort mode (relay may not support NIP-50)');
+            debugLog('[useInfiniteVideos] ⚠️ Discovery feed in chronological order (no sort mode)');
           }
           break;
 
@@ -236,7 +184,33 @@ export function useInfiniteVideos({
       }
 
       // Parse and filter
-      const videos = parseVideoEvents(events);
+      const parseStart = performance.now();
+      let videos = parseVideoEvents(events);
+
+      // Sort Classic Vines by loop count (original Vine popularity metric)
+      // NIP-50's 'top' sort uses Nostr engagement, not original Vine loops
+      if (effectiveSortMode === 'top' && feedType === 'trending') {
+        videos = videos.sort((a, b) => {
+          const aLoops = a.loopCount || 0;
+          const bLoops = b.loopCount || 0;
+          return bLoops - aLoops; // Descending order (most loops first)
+        });
+        debugLog(`[useInfiniteVideos] 🔄 Sorted ${videos.length} Classic Vines by loop count`);
+      }
+
+      const parseTime = performance.now() - parseStart;
+
+      const totalTime = performance.now() - totalStart;
+
+      // Record feed load timing for this page
+      performanceMonitor.recordFeedLoad({
+        feedType,
+        queryTime,
+        parseTime,
+        totalTime,
+        videoCount: videos.length,
+        sortMode: effectiveSortMode,
+      });
 
       // Determine next cursor
       const nextCursor = videos.length > 0

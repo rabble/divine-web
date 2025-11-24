@@ -36,6 +36,7 @@ import { TermsPage } from "./pages/TermsPage";
 import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
 import { PressPage } from "./pages/PressPage";
+import { MediaResourcesPage } from "./pages/MediaResourcesPage";
 import { AppLayout } from "@/components/AppLayout";
 import { DebugVideoPage } from "./pages/DebugVideoPage";
 // import { UploadPage } from "./pages/UploadPage"; // DISABLED: Upload route is commented out
@@ -55,26 +56,31 @@ export function AppRouter() {
       <AnalyticsPageTracker />
       <AnalyticsUserTracker />
       <Routes>
+        {/* Marketing/informational pages - no app layout */}
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/authenticity" element={<AuthenticityPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/open-source" element={<OpenSourcePage />} />
+        <Route path="/proofmode" element={<ProofModePage />} />
+        <Route path="/human-created" element={<HumanCreatedPage />} />
+        <Route path="/dmca" element={<DMCAPage />} />
+        <Route path="/safety" element={<SafetyPage />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/vine-revisited" element={<PressReleasePage />} />
+        <Route path="/press" element={<PressPage />} />
+        <Route path="/media-resources" element={<MediaResourcesPage />} />
+
+        {/* App routes - with AppLayout */}
         <Route element={<AppLayout />}>
-          {/* Public routes - accessible without login */}
-          <Route path="/" element={isLoggedIn ? <Index /> : <LandingPage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/authenticity" element={<AuthenticityPage />} />
-          <Route path="/privacy" element={<PrivacyPage />} />
-          <Route path="/terms" element={<TermsPage />} />
-          <Route path="/open-source" element={<OpenSourcePage />} />
-          <Route path="/proofmode" element={<ProofModePage />} />
-          <Route path="/human-created" element={<HumanCreatedPage />} />
-          <Route path="/dmca" element={<DMCAPage />} />
-          <Route path="/safety" element={<SafetyPage />} />
-          <Route path="/support" element={<Support />} />
-          <Route path="/faq" element={<FAQPage />} />
-          <Route path="/news" element={<NewsPage />} />
-          <Route path="/news/vine-revisited" element={<PressReleasePage />} />
-          <Route path="/press" element={<PressPage />} />
+          {/* Home/landing route */}
+          <Route path="/" element={<Index />} />
 
           {/* Public browsing routes - accessible without login */}
           <Route path="/discovery" element={<DiscoveryPage />} />
+          <Route path="/discovery/:tab" element={<DiscoveryPage />} />
           <Route path="/trending" element={<TrendingPage />} />
           <Route path="/hashtags" element={<HashtagDiscoveryPage />} />
           <Route path="/hashtag/:tag" element={<HashtagPage />} />

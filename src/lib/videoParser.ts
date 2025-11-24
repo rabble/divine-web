@@ -2,6 +2,7 @@
 // ABOUTME: Extracts video URLs and metadata from multiple tag sources with fallback to content parsing
 
 import type { NostrEvent } from '@nostrify/nostrify';
+import { VIDEO_KINDS, type ParsedVideoData, type RepostMetadata } from '@/types/video';
 import type { VideoMetadata, VideoEvent, ProofModeData, ProofModeLevel } from '@/types/video';
 
 // Common video file extensions - used only as hints, not requirements
@@ -147,10 +148,10 @@ function _convertHlsToMp4(hlsUrl: string): string | null {
 }
 
 /**
- * Extract video URL from NIP-71 compliant event following spec priority
+ * Extract video URL from event following spec priority
  */
 function extractVideoUrl(event: NostrEvent): string | null {
-  // NIP-71: Primary video URL should be in `imeta` tag with url field
+  // Primary video URL should be in `imeta` tag with url field
   for (const tag of event.tags) {
     if (tag[0] === 'imeta') {
       const metadata = parseImetaTag(tag);
@@ -193,7 +194,7 @@ function extractVideoUrl(event: NostrEvent): string | null {
 }
 
 /**
- * Extract limited fallback video URLs from event tags (NIP-71 compliant)
+ * Extract limited fallback video URLs from event tags
  */
 function extractAllVideoUrls(event: NostrEvent): string[] {
   const urls: string[] = [];
@@ -232,7 +233,7 @@ function extractAllVideoUrls(event: NostrEvent): string[] {
 }
 
 /**
- * Extract video metadata from NIP-71 compliant event
+ * Extract video metadata from video event
  */
 export function extractVideoMetadata(event: NostrEvent): VideoMetadata | null {
   const primaryUrl = extractVideoUrl(event);
@@ -299,7 +300,7 @@ export function parseVideoEvent(event: NostrEvent): VideoEvent | null {
   // Create VideoEvent
   const videoEvent: VideoEvent = {
     ...event,
-    kind: event.kind as 34236, // NIP-71 Addressable Short Videos
+    kind: event.kind as 34236, // Kind 34236 Addressable Short Videos
     videoMetadata,
     title,
     hashtags
@@ -344,8 +345,10 @@ export function getOriginalVineTimestamp(event: NostrEvent): number | undefined 
 
 /**
  * Get origin platform information from event tags
- * Format: ["origin", platform, external-id, original-url, optional-metadata]
+ * Checks both 'origin' tag (newer format) and 'platform' tag (legacy vine-archaeologist format)
+ * Origin format: ["origin", platform, external-id, original-url, optional-metadata]
  * Example: ["origin", "vine", "hBFP5LFKUOU", "https://vine.co/v/hBFP5LFKUOU"]
+ * Platform format: ["platform", "vine"] (used by vine-archaeologist)
  */
 export function getOriginPlatform(event: NostrEvent): {
   platform: string;
@@ -353,20 +356,41 @@ export function getOriginPlatform(event: NostrEvent): {
   url?: string;
   metadata?: string;
 } | undefined {
+  // First check for 'origin' tag (newer format)
   const originTag = event.tags.find(tag => tag[0] === 'origin');
-  if (!originTag || !originTag[1] || !originTag[2]) return undefined;
+  if (originTag && originTag[1] && originTag[2]) {
+    return {
+      platform: originTag[1],
+      externalId: originTag[2],
+      url: originTag[3],
+      metadata: originTag[4]
+    };
+  }
 
-  return {
-    platform: originTag[1],
-    externalId: originTag[2],
-    url: originTag[3],
-    metadata: originTag[4]
-  };
+  // Fallback to 'platform' tag (legacy vine-archaeologist format)
+  const platformTag = event.tags.find(tag => tag[0] === 'platform');
+  if (platformTag && platformTag[1]) {
+    // For platform tag, extract externalId from d tag
+    const dTag = event.tags.find(tag => tag[0] === 'd');
+    const externalId = dTag?.[1] || '';
+
+    // Extract original URL from r tag
+    const rTag = event.tags.find(tag => tag[0] === 'r' && tag[1]?.includes('vine.co'));
+
+    return {
+      platform: platformTag[1],
+      externalId,
+      url: rTag?.[1],
+      metadata: undefined
+    };
+  }
+
+  return undefined;
 }
 
 /**
  * Check if video is migrated from original Vine platform
- * Uses 'origin' tag, NOT 'published_at' tag
+ * Uses 'origin' or 'platform' tag, NOT 'published_at' tag
  */
 export function isVineMigrated(event: NostrEvent): boolean {
   const origin = getOriginPlatform(event);
@@ -513,8 +537,6 @@ export function getThumbnailUrl(event: VideoEvent): string | undefined {
  * Helper functions for working with ParsedVideoData reposts array
  */
 
-import type { ParsedVideoData, RepostMetadata } from '@/types/video';
-
 /**
  * Check if a video has been reposted
  */
@@ -561,4 +583,76 @@ export function addRepost(video: ParsedVideoData, repost: RepostMetadata): Parse
     ...video,
     reposts: [...(video.reposts || []), repost]
   };
+}
+
+/**
+ * Validates that a NIP-71 video event has required fields
+ * Centralized validation function used by all video hooks
+ */
+export function validateVideoEvent(event: NostrEvent): boolean {
+  if (!VIDEO_KINDS.includes(event.kind)) return false;
+
+  // Kind 34236 (addressable/replaceable event) MUST have d tag per NIP-33
+  if (event.kind === 34236) {
+    const vineId = getVineId(event);
+    if (!vineId) {
+      // Validation failure - missing required d tag
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Parse video events into standardized format
+ * Centralized parsing function used by all video hooks
+ *
+ * @param events - Array of NostrEvent objects to parse
+ * @returns Array of ParsedVideoData objects
+ */
+export function parseVideoEvents(events: NostrEvent[]): ParsedVideoData[] {
+  const parsedVideos: ParsedVideoData[] = [];
+
+  for (const event of events) {
+    if (!validateVideoEvent(event)) continue;
+
+    const videoEvent = parseVideoEvent(event);
+    if (!videoEvent) continue;
+
+    const vineId = getVineId(event);
+    if (!vineId && event.kind === 34236) continue;
+
+    const videoUrl = videoEvent.videoMetadata?.url;
+    if (!videoUrl) continue;
+
+    parsedVideos.push({
+      id: event.id,
+      pubkey: event.pubkey,
+      kind: event.kind as 34236,
+      createdAt: event.created_at,
+      originalVineTimestamp: getOriginalVineTimestamp(event),
+      content: event.content,
+      videoUrl,
+      fallbackVideoUrls: videoEvent.videoMetadata?.fallbackUrls,
+      hlsUrl: videoEvent.videoMetadata?.hlsUrl,
+      thumbnailUrl: getThumbnailUrl(videoEvent),
+      blurhash: videoEvent.videoMetadata?.blurhash,
+      title: videoEvent.title,
+      duration: videoEvent.videoMetadata?.duration,
+      hashtags: videoEvent.hashtags || [],
+      vineId,
+      loopCount: getLoopCount(event),
+      likeCount: getOriginalLikeCount(event),
+      repostCount: getOriginalRepostCount(event),
+      commentCount: getOriginalCommentCount(event),
+      proofMode: getProofModeData(event),
+      origin: getOriginPlatform(event),
+      isVineMigrated: isVineMigrated(event),
+      reposts: [],
+      originalEvent: event
+    });
+  }
+
+  return parsedVideos;
 }

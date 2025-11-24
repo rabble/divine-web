@@ -1,5 +1,5 @@
 // ABOUTME: Core video event types and interfaces for OpenVine/Divine Web
-// ABOUTME: Defines the structure of NIP-71 video events (kinds 21, 22) and related metadata
+// ABOUTME: Defines the structure of video events (kind 34236) and related metadata
 
 import type { NostrEvent } from '@nostrify/nostrify';
 
@@ -10,15 +10,13 @@ export const ADDRESSABLE_NORMAL_VIDEO_KIND = 34235; // NIP-71 Addressable normal
 export const ADDRESSABLE_SHORT_VIDEO_KIND = 34236; // NIP-71 Addressable short videos (requires d tag)
 
 // Legacy alias for backward compatibility
+export const VIDEO_KIND = ADDRESSABLE_SHORT_VIDEO_KIND;
 export const LEGACY_VIDEO_KIND = ADDRESSABLE_SHORT_VIDEO_KIND;
 
 // Array of all supported video kinds
 export const VIDEO_KINDS = [HORIZONTAL_VIDEO_KIND, SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND];
 
 export const REPOST_KIND = 6;
-
-// Deprecated: Use VIDEO_KINDS array instead
-export const VIDEO_KIND = SHORT_VIDEO_KIND;
 
 export interface VideoMetadata {
   url: string;
@@ -99,6 +97,9 @@ export interface ParsedVideoData {
 
   // NEW: Aggregated repost data (replaces individual isRepost/reposterPubkey/repostedAt)
   reposts: RepostMetadata[];
+
+  // Original Nostr event for full source viewing
+  originalEvent?: NostrEvent;
 
   // COMPUTED FIELDS: Use helper functions from videoParser.ts
   // - isReposted(video): boolean - Has any reposts

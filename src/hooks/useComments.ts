@@ -6,7 +6,7 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
   const { nostr } = useNostr();
 
   return useQuery({
-    queryKey: ['comments', root instanceof URL ? root.toString() : root.id, limit],
+    queryKey: ['nostr', 'comments', root instanceof URL ? root.toString() : root.id, limit],
     queryFn: async (c) => {
       const filter: NostrFilter = { kinds: [1111] };
 
@@ -49,50 +49,48 @@ export function useComments(root: NostrEvent | URL, limit?: number) {
         }
       });
 
-      // Helper function to get all descendants of a comment
-      const getDescendants = (parentId: string): NostrEvent[] => {
-        const directReplies = events.filter(comment => {
-          const eTag = getTagValue(comment, 'e');
-          return eTag === parentId;
-        });
-
-        const allDescendants = [...directReplies];
-        
-        // Recursively get descendants of each direct reply
-        for (const reply of directReplies) {
-          allDescendants.push(...getDescendants(reply.id));
-        }
-
-        return allDescendants;
-      };
-
-      // Create a map of comment ID to its descendants
-      const commentDescendants = new Map<string, NostrEvent[]>();
-      for (const comment of events) {
-        commentDescendants.set(comment.id, getDescendants(comment.id));
-      }
-
       // Sort top-level comments by creation time (newest first)
       const sortedTopLevel = topLevelComments.sort((a, b) => b.created_at - a.created_at);
 
       return {
         allComments: events,
         topLevelComments: sortedTopLevel,
-        getDescendants: (commentId: string) => {
-          const descendants = commentDescendants.get(commentId) || [];
-          // Sort descendants by creation time (oldest first for threaded display)
-          return descendants.sort((a, b) => a.created_at - b.created_at);
-        },
-        getDirectReplies: (commentId: string) => {
-          const directReplies = events.filter(comment => {
-            const eTag = getTagValue(comment, 'e');
-            return eTag === commentId;
-          });
-          // Sort direct replies by creation time (oldest first for threaded display)
-          return directReplies.sort((a, b) => a.created_at - b.created_at);
-        }
       };
     },
     enabled: !!root,
   });
+}
+
+/**
+ * Get direct replies to a comment
+ */
+export function getDirectReplies(allComments: NostrEvent[], commentId: string): NostrEvent[] {
+  const getTagValue = (event: NostrEvent, tagName: string): string | undefined => {
+    const tag = event.tags.find(([name]) => name === tagName);
+    return tag?.[1];
+  };
+  
+  const directReplies = allComments.filter(comment => {
+    const eTag = getTagValue(comment, 'e');
+    return eTag === commentId;
+  });
+  
+  // Sort by creation time (oldest first for threaded display)
+  return directReplies.sort((a, b) => a.created_at - b.created_at);
+}
+
+/**
+ * Get all descendants of a comment recursively
+ */
+export function getDescendants(allComments: NostrEvent[], commentId: string): NostrEvent[] {
+  const directReplies = getDirectReplies(allComments, commentId);
+  const allDescendants = [...directReplies];
+  
+  // Recursively get descendants of each direct reply
+  for (const reply of directReplies) {
+    allDescendants.push(...getDescendants(allComments, reply.id));
+  }
+  
+  // Sort by creation time (oldest first for threaded display)
+  return allDescendants.sort((a, b) => a.created_at - b.created_at);
 }

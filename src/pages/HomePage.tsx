@@ -8,20 +8,14 @@ import { useFollowList } from '@/hooks/useFollowList';
 import { LoginArea } from '@/components/auth/LoginArea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Flame, TrendingUp, Zap, Clock, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import type { SortMode } from '@/types/nostr';
-
-const SORT_MODES = [
-  { value: 'hot' as SortMode, label: 'Hot', icon: Flame, description: 'Recent + high engagement' },
-  { value: 'top' as SortMode, label: 'Top', icon: TrendingUp, description: 'Most popular' },
-  { value: 'rising' as SortMode, label: 'Rising', icon: Zap, description: 'Gaining traction' },
-  { value: undefined as SortMode | undefined, label: 'Recent', icon: Clock, description: 'Latest videos' },
-];
+import { SORT_MODES } from '@/lib/constants/sortModes';
 
 export function HomePage() {
   const { user } = useCurrentUser();
   const { data: followList, isLoading, isFetching, dataUpdatedAt } = useFollowList();
-  const [sortMode, setSortMode] = useState<SortMode | undefined>('hot');
+  const [sortMode, setSortMode] = useState<SortMode | undefined>(undefined);
 
   // Check if data is from cache (not currently fetching but has data)
   const isShowingCachedData = !isLoading && !isFetching && !!followList && followList.length > 0;

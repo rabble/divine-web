@@ -25,6 +25,7 @@ interface VideoPlayerProps {
   onEnded?: () => void;
   onError?: () => void;
   preload?: 'none' | 'metadata' | 'auto';
+  onVideoDimensions?: (dimensions: { width: number; height: number; isVertical: boolean }) => void;
   // Mobile-specific props
   onDoubleTap?: () => void;
   onLongPress?: () => void;
@@ -61,6 +62,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       onEnded,
       onError,
       preload: _preload = 'none', // Changed to 'none' for better performance
+      onVideoDimensions,
       // Mobile-specific props
       onDoubleTap,
       onLongPress,
@@ -415,8 +417,14 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
       verboseLog(`[VideoPlayer ${videoId}] Data loaded after ${loadDuration.toFixed(2)}ms`);
       verboseLog(`[VideoPlayer ${videoId}] Video URL: ${src}`);
       if (videoRef.current) {
-        verboseLog(`[VideoPlayer ${videoId}] Video dimensions: ${videoRef.current.videoWidth}x${videoRef.current.videoHeight}`);
+        const width = videoRef.current.videoWidth;
+        const height = videoRef.current.videoHeight;
+        const isVertical = height > width;
+        verboseLog(`[VideoPlayer ${videoId}] Video dimensions: ${width}x${height} (${isVertical ? 'vertical' : 'horizontal'})`);
         verboseLog(`[VideoPlayer ${videoId}] Video duration: ${videoRef.current.duration}s`);
+        
+        // Report dimensions to parent component
+        onVideoDimensions?.({ width, height, isVertical });
       }
 
       // Mark as loaded and hide blurhash permanently

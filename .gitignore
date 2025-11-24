@@ -34,3 +34,6 @@ dist-ssr
 
 # Private journal
 .private-journal
+
+# Git worktrees
+.worktrees/
