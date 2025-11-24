@@ -39,6 +39,7 @@ interface VideoFeedProps {
   'data-hashtag-testid'?: string;
   'data-profile-testid'?: string;
   autoScrollTimeout?: number;
+  autoScrollAlignment?: 'center' | 'bottom'
 }
 
 export function VideoFeed({
@@ -55,6 +56,7 @@ export function VideoFeed({
   'data-hashtag-testid': hashtagTestId,
   'data-profile-testid': profileTestId,
   autoScrollTimeout = 2000,
+  autoScrollAlignment = 'center',
 }: VideoFeedProps) {
   const [showCommentsForVideo, setShowCommentsForVideo] = useState<string | null>(null);
   const [showListDialog, setShowListDialog] = useState<{ videoId: string; videoPubkey: string } | null>(null);
@@ -182,9 +184,11 @@ export function VideoFeed({
   const scrollToVideoCard = (index: number) => {
     if (videoCardsListRef.current) {
       const card = videoCardsListRef.current.children[index] as HTMLDivElement;
-      // Make the card touch the window's bottom to keep the app header
-      // from covering a big chunk of it.
-      const scrollPosition = card.offsetTop + card.offsetHeight - window.innerHeight;
+      let scrollPosition: number | undefined;
+      if (autoScrollAlignment === 'center')
+        scrollPosition = (card.offsetTop - (window.innerHeight / 2)) + (card.offsetHeight / 2);
+      else if (autoScrollAlignment === 'bottom')
+        scrollPosition = card.offsetTop + card.offsetHeight - window.innerHeight;
 
       window.scrollTo({
         top: scrollPosition,
