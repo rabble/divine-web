@@ -20,7 +20,7 @@ export function ApplePodcastEmbed({
   description = "Behind the scenes of the diVine launch",
   showName = "Revolution.Social",
   duration = "21 min",
-  artworkUrl = "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/67/49/ab/6749ab59-79e7-ef8d-6c6c-b3a4fd89e42e/mza_14925476863071883651.jpg/600x600bb.jpg",
+  artworkUrl = "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/7f/29/73/7f2973f2-c3c6-bad0-6f29-e78afa22ccca/mza_12880046013239631742.jpeg/300x300bb.webp",
   className = "",
 }: ApplePodcastEmbedProps) {
   return (
