@@ -179,7 +179,7 @@ export function OpenSourcePage() {
                 </div>
                 <Button asChild size="sm" variant="outline">
                   <a
-                    href="https://github.com/rabble/divine-web"
+                    href="https://github.com/divinevideo/divine-web"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2"
@@ -303,7 +303,7 @@ export function OpenSourcePage() {
                     <strong>Web Development:</strong> Help improve the React web app - fix bugs, add features, or enhance performance.
                     <div className="mt-1">
                       <a
-                        href="https://github.com/rabble/divine-web/issues"
+                        href="https://github.com/divinevideo/divine-web/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline text-xs"
@@ -347,7 +347,7 @@ export function OpenSourcePage() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               <Button asChild>
                 <a
-                  href="https://github.com/rabble/divine-web"
+                  href="https://github.com/divinevideo/divine-web"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2"
@@ -372,7 +372,7 @@ export function OpenSourcePage() {
             <div className="text-sm text-muted-foreground pt-4 border-t">
               Developed by <span className="font-semibold">Rabble Labs</span> • Licensed under{' '}
               <a
-                href="https://github.com/rabble/divine-web/blob/main/LICENSE"
+                href="https://github.com/divinevideo/divine-web/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
