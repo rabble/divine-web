@@ -9,7 +9,6 @@ import {
   Github,
   Globe,
   Smartphone,
-  Monitor,
   Code2,
   Users,
   Heart,
@@ -51,10 +50,6 @@ export function OpenSourcePage() {
                   <strong>Android:</strong> <span className="text-muted-foreground">Beta is full - Stay tuned for updates</span>
                 </p>
                 <p className="flex items-center gap-2">
-                  <Monitor className="h-4 w-4 text-gray-500" />
-                  <strong>Mac:</strong> Download the <a href="https://divine.b-cdn.net/divine-0.0.1%2B85-macos.dmg" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">native macOS app</a>
-                </p>
-                <p className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-blue-500" />
                   <strong>Web:</strong> You're already here! <Link to="/discovery" className="text-primary hover:underline">Start exploring</Link>
                 </p>
@@ -79,14 +74,6 @@ export function OpenSourcePage() {
                   <span>Web App</span>
                 </div>
                 <Badge className="bg-green-500">Live</Badge>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <Monitor className="h-5 w-5 text-gray-500" />
-                  <span>macOS</span>
-                </div>
-                <Badge className="bg-green-500">Available</Badge>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-lg border">
@@ -126,7 +113,7 @@ export function OpenSourcePage() {
                     Mobile Applications
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Native iOS, Android, and macOS apps
+                    Native iOS and Android apps
                   </p>
                 </div>
                 <Button asChild size="sm">
@@ -179,7 +166,7 @@ export function OpenSourcePage() {
                 </div>
                 <Button asChild size="sm" variant="outline">
                   <a
-                    href="https://github.com/rabble/divine-web"
+                    href="https://github.com/divinevideo/divine-web"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2"
@@ -303,7 +290,7 @@ export function OpenSourcePage() {
                     <strong>Web Development:</strong> Help improve the React web app - fix bugs, add features, or enhance performance.
                     <div className="mt-1">
                       <a
-                        href="https://github.com/rabble/divine-web/issues"
+                        href="https://github.com/divinevideo/divine-web/issues"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline text-xs"
@@ -347,7 +334,7 @@ export function OpenSourcePage() {
             <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               <Button asChild>
                 <a
-                  href="https://github.com/rabble/divine-web"
+                  href="https://github.com/divinevideo/divine-web"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2"
@@ -372,7 +359,7 @@ export function OpenSourcePage() {
             <div className="text-sm text-muted-foreground pt-4 border-t">
               Developed by <span className="font-semibold">Rabble Labs</span> • Licensed under{' '}
               <a
-                href="https://github.com/rabble/divine-web/blob/main/LICENSE"
+                href="https://github.com/divinevideo/divine-web/blob/main/LICENSE"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
