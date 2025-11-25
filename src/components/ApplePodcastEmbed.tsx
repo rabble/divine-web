@@ -1,7 +1,7 @@
 // ABOUTME: Apple Podcasts embed component for displaying podcast episodes
 // ABOUTME: Creates a nice embedded player similar to Slack's podcast embeds
 
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Play } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface ApplePodcastEmbedProps {
@@ -10,6 +10,7 @@ interface ApplePodcastEmbedProps {
   description?: string;
   showName?: string;
   duration?: string;
+  artworkUrl?: string;
   className?: string;
 }
 
@@ -19,26 +20,46 @@ export function ApplePodcastEmbed({
   description = "Behind the scenes of the diVine launch",
   showName = "Revolution.Social",
   duration = "21 min",
+  artworkUrl = "https://is1-ssl.mzstatic.com/image/thumb/Podcasts221/v4/67/49/ab/6749ab59-79e7-ef8d-6c6c-b3a4fd89e42e/mza_14925476863071883651.jpg/600x600bb.jpg",
   className = "",
 }: ApplePodcastEmbedProps) {
-  // Extract episode ID from Apple Podcasts URL
-  const episodeId = episodeUrl.match(/i=(\d+)/)?.[1];
-  const embedUrl = episodeId 
-    ? `https://embed.podcasts.apple.com/us/podcast/${episodeId}`
-    : episodeUrl;
-
   return (
     <Card className={className}>
-      <CardContent className="p-0">
-        <div className="flex flex-col">
-          {/* Header with metadata */}
-          <div className="p-4 border-b bg-muted/30">
+      <CardContent className="p-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Podcast Artwork - Square on the left */}
+          <div className="flex-shrink-0">
+            <a
+              href={episodeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group"
+            >
+              <div className="relative w-32 h-32 rounded-lg overflow-hidden bg-muted">
+                <img
+                  src={artworkUrl}
+                  alt={`${showName} podcast artwork`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-12 h-12 rounded-full bg-primary/90 flex items-center justify-center">
+                      <Play className="h-6 w-6 text-primary-foreground ml-0.5" fill="currentColor" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          {/* Metadata and description */}
+          <div className="flex-1 min-w-0 flex flex-col">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <svg 
-                    className="h-5 w-5 text-[#F94C57] flex-shrink-0" 
-                    viewBox="0 0 24 24" 
+                <div className="flex items-center gap-2 mb-2">
+                  <svg
+                    className="h-4 w-4 text-[#F94C57] flex-shrink-0"
+                    viewBox="0 0 24 24"
                     fill="currentColor"
                   >
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
@@ -47,7 +68,7 @@ export function ApplePodcastEmbed({
                     Podcast Episode
                   </span>
                 </div>
-                <h3 className="font-semibold text-base mb-1 line-clamp-2">
+                <h3 className="font-semibold text-lg mb-1 line-clamp-2">
                   {title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-2">
@@ -69,19 +90,19 @@ export function ApplePodcastEmbed({
                 <ExternalLink className="h-5 w-5" />
               </a>
             </div>
-          </div>
 
-          {/* Apple Podcasts embed iframe */}
-          <div className="relative w-full bg-background">
-            <iframe
-              src={embedUrl}
-              height="175"
-              frameBorder="0"
-              sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation-by-user-activation"
-              allow="autoplay *; encrypted-media *; clipboard-write"
-              className="w-full rounded-b-lg"
-              title={title}
-            />
+            {/* Play button */}
+            <div className="mt-4">
+              <a
+                href={episodeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm font-medium"
+              >
+                <Play className="h-4 w-4" fill="currentColor" />
+                Play Episode
+              </a>
+            </div>
           </div>
         </div>
       </CardContent>
