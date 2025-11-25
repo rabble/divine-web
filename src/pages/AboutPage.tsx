@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ExternalLink, Heart, Archive, Shield } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
 import { MarketingLayout } from '@/components/MarketingLayout';
+import { ApplePodcastEmbed } from '@/components/ApplePodcastEmbed';
 
 export function AboutPage() {
   return (
@@ -80,6 +81,25 @@ export function AboutPage() {
                 from the Internet Archive and enables new 6-second video creation using similar creative constraints.
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Podcast Feature */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Behind the Scenes of the diVine Launch</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground">
+              Listen to founder Rabble discuss the vision behind diVine on the Revolution.Social podcast.
+            </p>
+            <ApplePodcastEmbed
+              episodeUrl="https://podcasts.apple.com/us/podcast/vine-revisited-and-the-fight-against-ai-slop/id1824528874?i=1000737216404"
+              title="Vine Revisited and The Fight Against AI Slop"
+              description="Behind the scenes of the diVine launch - preserving authentic human creativity"
+              showName="Revolution.Social • S1 Bonus"
+              duration="21 min"
+            />
           </CardContent>
         </Card>
 

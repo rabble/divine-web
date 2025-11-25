@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { ExternalLink, Mail, Download, FileText, Image, Video } from 'lucide-react';
 import { MarketingLayout } from '@/components/MarketingLayout';
+import { ApplePodcastEmbed } from '@/components/ApplePodcastEmbed';
 
 export function MediaResourcesPage() {
   return (
@@ -147,6 +148,25 @@ export function MediaResourcesPage() {
                 </div>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Podcast Feature */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Behind the Scenes of the diVine Launch</CardTitle>
+            <CardDescription>
+              Listen to founder Rabble discuss the vision behind diVine on the Revolution.Social podcast
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ApplePodcastEmbed
+              episodeUrl="https://podcasts.apple.com/us/podcast/vine-revisited-and-the-fight-against-ai-slop/id1824528874?i=1000737216404"
+              title="Vine Revisited and The Fight Against AI Slop"
+              description="Behind the scenes of the diVine launch - preserving authentic human creativity"
+              showName="Revolution.Social • S1 Bonus"
+              duration="21 min"
+            />
           </CardContent>
         </Card>
 
