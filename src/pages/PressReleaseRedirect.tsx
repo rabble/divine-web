@@ -5,16 +5,13 @@ import { useEffect } from 'react';
 
 export function PressReleaseRedirect() {
   useEffect(() => {
-    // Use replace to avoid adding to history, and redirect immediately
-    window.location.replace('/diVine launch press release 11.13.25.pdf');
+    // Redirect immediately using window.location.replace
+    // This ensures the redirect happens before any rendering
+    const pdfPath = encodeURI('/diVine launch press release 11.13.25.pdf');
+    window.location.replace(pdfPath);
   }, []);
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="text-center">
-        <p className="text-muted-foreground">Redirecting to press release...</p>
-      </div>
-    </div>
-  );
+  // Return null since we're redirecting immediately
+  return null;
 }
 
