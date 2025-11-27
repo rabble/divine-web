@@ -39,6 +39,7 @@ import { FAQPage } from "./pages/FAQPage";
 import { TermsPage } from "./pages/TermsPage";
 import { NewsPage } from "./pages/NewsPage";
 import { PressReleasePage } from "./pages/PressReleasePage";
+import { PressReleaseRedirect } from "./pages/PressReleaseRedirect";
 import { PressPage } from "./pages/PressPage";
 import { MediaResourcesPage } from "./pages/MediaResourcesPage";
 import { AppLayout } from "@/components/AppLayout";
@@ -75,6 +76,7 @@ export function AppRouter() {
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/vine-revisited" element={<PressReleasePage />} />
         <Route path="/press" element={<PressPage />} />
+        <Route path="/press-release" element={<PressReleaseRedirect />} />
         <Route path="/media-resources" element={<MediaResourcesPage />} />
 
         {/* App routes - with AppLayout */}
