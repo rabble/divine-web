@@ -5,8 +5,8 @@ import { useEffect } from 'react';
 
 export function PressReleaseRedirect() {
   useEffect(() => {
-    // Redirect to the PDF file
-    window.location.href = '/diVine%20launch%20press%20release%2011.13.25.pdf';
+    // Redirect to the PDF file - use actual filename, browser will encode it
+    window.location.href = '/diVine launch press release 11.13.25.pdf';
   }, []);
 
   return (
