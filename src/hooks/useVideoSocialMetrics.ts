@@ -38,7 +38,9 @@ export function useVideoSocialMetrics(
       try {
         // For kind 34236 (addressable videos), we need to query by both #e and #a tags
         // - #e tag: Used by likes (kind 7) and zap receipts (kind 9735)
-        // - #A tag: Used by comments (kind 1111), and generic reposts (kind 16) for addressable events - uppercase A intentionally to get direct and reply comments
+        // - #A tag: Used by comments (kind 1111) - uppercase A to get all comments including replies
+        // - #a tag: Used by generic reposts (kind 16) - lowercase a for reposts
+        const addressableId = `34236:${videoPubkey}:${vineId ?? ''}`;
         const filters: NostrFilter[] = [
           {
             kinds: [7, 9735],
@@ -46,8 +48,13 @@ export function useVideoSocialMetrics(
             limit: 500,
           },
           {
-            kinds: [1111, 16],
-            '#A': [`34236:${videoPubkey}:${vineId ?? ''}`],
+            kinds: [1111],
+            '#A': [addressableId],
+            limit: 500,
+          },
+          {
+            kinds: [16],
+            '#a': [addressableId],
             limit: 500,
           },
         ];
