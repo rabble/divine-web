@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, Flag, UserX, Volume2, Trash2, CornerDownRight } from 'lucide-react';
+import { MessageSquare, ChevronDown, ChevronRight, MoreHorizontal, Flag, Volume2, Trash2, CornerDownRight } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { genUserName } from '@/lib/genUserName';
 import { MuteType } from '@/types/moderation';

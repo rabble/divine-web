@@ -7,7 +7,6 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AnalyticsPageTracker } from "./components/AnalyticsPageTracker";
 import { AnalyticsUserTracker } from "./components/AnalyticsUserTracker";
 import { useNostrLogin } from "@nostrify/react/login";
-import { LandingPage } from "@/components/LandingPage";
 
 import Index from "./pages/Index";
 import { NIP19Page } from "./pages/NIP19Page";

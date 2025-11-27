@@ -11,8 +11,7 @@ import {
   Smartphone,
   Code2,
   Users,
-  Heart,
-  Zap
+  Heart
 } from 'lucide-react';
 import { ZendeskWidget } from '@/components/ZendeskWidget';
 import { MarketingLayout } from '@/components/MarketingLayout';

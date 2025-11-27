@@ -1,5 +1,5 @@
 import { useComments } from '@/hooks/useComments';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';

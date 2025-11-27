@@ -4,7 +4,7 @@
 import { useNostr } from '@nostrify/react';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import type { NostrEvent, NostrMetadata, NostrFilter } from '@nostrify/nostrify';
+import type { NostrEvent, NostrMetadata } from '@nostrify/nostrify';
 // Search will prefer the app's primary relay. If it doesn't support NIP-50,
 // we fall back to fetching recent metadata and client-side filtering.
 
