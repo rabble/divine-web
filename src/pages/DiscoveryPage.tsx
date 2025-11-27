@@ -58,8 +58,10 @@ export function DiscoveryPage() {
         <Tabs
           value={activeTab}
           onValueChange={(val) => {
-            setActiveTab(val);
-            navigate(`/discovery/${val}`);
+            if (allowedTabs.includes(val as AllowedTab)) {
+              setActiveTab(val as AllowedTab);
+              navigate(`/discovery/${val}`);
+            }
           }}
           className="space-y-6"
         >
