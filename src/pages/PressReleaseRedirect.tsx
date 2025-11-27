@@ -2,11 +2,8 @@
 // ABOUTME: Handles redirect to the press release PDF
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export function PressReleaseRedirect() {
-  const navigate = useNavigate();
-
   useEffect(() => {
     // Use replace to avoid adding to history, and redirect immediately
     window.location.replace('/diVine launch press release 11.13.25.pdf');
