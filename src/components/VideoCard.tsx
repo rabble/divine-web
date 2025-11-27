@@ -368,16 +368,6 @@ export function VideoCard({
             </div>
           )}
 
-          {/* Loading spinner overlay */}
-          {!videoAspectRatio && !videoError && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-              <div className="relative w-12 h-12">
-                <div className="absolute inset-0 border-4 border-primary/20 rounded-full" />
-                <div className="absolute inset-0 border-4 border-transparent border-t-primary rounded-full animate-spin" />
-              </div>
-            </div>
-          )}
-
           {/* Mute/Unmute button overlay - bottom right corner */}
           {isPlaying && !videoError && (
             <Button

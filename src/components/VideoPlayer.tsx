@@ -714,13 +714,18 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
           onClick={!isMobile ? togglePlay : undefined}
         />
 
-        {/* Loading state - show spinner over blurhash */}
+        {/* Loading state - show loading animation over blurhash */}
         {isLoading && (
           <div
             className="absolute inset-0 flex items-center justify-center z-20"
             data-testid={isMobile ? "mobile-loading" : undefined}
           >
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white/80 rounded-full animate-spin" />
+            <div className='absolute w-full h-full bg-black'></div>
+            <img
+              src="/ui-icons/loading-brand.svg"
+              alt="Loading..."
+              className="w-24 h-24 opacity-75"
+            />
           </div>
         )}
 
