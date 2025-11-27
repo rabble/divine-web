@@ -39,12 +39,12 @@ export function useVideoSocialMetrics(
         // For kind 34236 (addressable videos), we need to query by both #e and #a tags
         // - #e tag: Used by likes (kind 7) and zap receipts (kind 9735)
         // - #a tag: Used by comments (kind 1111), and generic reposts (kind 16) for addressable events
-        const filters = [
+        const filters: NIP50Filter[] = [
           {
             kinds: [7, 9735], // reactions, zap receipts
             '#e': [videoId], // Standard event references
             limit: 500,
-          }
+          } as NIP50Filter & { '#e': string[] }
         ];
 
         // Add addressable event filter for comments and generic reposts
