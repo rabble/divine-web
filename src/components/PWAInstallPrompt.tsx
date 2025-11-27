@@ -12,6 +12,10 @@ interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
+interface NavigatorWithStandalone extends Navigator {
+  standalone?: boolean;
+}
+
 export function PWAInstallPrompt() {
   const location = useLocation();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
@@ -45,9 +49,10 @@ export function PWAInstallPrompt() {
 
     // Check if running as installed PWA
     const checkStandalone = () => {
+      const navigatorWithStandalone = window.navigator as NavigatorWithStandalone;
       const isStandaloneMode =
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as any).standalone ||
+        navigatorWithStandalone.standalone === true ||
         document.referrer.includes('android-app://');
 
       setIsStandalone(isStandaloneMode);

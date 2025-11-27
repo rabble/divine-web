@@ -13,9 +13,10 @@ export function DiscoveryPage() {
   const navigate = useNavigate();
   const params = useParams<{ tab?: string }>();
   const allowedTabs = useMemo(() => ['top', 'hot', 'rising', 'new', 'hashtags'] as const, []);
+  type AllowedTab = typeof allowedTabs[number];
   const routeTab = (params.tab || '').toLowerCase();
-  const initialTab = allowedTabs.includes(routeTab as any) ? (routeTab as typeof allowedTabs[number]) : 'top';
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const initialTab: AllowedTab = (allowedTabs.includes(routeTab as AllowedTab) ? routeTab : 'top') as AllowedTab;
+  const [activeTab, setActiveTab] = useState<AllowedTab>(initialTab);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   // Note: We no longer force relay changes here as it causes navigation delays
@@ -24,8 +25,8 @@ export function DiscoveryPage() {
 
   // Sync state when URL param changes
   useEffect(() => {
-    if (allowedTabs.includes(routeTab as any)) {
-      setActiveTab(routeTab);
+    if (allowedTabs.includes(routeTab as AllowedTab)) {
+      setActiveTab(routeTab as AllowedTab);
     }
   }, [routeTab, allowedTabs]);
 

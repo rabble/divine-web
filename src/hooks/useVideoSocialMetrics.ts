@@ -3,6 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
+import type { NIP50Filter } from '@/types/nostr';
 
 export interface VideoSocialMetrics {
   likeCount: number;
@@ -52,7 +53,7 @@ export function useVideoSocialMetrics(
           kinds: [1111, 16], // NIP-22 comments, generic reposts
           '#a': [addressableId], // Addressable event references
           limit: 500,
-        } as any); // Type assertion needed for dynamic tag filter properties
+        } as NIP50Filter & { '#a': string[] });
 
         const events = await nostr.query(filters, { signal });
 
