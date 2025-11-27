@@ -234,16 +234,18 @@ export function VideoFeed({
     );
   }
 
+  // Check if we have videos but they're all filtered (before early return)
+  const allFiltered = allVideos && allVideos.length > 0 && (!filteredVideos || filteredVideos.length === 0);
+
+  // Redirect empty home feed to discovery (must be before early return)
+  useEffect(() => {
+    if (!isLoading && feedType === 'home' && !allFiltered && (!filteredVideos || filteredVideos.length === 0)) {
+      navigate('/discovery/');
+    }
+  }, [isLoading, feedType, allFiltered, navigate, filteredVideos]);
+
   // Empty state (check filteredVideos instead of allVideos)
   if (!filteredVideos || filteredVideos.length === 0) {
-    // Check if we have videos but they're all filtered
-    const allFiltered = allVideos && allVideos.length > 0 && filteredVideos.length === 0;
-
-    useEffect(() => {
-      if (!isLoading && feedType === 'home' && !allFiltered) {
-        navigate('/discovery/');
-      }
-    }, [isLoading, feedType, allFiltered, navigate]);
 
     return (
       <div
@@ -353,7 +355,7 @@ export function VideoFeed({
     // Use deferred loading: render video immediately, load metrics after a short delay
     // First 3 videos load immediately, rest have a staggered delay for progressive enhancement
     const delay = index < 3 ? 0 : Math.min(index * 50, 500);
-    const { socialMetrics, userInteractions, isLoading } = useDeferredVideoMetrics({
+    const { socialMetrics, userInteractions, isLoading: _isLoading } = useDeferredVideoMetrics({
       videoId: video.id,
       videoPubkey: video.pubkey,
       vineId: video.vineId,
