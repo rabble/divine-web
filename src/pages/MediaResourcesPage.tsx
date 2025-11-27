@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink, Mail, Download, FileText, Image, Video } from 'lucide-react';
+import { ExternalLink, Mail, Download, FileText, Image } from 'lucide-react';
 import { MarketingLayout } from '@/components/MarketingLayout';
 import { ApplePodcastEmbed } from '@/components/ApplePodcastEmbed';
 
@@ -85,10 +85,15 @@ export function MediaResourcesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <Link to="/press-release" className="inline-flex items-center gap-2">
+                <a
+                  href="/diVine%20launch%20press%20release%2011.13.25.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2"
+                >
                   <FileText className="h-4 w-4" />
                   Read Press Release
-                </Link>
+                </a>
               </Button>
             </div>
           </CardContent>
