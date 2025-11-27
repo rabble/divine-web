@@ -174,6 +174,16 @@ export function VideoFeed({
     }
   }, [filteredVideos, allVideos, feedType]);
 
+  // Check if we have videos but they're all filtered (before early return)
+  const allFiltered = allVideos && allVideos.length > 0 && (!filteredVideos || filteredVideos.length === 0);
+
+  // Redirect empty home feed to discovery (must be before ALL early returns)
+  useEffect(() => {
+    if (!isLoading && feedType === 'home' && !allFiltered && (!filteredVideos || filteredVideos.length === 0)) {
+      navigate('/discovery/');
+    }
+  }, [isLoading, feedType, allFiltered, navigate, filteredVideos]);
+
   // Loading state (initial load only)
   if (isLoading && !data) {
     return (
@@ -233,16 +243,6 @@ export function VideoFeed({
       </div>
     );
   }
-
-  // Check if we have videos but they're all filtered (before early return)
-  const allFiltered = allVideos && allVideos.length > 0 && (!filteredVideos || filteredVideos.length === 0);
-
-  // Redirect empty home feed to discovery (must be before early return)
-  useEffect(() => {
-    if (!isLoading && feedType === 'home' && !allFiltered && (!filteredVideos || filteredVideos.length === 0)) {
-      navigate('/discovery/');
-    }
-  }, [isLoading, feedType, allFiltered, navigate, filteredVideos]);
 
   // Empty state (check filteredVideos instead of allVideos)
   if (!filteredVideos || filteredVideos.length === 0) {
