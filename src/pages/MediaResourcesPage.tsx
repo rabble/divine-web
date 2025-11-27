@@ -85,15 +85,10 @@ export function MediaResourcesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline">
-                <a
-                  href="/diVine%20launch%20press%20release%2011.13.25.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2"
-                >
+                <Link to="/news/vine-revisited" className="inline-flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Read Press Release
-                </a>
+                </Link>
               </Button>
             </div>
           </CardContent>

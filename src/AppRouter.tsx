@@ -74,7 +74,6 @@ export function AppRouter() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/news/vine-revisited" element={<PressReleasePage />} />
-        <Route path="/press-release" element={<PressReleasePage />} />
         <Route path="/press" element={<PressPage />} />
         <Route path="/media-resources" element={<MediaResourcesPage />} />
 
