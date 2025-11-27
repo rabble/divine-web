@@ -308,10 +308,10 @@ export function VideoPage() {
         onCloseComments={handleCloseComments}
         isLiked={userInteractions?.hasLiked || false}
         isReposted={userInteractions?.hasReposted || false}
-        likeCount={video.likeCount ?? socialMetrics?.likeCount ?? 0}
-        repostCount={video.repostCount ?? socialMetrics?.repostCount ?? 0}
-        commentCount={video.commentCount ?? socialMetrics?.commentCount ?? 0}
-        viewCount={socialMetrics?.viewCount || video.loopCount}
+        likeCount={(video.likeCount ?? 0) + (socialMetrics?.likeCount ?? 0)}
+        repostCount={(video.repostCount ?? 0) + (socialMetrics?.repostCount ?? 0)}
+        commentCount={(video.commentCount ?? 0) + (socialMetrics?.commentCount ?? 0)}
+        viewCount={(socialMetrics?.viewCount ?? 0) + (video.loopCount ?? 0)}
         showComments={showCommentsForVideo === video.id}
         navigationContext={context || undefined}
       />
