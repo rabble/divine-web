@@ -3,7 +3,7 @@
 
 import { useMutation } from '@tanstack/react-query';
 import { useNostrPublish } from '@/hooks/useNostrPublish';
-import { VIDEO_KIND } from '@/types/video';
+import { VIDEO_KIND, SHORT_VIDEO_KIND, HORIZONTAL_VIDEO_KIND, ADDRESSABLE_SHORT_VIDEO_KIND, ADDRESSABLE_NORMAL_VIDEO_KIND, LEGACY_VIDEO_KIND } from '@/types/video';
 import type { VideoMetadata } from '@/types/video';
 
 interface PublishVideoOptions {
@@ -15,6 +15,7 @@ interface PublishVideoOptions {
   dimensions?: string;
   hashtags?: string[];
   vineId?: string; // Optional, will generate if not provided
+  kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND; // Kind 22 (short), 21 (horizontal), 34236 (addressable short), or 34235 (addressable normal) - defaults to 34236
 }
 
 /**
@@ -66,6 +67,8 @@ export function usePublishVideo() {
 
   return useMutation({
     mutationFn: async (options: PublishVideoOptions) => {
+      console.log('[usePublishVideo] Starting video publish...', options);
+
       const {
         content,
         videoUrl,
@@ -74,12 +77,21 @@ export function usePublishVideo() {
         duration = 6,
         dimensions = '480x480',
         hashtags = [],
-        vineId = generateVineId()
+        vineId = generateVineId(),
+        kind = ADDRESSABLE_SHORT_VIDEO_KIND // Default to kind 34236 (addressable short video) per NIP-71 PR #2072
       } = options;
 
-      // Build tags according to NIP-71
+      console.log('[usePublishVideo] Building NIP-71 event...', {
+        kind,
+        vineId,
+        title,
+        videoUrl,
+        duration,
+      });
+
+      // Build tags according to NIP-71 (PR #2072)
       const tags: string[][] = [
-        ['d', vineId], // Required for addressability
+        ['d', vineId], // Required for addressable events (kinds 34235, 34236)
         ['title', title || 'Untitled'], // Required by NIP-71
         ['published_at', String(Math.floor(Date.now() / 1000))] // Required by NIP-71
       ];
@@ -113,6 +125,10 @@ export function usePublishVideo() {
       // Add client tag for attribution
       tags.push(['client', 'divine-web']);
 
+      console.log('[usePublishVideo] Tags prepared, publishing event...', {
+        tagCount: tags.length,
+      });
+
       // Publish the event
       const event = await publishEvent({
         kind: VIDEO_KIND,
@@ -120,8 +136,19 @@ export function usePublishVideo() {
         tags
       });
 
+      console.log('[usePublishVideo] Video event published!', {
+        eventId: event.id,
+        kind: event.kind,
+      });
+
       return event;
-    }
+    },
+    onError: (error) => {
+      console.error('[usePublishVideo] Failed to publish video:', error);
+    },
+    onSuccess: (data) => {
+      console.log('[usePublishVideo] Video published successfully:', data);
+    },
   });
 }
 
@@ -134,10 +161,12 @@ export function useRepostVideo() {
   return useMutation({
     mutationFn: async ({
       originalPubkey,
-      vineId
+      vineId,
+      kind = ADDRESSABLE_SHORT_VIDEO_KIND
     }: {
       originalPubkey: string;
       vineId: string;
+      kind?: typeof SHORT_VIDEO_KIND | typeof HORIZONTAL_VIDEO_KIND | typeof ADDRESSABLE_SHORT_VIDEO_KIND | typeof ADDRESSABLE_NORMAL_VIDEO_KIND;
     }) => {
       const tags: string[][] = [
         ['a', `${VIDEO_KIND}:${originalPubkey}:${vineId}`],

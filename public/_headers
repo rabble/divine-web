@@ -1,3 +1,8 @@
+# Global headers for all pages
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+
 # Apple App Site Association
 /.well-known/apple-app-site-association
   Content-Type: application/json

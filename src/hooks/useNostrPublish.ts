@@ -12,6 +12,11 @@ export function useNostrPublish(): UseMutationResult<NostrEvent> {
   return useMutation({
     mutationFn: async (t: Omit<NostrEvent, 'id' | 'pubkey' | 'sig'>) => {
       if (user) {
+        console.log('[useNostrPublish] Starting event signing...', {
+          kind: t.kind,
+          tagCount: t.tags?.length || 0,
+        });
+
         const tags = t.tags ?? [];
 
         // Add the client tag if it doesn't exist
@@ -19,6 +24,7 @@ export function useNostrPublish(): UseMutationResult<NostrEvent> {
           tags.push(["client", location.hostname]);
         }
 
+        console.log('[useNostrPublish] Requesting signature from user...');
         const event = await user.signer.signEvent({
           kind: t.kind,
           content: t.content ?? "",
@@ -26,17 +32,31 @@ export function useNostrPublish(): UseMutationResult<NostrEvent> {
           created_at: t.created_at ?? Math.floor(Date.now() / 1000),
         });
 
-        await nostr.event(event, { signal: AbortSignal.timeout(5000) });
+        console.log('[useNostrPublish] Event signed, publishing to relays...', {
+          eventId: event.id,
+          kind: event.kind,
+        });
+
+        // Increase timeout to 15 seconds for better reliability
+        await nostr.event(event, { signal: AbortSignal.timeout(15000) });
+
+        console.log('[useNostrPublish] Event published to relays successfully');
         return event;
       } else {
+        console.error('[useNostrPublish] User is not logged in');
         throw new Error("User is not logged in");
       }
     },
     onError: (error) => {
-      console.error("Failed to publish event:", error);
+      console.error("[useNostrPublish] Failed to publish event:", error);
+      console.error("[useNostrPublish] Error details:", {
+        errorType: error?.constructor?.name,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        errorStack: error instanceof Error ? error.stack : undefined,
+      });
     },
     onSuccess: (data) => {
-      console.log("Event published successfully:", data);
+      console.log("[useNostrPublish] Event published successfully:", data);
     },
   });
 }

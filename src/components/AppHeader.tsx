@@ -1,4 +1,4 @@
-import { Home, Compass, Search, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
+import { Home, Compass, Search, Plus, MoreVertical, Info, Code2, Shield, Github, Heart, ShieldCheck, Scale, HelpCircle, ShieldAlert, Users, Headphones, FileText } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { LoginArea } from '@/components/auth/LoginArea';
@@ -72,6 +72,20 @@ export function AppHeader() {
             <Search className="h-4 w-4" />
             <span className="hidden lg:inline">Search</span>
           </Button>
+          {user && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/post')}
+              className={cn(
+                "hidden md:flex items-center gap-2",
+                isActive('/post') && "bg-primary/10 text-primary"
+              )}
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden lg:inline">Post</span>
+            </Button>
+          )}
           {/* More menu with info links */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
