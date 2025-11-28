@@ -37,10 +37,10 @@ export function useVideoSocialMetrics(
       try {
         // For kind 34236 (addressable videos), we need to query by both #e and #a tags
         // - #e tag: Used by likes (kind 7) and zap receipts (kind 9735)
-        // - #a tag: Used by comments (kind 1111), and generic reposts (kind 16) for addressable events
+        // - #a tag: Used by comments (kind 1111), generic reposts (kind 16), and likes (kind 7) for addressable events
         const filters = [
           {
-            kinds: [7, 9735], // reactions, zap receipts
+            kinds: [7, 9735], // reactions (backward), zap receipts
             '#e': [videoId], // Standard event references
             limit: 500,
           }
@@ -49,14 +49,14 @@ export function useVideoSocialMetrics(
         // Add addressable event filter for comments and generic reposts
         const addressableId = `34236:${videoPubkey}:${vineId ?? ''}`;
         filters.push({
-          kinds: [1111, 16], // NIP-22 comments, generic reposts
+          kinds: [1111, 16, 7], // NIP-22 comments, generic reposts, reactions
           '#a': [addressableId], // Addressable event references
           limit: 500,
         } as any); // Type assertion needed for dynamic tag filter properties
 
         const events = await nostr.query(filters, { signal });
 
-        let likeCount = 0;
+        const likeSet = new Set<string>();
         let repostCount = 0;
         let viewCount = 0;
         let commentCount = 0;
@@ -66,8 +66,8 @@ export function useVideoSocialMetrics(
           switch (event.kind) {
             case 7: // Reaction events (likes)
               // Check if it's a positive reaction (like)
-              if (event.content === '+' || event.content === '❤️' || event.content === '👍') {
-                likeCount++;
+              if (event.content === '+' || event.content === '❤️' || event.content === '👍') { 
+                likeSet.add(event.id);
               }
               break;
 
@@ -93,7 +93,7 @@ export function useVideoSocialMetrics(
         // with dedicated kind 34236 view events or other mechanisms
 
         const metrics: VideoSocialMetrics = {
-          likeCount,
+          likeCount: likeSet.size,
           repostCount,
           viewCount,
           commentCount,
@@ -144,13 +144,13 @@ export function useVideoUserInteractions(
         // Query for user's interactions with this video
         const events = await nostr.query([ 
           {
-            kinds: [7], // reactions
+            kinds: [7], // reactions (backward)
             authors: [userPubkey],
             '#e': [videoId],
             limit: 10,
           },
           {
-            kinds: [16], // generic reposts
+            kinds: [16, 7], // generic reposts
             authors: [userPubkey],
             '#a': [addressableId],
             limit: 10,
