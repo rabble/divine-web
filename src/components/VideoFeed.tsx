@@ -422,10 +422,10 @@ export function VideoFeed({
         onCloseComments={handleCloseComments}
         isLiked={userInteractions.data?.hasLiked || false}
         isReposted={userInteractions.data?.hasReposted || false}
-        likeCount={video.likeCount ?? socialMetrics.data?.likeCount ?? 0}
-        repostCount={video.repostCount ?? socialMetrics.data?.repostCount ?? 0}
-        commentCount={video.commentCount ?? socialMetrics.data?.commentCount ?? 0}
-        viewCount={socialMetrics.data?.viewCount || video.loopCount}
+        likeCount={(video.likeCount ?? 0) + (socialMetrics.data?.likeCount ?? 0)}
+        repostCount={(video.repostCount ?? 0) + (socialMetrics.data?.repostCount ?? 0)}
+        commentCount={(video.commentCount ?? 0) + (socialMetrics.data?.commentCount ?? 0)}
+        viewCount={(socialMetrics.data?.viewCount ?? 0) + (video.loopCount ?? 0)}
         showComments={showCommentsForVideo === video.id}
         navigationContext={{
           source: feedType,
