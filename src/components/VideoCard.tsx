@@ -137,26 +137,26 @@ export function VideoCard({
   const timestamp = video.originalVineTimestamp || video.createdAt;
 
   const date = new Date(timestamp * 1000);
-  const now = new Date();
 
   // Check if this is a migrated Vine from original Vine platform (uses 'origin' tag)
   const isMigratedVine = video.isVineMigrated;
 
-  // Calculate timeAgo - always show actual date/time, badge will indicate if it's original Vine
-  const yearsDiff = now.getFullYear() - date.getFullYear();
-
-  let timeAgo: string;
-  // If more than 1 year old, show the actual date
-  if (yearsDiff > 1 || (yearsDiff === 1 && now.getTime() < new Date(date).setFullYear(date.getFullYear() + 1))) {
-    // Format as "Jan 15, 2021" for old dates
-    timeAgo = date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  } else {
-    // Use relative time for recent videos
-    timeAgo = formatDistanceToNow(date, { addSuffix: true });
+  // Calculate timeAgo only for pre-2025 videos
+  const isFrom2025 = date.getFullYear() >= 2025;
+  let timeAgo: string | null = null;
+  if (!isFrom2025) {
+    const now = new Date();
+    const yearsDiff = now.getFullYear() - date.getFullYear();
+    // If more than 1 year old, show the actual date
+    if (yearsDiff > 1 || (yearsDiff === 1 && now.getTime() < new Date(date).setFullYear(date.getFullYear() + 1))) {
+      timeAgo = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } else {
+      timeAgo = formatDistanceToNow(date, { addSuffix: true });
+    }
   }
 
   const handleCommentsClick = () => {
@@ -320,13 +320,16 @@ export function VideoCard({
           </div>
         </div>
         {/* Original badge and timestamp - aligned with author */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
-          {isMigratedVine && <VineBadge />}
-          <span
-            title={new Date(timestamp * 1000).toLocaleString()}>
-            {timeAgo}
-          </span>
-        </div>
+        {(isMigratedVine || timeAgo) && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground shrink-0">
+            {isMigratedVine && <VineBadge />}
+            {timeAgo && (
+              <span title={new Date(timestamp * 1000).toLocaleString()}>
+                {timeAgo}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Video content */}
