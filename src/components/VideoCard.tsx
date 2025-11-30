@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { VideoCommentsModal } from '@/components/VideoCommentsModal';
+import { VideoReactionsModal } from '@/components/VideoReactionsModal';
 import { ThumbnailPlayer } from '@/components/ThumbnailPlayer';
 import { NoteContent } from '@/components/NoteContent';
 import { VideoListBadges } from '@/components/VideoListBadges';
@@ -27,6 +28,7 @@ import { useMuteItem } from '@/hooks/useModeration';
 import { useDeleteVideo, useCanDeleteVideo } from '@/hooks/useDeleteVideo';
 import { useVideoPlayback } from '@/hooks/useVideoPlayback';
 import { useVideosInLists } from '@/hooks/useVideoLists';
+import { useVideoReactions } from '@/hooks/useVideoReactions';
 import { enhanceAuthorData } from '@/lib/generateProfile';
 import { formatDistanceToNow } from 'date-fns';
 import type { ParsedVideoData } from '@/types/video';
@@ -96,6 +98,7 @@ export function VideoCard({
   const [showReportUserDialog, setShowReportUserDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showViewSourceDialog, setShowViewSourceDialog] = useState(false);
+  const [showReactionsModal, setShowReactionsModal] = useState<'likes' | 'reposts' | null>(null);
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
   const isMobile = useIsMobile();
   const { toast } = useToast();
@@ -104,6 +107,14 @@ export function VideoCard({
   const { globalMuted, setGlobalMuted } = useVideoPlayback();
   const { mutate: deleteVideo, isPending: isDeleting } = useDeleteVideo();
   const canDelete = useCanDeleteVideo(video);
+  
+  // Get reactions data from cached social metrics (no additional query needed)
+  const reactions = useVideoReactions(
+    video.id,
+    video.pubkey,
+    video.vineId,
+    { enabled: showReactionsModal !== null }
+  );
 
   // Enhance author data with generated profiles
   const author = enhanceAuthorData(authorData.data, video.pubkey);
@@ -266,6 +277,17 @@ export function VideoCard({
         open={showComments}
         onOpenChange={handleCloseCommentsModal}
       />
+
+      {/* Reactions Modal */}
+      {showReactionsModal && (
+        <VideoReactionsModal
+          open={true}
+          onOpenChange={(open) => setShowReactionsModal(open ? showReactionsModal : null)}
+          reactions={reactions.data}
+          isLoading={reactions.isLoading}
+          type={showReactionsModal}
+        />
+      )}
 
       {/* Add to List Dialog */}
       {video.vineId && showAddToListDialog && (
@@ -480,47 +502,108 @@ export function VideoCard({
           "flex items-center px-4 pb-4",
           isMobile ? "gap-0.5" : "gap-1"
         )}>
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              isMobile ? 'gap-1 px-2' : 'gap-2',
-              isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+          {/* Like button - icon toggles, count shows list (separate but matching style) */}
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "gap-2",
+                isMobile && "gap-1 px-2",
+                isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+              )}
+              onClick={onLike}
+              aria-label={isLiked ? "Unlike" : "Like"}
+            >
+              <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
+            </Button>
+            {likeCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2",
+                  isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReactionsModal('likes');
+                }}
+                aria-label="View who liked this video"
+              >
+                <span className="text-xs">{formatCount(likeCount)}</span>
+              </Button>
             )}
-            onClick={onLike}
-            aria-label={isLiked ? "Unlike" : "Like"}
-          >
-            <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
-            {likeCount > 0 && <span className="text-xs">{formatCount(likeCount)}</span>}
-          </Button>
+          </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              isMobile ? 'gap-1 px-2' : 'gap-2',
-              isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+          {/* Repost button - icon toggles, count shows list (separate but matching style) */}
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "gap-2",
+                isMobile && "gap-1 px-2",
+                isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+              )}
+              onClick={onRepost}
+              aria-label={isReposted ? "Remove repost" : "Repost"}
+            >
+              <Repeat2 className={cn('h-4 w-4', isReposted && 'fill-current')} />
+            </Button>
+            {repostCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2",
+                  isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReactionsModal('reposts');
+                }}
+                aria-label="View who reposted this video"
+              >
+                <span className="text-xs">{formatCount(repostCount)}</span>
+              </Button>
             )}
-            onClick={onRepost}
-            aria-label={isReposted ? "Remove repost" : "Repost"}
-          >
-            <Repeat2 className={cn('h-4 w-4', isReposted && 'fill-current')} />
-            {repostCount > 0 && <span className="text-xs">{formatCount(repostCount)}</span>}
-          </Button>
+          </div>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              "gap-2",
-              isMobile && "gap-1 px-2"
+          {/* Comment button - icon toggles, count also opens modal (separate but matching style) */}
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={cn(
+                "gap-2",
+                isMobile && "gap-1 px-2"
+              )}
+              onClick={handleCommentsClick}
+              aria-label="Comment"
+            >
+              <MessageCircle className="h-4 w-4" />
+            </Button>
+            {commentCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCommentsClick();
+                }}
+                aria-label="View comments"
+              >
+                <span className="text-xs">{formatCount(commentCount)}</span>
+              </Button>
             )}
-            onClick={handleCommentsClick}
-            aria-label="Comment"
-          >
-            <MessageCircle className="h-4 w-4" />
-            {commentCount > 0 && <span className="text-xs">{formatCount(commentCount)}</span>}
-          </Button>
+          </div>
 
           <Button
             variant="ghost"
