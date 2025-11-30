@@ -4,6 +4,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 
+import { SHORT_VIDEO_KIND } from '@/types/video';
+
 export interface VideoSocialMetrics {
   likeCount: number;
   repostCount: number;
@@ -47,7 +49,7 @@ export function useVideoSocialMetrics(
         ];
 
         // Add addressable event filter for comments and generic reposts
-        const addressableId = `34236:${videoPubkey}:${vineId ?? ''}`;
+        const addressableId = `${SHORT_VIDEO_KIND}:${videoPubkey}:${vineId ?? ''}`;
         filters.push({
           kinds: [1111, 16], // NIP-22 comments, generic reposts
           '#a': [addressableId], // Addressable event references
@@ -140,7 +142,7 @@ export function useVideoUserInteractions(
       const signal = AbortSignal.any([context.signal, AbortSignal.timeout(2000)]);
 
       try {
-        const addressableId = `34236:${videoPubkey}:${vineId ?? ''}`;
+        const addressableId = `${SHORT_VIDEO_KIND}:${videoPubkey}:${vineId ?? ''}`;
         // Query for user's interactions with this video
         const events = await nostr.query([ 
           {
