@@ -4,11 +4,21 @@
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
 
+export interface VideoReaction {
+  pubkey: string;
+  eventId: string;
+  timestamp: number;
+  type: 'like' | 'repost';
+}
+
 export interface VideoSocialMetrics {
   likeCount: number;
   repostCount: number;
   viewCount: number;
   commentCount: number;
+  // Reaction data for showing who liked/reposted
+  likes: VideoReaction[];
+  reposts: VideoReaction[];
 }
 
 /**
@@ -56,23 +66,34 @@ export function useVideoSocialMetrics(
 
         const events = await nostr.query(filters, { signal });
 
-        let likeCount = 0;
-        let repostCount = 0;
         let viewCount = 0;
         let commentCount = 0;
+        const likes: VideoReaction[] = [];
+        const reposts: VideoReaction[] = [];
 
         // Process each event type
         for (const event of events) {
+
           switch (event.kind) {
             case 7: // Reaction events (likes)
               // Check if it's a positive reaction (like)
               if (event.content === '+' || event.content === '❤️' || event.content === '👍') {
-                likeCount++;
+                likes.push({
+                  pubkey: event.pubkey,
+                  eventId: event.id,
+                  timestamp: event.created_at,
+                  type: 'like',
+                });
               }
               break;
 
             case 16: // Generic repost events
-              repostCount++;
+              reposts.push({
+                pubkey: event.pubkey,
+                eventId: event.id,
+                timestamp: event.created_at,
+                type: 'repost',
+              });
               break;
 
             case 1: // Text note comments
@@ -88,15 +109,21 @@ export function useVideoSocialMetrics(
           }
         }
 
+        // Sort by timestamp (newest first)
+        likes.sort((a, b) => b.timestamp - a.timestamp);
+        reposts.sort((a, b) => b.timestamp - a.timestamp);
+
         // For view count, we could also implement a custom approach
         // For now, we'll use zap receipts as a proxy, but this could be enhanced
         // with dedicated kind 34236 view events or other mechanisms
 
         const metrics: VideoSocialMetrics = {
-          likeCount,
-          repostCount,
+          likeCount: likes.length,
+          repostCount: reposts.length,
           viewCount,
           commentCount,
+          likes,
+          reposts,
         };
 
         return metrics;
@@ -108,6 +135,8 @@ export function useVideoSocialMetrics(
           repostCount: 0,
           viewCount: 0,
           commentCount: 0,
+          likes: [],
+          reposts: [],
         } as VideoSocialMetrics;
       }
     },
