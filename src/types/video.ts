@@ -100,3 +100,10 @@ export interface ParsedVideoData {
   // - getTotalReposts(video): number - Total number of reposts
   // - getUniqueReposters(video): RepostMetadata[] - Deduplicated list of reposters
 }
+
+export interface UserInteractions {
+  hasLiked: boolean;
+  hasReposted: boolean;
+  likeEventId: string | null;
+  repostEventId: string | null;
+}
