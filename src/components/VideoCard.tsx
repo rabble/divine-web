@@ -502,13 +502,14 @@ export function VideoCard({
           "flex items-center px-4 pb-4",
           isMobile ? "gap-0.5" : "gap-1"
         )}>
-          {/* Like button - icon toggles, count shows modal */}
+          {/* Like button - icon toggles, count shows list (separate but matching style) */}
           <div className="flex items-center">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                isMobile ? 'gap-1 px-2' : 'gap-2',
+                "gap-2",
+                isMobile && "gap-1 px-2",
                 isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
               )}
               onClick={onLike}
@@ -517,29 +518,33 @@ export function VideoCard({
               <Heart className={cn('h-4 w-4', isLiked && 'fill-current')} />
             </Button>
             {likeCount > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2",
+                  isLiked && 'text-red-500 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30'
+                )}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowReactionsModal('likes');
                 }}
-                className={cn(
-                  "text-xs text-muted-foreground hover:text-foreground transition-colors px-1",
-                  isLiked && 'text-red-500 hover:text-red-600'
-                )}
                 aria-label="View who liked this video"
               >
-                {formatCount(likeCount)}
-              </button>
+                <span className="text-xs">{formatCount(likeCount)}</span>
+              </Button>
             )}
           </div>
 
-          {/* Repost button - icon toggles, count shows modal */}
+          {/* Repost button - icon toggles, count shows list (separate but matching style) */}
           <div className="flex items-center">
             <Button
               variant="ghost"
               size="sm"
               className={cn(
-                isMobile ? 'gap-1 px-2' : 'gap-2',
+                "gap-2",
+                isMobile && "gap-1 px-2",
                 isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
               )}
               onClick={onRepost}
@@ -548,23 +553,26 @@ export function VideoCard({
               <Repeat2 className={cn('h-4 w-4', isReposted && 'fill-current')} />
             </Button>
             {repostCount > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2",
+                  isReposted && 'text-green-500 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30'
+                )}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowReactionsModal('reposts');
                 }}
-                className={cn(
-                  "text-xs text-muted-foreground hover:text-foreground transition-colors px-1",
-                  isReposted && 'text-green-500 hover:text-green-600'
-                )}
                 aria-label="View who reposted this video"
               >
-                {formatCount(repostCount)}
-              </button>
+                <span className="text-xs">{formatCount(repostCount)}</span>
+              </Button>
             )}
           </div>
 
-          {/* Comments button - icon opens modal, count also opens modal for consistency */}
+          {/* Comment button - icon toggles, count also opens modal (separate but matching style) */}
           <div className="flex items-center">
             <Button
               variant="ghost"
@@ -579,16 +587,21 @@ export function VideoCard({
               <MessageCircle className="h-4 w-4" />
             </Button>
             {commentCount > 0 && (
-              <button
+              <Button
+                variant="ghost"
+                size="sm"
+                className={cn(
+                  "gap-2",
+                  isMobile && "gap-1 px-2"
+                )}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleCommentsClick();
                 }}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
                 aria-label="View comments"
               >
-                {formatCount(commentCount)}
-              </button>
+                <span className="text-xs">{formatCount(commentCount)}</span>
+              </Button>
             )}
           </div>
 
