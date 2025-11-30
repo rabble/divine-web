@@ -3,6 +3,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useNostr } from '@nostrify/react';
+import type { NostrFilter } from '@nostrify/nostrify';
 
 export interface VideoSocialMetrics {
   likeCount: number;
@@ -37,22 +38,26 @@ export function useVideoSocialMetrics(
       try {
         // For kind 34236 (addressable videos), we need to query by both #e and #a tags
         // - #e tag: Used by likes (kind 7) and zap receipts (kind 9735)
-        // - #a tag: Used by comments (kind 1111), and generic reposts (kind 16) for addressable events
-        const filters = [
-          {
-            kinds: [7, 9735], // reactions, zap receipts
-            '#e': [videoId], // Standard event references
-            limit: 500,
-          }
-        ];
-
-        // Add addressable event filter for comments and generic reposts
+        // - #A tag: Used by comments (kind 1111) - uppercase A to get all comments including replies
+        // - #a tag: Used by generic reposts (kind 16) - lowercase a for reposts
         const addressableId = `34236:${videoPubkey}:${vineId ?? ''}`;
-        filters.push({
-          kinds: [1111, 16], // NIP-22 comments, generic reposts
-          '#a': [addressableId], // Addressable event references
-          limit: 500,
-        } as any); // Type assertion needed for dynamic tag filter properties
+        const filters: NostrFilter[] = [
+          {
+            kinds: [7, 9735],
+            '#e': [videoId],
+            limit: 500,
+          },
+          {
+            kinds: [1111],
+            '#A': [addressableId],
+            limit: 500,
+          },
+          {
+            kinds: [16],
+            '#a': [addressableId],
+            limit: 500,
+          },
+        ];
 
         const events = await nostr.query(filters, { signal });
 
@@ -75,8 +80,8 @@ export function useVideoSocialMetrics(
               repostCount++;
               break;
 
-            case 1: // Text note comments
-            case 1111: // NIP-22 comments
+            case 1: // Text note comments (legacy, shouldn't appear but count if found)
+            case 1111: // NIP-22 comments (includes all comments: top-level and replies)
               commentCount++;
               break;
 
